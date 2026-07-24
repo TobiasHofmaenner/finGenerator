@@ -38,6 +38,10 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
+[tool.ruff.lint.per-file-ignores]
+# OpenFOAM dictionary templates legitimately carry long literal lines.
+"src/fingen/cfd/case.py" = ["E501"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--dist loadgroup"
