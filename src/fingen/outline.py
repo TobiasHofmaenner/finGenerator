@@ -8,7 +8,9 @@ the chord schedule applies an elliptical rounding above the span height where
 the chord equals the tip width — c(z) is multiplied by √(1−u²), with the lobe
 centerline following the outline's own mean line (i.e. the rake direction).
 This closes the planform with a round, rake-following tip that is tangent to
-the edges below it, and shrinks the loft's closing cap to a sub-mm hole.
+the edges below it; the loft ends at the cap chord and closes with that last
+section's tiny planar face (a vertex cap on the dome would be a degenerately
+flat cone).
 
 Control polygons stay monotone in z with single-bump x perturbations, so the
 variation-diminishing property guarantees fair, oscillation-free edges for any
@@ -38,11 +40,11 @@ _LE_BOW = 0.05  # absolute forward bow so zero-sweep fins still gain area
 # the common commercial look) with the cut biased to the mid-upper span, where
 # real templates carve away area under the overhanging tip.
 _TE_CONVEX_W = np.array([1.45, 1.35, 1.2, 0.95, 0.55, 0.2])
-_TE_CONCAVE_W = np.array([0.1, 0.3, 0.5, 0.6, 0.5, 0.3])
-_TE_CONCAVE_AMPL = 0.35  # fraction of base at te_shape = -1, weight 1
+_TE_CONCAVE_W = np.array([0.1, 0.3, 0.55, 0.75, 0.8, 0.55])
+_TE_CONCAVE_AMPL = 0.45  # fraction of base at te_shape = -1, weight 1
 
 _DENSE = 600  # samples per edge for the z → x interpolants
-_DENSITY_CAP = 6.0  # max station-density boost, keeps the tip from hogging all
+_DENSITY_CAP = 4.0  # max station-density boost for body stations
 
 
 @dataclass(frozen=True)
@@ -110,6 +112,12 @@ def planform(outline: OutlineParams) -> tuple[np.ndarray, np.ndarray, np.ndarray
     Raises ValueError if the edges cross (negative chord) below the tip
     region — geometrically impossible outlines fail fast, before OCCT.
     """
+    z, x_le, chord, _ = _planform_ex(outline)
+    return z, x_le, chord
+
+
+def _planform_ex(outline: OutlineParams) -> tuple[np.ndarray, np.ndarray, np.ndarray, float]:
+    """planform() plus the lobe start height z_w (internal)."""
     z, x_le, x_te = _edge_interpolants(outline)
     chord = x_te - x_le
 
@@ -126,39 +134,102 @@ def planform(outline: OutlineParams) -> tuple[np.ndarray, np.ndarray, np.ndarray
     w = outline.tip_width_ratio * outline.base
     wide = np.nonzero(chord >= w)[0]
     z_w = float(z[wide[-1]]) if len(wide) else 0.0
+    # The lobe must have real vertical extent: if the raw edges only narrow to
+    # the tip width in the last few mm (moderate sweeps), a chord-triggered
+    # start squashes the rounding into invisibility — so start no higher than
+    # 0.55 lobe-widths below the apex (clamped for squat outlines).
+    z_w = min(z_w, max(outline.depth - 0.55 * w, 0.3 * outline.depth))
     center = x_le + 0.5 * chord
     u_tip = np.clip((z - z_w) / max(outline.depth - z_w, 1e-9), 0.0, 1.0)
-    rounded = chord * np.sqrt(np.clip(1.0 - u_tip**2, 0.0, None))
-    chord = np.where(z > z_w, rounded, chord)
+    # Blend the raw (point-converging) chord into a true elliptical dome of
+    # the lobe-entry width. Multiplying raw × ellipse would still taper to a
+    # tangent point — the dome's √ shape is what puts a horizontal tangent
+    # (a real radius) at the apex; the smoothstep keeps C1 at lobe entry.
+    dome = float(np.interp(z_w, z, chord)) * np.sqrt(np.clip(1.0 - u_tip**2, 0.0, None))
+    blend = u_tip**2 * (3.0 - 2.0 * u_tip)
+    chord = np.where(z > z_w, chord * (1.0 - blend) + dome * blend, chord)
     x_le = np.where(z > z_w, center - 0.5 * chord, x_le)
-    return z, x_le, chord
+    return z, x_le, chord, z_w
 
 
 def chord_schedule(outline: OutlineParams, settings: GenSettings = DEFAULT_SETTINGS,
                    tip_chord_min: float = 3.0) -> list[Station]:
     """Sample loft stations over the rounded planform.
 
-    Stations are distributed by chord variation (density ∝ 1 + |dc/dz|/mean,
+    Body stations are distributed by chord variation (density ∝ 1 + |dc/dz|,
     capped) — pure end-clustering under-samples wherever the chord changes
     fastest, letting the spanwise B-spline skin oscillate between stations.
-    They stop where the chord reaches tip_chord_min; the loft closes the
-    remaining sub-mm tip with a vertex cap.
+    Lobe stations sit at uniform ellipse angles (|dc/dz| diverges at the dome
+    apex, so a gradient measure would pile everything into the last mm), and
+    the final station is solved exactly at tip_chord_min.
     """
-    z, x_le, chord = planform(outline)
+    z, x_le, chord, z_w = _planform_ex(outline)
 
-    wide = np.nonzero(chord >= tip_chord_min)[0]
-    if len(wide) == 0:
+    # The cap must stay well inside the tip lobe, or narrow-lobed small fins
+    # get truncated below the lobe and lose real span (found by the sweep).
+    # 0.45·width keeps the cut on the dome (≤ ~11% of lobe height lost);
+    # the 0.8 mm floor keeps OCCT away from degenerate closures.
+    w = outline.tip_width_ratio * outline.base
+    tip_chord_min = max(0.8, min(tip_chord_min, 0.45 * w))
+
+    if float(np.max(chord)) < tip_chord_min:
         raise ValueError("tip_chord_min exceeds the maximum chord of this outline")
-    z_last = float(z[wide[-1]])
 
-    zs = np.linspace(0.0, z_last, 400)
+    # Exact cap crossing: in the lobe the chord decreases monotonically, so
+    # invert it to find where it reaches tip_chord_min (no grid quantization).
+    lobe_mask = z >= z_w
+    z_lobe, c_lobe = z[lobe_mask], chord[lobe_mask]
+    if c_lobe[-1] < tip_chord_min <= c_lobe[0]:
+        z_cut = float(np.interp(-tip_chord_min, -c_lobe, z_lobe))
+    else:
+        # The chord dips below the printable minimum before the lobe: the
+        # planform has a sub-mm waist (a nearly severed tip) — a degenerate
+        # design, rejected cleanly rather than silently truncated.
+        raise ValueError(
+            "planform waist pinches below the printable minimum; reduce the "
+            "te_shape cutaway or increase tip_width_ratio/base")
+
+    # Needle-tip guard, aligned with the checker's span-truncation bound: if
+    # cutting at the printable minimum loses meaningful span, the tip region
+    # is thinner than printable over a real distance — a degenerate design.
+    if outline.depth - z_cut > max(1.2, 0.012 * outline.depth):
+        raise ValueError(
+            f"tip region is thinner than the printable minimum over the last "
+            f"{outline.depth - z_cut:.1f} mm of span; increase tip_width_ratio "
+            "or soften the te_shape cutaway")
+
+    # Body stations by (capped) chord-variation measure; lobe stations at
+    # uniform ellipse angles — |dc/dz| diverges at the dome apex, so a pure
+    # gradient measure would pile every station into the last millimetres.
+    # Lobe stations scale with the lobe's share of the span — a fixed count
+    # starves the body under narrow lobes exactly where the raw outline still
+    # converges steeply (found by the corner tests).
+    if z_cut > z_w:
+        # Proportional to the lobe's share of the span (a squat keel's dome
+        # can be most of the fin), never starving the body below 4 stations.
+        share = (z_cut - z_w) / max(z_cut, 1e-9)
+        n_lobe = int(np.clip(round(settings.n_stations * 1.5 * share), 2,
+                             settings.n_stations - 4))
+    else:
+        n_lobe = 0
+    n_body = max(settings.n_stations - n_lobe, 4)
+
+    zs = np.linspace(0.0, z_w, 400)
     cd = np.interp(zs, z, chord)
     grad = np.abs(np.gradient(cd, zs))
     density = 1.0 + np.minimum(grad / max(float(np.mean(grad)), 1e-9), _DENSITY_CAP)
     mu = np.concatenate(([0.0], np.cumsum(0.5 * (density[1:] + density[:-1]) * np.diff(zs))))
     mu /= mu[-1]
-    zi = np.interp(np.linspace(0.0, 1.0, settings.n_stations), mu, zs)
-    zi[0], zi[-1] = 0.0, z_last
+    zi_body = np.interp(np.linspace(0.0, 1.0, n_body), mu, zs)
+    zi_body[0], zi_body[-1] = 0.0, z_w
+
+    if n_lobe:
+        span = max(outline.depth - z_w, 1e-9)
+        theta_cut = math.asin(min((z_cut - z_w) / span, 1.0))
+        theta = theta_cut * np.arange(1, n_lobe + 1) / n_lobe
+        zi = np.concatenate((zi_body, z_w + span * np.sin(theta)))
+    else:
+        zi = zi_body
 
     return [Station(z=float(v),
                     x_le=float(np.interp(v, z, x_le)),

@@ -54,9 +54,11 @@ def test_resolution_does_not_change_the_design():
     assert coarse[-1].z == pytest.approx(fine[-1].z, rel=1e-6)
     # Every coarse station must lie ON the fine schedule's curve, not merely
     # share endpoints — this is what pins "resolution only" for the outline.
-    fz = np.array([s.z for s in fine])
-    fc = np.array([s.chord for s in fine])
-    fx = np.array([s.x_le for s in fine])
-    for st in coarse:
-        assert st.chord == pytest.approx(float(np.interp(st.z, fz, fc)), rel=0.002)
-        assert st.x_le == pytest.approx(float(np.interp(st.z, fz, fx)), abs=0.1)
+    # All schedules sample one underlying dense curve — compare against it,
+    # not against a piecewise-linear interpolation between fine stations.
+    from fingen.outline import planform
+
+    dz, dx, dc = planform(outline)
+    for st in list(coarse) + list(fine):
+        assert st.chord == pytest.approx(float(np.interp(st.z, dz, dc)), rel=1e-6)
+        assert st.x_le == pytest.approx(float(np.interp(st.z, dz, dx)), abs=1e-3)

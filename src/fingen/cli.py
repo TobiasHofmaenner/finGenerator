@@ -17,7 +17,7 @@ def _add_geometry_args(sub: argparse.ArgumentParser) -> None:
     sub.add_argument("--tip-width", type=float, default=0.28, dest="tip_width",
                      help="tip lobe width as fraction of base")
     sub.add_argument("--le-fullness", type=float, default=0.65, dest="le_fullness")
-    sub.add_argument("--te-shape", type=float, default=-0.2, dest="te_shape",
+    sub.add_argument("--te-shape", type=float, default=-0.3, dest="te_shape",
                      help="-1 concave cutaway .. 0 straight .. +1 convex keel")
     sub.add_argument("--thickness", type=float, default=0.09,
                      help="section thickness ratio t/c")

@@ -90,7 +90,7 @@ class OutlineParams:
     sweep: float = 42.0
     tip_width_ratio: float = 0.28
     le_fullness: float = 0.65
-    te_shape: float = -0.2
+    te_shape: float = -0.3
 
     def __post_init__(self) -> None:
         _require(40.0 <= self.depth <= 300.0, f"depth {self.depth} mm outside 40–300 mm")

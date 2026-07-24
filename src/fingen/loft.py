@@ -4,8 +4,8 @@ Foil sections are generated at each outline station with identical point count
 and parameterization — sections are compatible by construction, which is the
 guard against the classical skinning failure mode (wiggles/control-point
 explosion from incompatible section knot vectors) [PT02, PT97]. The solid is
-closed by the planar base face at z = 0 and a cap lofted to the shared tip
-point.
+closed by the planar base face at z = 0 and the last station's tiny planar
+face at the tip (the station is solved exactly at the cap chord).
 
 Coordinate frame: x streamwise (LE of the base at x = 0), y section thickness
 (FLAT_INSIDE fins have their flat face exactly in the y = 0 plane), z spanwise.
@@ -14,11 +14,11 @@ Coordinate frame: x streamwise (LE of the base at x = 0), y section thickness
 from __future__ import annotations
 
 import numpy as np
-from build123d import BuildLine, BuildSketch, Line, Part, Plane, Spline, Vertex, loft, make_face
+from build123d import BuildLine, BuildSketch, Line, Part, Plane, Spline, loft, make_face
 from OCP.StdFail import StdFail_NotDone
 
 from fingen.foil import section_points
-from fingen.outline import chord_schedule, tip_point
+from fingen.outline import chord_schedule
 from fingen.params import DEFAULT_SETTINGS, FinParams, FoilFamily, GenSettings
 
 
@@ -71,9 +71,12 @@ def fin_solid(fin: FinParams, settings: GenSettings = DEFAULT_SETTINGS) -> Part:
     sections = [
         _section_sketch(fin, st.z, st.x_le, st.chord, settings) for st in stations
     ]
-    x_tip, depth = tip_point(fin.outline)
+    # The tip lobe's dome is horizontally tangent at the apex, so a vertex
+    # cap there would be a degenerately flat cone (the OCCT failure mode the
+    # sweep found on squat outlines). The last station is solved exactly at
+    # cap_chord; its tiny planar face (~3 x 0.3 mm) closes the solid instead.
     try:
-        solid = loft([*sections, Vertex(x_tip, 0.0, depth)])
+        solid = loft(sections)
     except StdFail_NotDone as exc:
         raise ValueError(
             f"OCCT could not loft this parameter combination cleanly: {fin}"
