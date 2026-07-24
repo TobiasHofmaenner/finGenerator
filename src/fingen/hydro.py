@@ -24,8 +24,15 @@ NU_SEAWATER = 1.05e-6  # m²/s
 # Board-as-end-plate effectiveness: AR_eff = k · AR_geometric. A full mirror
 # doubles AR; the board is finite/curved/moving, so k < 2 [Hem28, Hoe75].
 REFLECTION_FACTOR = 1.7
-# Measured lift-curve break of the reference fin: α ≈ 12–14° [BW04].
+# Measured lift-curve break of the AR≈3 reference fin: α ≈ 12–14° [BW04].
 STALL_ALPHA_DEG = 12.0
+
+
+def stall_alpha_deg(ar_eff: float) -> float:
+    """Break angle vs effective AR: low-AR planforms break much later
+    (vortex lift [Pol66, Tra23]; delta-wing data reach 25-35°). Heuristic
+    anchored at the AR-3 measurement [BW04], pending CFD calibration."""
+    return min(STALL_ALPHA_DEG + 8.0 * max(0.0, 2.5 - ar_eff), 30.0)
 SPAN_EFFICIENCY = 0.90  # e for fin-like tapered planforms (CFD will calibrate)
 SECTION_SLOPE = 2.0 * math.pi  # a0 per radian; thin sections at fin Re [SK81]
 
@@ -76,6 +83,7 @@ def estimate(fin: FinParams, speed: float, leeway_deg: float) -> HydroEstimate:
     cl = slope * alpha
     q = 0.5 * RHO_SEAWATER * speed**2
     cdi = cl**2 / (math.pi * SPAN_EFFICIENCY * ar_eff)
+    a_break = stall_alpha_deg(ar_eff)
     return HydroEstimate(
         aspect_ratio_eff=ar_eff,
         lift_slope=slope,
@@ -83,6 +91,6 @@ def estimate(fin: FinParams, speed: float, leeway_deg: float) -> HydroEstimate:
         lift_n=q * area_m2 * cl,
         cdi=cdi,
         drag_induced_n=q * area_m2 * cdi,
-        stall_margin_deg=STALL_ALPHA_DEG - leeway_deg,
+        stall_margin_deg=a_break - leeway_deg,
         reynolds=speed * mean_chord_m / NU_SEAWATER,
     )
