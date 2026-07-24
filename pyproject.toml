@@ -22,6 +22,7 @@ dev = [
     "ruff>=0.4",
     "hypothesis>=6.100",
     "matplotlib>=3.8",
+    "pytest-xdist>=3.5",
 ]
 
 [project.scripts]
@@ -39,3 +40,7 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "--dist loadgroup"
+markers = [
+    "heavy: OCCT-heavy property sweeps; run locally, excluded from GitHub CI",
+]

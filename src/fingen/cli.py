@@ -14,7 +14,7 @@ def _add_geometry_args(sub: argparse.ArgumentParser) -> None:
     sub.add_argument("--depth", type=float, default=115.0)
     sub.add_argument("--base", type=float, default=110.0)
     sub.add_argument("--sweep", type=float, default=33.0)
-    sub.add_argument("--tip-width", type=float, default=0.28, dest="tip_width",
+    sub.add_argument("--tip-width", type=float, default=0.34, dest="tip_width",
                      help="tip lobe width as fraction of base")
     sub.add_argument("--le-fullness", type=float, default=0.65, dest="le_fullness")
     sub.add_argument("--te-shape", type=float, default=-0.3, dest="te_shape",

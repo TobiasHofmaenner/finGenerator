@@ -9,7 +9,7 @@ from build123d import Pos, Solid
 from fingen.check import check_solid
 from fingen.export import to_step, to_stl
 from fingen.loft import fin_solid
-from fingen.params import FinParams, FoilFamily, FoilParams, GenSettings
+from fingen.params import FinParams, FoilFamily, FoilParams, GenSettings, OutlineParams
 
 
 @pytest.fixture(scope="module")
@@ -108,3 +108,10 @@ def test_checker_detects_broken_inputs():
     report = check_solid(Solid.make_box(110, 200, 115), fin)
     assert not report.ok
     assert any("thickness extent" in issue for issue in report.issues)
+
+
+def test_level2_offset_fin_is_checked_like_any_other():
+    fin = FinParams(outline=OutlineParams(te_dx=(0.0, -8.0, -12.0, -8.0, 0.0, 0.0)))
+    settings = GenSettings(n_stations=11, n_foil_points=60)
+    report = check_solid(fin_solid(fin, settings), fin, settings)
+    assert report.ok, report.issues

@@ -30,6 +30,13 @@ from fingen.params import DEFAULT_SETTINGS, GenSettings, OutlineParams
 
 # Spanwise fractions of the six interior control points (P1..P6 of degree 7).
 _CTRL_Z = np.array([0.10, 0.26, 0.44, 0.62, 0.80, 0.92])
+# TEMPLATE-PRIOR CALIBRATION (level 1): the weight vectors below define how
+# the six sliders map onto control polygons. They are calibrated so defaults
+# resemble known-rideable commercial templates — an empirical prior, NOT a
+# physics statement (the elliptic-deviation metric quantifies the cost: the
+# default concave TE sits ~0.08 further from minimum-induced-drag loading
+# than a straight TE). The optimizer is not bound by them: le_dx/te_dx
+# offsets (level 2) span the full degree-7 Bézier family.
 # le_fullness blends the LE from the straight base→tip chord toward the
 # vertical through the base corner (plus a small absolute forward bow), which
 # is how commercial templates carry area low on the fin [FCS26].
@@ -40,8 +47,11 @@ _LE_BOW = 0.05  # absolute forward bow so zero-sweep fins still gain area
 # the common commercial look) with the cut biased to the mid-upper span, where
 # real templates carve away area under the overhanging tip.
 _TE_CONVEX_W = np.array([1.45, 1.35, 1.2, 0.95, 0.55, 0.2])
-_TE_CONCAVE_W = np.array([0.1, 0.3, 0.55, 0.75, 0.8, 0.55])
-_TE_CONCAVE_AMPL = 0.45  # fraction of base at te_shape = -1, weight 1
+_TE_CONCAVE_W = np.array([0.1, 0.3, 0.6, 0.85, 0.95, 0.85])
+_TE_CONCAVE_AMPL = 0.5  # fraction of base at te_shape = -1, weight 1
+_LE_LOBE_SHARE = 0.2  # LE's share of the tip lobe's narrowing; the TE absorbs
+# the rest — keeps the LE on its own strictly convex Bezier (no depression
+# before the top radius) and spreads the TE's concave approach over the lobe
 
 _DENSE = 600  # samples per edge for the z → x interpolants
 _DENSITY_CAP = 4.0  # max station-density boost for body stations
@@ -63,6 +73,10 @@ class OutlineMetrics:
     area: float  # mm²
     aspect_ratio: float  # depth² / area (geometric, one fin, no reflection)
     sweep: float  # recomputed base-LE → tip angle, degrees
+    elliptic_deviation: float  # RMS distance of c(z) from the same-area
+    # elliptic distribution / mean chord — first-order proxy for distance
+    # from minimum-induced-drag loading [Pra21]; a VLM number replaces it
+    # in the hydro module. Attach this to every shape tweak.
 
 
 def _bezier(ctrl: np.ndarray, u: np.ndarray) -> np.ndarray:
@@ -83,13 +97,24 @@ def control_points(outline: OutlineParams) -> tuple[np.ndarray, np.ndarray]:
     le_line = zs * (x_tip / d)
     f_le = outline.le_fullness
     le_x = le_line * (1.0 - f_le * _LE_W) - f_le * _LE_BOW * b * _LE_W
-    le = np.vstack(([0.0, 0.0], np.column_stack((le_x, zs)), tip))
 
     te_line = b + zs * ((x_tip - b) / d)
     convex = max(outline.te_shape, 0.0)
     concave = max(-outline.te_shape, 0.0)
     te_x = (te_line + convex * _TE_CONVEX_W * (b - te_line)
             - concave * _TE_CONCAVE_AMPL * _TE_CONCAVE_W * b)
+    # Level-1 guarantee: sliders alone always yield a valid outline — extreme
+    # te_shape saturates against the LE polygon instead of crossing it. The
+    # saturation is smooth (softplus): a hard max puts a C0 kink in the
+    # control polygon that the loft skin amplifies into a local bulge.
+    k = 0.04 * b
+    gap = te_x - (le_x + 0.12 * b)
+    te_x = le_x + 0.12 * b + k * np.logaddexp(0.0, gap / k)
+    # Level-2 optimizer offsets, applied after the clamp: full Bézier freedom,
+    # backstopped by planform()'s edge-crossing rejection.
+    le_x = le_x + np.asarray(outline.le_dx)
+    te_x = te_x + np.asarray(outline.te_dx)
+    le = np.vstack(([0.0, 0.0], np.column_stack((le_x, zs)), tip))
     te = np.vstack(([b, 0.0], np.column_stack((te_x, zs)), tip))
     return le, te
 
@@ -138,8 +163,7 @@ def _planform_ex(outline: OutlineParams) -> tuple[np.ndarray, np.ndarray, np.nda
     # the tip width in the last few mm (moderate sweeps), a chord-triggered
     # start squashes the rounding into invisibility — so start no higher than
     # 0.55 lobe-widths below the apex (clamped for squat outlines).
-    z_w = min(z_w, max(outline.depth - 0.55 * w, 0.3 * outline.depth))
-    center = x_le + 0.5 * chord
+    z_w = min(z_w, max(outline.depth - 0.7 * w, 0.3 * outline.depth))
     u_tip = np.clip((z - z_w) / max(outline.depth - z_w, 1e-9), 0.0, 1.0)
     # Blend the raw (point-converging) chord into a true elliptical dome of
     # the lobe-entry width. Multiplying raw × ellipse would still taper to a
@@ -147,8 +171,13 @@ def _planform_ex(outline: OutlineParams) -> tuple[np.ndarray, np.ndarray, np.nda
     # (a real radius) at the apex; the smoothstep keeps C1 at lobe entry.
     dome = float(np.interp(z_w, z, chord)) * np.sqrt(np.clip(1.0 - u_tip**2, 0.0, None))
     blend = u_tip**2 * (3.0 - 2.0 * u_tip)
-    chord = np.where(z > z_w, chord * (1.0 - blend) + dome * blend, chord)
-    x_le = np.where(z > z_w, center - 0.5 * chord, x_le)
+    rounded = chord * (1.0 - blend) + dome * blend
+    # Asymmetric narrowing: centering the lobe on the mean line drags the LE
+    # into a concave dip below the top radius; instead the LE keeps only a
+    # small share of the narrowing and the TE absorbs the rest.
+    shrink = chord - rounded
+    x_le = np.where(z > z_w, x_le + _LE_LOBE_SHARE * shrink, x_le)
+    chord = np.where(z > z_w, rounded, chord)
     return z, x_le, chord, z_w
 
 
@@ -206,10 +235,13 @@ def chord_schedule(outline: OutlineParams, settings: GenSettings = DEFAULT_SETTI
     # converges steeply (found by the corner tests).
     if z_cut > z_w:
         # Proportional to the lobe's share of the span (a squat keel's dome
-        # can be most of the fin), never starving the body below 4 stations.
+        # can be most of the fin) — but the body keeps a healthy floor: with
+        # too few body stations the base-region skin sags below z=0 on squat
+        # fins (found by the corner tests at depth 60).
         share = (z_cut - z_w) / max(z_cut, 1e-9)
-        n_lobe = int(np.clip(round(settings.n_stations * 1.5 * share), 2,
-                             settings.n_stations - 4))
+        body_floor = max(6, settings.n_stations // 3)
+        n_lobe = int(np.clip(round(settings.n_stations * 1.2 * share), 2,
+                             max(settings.n_stations - body_floor, 2)))
     else:
         n_lobe = 0
     n_body = max(settings.n_stations - n_lobe, 4)
@@ -246,8 +278,14 @@ def metrics(outline: OutlineParams) -> OutlineMetrics:
     z, _, chord = planform(outline)
     area = float(np.trapezoid(chord, z))
     x_tip, d = tip_point(outline)
+    live = chord > 0.5
+    span = float(z[live][-1]) if np.any(live) else outline.depth
+    c_ell = (4.0 * area / (np.pi * span)) * np.sqrt(
+        np.clip(1.0 - (z / span) ** 2, 0.0, None))
+    deviation = float(np.sqrt(np.mean((chord - c_ell) ** 2)) / np.mean(chord[live]))
     return OutlineMetrics(
         area=area,
         aspect_ratio=outline.depth**2 / area,
         sweep=math.degrees(math.atan2(x_tip, d)),
+        elliptic_deviation=deviation,
     )

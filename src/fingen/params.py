@@ -83,14 +83,24 @@ class OutlineParams:
         (edge hugs the vertical low on the span).
     te_shape: −1 = maximum concave cutaway (the common commercial look),
         0 = straight, +1 = maximum convex fullness (keel-like).
+    le_dx / te_dx: LEVEL-2 (optimizer-facing) streamwise offsets in mm for
+        the six interior Bézier control points of each edge, applied on top
+        of the slider-generated polygon. The sliders above are the level-1
+        human/template interface; the offsets give an optimizer the full
+        degree-7 Bézier family (Bernstein basis completeness [Kul08]), so it
+        can converge to the template defaults, commercial-like shapes, or
+        something else entirely. Bounded to ±0.3·base; invalid combinations
+        are rejected by the planform edge-crossing check.
     """
 
     depth: float = 115.0
     base: float = 110.0
     sweep: float = 42.0
-    tip_width_ratio: float = 0.28
+    tip_width_ratio: float = 0.34
     le_fullness: float = 0.65
     te_shape: float = -0.3
+    le_dx: tuple[float, ...] = (0.0,) * 6
+    te_dx: tuple[float, ...] = (0.0,) * 6
 
     def __post_init__(self) -> None:
         _require(40.0 <= self.depth <= 300.0, f"depth {self.depth} mm outside 40–300 mm")
@@ -102,6 +112,10 @@ class OutlineParams:
                  f"le_fullness {self.le_fullness} outside 0–1")
         _require(-1.0 <= self.te_shape <= 1.0,
                  f"te_shape {self.te_shape} outside −1–1")
+        for name, dx in (("le_dx", self.le_dx), ("te_dx", self.te_dx)):
+            _require(len(dx) == 6, f"{name} needs exactly 6 offsets, got {len(dx)}")
+            _require(all(abs(v) <= 0.3 * self.base for v in dx),
+                     f"{name} offsets exceed ±0.3·base ({0.3 * self.base:.0f} mm)")
 
 
 @dataclass(frozen=True)

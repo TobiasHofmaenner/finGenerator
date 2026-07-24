@@ -61,6 +61,17 @@ polygons [Far02]. Degree ≈ 6 suffices for foil-grade fidelity; higher degrees 
 without accuracy [Jai17]. Bernstein-basis parameters are the aerodynamic-community standard
 for shape optimization (CST) [Kul08].
 
+**Three-layer design space.** (1) *Representation*: what shapes are expressible — degree-7
+Bézier edges plus the tip lobe; the optimizer's playground, kept maximally free via the
+level-2 control-point offsets (`le_dx`/`te_dx`), which span the full Bézier family
+(Bernstein completeness [Kul08]). (2) *Templates*: the six level-1 sliders map to control
+polygons through weight vectors calibrated so defaults resemble known-rideable commercial
+templates — an empirical prior, not physics. (3) *Objective*: physics lives in the hydro
+model/CFD, never in construction constants. Every shape tweak gets a number attached: the
+`elliptic_deviation` metric (RMS distance of c(z) from same-area elliptic loading, the
+first-order induced-drag proxy [Pra21]) — e.g. the commercial-look concave default costs
+~0.08 versus a straight TE, a trade the CFD stage must adjudicate, not the defaults.
+
 The trailing edge takes a signed shape parameter (−1 concave cutaway … +1 convex/keel-like),
 and the planform closes with an **elliptical tip lobe**: above the span height where the chord
 equals the tip width, c(z) is scaled by √(1−u²) with the lobe centerline following the outline's

@@ -62,3 +62,28 @@ def test_resolution_does_not_change_the_design():
     for st in list(coarse) + list(fine):
         assert st.chord == pytest.approx(float(np.interp(st.z, dz, dc)), rel=1e-6)
         assert st.x_le == pytest.approx(float(np.interp(st.z, dz, dx)), abs=1e-3)
+
+
+def test_te_shape_extremes_always_build():
+    # Level-1 guarantee: sliders alone must always yield a valid outline —
+    # extreme cutaways saturate against the LE polygon instead of crossing.
+    for te in (-1.0, 1.0):
+        assert metrics(OutlineParams(te_shape=te)).area > 0
+
+
+def test_level2_offsets_extend_the_slider_slice():
+    base = metrics(OutlineParams())
+    offset = metrics(OutlineParams(te_dx=(0.0, 0.0, -20.0, -20.0, 0.0, 0.0)))
+    assert abs(offset.area - base.area) > 200.0  # offsets genuinely move the shape
+    with pytest.raises(ValueError):
+        OutlineParams(te_dx=(0.0,) * 5)  # wrong arity
+    with pytest.raises(ValueError):
+        OutlineParams(te_dx=(50.0, 0.0, 0.0, 0.0, 0.0, 0.0))  # beyond ±0.3·base
+
+
+def test_elliptic_deviation_orders_te_shapes():
+    # Physics proxy attached to every shape tweak: convex/straight TEs sit
+    # closer to elliptic (minimum induced drag) loading than deep cutaways.
+    dev = {te: metrics(OutlineParams(te_shape=te)).elliptic_deviation
+           for te in (-1.0, 0.0, 1.0)}
+    assert dev[1.0] < dev[0.0] < dev[-1.0]

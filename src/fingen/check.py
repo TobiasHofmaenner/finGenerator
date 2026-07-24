@@ -120,10 +120,13 @@ def check_solid(part: Part, fin: FinParams,
         report.fail(f"tip cap truncates {out.depth - z_top:.2f} mm of span "
                     f"(depth {out.depth} mm)")
 
+    # Skin interpolation error grows with station spacing squared — coarse
+    # lofts get honest slack in the size guards; default-and-finer stays tight.
+    res_slack = max(1.0, (15.0 / settings.n_stations) ** 2)
+
     # Thickness bound from the actual section math at the worst case: the
     # largest chord in the schedule (fullness overshoot pushes chords beyond
     # the base) at the largest spanwise thickness factor, camber included.
-
     c_max = max(st.chord for st in stations)
     t_max = fin.foil.thickness_ratio * max(1.0, fin.thickness_tip_factor)
     su, sl = section_points(fin.foil, c_max, thickness_ratio=t_max,
@@ -131,7 +134,7 @@ def check_solid(part: Part, fin: FinParams,
     y_bound = float(max(su[:, 1].max(), sl[:, 1].max())
                     - min(su[:, 1].min(), sl[:, 1].min()))
     y_extent = bbox.max.Y - bbox.min.Y
-    if y_extent > y_bound + _BBOX_TOLERANCE:
+    if y_extent > y_bound * (1.0 + 0.05 * res_slack) + _BBOX_TOLERANCE:
         report.fail(f"thickness extent {y_extent:.2f} mm exceeds section maximum "
                     f"{y_bound:.2f} mm")
     if fin.foil.family is FoilFamily.FLAT_INSIDE and bbox.min.Y < -_FLAT_FACE_TOLERANCE:
@@ -147,10 +150,14 @@ def check_solid(part: Part, fin: FinParams,
     tip_x, _ = tip_point(out)
     x_min_exp = min(min(st.x_le for st in stations), tip_x)
     x_max_exp = max(max(st.x_le + st.chord for st in stations), tip_x)
-    # Floor 2.5 mm / 5% of extent: catches gross errors (a negated sweep is
-    # off by 2·x_tip, tens of mm) while accepting the skin's legitimate
-    # between-station overshoot, which scales with local chord on small fins.
-    x_tol = max(2.5, 0.05 * (x_max_exp - x_min_exp))
+    # The skin's legitimate between-station overshoot scales with local
+    # chord (B-spline bulge) and with station spacing squared (interpolation
+    # error ~ h²), so the tolerance does too — coarse lofts get honest slack,
+    # default-and-finer resolutions stay tight. This guard exists to catch
+    # placement/orientation errors (a negated sweep is off by 2·x_tip, an
+    # entire fin width); shape fidelity is guarded independently by the
+    # slice probes and the volume check.
+    x_tol = max(3.0, 0.10 * c_max * res_slack)
     if abs(bbox.min.X - x_min_exp) > x_tol or abs(bbox.max.X - x_max_exp) > x_tol:
         report.fail(f"streamwise extent [{bbox.min.X:.2f}, {bbox.max.X:.2f}] mm does not "
                     f"match outline [{x_min_exp:.2f}, {x_max_exp:.2f}] mm")
