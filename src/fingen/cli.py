@@ -6,29 +6,40 @@ import argparse
 from pathlib import Path
 
 from fingen import __version__
+from fingen.params import FinParams, FoilParams, OutlineParams
+
+# CLI defaults derive from the dataclasses — duplicated literals drifted once
+# (CLI sweep stayed 33 when the params default moved to 42) and shall not again.
+_OUT = OutlineParams()
+_FOIL = FoilParams()
+_FIN = FinParams()
 
 
 def _add_geometry_args(sub: argparse.ArgumentParser) -> None:
     sub.add_argument("--family", choices=["symmetric", "flat", "cambered"],
                      default="flat", help="foil family (default: flat side fin)")
-    sub.add_argument("--depth", type=float, default=115.0)
-    sub.add_argument("--base", type=float, default=110.0)
-    sub.add_argument("--sweep", type=float, default=33.0)
-    sub.add_argument("--tip-width", type=float, default=0.34, dest="tip_width",
-                     help="tip lobe width as fraction of base")
-    sub.add_argument("--le-fullness", type=float, default=0.65, dest="le_fullness")
-    sub.add_argument("--te-shape", type=float, default=-0.3, dest="te_shape",
+    sub.add_argument("--depth", type=float, default=_OUT.depth)
+    sub.add_argument("--base", type=float, default=_OUT.base)
+    sub.add_argument("--sweep", type=float, default=_OUT.sweep)
+    sub.add_argument("--tip-width", type=float, default=_OUT.tip_width_ratio,
+                     dest="tip_width", help="tip lobe width as fraction of base")
+    sub.add_argument("--le-fullness", type=float, default=_OUT.le_fullness,
+                     dest="le_fullness")
+    sub.add_argument("--te-shape", type=float, default=_OUT.te_shape, dest="te_shape",
                      help="-1 concave cutaway .. 0 straight .. +1 convex keel")
-    sub.add_argument("--thickness", type=float, default=0.09,
+    sub.add_argument("--thickness", type=float, default=_FOIL.thickness_ratio,
                      help="section thickness ratio t/c")
-    sub.add_argument("--camber", type=float, default=0.0)
-    sub.add_argument("--camber-pos", type=float, default=0.4, dest="camber_pos")
-    sub.add_argument("--te-thickness", type=float, default=0.7, dest="te_thickness")
-    sub.add_argument("--tip-factor", type=float, default=0.85, dest="tip_factor")
+    sub.add_argument("--camber", type=float, default=_FOIL.camber_ratio)
+    sub.add_argument("--camber-pos", type=float, default=_FOIL.camber_position,
+                     dest="camber_pos")
+    sub.add_argument("--te-thickness", type=float, default=_FOIL.te_thickness,
+                     dest="te_thickness")
+    sub.add_argument("--tip-factor", type=float, default=_FIN.thickness_tip_factor,
+                     dest="tip_factor")
 
 
 def _fin_from_args(args: argparse.Namespace):
-    from fingen.params import FinParams, FoilFamily, FoilParams, OutlineParams
+    from fingen.params import FoilFamily
 
     family = {"symmetric": FoilFamily.SYMMETRIC, "flat": FoilFamily.FLAT_INSIDE,
               "cambered": FoilFamily.CAMBERED}[args.family]
@@ -47,7 +58,7 @@ def _fin_from_args(args: argparse.Namespace):
     )
 
 
-def main(argv: list[str] | None = None) -> int:
+def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="fingen", description="Parametric surfboard fin generator"
     )
@@ -64,10 +75,12 @@ def main(argv: list[str] | None = None) -> int:
     preview = sub.add_parser("preview", help="render a PNG preview of a fin blade")
     preview.add_argument("output", type=Path, nargs="?", default=Path("out/fin.png"))
     _add_geometry_args(preview)
+    return parser
 
-    args = parser.parse_args(argv)
 
-    # Deferred imports: build123d/OCCT takes seconds to load, keep --help fast.
+def main(argv: list[str] | None = None) -> int:
+    args = _build_parser().parse_args(argv)
+
     fin = _fin_from_args(args)
 
     if args.command == "preview":

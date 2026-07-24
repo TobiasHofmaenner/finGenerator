@@ -29,7 +29,7 @@ def test_default_template_lands_in_commercial_band():
     # is tracked as a TODO.
     m = metrics(OutlineParams())
     assert 6500.0 < m.area < 10500.0
-    assert m.sweep == pytest.approx(42.0, abs=0.01)
+    assert m.sweep == pytest.approx(33.0, abs=0.01)
     assert m.aspect_ratio == pytest.approx(115.0**2 / m.area, rel=1e-9)
 
 

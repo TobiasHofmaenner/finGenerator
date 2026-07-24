@@ -95,8 +95,8 @@ class OutlineParams:
 
     depth: float = 115.0
     base: float = 110.0
-    sweep: float = 42.0
-    tip_width_ratio: float = 0.34
+    sweep: float = 33.0
+    tip_width_ratio: float = 0.40
     le_fullness: float = 0.65
     te_shape: float = -0.3
     le_dx: tuple[float, ...] = (0.0,) * 6

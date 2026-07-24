@@ -47,9 +47,9 @@ _LE_BOW = 0.05  # absolute forward bow so zero-sweep fins still gain area
 # the common commercial look) with the cut biased to the mid-upper span, where
 # real templates carve away area under the overhanging tip.
 _TE_CONVEX_W = np.array([1.45, 1.35, 1.2, 0.95, 0.55, 0.2])
-_TE_CONCAVE_W = np.array([0.15, 0.45, 0.75, 0.9, 0.85, 0.65])
+_TE_CONCAVE_W = np.array([0.25, 0.55, 0.8, 0.9, 0.8, 0.55])
 _TE_CONCAVE_AMPL = 0.5  # fraction of base at te_shape = -1, weight 1
-_LE_LOBE_SHARE = 0.28  # LE's share of the tip lobe's narrowing; the TE absorbs
+_LE_LOBE_SHARE = 0.32  # LE's share of the tip lobe's narrowing; the TE absorbs
 # the rest — keeps the LE on its own strictly convex Bezier (no depression
 # before the top radius) and spreads the TE's concave approach over the lobe
 
@@ -165,11 +165,12 @@ def _planform_ex(outline: OutlineParams) -> tuple[np.ndarray, np.ndarray, np.nda
     # 0.55 lobe-widths below the apex (clamped for squat outlines).
     z_w = min(z_w, max(outline.depth - 1.0 * w, 0.3 * outline.depth))
     u_tip = np.clip((z - z_w) / max(outline.depth - z_w, 1e-9), 0.0, 1.0)
-    # Blend the raw (point-converging) chord into a true elliptical dome of
-    # the lobe-entry width. Multiplying raw × ellipse would still taper to a
-    # tangent point — the dome's √ shape is what puts a horizontal tangent
-    # (a real radius) at the apex; the smoothstep keeps C1 at lobe entry.
-    dome = float(np.interp(z_w, z, chord)) * np.sqrt(np.clip(1.0 - u_tip**2, 0.0, None))
+    # Blend the raw (point-converging) chord into a full dome of the
+    # lobe-entry width: (1−u²)^0.4 holds width longer than a pure ellipse
+    # (√), then still turns with a horizontal tangent (a real radius) at the
+    # apex; the smoothstep keeps C1 at lobe entry. Multiplying raw × dome
+    # would still taper to a tangent point.
+    dome = float(np.interp(z_w, z, chord)) * np.clip(1.0 - u_tip**2, 0.0, None) ** 0.4
     blend = u_tip**2 * (3.0 - 2.0 * u_tip)
     rounded = chord * (1.0 - blend) + dome * blend
     # Asymmetric narrowing: centering the lobe on the mean line drags the LE

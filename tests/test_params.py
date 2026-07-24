@@ -41,3 +41,16 @@ def test_config_requires_matching_fins():
         FinSetParams(config=FinConfig.THRUSTER, center=None, side=side)
     with pytest.raises(ValueError):
         FinSetParams(config=FinConfig.SINGLE, center=None, side=None)
+
+
+def test_cli_defaults_match_dataclass_defaults():
+    # The CLI derives its defaults from the dataclasses; this pins it (the
+    # duplicated-literal version drifted: CLI sweep 33 vs params 42).
+    from fingen.cli import _build_parser
+
+    args = _build_parser().parse_args(["make", "out.step"])
+    out = OutlineParams()
+    assert (args.depth, args.base, args.sweep) == (out.depth, out.base, out.sweep)
+    assert args.tip_width == out.tip_width_ratio
+    assert args.te_shape == out.te_shape
+    assert args.le_fullness == out.le_fullness
