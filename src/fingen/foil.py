@@ -6,10 +6,20 @@ Families (docs/FIN-PRIMER.md §4): SYMMETRIC (50/50), CAMBERED (m, p explicit),
 FLAT_INSIDE (flat face at y=0, full section shape outboard — the half-section
 construction of the measured baseline fin [BW04]).
 
+Both surfaces are resampled onto a fixed arc-length parameterization before
+being returned. This is what makes sections genuinely compatible across loft
+stations [PT02]: the raw perpendicular camber assembly produces non-monotone,
+station-dependent point spacing near the leading edge (at higher camber the
+first cosine points fold slightly past the LE), which OCCT's section matching
+turns into silent spanwise distortion. Arc-length fractions are geometry-
+independent, so index i means "the same place on the surface" at every station.
+
 All returned coordinates are in mm. Sections are generated in local chord
 coordinates: leading edge at x=0, trailing edge at x=chord, thickness along y.
-The flat face of FLAT_INSIDE lies exactly in the y=0 plane at every station,
-so the assembled blade has a planar inner face (printable flat on the bed).
+The flat face of FLAT_INSIDE lies exactly in the y=0 plane at every station —
+including the trailing-edge printability wedge, which for this family is
+applied entirely to the outer surface — so the assembled blade has a truly
+planar inner face (printable flat on the bed).
 """
 
 from __future__ import annotations
@@ -47,6 +57,18 @@ def _camber(x: np.ndarray, m: float, p: float) -> tuple[np.ndarray, np.ndarray]:
     return y, dy
 
 
+def _resample_by_arclength(pts: np.ndarray, n: int) -> np.ndarray:
+    """Resample a surface polyline at fixed arc-length fractions (cosine
+    spacing: dense at both ends, where the LE and TE curvature lives)."""
+    seg = np.sqrt(np.sum(np.diff(pts, axis=0) ** 2, axis=1))
+    s = np.concatenate(([0.0], np.cumsum(seg)))
+    fractions = 0.5 * (1.0 - np.cos(np.linspace(0.0, np.pi, n)))
+    si = fractions * s[-1]
+    out = np.column_stack((np.interp(si, s, pts[:, 0]), np.interp(si, s, pts[:, 1])))
+    out[0], out[-1] = pts[0], pts[-1]
+    return out
+
+
 def section_points(
     foil: FoilParams,
     chord: float,
@@ -55,9 +77,10 @@ def section_points(
 ) -> tuple[np.ndarray, np.ndarray]:
     """Return (upper, lower) surface point arrays for one section, in mm.
 
-    Both arrays run leading edge → trailing edge and share the exact leading
-    edge point; the trailing edge is truncated to foil.te_thickness and left
-    open (the caller closes it with a straight TE segment).
+    Both arrays run leading edge → trailing edge, share the exact leading edge
+    point, and are arc-length parameterized (see module docstring). The
+    trailing edge is truncated to foil.te_thickness and left open (the caller
+    closes it with a straight TE segment).
 
     thickness_ratio overrides foil.thickness_ratio (spanwise schedules).
     """
@@ -79,26 +102,40 @@ def section_points(
         theta = np.arctan(dyc)
         upper = np.column_stack((x - yt * np.sin(theta), yc + yt * np.cos(theta)))
         lower = np.column_stack((x + yt * np.sin(theta), yc - yt * np.cos(theta)))
+        lower[0] = upper[0]  # exact shared LE point
     else:  # SYMMETRIC (or CAMBERED with zero camber)
         upper = np.column_stack((x, yt))
         lower = np.column_stack((x, -yt))
-
-    # Share one exact leading-edge point so the section wire closes cleanly.
-    upper[0] = (0.0, 0.0) if foil.family is not FoilFamily.CAMBERED else upper[0]
-    lower[0] = upper[0]
 
     upper *= chord
     lower *= chord
 
     # Printability: widen the trailing edge to te_thickness with a linear wedge
-    # y ± Δ·(x/c)/2 (standard blunt-TE modification), applied only if needed.
+    # (standard blunt-TE modification), applied only if needed. FLAT_INSIDE
+    # takes the whole wedge on the outer surface so the flat face stays a
+    # true plane; other families split it symmetrically.
     gap = upper[-1, 1] - lower[-1, 1]
     if gap < foil.te_thickness:
-        add = 0.5 * (foil.te_thickness - gap)
-        upper[:, 1] += add * (upper[:, 0] / chord)
-        lower[:, 1] -= add * (lower[:, 0] / chord)
+        add = foil.te_thickness - gap
+        if foil.family is FoilFamily.FLAT_INSIDE:
+            upper[:, 1] += add * (upper[:, 0] / chord)
+        else:
+            upper[:, 1] += 0.5 * add * (upper[:, 0] / chord)
+            lower[:, 1] -= 0.5 * add * (lower[:, 0] / chord)
 
-    return upper, lower
+    return _resample_by_arclength(upper, n), _resample_by_arclength(lower, n)
+
+
+def le_tangent(foil: FoilParams) -> tuple[float, float]:
+    """Unit tangent of the section curve at the leading edge, pointing into the
+    upper surface. For a round-nosed section this is the chord-normal rotated
+    by the camber-line slope at x=0 (θ₀ = atan(2m/p)); both surface splines are
+    built with this exact tangent, which pins G1 continuity at the LE vertex.
+    """
+    if foil.family is FoilFamily.CAMBERED and foil.camber_ratio > 0.0:
+        theta0 = float(np.arctan(2.0 * foil.camber_ratio / foil.camber_position))
+        return (-float(np.sin(theta0)), float(np.cos(theta0)))
+    return (0.0, 1.0)
 
 
 def section_properties(upper: np.ndarray, lower: np.ndarray) -> dict[str, float]:

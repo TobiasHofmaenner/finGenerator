@@ -24,8 +24,7 @@ def test_symmetric_thickness_and_position():
 def test_flat_inside_has_planar_inner_face():
     foil = FoilParams(family=FoilFamily.FLAT_INSIDE, thickness_ratio=0.09)
     upper, lower = section_points(foil, CHORD)
-    assert np.all(lower[:, 1] <= 0.0)
-    assert np.min(lower[:, 1]) > -foil.te_thickness  # only the TE wedge dips below 0
+    assert np.all(lower[:, 1] == 0.0)  # exact plane, TE wedge goes outboard only
     props = section_properties(upper, lower)
     assert props["max_thickness"] == pytest.approx(9.0, rel=0.08)
 

@@ -56,8 +56,12 @@ class FoilParams:
     def __post_init__(self) -> None:
         _require(0.04 <= self.thickness_ratio <= 0.15,
                  f"thickness_ratio {self.thickness_ratio} outside 0.04–0.15")
-        _require(0.0 <= self.camber_ratio <= 0.12,
-                 f"camber_ratio {self.camber_ratio} outside 0–0.12")
+        # Upper bound is the demonstrated buildable limit of the NACA
+        # perpendicular construction through the loft (higher cambers fold at
+        # the LE and defeat spanwise skinning), and already exceeds realistic
+        # fin-section cambers (~2-4%). Pinned by test_geometry.
+        _require(0.0 <= self.camber_ratio <= 0.05,
+                 f"camber_ratio {self.camber_ratio} outside 0–0.05")
         _require(0.2 <= self.camber_position <= 0.6,
                  f"camber_position {self.camber_position} outside 0.2–0.6")
         _require(0.4 <= self.te_thickness <= 1.2,
@@ -151,8 +155,10 @@ class FinSetParams:
 
 @dataclass(frozen=True)
 class GenSettings:
-    """Resolution-only settings — changing these must never change the design,
-    only its discretization (enforced by tests)."""
+    """Resolution settings: changing these must leave the design unchanged
+    within the tolerances enforced by the resolution-invariance tests (a
+    B-spline skin necessarily depends on its stations, but only at the
+    sub-percent level)."""
 
     n_stations: int = 15
     n_foil_points: int = 100  # total contour points per section (~half per surface)

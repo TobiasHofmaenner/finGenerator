@@ -42,9 +42,17 @@ def test_fullness_moves_area_the_documented_direction():
 
 
 def test_resolution_does_not_change_the_design():
+    import numpy as np
+
     outline = OutlineParams()
     coarse = chord_schedule(outline, GenSettings(n_stations=9))
     fine = chord_schedule(outline, GenSettings(n_stations=31))
-    # Same last station (same z*), same base chord — resolution only.
     assert coarse[-1].z == pytest.approx(fine[-1].z, rel=1e-6)
-    assert coarse[0].chord == pytest.approx(fine[0].chord, rel=1e-9)
+    # Every coarse station must lie ON the fine schedule's curve, not merely
+    # share endpoints — this is what pins "resolution only" for the outline.
+    fz = np.array([s.z for s in fine])
+    fc = np.array([s.chord for s in fine])
+    fx = np.array([s.x_le for s in fine])
+    for st in coarse:
+        assert st.chord == pytest.approx(float(np.interp(st.z, fz, fc)), rel=0.002)
+        assert st.x_le == pytest.approx(float(np.interp(st.z, fz, fx)), abs=0.1)

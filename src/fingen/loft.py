@@ -19,7 +19,7 @@ from OCP.StdFail import StdFail_NotDone
 
 from fingen.foil import section_points
 from fingen.outline import chord_schedule, tip_point
-from fingen.params import DEFAULT_SETTINGS, FinParams, GenSettings
+from fingen.params import DEFAULT_SETTINGS, FinParams, FoilFamily, GenSettings
 
 
 def _thickness_at(fin: FinParams, z: float) -> float:
@@ -37,9 +37,26 @@ def _section_sketch(fin: FinParams, z: float, x_le: float, chord: float,
     lower = lower + np.array([x_le, 0.0])
     with BuildSketch(Plane.XY.offset(z)) as sk:
         with BuildLine():
-            Spline(*[tuple(p) for p in upper])
-            Line(tuple(upper[-1]), tuple(lower[-1]))
-            Spline(*[tuple(p) for p in lower[::-1]])
+            if fin.foil.family is FoilFamily.FLAT_INSIDE:
+                # Outer surface spline + straight TE + straight flat face:
+                # the inner face is an exact planar strip (print-bed face);
+                # the LE corner between them is a real feature of flat foils.
+                Spline(*[tuple(p) for p in upper])
+                Line(tuple(upper[-1]), tuple(lower[-1]))
+                Line(tuple(lower[-1]), tuple(lower[0]))
+            else:
+                # Two splines sharing the LE vertex. The vertex pins OCCT's
+                # station-to-station correspondence at the nose — a single
+                # wrap-around spline lets the LE drift in curve parameter as
+                # the upper/lower arc ratio changes spanwise, skewing the
+                # skin. LE tangency across the vertex is left to the
+                # interpolator: with cosine clustering the nose points are
+                # ~0.02% chord apart, so the tangent match is near-exact.
+                # (Explicit end tangents would guarantee G1 but make the
+                # sketch wire non-planar in current build123d.)
+                Spline(*[tuple(p) for p in upper])
+                Line(tuple(upper[-1]), tuple(lower[-1]))
+                Spline(*[tuple(p) for p in lower[::-1]])
         make_face()
     return sk.sketch
 

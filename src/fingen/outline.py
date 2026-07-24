@@ -1,7 +1,7 @@
 """Planform outline: Bézier leading/trailing edges → chord schedule
 (docs/PHYSICS.md §3).
 
-Both edges are degree-5 Bézier curves in the (x, z) plane — x streamwise,
+Both edges are degree-7 Bézier curves in the (x, z) plane — x streamwise,
 z spanwise — sharing the tip point at (depth·tan(sweep), depth), so the chord
 closes to zero at the tip. User parameters generate the control points; the
 control polygons stay monotone in z with single-bump x perturbations, so the
@@ -25,8 +25,9 @@ _CTRL_Z = np.array([0.10, 0.26, 0.44, 0.62, 0.85, 0.94])
 # Fullness blends each edge from the straight base→tip chord (fullness 0)
 # toward a "boxy" profile whose lower controls hug the vertical through the
 # base corner (fullness 1) — commercial templates carry their area this way
-# (FCS mean chord ≈ 78% of base [FCS26]; weights tuned so the default fullness
-# reproduces the published area, enforced by the anchor test).
+# (FCS mean chord ≈ 78% of base [FCS26]; with these weights fullness ≈ 0.93
+# reproduces the published area — the anchor test enforces a band around the
+# default and that fullness 1.0 clears the published value).
 _LE_W = np.array([1.45, 1.35, 1.15, 0.85, 0.45, 0.20])
 _LE_BOW = 0.05  # small absolute forward bow so zero-sweep fins still gain area
 _TE_W = np.array([1.45, 1.35, 1.2, 0.95, 0.0, 0.0])  # overshoot offsets Bézier dilution
@@ -125,13 +126,22 @@ def chord_schedule(outline: OutlineParams, settings: GenSettings = DEFAULT_SETTI
         raise ValueError("tip_chord_min exceeds the maximum chord of this outline")
     z_last = float(z[wide[-1]])
 
-    s = np.sin(0.5 * np.pi * np.linspace(0.0, 1.0, settings.n_stations))
-    stations = []
-    for zi in z_last * s:
-        stations.append(Station(z=float(zi),
-                                x_le=float(np.interp(zi, z, x_le)),
-                                chord=float(np.interp(zi, z, chord))))
-    return stations
+    # Distribute stations by chord variation: density ∝ 1 + |dc/dz|/mean.
+    # Pure end-clustering leaves the region where the chord changes fastest
+    # (the fullness bulge above the base, and the tip run-out) under-sampled,
+    # which lets the spanwise B-spline skin oscillate between stations.
+    zs = np.linspace(0.0, z_last, 400)
+    cd = np.interp(zs, z, chord)
+    grad = np.abs(np.gradient(cd, zs))
+    density = 1.0 + grad / max(float(np.mean(grad)), 1e-9)
+    mu = np.concatenate(([0.0], np.cumsum(0.5 * (density[1:] + density[:-1]) * np.diff(zs))))
+    mu /= mu[-1]
+    zi = np.interp(np.linspace(0.0, 1.0, settings.n_stations), mu, zs)
+    zi[0], zi[-1] = 0.0, z_last
+
+    return [Station(z=float(v),
+                    x_le=float(np.interp(v, z, x_le)),
+                    chord=float(np.interp(v, z, chord))) for v in zi]
 
 
 def tip_point(outline: OutlineParams) -> tuple[float, float]:

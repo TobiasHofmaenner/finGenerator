@@ -30,6 +30,9 @@ def _fin_from_args(args: argparse.Namespace):
 
     family = {"symmetric": FoilFamily.SYMMETRIC, "flat": FoilFamily.FLAT_INSIDE,
               "cambered": FoilFamily.CAMBERED}[args.family]
+    if args.camber > 0.0 and family is not FoilFamily.CAMBERED:
+        print(f"warning: --camber {args.camber} is ignored for --family {args.family} "
+              "(only 'cambered' uses it)")
     return FinParams(
         outline=OutlineParams(depth=args.depth, base=args.base, sweep=args.sweep,
                               tip_chord_ratio=args.tip_ratio,
