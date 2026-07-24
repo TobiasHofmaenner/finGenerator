@@ -89,6 +89,9 @@ def _build_parser() -> argparse.ArgumentParser:
     preview = sub.add_parser("preview", help="render a PNG preview of a fin blade")
     preview.add_argument("output", type=Path, nargs="?", default=Path("out/fin.png"))
     _add_geometry_args(preview)
+    preview.add_argument("--solid", action="store_true",
+                         help="include the lofted-solid 3D panel (slower; off "
+                              "by default — the webapp has a live 3D view)")
 
     coupon = sub.add_parser("coupon", help="export a tab test-fit coupon (STEP/STL): "
                                            "a minutes-long print to dial --tab-fit "
@@ -121,7 +124,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "preview":
         from fingen.preview import render_preview
 
-        written = render_preview(fin, args.output)
+        written = render_preview(fin, args.output, show_solid=args.solid)
         print(f"wrote {written}")
         return 0
 

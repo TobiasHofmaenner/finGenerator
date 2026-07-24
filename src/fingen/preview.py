@@ -46,9 +46,12 @@ def _style_axes(ax) -> None:
 
 
 def render_preview(fin: FinParams, path: str | Path,
-                   settings: GenSettings = DEFAULT_SETTINGS, part=None) -> Path:
-    """Write a three-panel PNG: outline + control polygon, section profiles,
-    and the tessellated solid. Returns the written path."""
+                   settings: GenSettings = DEFAULT_SETTINGS, part=None,
+                   show_solid: bool = False) -> Path:
+    """Write a PNG: outline + control polygons and section profiles; with
+    show_solid=True a third panel renders the tessellated solid (off by
+    default — the webapp has a live 3D view, and skipping it means no loft
+    is needed at all). Returns the written path."""
     import matplotlib
 
     matplotlib.use("Agg")
@@ -62,9 +65,10 @@ def render_preview(fin: FinParams, path: str | Path,
     stations = chord_schedule(fin.outline, settings, tip_chord_min=settings.cap_chord)
     le_ctrl, te_ctrl = control_points(fin.outline)
 
-    fig = plt.figure(figsize=(15, 6), facecolor=_BG)
+    n_panels = 3 if show_solid else 2
+    fig = plt.figure(figsize=(5 * n_panels, 6), facecolor=_BG)
 
-    ax = fig.add_subplot(1, 3, 1)
+    ax = fig.add_subplot(1, n_panels, 1)
     _style_axes(ax)
     ax.plot(x_le, z, color=_ACCENT, lw=2, label="LE")
     ax.plot(x_te, z, color=_DANGER, lw=2, label="TE")
@@ -80,7 +84,7 @@ def render_preview(fin: FinParams, path: str | Path,
     legend = ax.legend(facecolor=_BG, edgecolor=_LINE2, labelcolor=_TEXT, fontsize=9)
     legend.get_frame().set_linewidth(0.8)
 
-    ax = fig.add_subplot(1, 3, 2)
+    ax = fig.add_subplot(1, n_panels, 2)
     _style_axes(ax)
     idx = np.unique(np.linspace(0, len(stations) - 1, _N_SECTIONS).astype(int))
     picks = [stations[i] for i in idx]
@@ -100,8 +104,20 @@ def render_preview(fin: FinParams, path: str | Path,
     ax.set_title("sections (true thickness)")
     ax.set_xlabel("x [mm]")
 
-    if part is None:
-        part = fin_solid(fin, settings)
+    if show_solid:
+        if part is None:
+            part = fin_solid(fin, settings)
+        _solid_panel(fig, part)
+
+    fig.tight_layout()
+    fig.savefig(path, dpi=110, facecolor=_BG)
+    plt.close(fig)
+    return path
+
+
+def _solid_panel(fig, part) -> None:
+    import numpy as np
+
     vertices, faces = part.tessellate(0.3)
     pts = np.array([(v.X, v.Y, v.Z) for v in vertices])
     ax3 = fig.add_subplot(1, 3, 3, projection="3d")
@@ -117,8 +133,3 @@ def render_preview(fin: FinParams, path: str | Path,
         axis.line.set_color(_LINE2)
     ax3.tick_params(colors=_FAINT, labelsize=7)
     ax3.grid(False)
-
-    fig.tight_layout()
-    fig.savefig(path, dpi=110, facecolor=_BG)
-    plt.close(fig)
-    return path
