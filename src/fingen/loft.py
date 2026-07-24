@@ -81,4 +81,9 @@ def fin_solid(fin: FinParams, settings: GenSettings = DEFAULT_SETTINGS) -> Part:
         raise ValueError(
             f"OCCT could not loft this parameter combination cleanly: {fin}"
         ) from exc
+    from fingen.tabs import build_tabs
+
+    tabs = build_tabs(fin, settings)
+    if tabs is not None:
+        solid = solid + tabs
     return Part() + solid

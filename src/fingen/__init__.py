@@ -13,6 +13,8 @@ from fingen.params import (
     FoilParams,
     GenSettings,
     OutlineParams,
+    TabParams,
+    TabSystem,
 )
 
 __version__ = "0.1.0"
@@ -25,5 +27,7 @@ __all__ = [
     "FoilParams",
     "GenSettings",
     "OutlineParams",
+    "TabParams",
+    "TabSystem",
     "__version__",
 ]

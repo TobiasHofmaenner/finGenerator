@@ -23,6 +23,16 @@ class FoilFamily(Enum):
     FLAT_INSIDE = "flat_inside"  # classic flat-foil side fin [BW04, Fut26]
     CAMBERED = "cambered"  # 70/30-style intermediate
 
+class TabSystem(Enum):
+    """Mounting system (docs/TAB-SYSTEMS.md; generic names are deliberate —
+    descriptive compatibility only, no brand styling)."""
+
+    NONE = "none"  # flat base, no mounting tabs
+    DUAL_TAB = "dual_tab"  # FCS-compatible twin tabs
+    SINGLE_TAB = "single_tab"  # Futures-compatible full-base tab
+    CLICK_TAB = "click_tab"  # FCS II-compatible tool-less tabs
+
+
 class FinConfig(Enum):
     SINGLE = "single"
     TWIN = "twin"
@@ -119,8 +129,37 @@ class OutlineParams:
 
 
 @dataclass(frozen=True)
+class TabParams:
+    """Mounting-tab parameters (docs/TAB-SYSTEMS.md).
+
+    fit_offset: added to the nominal tab thickness, mm. Community print
+        practice starts ~0.2 mm undersize; calibrate with `fingen coupon`
+        against your actual boxes.
+    tab_depth: override the system's insertion depth (None = system default;
+        note Futures boxes come in 3/4" side and 1/2" center depths — the
+        default fits side boxes).
+    click_indent_depth: per-side depth of the click-tab retention indents;
+        0 disables them (printed indents deform after some cycles — the
+        box's grub screws are the standard fallback).
+    """
+
+    system: TabSystem = TabSystem.NONE
+    fit_offset: float = -0.2
+    tab_depth: float | None = None
+    click_indent_depth: float = 0.9
+
+    def __post_init__(self) -> None:
+        _require(-0.6 <= self.fit_offset <= 0.4,
+                 f"fit_offset {self.fit_offset} mm outside −0.6–0.4 mm")
+        _require(self.tab_depth is None or 8.0 <= self.tab_depth <= 20.0,
+                 f"tab_depth {self.tab_depth} mm outside 8–20 mm")
+        _require(0.0 <= self.click_indent_depth <= 1.5,
+                 f"click_indent_depth {self.click_indent_depth} mm outside 0–1.5 mm")
+
+
+@dataclass(frozen=True)
 class FinParams:
-    """A single fin blade: outline × foil × spanwise schedules.
+    """A single fin blade: outline × foil × spanwise schedules × mounting.
 
     thickness_tip_factor: t/c at the tip relative to the base — tip-thinning
         washes out tip loading (softens the tip-first stall of [BW04]).
@@ -129,6 +168,7 @@ class FinParams:
     outline: OutlineParams = field(default_factory=OutlineParams)
     foil: FoilParams = field(default_factory=FoilParams)
     thickness_tip_factor: float = 0.85
+    tabs: TabParams = field(default_factory=TabParams)
 
     def __post_init__(self) -> None:
         _require(0.5 <= self.thickness_tip_factor <= 1.2,

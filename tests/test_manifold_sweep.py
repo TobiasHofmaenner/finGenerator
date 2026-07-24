@@ -15,7 +15,15 @@ from hypothesis import strategies as st
 
 from fingen.check import check_solid
 from fingen.loft import fin_solid
-from fingen.params import FinParams, FoilFamily, FoilParams, GenSettings, OutlineParams
+from fingen.params import (
+    FinParams,
+    FoilFamily,
+    FoilParams,
+    GenSettings,
+    OutlineParams,
+    TabParams,
+    TabSystem,
+)
 
 # OCCT-heavy: local only, excluded from GitHub CI. The xdist group keeps the
 # whole file on one worker so the floor test sees the sweep's counters.
@@ -47,11 +55,20 @@ foil_strategy = st.builds(
     te_thickness=st.floats(0.4, 1.2),
 )
 
+tab_strategy = st.builds(
+    TabParams,
+    system=st.sampled_from(TabSystem),
+    fit_offset=st.floats(-0.6, 0.4),
+    tab_depth=st.one_of(st.none(), st.floats(8.0, 20.0)),
+    click_indent_depth=st.floats(0.0, 1.5),
+)
+
 fin_strategy = st.builds(
     FinParams,
     outline=outline_strategy,
     foil=foil_strategy,
     thickness_tip_factor=st.floats(0.5, 1.2),
+    tabs=tab_strategy,
 )
 
 _outcomes = {"produced": 0, "rejected": 0}
@@ -104,6 +121,8 @@ def test_known_buildable_corners():
             (FoilFamily.SYMMETRIC, FoilFamily.FLAT_INSIDE), (0.06, 0.12)):
         corners.append(FinParams(foil=FoilParams(family=family,
                                                  thickness_ratio=thickness)))
+    for system in (TabSystem.DUAL_TAB, TabSystem.SINGLE_TAB, TabSystem.CLICK_TAB):
+        corners.append(FinParams(tabs=TabParams(system=system)))
     for fin in corners:
         report = check_solid(fin_solid(fin, COARSE), fin, COARSE)
         assert report.ok, f"corner failed: {fin}\nissues: {report.issues}"

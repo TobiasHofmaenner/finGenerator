@@ -112,10 +112,15 @@ def check_solid(part: Part, fin: FinParams,
     # Two separate span statements: the solid must match ITS SCHEDULE tightly,
     # and the schedule's cap truncation must be small relative to the fin
     # (slim high-AR blades legitimately lose a bit more absolute span).
+    # Mounting tabs extend below the base plane by their system depth.
+    from fingen.tabs import system_depth
+
+    z_bottom_exp = -system_depth(fin.tabs)
     z_top = stations[-1].z
-    if abs(bbox.max.Z - z_top) > _BBOX_TOLERANCE or abs(bbox.min.Z) > _BBOX_TOLERANCE:
+    if (abs(bbox.max.Z - z_top) > _BBOX_TOLERANCE
+            or abs(bbox.min.Z - z_bottom_exp) > _BBOX_TOLERANCE):
         report.fail(f"span extent [{bbox.min.Z:.2f}, {bbox.max.Z:.2f}] mm does not "
-                    f"match schedule top {z_top:.2f} mm")
+                    f"match schedule [{z_bottom_exp:.2f}, {z_top:.2f}] mm")
     if out.depth - z_top > max(_BBOX_TOLERANCE, 0.012 * out.depth):
         report.fail(f"tip cap truncates {out.depth - z_top:.2f} mm of span "
                     f"(depth {out.depth} mm)")
@@ -191,6 +196,11 @@ def check_solid(part: Part, fin: FinParams,
 
     report.volume = part.volume
     report.expected_volume = expected_volume(fin, settings)
+    from fingen.tabs import build_tabs
+
+    tab_part = build_tabs(fin, settings)
+    if tab_part is not None:
+        report.expected_volume += tab_part.volume
     if report.volume <= 0.0:
         report.fail("non-positive volume")
     elif abs(report.volume - report.expected_volume) > _VOLUME_TOLERANCE * report.expected_volume:

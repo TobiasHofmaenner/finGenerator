@@ -6,13 +6,16 @@ import argparse
 from pathlib import Path
 
 from fingen import __version__
-from fingen.params import FinParams, FoilParams, OutlineParams
+from fingen.params import FinParams, FoilParams, OutlineParams, TabParams, TabSystem
 
 # CLI defaults derive from the dataclasses — duplicated literals drifted once
 # (CLI sweep stayed 33 when the params default moved to 42) and shall not again.
 _OUT = OutlineParams()
 _FOIL = FoilParams()
 _FIN = FinParams()
+_TABS = TabParams()
+_TAB_MAP = {"none": TabSystem.NONE, "dual": TabSystem.DUAL_TAB,
+            "single": TabSystem.SINGLE_TAB, "click": TabSystem.CLICK_TAB}
 
 
 def _add_geometry_args(sub: argparse.ArgumentParser) -> None:
@@ -36,6 +39,15 @@ def _add_geometry_args(sub: argparse.ArgumentParser) -> None:
                      dest="te_thickness")
     sub.add_argument("--tip-factor", type=float, default=_FIN.thickness_tip_factor,
                      dest="tip_factor")
+    sub.add_argument("--tabs", choices=["none", "dual", "single", "click"],
+                     default="none",
+                     help="mounting tabs: dual (FCS-compatible), single "
+                          "(Futures-compatible), click (FCS II-compatible); "
+                          "see docs/TAB-SYSTEMS.md")
+    sub.add_argument("--tab-fit", type=float, default=_TABS.fit_offset, dest="tab_fit",
+                     help="tab thickness offset in mm; calibrate with `fingen coupon`")
+    sub.add_argument("--tab-depth", type=float, default=None, dest="tab_depth",
+                     help="override tab insertion depth in mm (default: system value)")
 
 
 def _fin_from_args(args: argparse.Namespace):
@@ -55,6 +67,8 @@ def _fin_from_args(args: argparse.Namespace):
                         camber_ratio=args.camber, camber_position=args.camber_pos,
                         te_thickness=args.te_thickness),
         thickness_tip_factor=args.tip_factor,
+        tabs=TabParams(system=_TAB_MAP[args.tabs], fit_offset=args.tab_fit,
+                       tab_depth=args.tab_depth),
     )
 
 
@@ -75,11 +89,32 @@ def _build_parser() -> argparse.ArgumentParser:
     preview = sub.add_parser("preview", help="render a PNG preview of a fin blade")
     preview.add_argument("output", type=Path, nargs="?", default=Path("out/fin.png"))
     _add_geometry_args(preview)
+
+    coupon = sub.add_parser("coupon", help="export a tab test-fit coupon (STEP/STL): "
+                                           "a minutes-long print to dial --tab-fit "
+                                           "against your actual boxes")
+    coupon.add_argument("output", type=Path, nargs="?", default=Path("out/coupon.step"))
+    coupon.add_argument("--tabs", choices=["dual", "single", "click"], required=True)
+    coupon.add_argument("--tab-fit", type=float, default=_TABS.fit_offset, dest="tab_fit")
+    coupon.add_argument("--tab-depth", type=float, default=None, dest="tab_depth")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
+
+    if args.command == "coupon":
+        from fingen.export import to_step, to_stl
+        from fingen.tabs import coupon_solid
+
+        part = coupon_solid(TabParams(system=_TAB_MAP[args.tabs],
+                                      fit_offset=args.tab_fit,
+                                      tab_depth=args.tab_depth))
+        writer = to_stl if args.output.suffix.lower() == ".stl" else to_step
+        written = writer(part, args.output)
+        print(f"wrote {written} ({written.stat().st_size} bytes) — trial-fit and "
+              "adjust --tab-fit in 0.1 mm steps")
+        return 0
 
     fin = _fin_from_args(args)
 
