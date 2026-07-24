@@ -43,6 +43,22 @@ twice the cost; use level 3 for drag-sensitive/validation studies).
 - y⁺ spans 4–290: partly below the wall-function band in refined regions.
   Acceptable for lift; revisit with resolved-wall layers for final drag.
 - Fully-turbulent SST (no transition model) — see PHYSICS.md §4 caveats.
-- CD ≈ 0.034 at this point is plausible (analytic ≈ 0.024) but NOT yet
-  validated; the [BW04] polar-shape comparison (slope, break at 12–14°) is
-  the remaining gate before the bench is declared production-ready (v0.2.0).
+## [BW04] polar-shape validation — PASSED (v0.2.0 gate)
+
+Replica fin (elliptical-ish, 25° sweep, flat inside, t/c 9 %, 100×120 mm),
+0–18° sweep on the frozen level-2 recipe, one shared mesh (solve-only cost
+80–480 s/angle at 10 ranks; high angles hit the iteration cap as the flow
+turns marginally steady — the steady-RANS boundary made visible):
+
+| Gate | Result | Criterion |
+|---|---|---|
+| Lift slope (fit 0–8°) | 3.47/rad vs DATCOM 3.63 → **−4.6 %** | < 20 % |
+| Lift-curve break | CL_max 0.856 at **α ≈ 14°** | [BW04] measured 12–14° |
+| CD at α = 0 | **0.0251** (analytic est. ≈ 0.024) | plausibility band |
+| Oswald e from our own CD–CL² fit | **0.92** | physical band 0.80–0.95 |
+
+CL₀ = 0.218 at zero leeway is the flat-side section's camber lift, positive
+as predicted. Post-break decay is gentle (0.856 → 0.826 over 14–18°),
+matching the measured thin-airfoil/tip-stall character — but post-break
+steady-RANS numbers are qualitative only; URANS owns that regime.
+Plot: `out/bw04-polar.png`.
