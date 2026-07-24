@@ -1,0 +1,50 @@
+"""Outline math and the FCS validation anchor (docs/PHYSICS.md §3)."""
+
+import pytest
+
+from fingen.outline import chord_schedule, metrics, tip_point
+from fingen.params import GenSettings, OutlineParams
+
+
+def test_base_station_matches_parameters():
+    outline = OutlineParams()
+    stations = chord_schedule(outline)
+    assert stations[0].z == 0.0
+    assert stations[0].x_le == pytest.approx(0.0, abs=1e-6)
+    assert stations[0].chord == pytest.approx(outline.base, rel=1e-6)
+
+
+def test_chord_positive_and_reaches_tip_region():
+    outline = OutlineParams()
+    stations = chord_schedule(outline, tip_chord_min=3.0)
+    assert all(st.chord > 0 for st in stations)
+    assert stations[-1].chord == pytest.approx(3.0, rel=0.1)
+    assert stations[-1].z < outline.depth <= tip_point(outline)[1]
+
+
+def test_fcs_anchor_area_and_sweep():
+    # Medium thruster side fin envelope [FCS26]: base 110, depth 115,
+    # sweep 32-37deg, published area ~9825 mm2 (fullness ~0.93 in our
+    # construction; FCS's exact area-measurement convention is unverified, so
+    # the band is wide — tightening it against a traced template is a TODO).
+    outline = OutlineParams(depth=115.0, base=110.0, sweep=33.0)
+    m = metrics(outline)
+    assert 8300.0 < m.area < 10800.0
+    assert metrics(OutlineParams(le_fullness=1.0, te_fullness=1.0)).area > 9800.0
+    assert m.sweep == pytest.approx(33.0, abs=0.01)
+    assert m.aspect_ratio == pytest.approx(115.0**2 / m.area, rel=1e-9)
+
+
+def test_fullness_moves_area_the_documented_direction():
+    lean = metrics(OutlineParams(le_fullness=0.0, te_fullness=0.0)).area
+    full = metrics(OutlineParams(le_fullness=1.0, te_fullness=1.0)).area
+    assert full > lean  # fullness 1 = boxy edges = most area
+
+
+def test_resolution_does_not_change_the_design():
+    outline = OutlineParams()
+    coarse = chord_schedule(outline, GenSettings(n_stations=9))
+    fine = chord_schedule(outline, GenSettings(n_stations=31))
+    # Same last station (same z*), same base chord — resolution only.
+    assert coarse[-1].z == pytest.approx(fine[-1].z, rel=1e-6)
+    assert coarse[0].chord == pytest.approx(fine[0].chord, rel=1e-9)

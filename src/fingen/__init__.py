@@ -1,11 +1,29 @@
 """fingen — parametric surfboard fin geometry generator.
 
-Pipeline: FinParams -> outline + foil sections -> loft -> STEP/STL.
+Pipeline: FinParams -> outline + foil sections -> loft -> check -> STEP/STL.
 All dimensions are millimetres, all angles degrees, unless stated otherwise.
+The math is specified in docs/PHYSICS.md with citations in docs/SOURCES.md.
 """
 
-from fingen.params import FinParams, FinSetParams, FoilParams
+from fingen.params import (
+    FinConfig,
+    FinParams,
+    FinSetParams,
+    FoilFamily,
+    FoilParams,
+    GenSettings,
+    OutlineParams,
+)
 
 __version__ = "0.1.0"
 
-__all__ = ["FinParams", "FinSetParams", "FoilParams", "__version__"]
+__all__ = [
+    "FinConfig",
+    "FinParams",
+    "FinSetParams",
+    "FoilFamily",
+    "FoilParams",
+    "GenSettings",
+    "OutlineParams",
+    "__version__",
+]

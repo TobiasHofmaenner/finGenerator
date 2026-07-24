@@ -1,81 +1,171 @@
 """Parameter schema for fin generation.
 
-Defaults and sane ranges follow docs/PHYSICS.md §2 (citation keys refer to
-docs/SOURCES.md): dimensions anchor to a medium thruster side fin [FCS26],
-section thickness to the measured baseline fin [BW04], placement angles to
-production conventions and CFD-studied setups [Gre26, Falk20].
+Design principle (docs/PHYSICS.md, discussion in docs/FIN-PRIMER.md): every
+parameter is independent, geometry-generating and bounded; composite quantities
+(area, aspect ratio) are derived and reported, never inputs. Defaults anchor to
+cited values — dimensions to a medium thruster side fin [FCS26], section
+thickness to the measured baseline fin [BW04], placement to production
+conventions [Gre26, Falk20]. Keys refer to docs/SOURCES.md.
 
-Geometry conventions (industry-standard fin measurements):
-  depth  — distance from the base plane to the tip ("height" in aero terms, the span)
-  base   — chord length where the fin meets the board
-  sweep  — rake angle of the leading edge relative to the base-normal
+Units: millimetres and degrees throughout.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum
+
+
+class FoilFamily(Enum):
+    """Cross-section family (docs/FIN-PRIMER.md §4)."""
+
+    SYMMETRIC = "symmetric"  # 50/50 center-fin foil [FCS26]
+    FLAT_INSIDE = "flat_inside"  # classic flat-foil side fin [BW04, Fut26]
+    CAMBERED = "cambered"  # 70/30-style intermediate
+
+class FinConfig(Enum):
+    SINGLE = "single"
+    TWIN = "twin"
+    THRUSTER = "thruster"
+    QUAD = "quad"
+    TWO_PLUS_ONE = "two_plus_one"
+
+
+def _require(condition: bool, message: str) -> None:
+    if not condition:
+        raise ValueError(message)
 
 
 @dataclass(frozen=True)
 class FoilParams:
-    """Cross-section (hydrofoil profile) parameters.
+    """Section (hydrofoil profile) parameters.
 
-    thickness_ratio: max thickness as a fraction of chord (t/c).
-    camber_ratio: max camber as a fraction of chord; 0 for a symmetric section
-        (center fins). Side fins are traditionally cambered with a flat inner face.
-    flat_inside: if True, the section is flat on the board-side face and all
-        thickness/camber goes to the outer face (classic side-fin foil).
+    thickness_ratio: max section thickness / chord at the base station [BW04].
+    camber_ratio / camber_position: NACA m and p [Jac33]; camber_ratio is
+        ignored for SYMMETRIC and implied by construction for FLAT_INSIDE.
+    te_thickness: printability truncation of the trailing edge in mm, applied
+        after the analytic section is generated.
     """
 
+    family: FoilFamily = FoilFamily.SYMMETRIC
     thickness_ratio: float = 0.09
     camber_ratio: float = 0.0
-    flat_inside: bool = False
+    camber_position: float = 0.4
+    te_thickness: float = 0.7
 
     def __post_init__(self) -> None:
-        if not 0.02 <= self.thickness_ratio <= 0.25:
-            raise ValueError(f"thickness_ratio {self.thickness_ratio} outside sane range 0.02–0.25")
-        if not 0.0 <= self.camber_ratio <= 0.12:
-            raise ValueError(f"camber_ratio {self.camber_ratio} outside sane range 0–0.12")
+        _require(0.04 <= self.thickness_ratio <= 0.15,
+                 f"thickness_ratio {self.thickness_ratio} outside 0.04–0.15")
+        _require(0.0 <= self.camber_ratio <= 0.12,
+                 f"camber_ratio {self.camber_ratio} outside 0–0.12")
+        _require(0.2 <= self.camber_position <= 0.6,
+                 f"camber_position {self.camber_position} outside 0.2–0.6")
+        _require(0.4 <= self.te_thickness <= 1.2,
+                 f"te_thickness {self.te_thickness} mm outside 0.4–1.2 mm")
 
 
 @dataclass(frozen=True)
-class FinParams:
-    """A single fin blade. Flat base for now; tab systems (FCS II, Futures) later."""
+class OutlineParams:
+    """Planform parameters (docs/PHYSICS.md §3).
+
+    sweep: angle between the base-normal and the base-LE → tip line; positions
+        the tip at x = depth·tan(sweep) [FCS26 convention].
+    tip_chord_ratio: tip-region fullness — the chord at ≈85% depth as a
+        fraction of base (the outline itself closes to a point at the tip).
+    le_fullness: 0 = straight leading edge, 1 = maximum forward fullness
+        (edge hugs the vertical low on the span).
+    te_fullness: 0 = straight trailing edge (leanest template), 1 = maximum
+        fullness (near-vertical lower TE, area concentrated toward the base).
+    """
 
     depth: float = 115.0
     base: float = 110.0
     sweep: float = 33.0
     tip_chord_ratio: float = 0.35
-    foil: FoilParams = field(default_factory=FoilParams)
+    le_fullness: float = 0.6
+    te_fullness: float = 0.6
 
     def __post_init__(self) -> None:
-        if not 40.0 <= self.depth <= 300.0:
-            raise ValueError(f"depth {self.depth} mm outside sane range 40–300 mm")
-        if not 40.0 <= self.base <= 250.0:
-            raise ValueError(f"base {self.base} mm outside sane range 40–250 mm")
-        if not 0.0 <= self.sweep <= 60.0:
-            raise ValueError(f"sweep {self.sweep}° outside sane range 0–60°")
-        if not 0.05 <= self.tip_chord_ratio <= 0.9:
-            raise ValueError(f"tip_chord_ratio {self.tip_chord_ratio} outside sane range 0.05–0.9")
+        _require(40.0 <= self.depth <= 300.0, f"depth {self.depth} mm outside 40–300 mm")
+        _require(40.0 <= self.base <= 250.0, f"base {self.base} mm outside 40–250 mm")
+        _require(0.0 <= self.sweep <= 60.0, f"sweep {self.sweep}° outside 0–60°")
+        _require(0.05 <= self.tip_chord_ratio <= 0.9,
+                 f"tip_chord_ratio {self.tip_chord_ratio} outside 0.05–0.9")
+        _require(0.0 <= self.le_fullness <= 1.0,
+                 f"le_fullness {self.le_fullness} outside 0–1")
+        _require(0.0 <= self.te_fullness <= 1.0,
+                 f"te_fullness {self.te_fullness} outside 0–1")
+
+
+@dataclass(frozen=True)
+class FinParams:
+    """A single fin blade: outline × foil × spanwise schedules.
+
+    thickness_tip_factor: t/c at the tip relative to the base — tip-thinning
+        washes out tip loading (softens the tip-first stall of [BW04]).
+    """
+
+    outline: OutlineParams = field(default_factory=OutlineParams)
+    foil: FoilParams = field(default_factory=FoilParams)
+    thickness_tip_factor: float = 0.85
+
+    def __post_init__(self) -> None:
+        _require(0.5 <= self.thickness_tip_factor <= 1.2,
+                 f"thickness_tip_factor {self.thickness_tip_factor} outside 0.5–1.2")
+
+
+def _default_side() -> FinParams:
+    return FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
+
+
+def _default_center() -> FinParams:
+    return FinParams(foil=FoilParams(family=FoilFamily.SYMMETRIC))
 
 
 @dataclass(frozen=True)
 class FinSetParams:
-    """A complete fin set: per-position blades plus set-level placement angles.
+    """A complete fin set: per-slot blades plus placement angles.
 
-    toe: toe-in of the side fins relative to the board centerline.
-    cant: outward lean of the side fins from vertical.
+    Toe and cant are placement transforms applied at assembly, not baked into
+    the blade geometry — one blade solid serves left/right via mirroring.
     """
 
-    center: FinParams | None = None
-    side: FinParams | None = None
+    config: FinConfig = FinConfig.THRUSTER
+    center: FinParams | None = field(default_factory=_default_center)
+    side: FinParams | None = field(default_factory=_default_side)
     toe: float = 3.5
     cant: float = 8.0
 
     def __post_init__(self) -> None:
-        if self.center is None and self.side is None:
-            raise ValueError("fin set needs at least a center or side fin definition")
-        if not 0.0 <= self.toe <= 6.0:
-            raise ValueError(f"toe {self.toe}° outside sane range 0–6°")
-        if not 0.0 <= self.cant <= 12.0:
-            raise ValueError(f"cant {self.cant}° outside sane range 0–12°")
+        needs_center = self.config in (FinConfig.SINGLE, FinConfig.THRUSTER,
+                                       FinConfig.TWO_PLUS_ONE)
+        needs_side = self.config in (FinConfig.TWIN, FinConfig.THRUSTER,
+                                     FinConfig.QUAD, FinConfig.TWO_PLUS_ONE)
+        _require(not (needs_center and self.center is None),
+                 f"{self.config.value} requires a center fin definition")
+        _require(not (needs_side and self.side is None),
+                 f"{self.config.value} requires a side fin definition")
+        _require(0.0 <= self.toe <= 6.0, f"toe {self.toe}° outside 0–6°")
+        _require(0.0 <= self.cant <= 12.0, f"cant {self.cant}° outside 0–12°")
+
+
+@dataclass(frozen=True)
+class GenSettings:
+    """Resolution-only settings — changing these must never change the design,
+    only its discretization (enforced by tests)."""
+
+    n_stations: int = 15
+    n_foil_points: int = 100  # total contour points per section (~half per surface)
+    cap_chord: float = 3.0  # chord of the last lofted section before the tip cap,
+    # mm; large caps make OCCT's cone-to-vertex degenerate on squat outlines
+    # (found by the hypothesis sweep), so this is numerical, not design
+
+    def __post_init__(self) -> None:
+        _require(7 <= self.n_stations <= 60, f"n_stations {self.n_stations} outside 7–60")
+        _require(40 <= self.n_foil_points <= 400,
+                 f"n_foil_points {self.n_foil_points} outside 40–400")
+        _require(1.5 <= self.cap_chord <= 6.0,
+                 f"cap_chord {self.cap_chord} mm outside 1.5–6 mm")
+
+
+DEFAULT_SETTINGS = GenSettings()

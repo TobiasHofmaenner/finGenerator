@@ -1,23 +1,43 @@
 import pytest
 
-from fingen import FinParams, FinSetParams, FoilParams
+from fingen import (
+    FinConfig,
+    FinParams,
+    FinSetParams,
+    FoilFamily,
+    FoilParams,
+    GenSettings,
+    OutlineParams,
+)
 
 
 def test_defaults_are_valid():
     fin = FinParams()
-    assert fin.depth > 0
-    FinSetParams(center=fin, side=FinParams(foil=FoilParams(camber_ratio=0.03, flat_inside=True)))
+    assert fin.outline.depth > 0
+    FinSetParams()
 
 
-def test_rejects_absurd_dimensions():
+def test_rejects_out_of_range_values():
     with pytest.raises(ValueError):
-        FinParams(depth=5.0)
+        OutlineParams(depth=5.0)
     with pytest.raises(ValueError):
-        FinParams(sweep=80.0)
+        OutlineParams(sweep=80.0)
+    with pytest.raises(ValueError):
+        OutlineParams(le_fullness=1.5)
     with pytest.raises(ValueError):
         FoilParams(thickness_ratio=0.5)
-
-
-def test_fin_set_needs_a_fin():
     with pytest.raises(ValueError):
-        FinSetParams(center=None, side=None)
+        FoilParams(te_thickness=0.1)
+    with pytest.raises(ValueError):
+        FinParams(thickness_tip_factor=0.1)
+    with pytest.raises(ValueError):
+        GenSettings(n_stations=3)
+
+
+def test_config_requires_matching_fins():
+    side = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
+    FinSetParams(config=FinConfig.TWIN, center=None, side=side)
+    with pytest.raises(ValueError):
+        FinSetParams(config=FinConfig.THRUSTER, center=None, side=side)
+    with pytest.raises(ValueError):
+        FinSetParams(config=FinConfig.SINGLE, center=None, side=None)

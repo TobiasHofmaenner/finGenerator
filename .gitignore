@@ -17,3 +17,6 @@ out/
 .vscode/
 .idea/
 .DS_Store
+
+# hypothesis example database
+.hypothesis/
