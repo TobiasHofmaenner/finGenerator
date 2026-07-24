@@ -47,9 +47,14 @@ _LE_BOW = 0.05  # absolute forward bow so zero-sweep fins still gain area
 # the common commercial look) with the cut biased to the mid-upper span, where
 # real templates carve away area under the overhanging tip.
 _TE_CONVEX_W = np.array([1.45, 1.35, 1.2, 0.95, 0.55, 0.2])
-_TE_CONCAVE_W = np.array([0.25, 0.55, 0.8, 0.9, 0.8, 0.55])
+# Parabolic sagitta 4t(1-t) at the control fractions: edge curvature is the
+# SECOND derivative of the pull profile, so a linearly-increasing pull just
+# re-angles a straight line (the observed straight-then-bend TE) — constant
+# curvature needs a parabolic pull, i.e. a circular-arc-like cutaway that
+# starts curving right at the base and hands over to the tip lobe.
+_TE_CONCAVE_W = np.array([0.36, 0.77, 0.99, 0.94, 0.64, 0.29])
 _TE_CONCAVE_AMPL = 0.5  # fraction of base at te_shape = -1, weight 1
-_LE_LOBE_SHARE = 0.32  # LE's share of the tip lobe's narrowing; the TE absorbs
+_LE_LOBE_SHARE = 0.35  # LE's share of the tip lobe's narrowing; the TE absorbs
 # the rest — keeps the LE on its own strictly convex Bezier (no depression
 # before the top radius) and spreads the TE's concave approach over the lobe
 
