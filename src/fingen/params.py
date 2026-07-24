@@ -1,9 +1,9 @@
 """Parameter schema for fin generation.
 
-DRAFT — the exact parameterization (outline control points, spanwise schedules,
-foil families) gets pinned down in docs/PHYSICS.md once the literature review
-lands. What is stable already: the units (mm / degrees), the split between a
-single fin and a fin set, and validation at construction time.
+Defaults and sane ranges follow docs/PHYSICS.md §2 (citation keys refer to
+docs/SOURCES.md): dimensions anchor to a medium thruster side fin [FCS26],
+section thickness to the measured baseline fin [BW04], placement angles to
+production conventions and CFD-studied setups [Gre26, Falk20].
 
 Geometry conventions (industry-standard fin measurements):
   depth  — distance from the base plane to the tip ("height" in aero terms, the span)
@@ -27,7 +27,7 @@ class FoilParams:
         thickness/camber goes to the outer face (classic side-fin foil).
     """
 
-    thickness_ratio: float = 0.08
+    thickness_ratio: float = 0.09
     camber_ratio: float = 0.0
     flat_inside: bool = False
 
@@ -69,8 +69,8 @@ class FinSetParams:
 
     center: FinParams | None = None
     side: FinParams | None = None
-    toe: float = 2.0
-    cant: float = 6.0
+    toe: float = 3.5
+    cant: float = 8.0
 
     def __post_init__(self) -> None:
         if self.center is None and self.side is None:
