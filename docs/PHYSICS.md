@@ -61,6 +61,12 @@ polygons [Far02]. Degree ≈ 6 suffices for foil-grade fidelity; higher degrees 
 without accuracy [Jai17]. Bernstein-basis parameters are the aerodynamic-community standard
 for shape optimization (CST) [Kul08].
 
+The trailing edge takes a signed shape parameter (−1 concave cutaway … +1 convex/keel-like),
+and the planform closes with an **elliptical tip lobe**: above the span height where the chord
+equals the tip width, c(z) is scaled by √(1−u²) with the lobe centerline following the outline's
+mean line — a rounded, rake-following tip tangent to the edges below it (commercial templates
+end in such a lobe, not a point).
+
 The outline yields a spanwise **chord schedule** {z, x_LE(z), c(z)} sampled at n stations,
 from which derived quantities follow:
 

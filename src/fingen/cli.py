@@ -14,9 +14,11 @@ def _add_geometry_args(sub: argparse.ArgumentParser) -> None:
     sub.add_argument("--depth", type=float, default=115.0)
     sub.add_argument("--base", type=float, default=110.0)
     sub.add_argument("--sweep", type=float, default=33.0)
-    sub.add_argument("--tip-ratio", type=float, default=0.35, dest="tip_ratio")
-    sub.add_argument("--le-fullness", type=float, default=0.6, dest="le_fullness")
-    sub.add_argument("--te-fullness", type=float, default=0.6, dest="te_fullness")
+    sub.add_argument("--tip-width", type=float, default=0.28, dest="tip_width",
+                     help="tip lobe width as fraction of base")
+    sub.add_argument("--le-fullness", type=float, default=0.65, dest="le_fullness")
+    sub.add_argument("--te-shape", type=float, default=-0.2, dest="te_shape",
+                     help="-1 concave cutaway .. 0 straight .. +1 convex keel")
     sub.add_argument("--thickness", type=float, default=0.09,
                      help="section thickness ratio t/c")
     sub.add_argument("--camber", type=float, default=0.0)
@@ -35,9 +37,9 @@ def _fin_from_args(args: argparse.Namespace):
               "(only 'cambered' uses it)")
     return FinParams(
         outline=OutlineParams(depth=args.depth, base=args.base, sweep=args.sweep,
-                              tip_chord_ratio=args.tip_ratio,
+                              tip_width_ratio=args.tip_width,
                               le_fullness=args.le_fullness,
-                              te_fullness=args.te_fullness),
+                              te_shape=args.te_shape),
         foil=FoilParams(family=family, thickness_ratio=args.thickness,
                         camber_ratio=args.camber, camber_position=args.camber_pos,
                         te_thickness=args.te_thickness),

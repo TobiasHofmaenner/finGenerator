@@ -12,7 +12,7 @@ import numpy as np
 
 from fingen.foil import section_points
 from fingen.loft import _thickness_at, fin_solid
-from fingen.outline import _edge_interpolants, chord_schedule, control_points
+from fingen.outline import chord_schedule, control_points, planform
 from fingen.params import DEFAULT_SETTINGS, FinParams, GenSettings
 
 
@@ -28,7 +28,8 @@ def render_preview(fin: FinParams, path: str | Path,
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    z, x_le, x_te = _edge_interpolants(fin.outline)
+    z, x_le, chord_dense = planform(fin.outline)
+    x_te = x_le + chord_dense
     stations = chord_schedule(fin.outline, settings, tip_chord_min=settings.cap_chord)
     le_ctrl, te_ctrl = control_points(fin.outline)
 

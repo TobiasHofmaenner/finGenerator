@@ -20,9 +20,9 @@ outline_strategy = st.builds(
     depth=st.floats(40.0, 300.0),
     base=st.floats(40.0, 250.0),
     sweep=st.floats(0.0, 60.0),
-    tip_chord_ratio=st.floats(0.05, 0.9),
+    tip_width_ratio=st.floats(0.05, 0.6),
     le_fullness=st.floats(0.0, 1.0),
-    te_fullness=st.floats(0.0, 1.0),
+    te_shape=st.floats(-1.0, 1.0),
 )
 
 foil_strategy = st.builds(
@@ -73,8 +73,8 @@ def test_known_buildable_corners():
     build and pass checks (clean rejection is NOT acceptable here)."""
     corners = [FinParams()]
     for field, lo, hi in [("depth", 60.0, 250.0), ("base", 60.0, 200.0),
-                          ("sweep", 0.0, 50.0), ("tip_chord_ratio", 0.1, 0.7),
-                          ("le_fullness", 0.0, 1.0), ("te_fullness", 0.0, 1.0)]:
+                          ("sweep", 0.0, 50.0), ("tip_width_ratio", 0.08, 0.5),
+                          ("le_fullness", 0.0, 1.0), ("te_shape", -1.0, 1.0)]:
         for value in (lo, hi):
             corners.append(FinParams(outline=OutlineParams(**{field: value})))
     for family, thickness in itertools.product(

@@ -22,23 +22,27 @@ def test_chord_positive_and_reaches_tip_region():
     assert stations[-1].z < outline.depth <= tip_point(outline)[1]
 
 
-def test_fcs_anchor_area_and_sweep():
-    # Medium thruster side fin envelope [FCS26]: base 110, depth 115,
-    # sweep 32-37deg, published area ~9825 mm2 (fullness ~0.93 in our
-    # construction; FCS's exact area-measurement convention is unverified, so
-    # the band is wide — tightening it against a traced template is a TODO).
-    outline = OutlineParams(depth=115.0, base=110.0, sweep=33.0)
-    m = metrics(outline)
-    assert 8300.0 < m.area < 10800.0
-    assert metrics(OutlineParams(le_fullness=1.0, te_fullness=1.0)).area > 9800.0
-    assert m.sweep == pytest.approx(33.0, abs=0.01)
+def test_default_template_lands_in_commercial_band():
+    # A medium thruster side fin [FCS26]: base 110, depth 115, published area
+    # ~9825 mm2. Our default (concave-TE, rounded-tip) template must land in a
+    # commercial-plausible band; exact calibration against a traced template
+    # is tracked as a TODO.
+    m = metrics(OutlineParams())
+    assert 6500.0 < m.area < 10500.0
+    assert m.sweep == pytest.approx(42.0, abs=0.01)
     assert m.aspect_ratio == pytest.approx(115.0**2 / m.area, rel=1e-9)
 
 
-def test_fullness_moves_area_the_documented_direction():
-    lean = metrics(OutlineParams(le_fullness=0.0, te_fullness=0.0)).area
-    full = metrics(OutlineParams(le_fullness=1.0, te_fullness=1.0)).area
-    assert full > lean  # fullness 1 = boxy edges = most area
+def test_sweep_recompute_matches_input():
+    m = metrics(OutlineParams(sweep=33.0))
+    assert m.sweep == pytest.approx(33.0, abs=0.01)
+
+
+def test_te_shape_moves_area_the_documented_direction():
+    concave = metrics(OutlineParams(te_shape=-1.0)).area
+    straight = metrics(OutlineParams(te_shape=0.0)).area
+    convex = metrics(OutlineParams(te_shape=1.0)).area
+    assert concave < straight < convex
 
 
 def test_resolution_does_not_change_the_design():

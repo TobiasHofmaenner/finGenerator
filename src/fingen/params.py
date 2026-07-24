@@ -72,33 +72,36 @@ class FoilParams:
 class OutlineParams:
     """Planform parameters (docs/PHYSICS.md §3).
 
-    sweep: angle between the base-normal and the base-LE → tip line; positions
-        the tip at x = depth·tan(sweep) [FCS26 convention].
-    tip_chord_ratio: tip-region fullness — the chord at ≈85% depth as a
-        fraction of base (the outline itself closes to a point at the tip).
+    sweep: angle between the base-normal and the line from base-LE to the tip
+        lobe's endpoint; positions the lobe at x = depth·tan(sweep). On real
+        templates the tip sits above/behind the TE base corner, i.e. geometric
+        sweep ≈ atan(base/depth) or more — larger than the number printed on
+        commercial fins, whose "sweep" is measured differently.
+    tip_width_ratio: width of the rounded tip lobe as a fraction of base (the
+        chord where the elliptical tip rounding begins).
     le_fullness: 0 = straight leading edge, 1 = maximum forward fullness
         (edge hugs the vertical low on the span).
-    te_fullness: 0 = straight trailing edge (leanest template), 1 = maximum
-        fullness (near-vertical lower TE, area concentrated toward the base).
+    te_shape: −1 = maximum concave cutaway (the common commercial look),
+        0 = straight, +1 = maximum convex fullness (keel-like).
     """
 
     depth: float = 115.0
     base: float = 110.0
-    sweep: float = 33.0
-    tip_chord_ratio: float = 0.35
-    le_fullness: float = 0.6
-    te_fullness: float = 0.6
+    sweep: float = 42.0
+    tip_width_ratio: float = 0.28
+    le_fullness: float = 0.65
+    te_shape: float = -0.2
 
     def __post_init__(self) -> None:
         _require(40.0 <= self.depth <= 300.0, f"depth {self.depth} mm outside 40–300 mm")
         _require(40.0 <= self.base <= 250.0, f"base {self.base} mm outside 40–250 mm")
         _require(0.0 <= self.sweep <= 60.0, f"sweep {self.sweep}° outside 0–60°")
-        _require(0.05 <= self.tip_chord_ratio <= 0.9,
-                 f"tip_chord_ratio {self.tip_chord_ratio} outside 0.05–0.9")
+        _require(0.05 <= self.tip_width_ratio <= 0.6,
+                 f"tip_width_ratio {self.tip_width_ratio} outside 0.05–0.6")
         _require(0.0 <= self.le_fullness <= 1.0,
                  f"le_fullness {self.le_fullness} outside 0–1")
-        _require(0.0 <= self.te_fullness <= 1.0,
-                 f"te_fullness {self.te_fullness} outside 0–1")
+        _require(-1.0 <= self.te_shape <= 1.0,
+                 f"te_shape {self.te_shape} outside −1–1")
 
 
 @dataclass(frozen=True)
