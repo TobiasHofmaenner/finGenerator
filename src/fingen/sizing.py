@@ -35,9 +35,17 @@ BOARD_MASS_KG = 3.0  # printed-fin-era shortboard ballpark
 # imply CL ≈ 2.4 — far beyond attached-flow limits. Peaks are transient
 # events (speed spikes, dynamic-stall overshoot) and size the STRUCTURE;
 # steady hydrodynamics is sized by the sustained carving load.
-# Fin share of total lateral force × dominant fin's share (transient peak):
+# Fin share of total lateral force, and the dominant fin's share of that
+# per arrangement: a single carries everything, a thruster's outside front
+# dominates [Falk19], quads spread across front+rear [Falk20].
 FIN_FORCE_SHARE = 0.6
-DOMINANT_FIN_SHARE = 0.6
+CONFIG_DOMINANT_SHARE = {
+    FinConfig.SINGLE: 1.0,
+    FinConfig.TWIN: 0.75,
+    FinConfig.THRUSTER: 0.6,
+    FinConfig.QUAD: 0.45,
+    FinConfig.TWO_PLUS_ONE: 0.65,
+}
 # Sustained per-fin working force as a fraction of system weight, calibrated
 # so a 75 kg intermediate lands on the known-good ~8000 mm² fleet medium
 # (cross-check: peak/sustained ≈ 3, consistent with peaks near a third of
@@ -92,13 +100,12 @@ def anchor(rider_mass_kg: float, skill: Skill = Skill.INTERMEDIATE,
         raise ValueError(f"material {material!r} not in {sorted(_MATERIAL_ALLOW_MPA)}")
     m_total = rider_mass_kg + BOARD_MASS_KG
     f_lateral = m_total * G * math.tan(math.radians(skill.value))
-    n_working = {FinConfig.SINGLE: 1.0, FinConfig.TWIN: 1.0,
-                 FinConfig.THRUSTER: 1.0, FinConfig.QUAD: 1.3,
-                 FinConfig.TWO_PLUS_ONE: 1.0}[config]
+    share = CONFIG_DOMINANT_SHARE[config]
     # Transient peak (structure sizing): coordinated-turn closure, physical.
-    f_peak = f_lateral * FIN_FORCE_SHARE * DOMINANT_FIN_SHARE / n_working
-    # Sustained working load (hydrodynamic sizing): weight-anchored.
-    f_work = SUSTAINED_WEIGHT_FRACTION * m_total * G / n_working
+    f_peak = f_lateral * FIN_FORCE_SHARE * share
+    # Sustained working load (hydrodynamic sizing): weight-anchored; the
+    # calibration constant is defined at the thruster share (0.6).
+    f_work = SUSTAINED_WEIGHT_FRACTION * m_total * G * share / 0.6
 
     q = 0.5 * RHO_SEAWATER * design_speed**2
     area_min = f_work * FORCE_SF / (q * CL_USABLE) * 1e6  # mm²
