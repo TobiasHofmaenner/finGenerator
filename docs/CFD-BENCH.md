@@ -55,7 +55,7 @@ turns marginally steady — the steady-RANS boundary made visible):
 | Lift slope (fit 0–8°) | 3.47/rad vs DATCOM 3.63 → **−4.6 %** | < 20 % |
 | Lift-curve break | CL_max 0.856 at **α ≈ 14°** | [BW04] measured 12–14° |
 | CD at α = 0 | **0.0251** (analytic est. ≈ 0.024) | plausibility band |
-| Oswald e from our own CD–CL² fit | **0.92** | physical band 0.80–0.95 |
+| Oswald e from our own CD–CL² fit | **0.94** | physical band 0.80–0.95 |
 
 CL₀ = 0.218 at zero leeway is the flat-side section's camber lift, positive
 as predicted. Post-break decay is gentle (0.856 → 0.826 over 14–18°),
