@@ -42,6 +42,41 @@ twice the cost; use level 3 for drag-sensitive/validation studies).
    made the coincidence exact and snappy refused the point (fail-loud,
    thankfully). The probe is now offset 0.37 cells off the lattice.
 
+## Validation roadmap
+
+Completed tiers: mesh ladder (frozen L2) · DATCOM theory band · [BW04]
+shape gates · [BW04] point-by-point gates · tunnel-wall systematic
+(≈ ⅓ of slope gap, measured) · transition tier (null on lift, −8 % drag)
+· Oswald-e internal consistency. Open items, in execution order —
+thoroughness is cheap relative to what a wrong bench would cost:
+
+1. **ERCOFTAC T3A flat plate** *(in progress)* — the transition-model
+   implementation itself, against the canonical transition benchmark.
+2. **NASA TMR 2D flat plate** (turbmodels.larc.nasa.gov) — Cf(x)/u⁺
+   against CFL3D/FUN3D reference solutions: the k-ω SST implementation +
+   wall-function behavior isolated from meshing. The gold standard for
+   "is my solver setup sane"; their 2D bump / NACA 0012 / RAE 2822
+   families follow if the plate passes.
+3. **Extruded NACA 0012 vs [SK81]** — section machinery against the
+   tabulated polars the tier-0 model cites, incl. post-stall.
+4. **Zarruk 2014 towing-tank replication** — modern force + deflection
+   data with published uncertainties; the drag-fidelity anchor BW04's
+   digitization cannot provide, and an FSI hook via tip deflections.
+5. **URANS post-knee study** (16–24°) — does unsteady vortex lift
+   reproduce the measured CL climb to 1.10 that steady RANS plateaus
+   below? Gates optimizer use of near-stall axes.
+6. **[Els22] groove replication** — grooved vs plain replica pair;
+   their +11 % L/D at 30° (partially URANS-dependent).
+7. **Physical structure bench** (user-side) — force–stroke stiffness
+   (plain vs grooved, replicating [For24] panel C), load-to-failure vs
+   FORCE_SF allowables, seawater-soak stiffness recheck.
+8. **Multi-fin interference vs [Falk19/Falk20]** — anchors
+   CONFIG_DOMINANT_SHARE; blocked on fin-set assembly geometry.
+
+Parked (out of scope until the single-blade bench is exhausted):
+free-surface ventilation/cavitation (multiphase); re-running the
+transition tier with measured tunnel Tu if the [BW04] authors reply.
+
 ## Known caveats / open gates
 
 - y⁺ spans 4–290: partly below the wall-function band in refined regions.
