@@ -62,7 +62,10 @@ def render_preview(fin: FinParams, path: str | Path,
 
     z, x_le, chord_dense = planform(fin.outline)
     x_te = x_le + chord_dense
-    stations = chord_schedule(fin.outline, settings, tip_chord_min=settings.cap_chord)
+    from fingen.loft import groove_station_z
+
+    stations = chord_schedule(fin.outline, settings, tip_chord_min=settings.cap_chord,
+                              extra_z=groove_station_z(fin))
     le_ctrl, te_ctrl = control_points(fin.outline)
 
     n_panels = 3 if show_solid else 2
@@ -89,10 +92,14 @@ def render_preview(fin: FinParams, path: str | Path,
     idx = np.unique(np.linspace(0, len(stations) - 1, _N_SECTIONS).astype(int))
     picks = [stations[i] for i in idx]
     offset = 0.0
+    from fingen.loft import _groove_thins
+
     for st in reversed(picks):
+        thin_outer, thin_inner = _groove_thins(fin, st.z, st.chord)
         upper, lower = section_points(fin.foil, st.chord,
                                       thickness_ratio=_thickness_at(fin, st.z),
-                                      n_points=settings.n_foil_points)
+                                      n_points=settings.n_foil_points,
+                                      thin_outer=thin_outer, thin_inner=thin_inner)
         xs = np.concatenate((upper[:, 0], lower[::-1, 0])) + st.x_le
         ys = np.concatenate((upper[:, 1], lower[::-1, 1])) + offset
         ax.plot(xs, ys, color=_TEXT, lw=0.9)

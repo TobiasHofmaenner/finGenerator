@@ -239,6 +239,13 @@ class FinParams:
                      f"groove band reaches {band_top:.1f} mm, beyond 90 % of the "
                      f"{self.outline.depth} mm depth — fewer grooves, tighter "
                      "pitch, or lower span_start")
+            band_bottom = (self.grooves.span_start * self.outline.depth
+                           - 0.5 * self.grooves.width)
+            _require(band_bottom >= 0.12 * self.outline.depth,
+                     f"groove band starts {band_bottom:.1f} mm from the base, "
+                     f"inside 12 % of the {self.outline.depth} mm depth — the "
+                     "root section must stay full thickness (tab junction and "
+                     "root bending stress both assume it)")
 
 
 def _default_side() -> FinParams:

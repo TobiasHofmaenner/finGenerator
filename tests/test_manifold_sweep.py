@@ -20,6 +20,8 @@ from fingen.params import (
     FoilFamily,
     FoilParams,
     GenSettings,
+    GrooveParams,
+    GrooveSurface,
     OutlineParams,
     TabParams,
     TabSystem,
@@ -63,22 +65,43 @@ tab_strategy = st.builds(
     click_indent_depth=st.floats(0.0, 1.5),
 )
 
-fin_strategy = st.builds(
-    FinParams,
-    outline=outline_strategy,
-    foil=foil_strategy,
-    thickness_tip_factor=st.floats(0.5, 1.2),
-    tabs=tab_strategy,
-)
+@st.composite
+def groove_strategy(draw):
+    # width <= pitch is an intra-GrooveParams constraint; draw pitch first.
+    pitch = draw(st.floats(2.0, 40.0))
+    return GrooveParams(
+        count=draw(st.integers(0, 12)),
+        length=draw(st.floats(5.0, 200.0)),
+        pitch=pitch,
+        width=draw(st.floats(1.0, pitch)),
+        depth_ratio=draw(st.floats(0.05, 0.6)),
+        span_start=draw(st.floats(0.05, 0.85)),
+        surface=draw(st.sampled_from(GrooveSurface)),
+    )
+
+
+# Components, not a built FinParams: FinParams.__post_init__ enforces
+# cross-field constraints (groove band vs depth, groove surface vs foil
+# family) with ValueError — under the production contract those are CLEAN
+# REJECTIONS, so construction must happen inside the test's try block, not
+# during strategy generation.
+fin_components = st.fixed_dictionaries({
+    "outline": outline_strategy,
+    "foil": foil_strategy,
+    "thickness_tip_factor": st.floats(0.5, 1.2),
+    "tabs": tab_strategy,
+    "grooves": groove_strategy(),
+})
 
 _outcomes = {"produced": 0, "rejected": 0}
 
 
-@given(fin_strategy)
+@given(fin_components)
 @settings(max_examples=25, deadline=None,
           suppress_health_check=[HealthCheck.too_slow])
-def test_any_valid_params_yield_a_manifold(fin):
+def test_any_valid_params_yield_a_manifold(components):
     try:
+        fin = FinParams(**components)
         part = fin_solid(fin, COARSE)
     except ValueError:
         _outcomes["rejected"] += 1

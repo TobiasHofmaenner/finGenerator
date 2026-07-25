@@ -13,6 +13,8 @@ Coordinate frame: x streamwise (LE of the base at x = 0), y section thickness
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import numpy as np
 from build123d import BuildLine, BuildSketch, Line, Part, Plane, Spline, loft, make_face
 from OCP.StdFail import StdFail_NotDone
@@ -92,12 +94,15 @@ def groove_station_z(fin: FinParams) -> list[float]:
                zc + 0.25 * g.width, zc + 0.5 * g.width]
         if i + 1 < g.count:
             zs.append(zc + 0.5 * g.pitch)
-    # Half-pitch margins outside the band: the loft is segmented there (the
-    # ruled groove segment needs a full-thickness boundary station on each
-    # side that the smooth segments share).
-    zs.insert(0, g.span_start * fin.outline.depth - 0.5 * g.pitch)
-    zs.append(g.span_start * fin.outline.depth + (g.count - 1) * g.pitch
-              + 0.5 * g.pitch)
+    # Margins just outside the band: the loft is segmented there (the ruled
+    # groove segment needs a full-thickness boundary station on each side
+    # that the smooth segments share). Clamped near the outermost channel
+    # edges — a half-pitch margin at pitch 40 would park the split far from
+    # the band and, near the tip, push the boundary past the cap so the
+    # whole dome lofts ruled.
+    margin = min(0.5 * g.pitch, 0.5 * g.width + 2.0)
+    zs.insert(0, g.span_start * fin.outline.depth - margin)
+    zs.append(g.span_start * fin.outline.depth + (g.count - 1) * g.pitch + margin)
     return zs
 
 
@@ -141,6 +146,12 @@ def fin_solid(fin: FinParams, settings: GenSettings = DEFAULT_SETTINGS) -> Part:
     Raises ValueError (from the outline) for parameter combinations whose
     edges cross — callers get a clean rejection before any OCCT work.
     """
+    if fin.grooves.count and settings.n_stations < 12:
+        # The segmented loft re-fits the smooth tip piece from the stations
+        # above the band alone; below ~12 schedule stations that piece is
+        # too sparse and the fitted skin overshoots the lobe (spurious
+        # checker refusals at coarse-but-valid resolutions).
+        settings = replace(settings, n_stations=12)
     stations = chord_schedule(fin.outline, settings, tip_chord_min=settings.cap_chord,
                               extra_z=groove_station_z(fin))
     sections = [
@@ -161,9 +172,10 @@ def fin_solid(fin: FinParams, settings: GenSettings = DEFAULT_SETTINGS) -> Part:
             # segments keep the smooth fit. Boundary stations are shared, so
             # the fuse joins on identical planar faces.
             g = fin.grooves
-            z_lo = g.span_start * fin.outline.depth - 0.5 * g.pitch
+            margin = min(0.5 * g.pitch, 0.5 * g.width + 2.0)
+            z_lo = g.span_start * fin.outline.depth - margin
             z_hi = (g.span_start * fin.outline.depth + (g.count - 1) * g.pitch
-                    + 0.5 * g.pitch)
+                    + margin)
             i_lo = max((i for i, st in enumerate(stations) if st.z <= z_lo + 0.06),
                        default=0)
             i_hi = min((i for i, st in enumerate(stations) if st.z >= z_hi - 0.06),

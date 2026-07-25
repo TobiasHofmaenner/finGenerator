@@ -12,6 +12,8 @@ from fingen.params import (
     FoilFamily,
     FoilParams,
     GenSettings,
+    GrooveParams,
+    GrooveSurface,
     OutlineParams,
     TabParams,
     TabSystem,
@@ -22,6 +24,8 @@ __version__ = "0.2.0"
 __all__ = [
     "FinConfig",
     "FinParams",
+    "GrooveParams",
+    "GrooveSurface",
     "FinSetParams",
     "FoilFamily",
     "FoilParams",

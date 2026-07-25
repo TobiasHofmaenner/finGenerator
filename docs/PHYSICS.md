@@ -126,9 +126,14 @@ construction: a raised-cosine bump per channel in span (smooth walls), full
 depth from the leading edge (the scalloped LE of their photos), fading out by
 85 % of local chord so the TE stays printable. Grooves thin the *envelope about
 the camber line*, so cambered sections groove cleanly. Structure note: the
-grooved band loses section modulus where it sits — the root stress check
-(§8) is unaffected (grooves live mid-span), but expect measurably softer tips,
-which is exactly what [For24] measured and liked.
+grooved band loses section modulus where it sits. Validation forces the band
+to start above 12 % of depth, so the z = 0 root section (tab junction, root
+stress check §8) stays full thickness — but a deep groove low on the span can
+still be the *critical bending section* (the moment there is nearly the root
+moment while the modulus cut is disproportionate: thickness enters the section
+modulus squared). Until the sizing gate checks stress at the first groove,
+treat depth_ratio ≥ ~0.4 low on the span as structurally unvetted. Softer
+tips are the expected (and in [For24], desired) side effect.
 
 ## 5. Loft (`loft.py`)
 
