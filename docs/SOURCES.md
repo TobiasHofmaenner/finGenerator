@@ -64,6 +64,25 @@ histories; turn durations 0.55/0.45/0.35 s (intermediate/expert/WCT) at 7 m/s.
 **Cited for:** turning as a rider-imparted force balance against fin lift; mapping "surf
 style/skill" to turn-rate demand; ~7 m/s design speed for turning loads.
 
+### [Els22] Elshahomi et al. (2022) — Computational fluid dynamics performance evaluation of grooved fins for surfboards
+MRS Advances 7, 2022. [doi:10.1557/s43580-022-00311-5](https://doi.org/10.1557/s43580-022-00311-5).
+CFX RANS (SST k-ω, 5.6 m/s, angles to 45°) on a thruster template with 6 spanwise
+grooves (60 mm long, 6 mm apart) on the outer face: at the 30° stall angle drag
+drops 13 ± 1 % and lift 3.8 ± 0.5 % → L/D +11 ± 1 %. Groove depth/width/profile
+are not specified in the paper.
+**Cited for:** the thinning-groove option (`GrooveParams`); its expected effect
+lives at high incidence, not in the linear range.
+
+### [For24] Forsyth et al. (2024) — Grooved fins field study (Sci Rep / PMC11021506)
+Scientific Reports 14, 2024. [PMC11021506](https://pmc.ncbi.nlm.nih.gov/articles/PMC11021506/).
+Field validation of [Els22]: G1 (outer-face grooves) and G2 (both faces) against a
+3D-printed control; 4 of 6 surfers ≥10 % faster on G1, larger turn magnitudes, and
+bench force–stroke curves showing the grooved blade is measurably more flexible —
+the grooves double as flex hinges. Groove band visible in Fig. 1: upper half-span,
+channels parallel to the base, running from the leading edge aft (scalloped LE).
+**Cited for:** groove placement defaults (band location, count, pitch) and the
+flex side-effect noted in `GrooveParams`.
+
 ### [Rom21] Romanin et al. (2021) — Surfing equipment and design: a scoping review
 *Sports Engineering 24:21.* [DOI 10.1007/s12283-021-00358-x](https://doi.org/10.1007/s12283-021-00358-x)
 PRISMA review of 17 studies; fin design is the joint-largest theme, dominated by computational

@@ -115,6 +115,21 @@ full AoA range [SK81], low-Re wind-tunnel polars [Sel95]. At the slowest speeds 
 thick sections lose L/D to laminar separation, which motivates thinner sections for
 small/slow-wave fins [Win18, Ren26].
 
+**Thinning grooves** (`GrooveParams`, off by default): spanwise channels over the
+upper half-span that locally thin the section — the G1/G2 fins of [Els22, For24].
+Their CFD puts the payoff at high incidence (+11 % L/D at the 30° stall angle:
+drag −13 %, lift −3.8 %); the bench test shows the grooved blade is also more
+flexible, so the channels double as tuned flex hinges. The papers give count,
+length and spacing (6 × 60 mm, 6 mm apart) but not depth, width or profile —
+those are free parameters here, deliberately: the CFD optimizer owns them. Our
+construction: a raised-cosine bump per channel in span (smooth walls), full
+depth from the leading edge (the scalloped LE of their photos), fading out by
+85 % of local chord so the TE stays printable. Grooves thin the *envelope about
+the camber line*, so cambered sections groove cleanly. Structure note: the
+grooved band loses section modulus where it sits — the root stress check
+(§8) is unaffected (grooves live mid-span), but expect measurably softer tips,
+which is exactly what [For24] measured and liked.
+
 ## 5. Loft (`loft.py`)
 
 Foil sections are generated at each outline station, all with **identical degree and knot
@@ -122,6 +137,14 @@ structure**, then skinned into a B-spline surface (OCCT `ThruSections`). Compati
 parameterization is required — knot merging across incompatible sections produces wiggles and
 control-point explosion [PT02]; the skinning algorithm itself is the standard one [PT97].
 The solid is closed with a flat base at z = 0 (tab systems attach here later).
+
+**Groove-band skinning:** ThruSections' global surface fit is unstable against
+short-wavelength thickness alternation (a 5 % thinning dip produced metre-scale
+skin excursions — measured during development). Grooved fins therefore use a
+segmented loft: smooth fit below and above the band, *ruled* loft (linear
+between stations, overshoot-free by construction) through it, with stations
+injected at channel edges/quarters/centers and gap midpoints; the segments
+share exact boundary sections so the fuse joins on identical planar faces.
 
 ## 6. Fast hydro model (lift, drag, stall)
 

@@ -47,19 +47,24 @@ class CheckReport:
 
 def _section_area(fin: FinParams, z: float, chord: float,
                   settings: GenSettings) -> float:
-    from fingen.loft import _thickness_at
+    from fingen.loft import _groove_thins, _thickness_at
 
+    thin_outer, thin_inner = _groove_thins(fin, z, chord)
     upper, lower = section_points(fin.foil, chord, thickness_ratio=_thickness_at(fin, z),
-                                  n_points=settings.n_foil_points)
+                                  n_points=settings.n_foil_points,
+                                  thin_outer=thin_outer, thin_inner=thin_inner)
     lo = np.interp(upper[:, 0], lower[:, 0], lower[:, 1])
     return float(np.trapezoid(upper[:, 1] - lo, upper[:, 0]))
 
 
 def expected_volume(fin: FinParams, settings: GenSettings = DEFAULT_SETTINGS) -> float:
     """Analytic volume estimate: ∫ A_section(z) dz over the chord schedule."""
+    from fingen.loft import groove_station_z
+
     fine = GenSettings(n_stations=40, n_foil_points=settings.n_foil_points,
                        cap_chord=settings.cap_chord)
-    stations = chord_schedule(fin.outline, fine, tip_chord_min=settings.cap_chord)
+    stations = chord_schedule(fin.outline, fine, tip_chord_min=settings.cap_chord,
+                              extra_z=groove_station_z(fin))
     zs = np.array([st.z for st in stations])
     areas = np.array([_section_area(fin, st.z, st.chord, fine) for st in stations])
     return float(np.trapezoid(areas, zs))
@@ -105,9 +110,12 @@ def check_solid(part: Part, fin: FinParams,
 
     bbox = part.bounding_box()
     out = fin.outline
+    from fingen.loft import groove_station_z
+
     fine = GenSettings(n_stations=40, n_foil_points=settings.n_foil_points,
                        cap_chord=settings.cap_chord)
-    stations = chord_schedule(fin.outline, fine, tip_chord_min=settings.cap_chord)
+    stations = chord_schedule(fin.outline, fine, tip_chord_min=settings.cap_chord,
+                              extra_z=groove_station_z(fin))
 
     # Two separate span statements: the solid must match ITS SCHEDULE tightly,
     # and the schedule's cap truncation must be small relative to the fin

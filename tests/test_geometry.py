@@ -91,6 +91,35 @@ def test_resolution_only_changes_discretization(side_fin):
             part.bounding_box().max.Z, abs=0.5) == other.bounding_box().max.Z
 
 
+def test_grooved_fin_is_valid_and_lighter(side_fin):
+    from fingen.params import GrooveParams
+
+    fin_plain, part_plain = side_fin
+    fin = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
+                    grooves=GrooveParams(count=6))
+    part = fin_solid(fin)
+    report = check_solid(part, fin)
+    assert report.ok, report.issues
+    # Grooves remove material — and the checker's analytic volume knows it.
+    assert part.volume < part_plain.volume
+    removed = part_plain.volume - part.volume
+    assert 200.0 < removed < 2000.0, removed
+    # Span/planform must be untouched (thinning only, no outline change) —
+    # up to the 0.05 mm station-merge shuffle in the smooth tip segment.
+    bb, bb_plain = part.bounding_box(), part_plain.bounding_box()
+    assert abs(bb.max.Z - bb_plain.max.Z) < 0.05
+    assert abs(bb.max.X - bb_plain.max.X) < 0.05
+
+
+def test_groove_count_zero_is_identical(side_fin):
+    from fingen.params import GrooveParams
+
+    _, part_plain = side_fin
+    fin = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
+                    grooves=GrooveParams(count=0, depth_ratio=0.5))
+    assert abs(fin_solid(fin).volume - part_plain.volume) < 1e-6
+
+
 def test_checker_detects_broken_inputs():
     fin = FinParams()
     box = Solid.make_box(10, 10, 10)

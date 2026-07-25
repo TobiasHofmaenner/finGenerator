@@ -188,7 +188,8 @@ def _planform_ex(outline: OutlineParams) -> tuple[np.ndarray, np.ndarray, np.nda
 
 
 def chord_schedule(outline: OutlineParams, settings: GenSettings = DEFAULT_SETTINGS,
-                   tip_chord_min: float = 3.0) -> list[Station]:
+                   tip_chord_min: float = 3.0,
+                   extra_z: list[float] | None = None) -> list[Station]:
     """Sample loft stations over the rounded planform.
 
     Body stations are distributed by chord variation (density ∝ 1 + |dc/dz|,
@@ -197,6 +198,10 @@ def chord_schedule(outline: OutlineParams, settings: GenSettings = DEFAULT_SETTI
     Lobe stations sit at uniform ellipse angles (|dc/dz| diverges at the dome
     apex, so a gradient measure would pile everything into the last mm), and
     the final station is solved exactly at tip_chord_min.
+
+    extra_z injects additional exact stations (groove edges/centers): the
+    spanwise skin can only follow thickness features that the station set
+    resolves. Values outside (0, z_cut) are dropped; near-duplicates merged.
     """
     z, x_le, chord, z_w = _planform_ex(outline)
 
@@ -268,6 +273,17 @@ def chord_schedule(outline: OutlineParams, settings: GenSettings = DEFAULT_SETTI
         zi = np.concatenate((zi_body, z_w + span * np.sin(theta)))
     else:
         zi = zi_body
+
+    if extra_z:
+        # Stay clear of the exact base (z=0) and cap stations — the merge
+        # below keeps the last value of a close pair, and those two must
+        # survive exactly.
+        keep = [v for v in extra_z if 0.5 < v < z_cut - 0.05]
+        zi = np.sort(np.concatenate((zi, np.array(keep, dtype=float))))
+        # Merge near-duplicates (keep the later value so the exact cap
+        # station survives): sub-0.05 mm station pairs make OCCT's spanwise
+        # fit ill-conditioned without adding any resolvable geometry.
+        zi = zi[np.append(np.diff(zi) > 0.05, True)]
 
     return [Station(z=float(v),
                     x_le=float(np.interp(v, z, x_le)),

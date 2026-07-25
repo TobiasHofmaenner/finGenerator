@@ -41,6 +41,13 @@ class FinConfig(Enum):
     TWO_PLUS_ONE = "two_plus_one"
 
 
+class GrooveSurface(Enum):
+    """Which foil face carries the thinning grooves [Els22]."""
+
+    OUTER = "outer"  # G1 variant: convex face only
+    BOTH = "both"  # G2 variant: both faces (not buildable on flat-inside foils)
+
+
 def _require(condition: bool, message: str) -> None:
     if not condition:
         raise ValueError(message)
@@ -158,6 +165,52 @@ class TabParams:
 
 
 @dataclass(frozen=True)
+class GrooveParams:
+    """Spanwise thinning grooves [Els22, For24]: horizontal channels cut into
+    the foil over the upper span, thinning the section locally. Their CFD
+    reports +11 % L/D at high incidence (drag −13 %, lift −3.8 % at 30°) and
+    their bench test shows the grooved blade is measurably more flexible —
+    the channels double as flex hinges. The papers give count/length/spacing
+    but not depth, width or profile: those are free parameters here (and for
+    the optimizer). count=0 disables the feature entirely.
+
+    count: number of grooves (0 = none).
+    length: chordwise extent from the leading edge, mm; each groove fades out
+        by 85 % of the local chord so the trailing-edge band stays full
+        thickness (printable TE).
+    pitch: spanwise center-to-center spacing, mm.
+    width: spanwise width of each channel, mm (≤ pitch; equal = contiguous
+        scalloping).
+    depth_ratio: fraction of the local per-side thickness removed at the
+        channel center.
+    span_start: first groove center as a fraction of depth.
+    surface: OUTER (G1 [Els22]) or BOTH (G2); flat-inside foils only accept
+        OUTER (the inner face is the print bed).
+    """
+
+    count: int = 0
+    length: float = 60.0
+    pitch: float = 6.0
+    width: float = 3.0
+    depth_ratio: float = 0.35
+    span_start: float = 0.45
+    surface: GrooveSurface = GrooveSurface.OUTER
+
+    def __post_init__(self) -> None:
+        _require(0 <= self.count <= 12, f"groove count {self.count} outside 0–12")
+        _require(5.0 <= self.length <= 200.0,
+                 f"groove length {self.length} mm outside 5–200 mm")
+        _require(2.0 <= self.pitch <= 40.0,
+                 f"groove pitch {self.pitch} mm outside 2–40 mm")
+        _require(1.0 <= self.width <= self.pitch,
+                 f"groove width {self.width} mm outside 1 mm – pitch ({self.pitch} mm)")
+        _require(0.05 <= self.depth_ratio <= 0.6,
+                 f"groove depth_ratio {self.depth_ratio} outside 0.05–0.6")
+        _require(0.05 <= self.span_start <= 0.85,
+                 f"groove span_start {self.span_start} outside 0.05–0.85")
+
+
+@dataclass(frozen=True)
 class FinParams:
     """A single fin blade: outline × foil × spanwise schedules × mounting.
 
@@ -169,10 +222,23 @@ class FinParams:
     foil: FoilParams = field(default_factory=FoilParams)
     thickness_tip_factor: float = 0.85
     tabs: TabParams = field(default_factory=TabParams)
+    grooves: GrooveParams = field(default_factory=GrooveParams)
 
     def __post_init__(self) -> None:
         _require(0.5 <= self.thickness_tip_factor <= 1.2,
                  f"thickness_tip_factor {self.thickness_tip_factor} outside 0.5–1.2")
+        if self.grooves.count:
+            _require(self.foil.family is not FoilFamily.FLAT_INSIDE
+                     or self.grooves.surface is GrooveSurface.OUTER,
+                     "flat-inside foils carry the print-bed face inboard; "
+                     "grooves there must use surface=OUTER")
+            band_top = (self.grooves.span_start * self.outline.depth
+                        + (self.grooves.count - 1) * self.grooves.pitch
+                        + 0.5 * self.grooves.width)
+            _require(band_top <= 0.9 * self.outline.depth,
+                     f"groove band reaches {band_top:.1f} mm, beyond 90 % of the "
+                     f"{self.outline.depth} mm depth — fewer grooves, tighter "
+                     "pitch, or lower span_start")
 
 
 def _default_side() -> FinParams:

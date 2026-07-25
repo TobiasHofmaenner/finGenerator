@@ -6,7 +6,15 @@ import argparse
 from pathlib import Path
 
 from fingen import __version__
-from fingen.params import FinParams, FoilParams, OutlineParams, TabParams, TabSystem
+from fingen.params import (
+    FinParams,
+    FoilParams,
+    GrooveParams,
+    GrooveSurface,
+    OutlineParams,
+    TabParams,
+    TabSystem,
+)
 
 # CLI defaults derive from the dataclasses — duplicated literals drifted once
 # (CLI sweep stayed 33 when the params default moved to 42) and shall not again.
@@ -14,6 +22,7 @@ _OUT = OutlineParams()
 _FOIL = FoilParams()
 _FIN = FinParams()
 _TABS = TabParams()
+_GROOVES = GrooveParams()
 _TAB_MAP = {"none": TabSystem.NONE, "dual": TabSystem.DUAL_TAB,
             "single": TabSystem.SINGLE_TAB, "click": TabSystem.CLICK_TAB}
 
@@ -48,6 +57,24 @@ def _add_geometry_args(sub: argparse.ArgumentParser) -> None:
                      help="tab thickness offset in mm; calibrate with `fingen coupon`")
     sub.add_argument("--tab-depth", type=float, default=None, dest="tab_depth",
                      help="override tab insertion depth in mm (default: system value)")
+    sub.add_argument("--grooves", type=int, default=_GROOVES.count, dest="grooves",
+                     help="number of spanwise thinning grooves, 0 = none "
+                          "([Els22]: +11%% L/D at high incidence, adds tip flex)")
+    sub.add_argument("--groove-length", type=float, default=_GROOVES.length,
+                     dest="groove_length", help="chordwise groove extent from LE, mm")
+    sub.add_argument("--groove-pitch", type=float, default=_GROOVES.pitch,
+                     dest="groove_pitch", help="spanwise center spacing, mm")
+    sub.add_argument("--groove-width", type=float, default=_GROOVES.width,
+                     dest="groove_width", help="channel width, mm (<= pitch)")
+    sub.add_argument("--groove-depth", type=float, default=_GROOVES.depth_ratio,
+                     dest="groove_depth",
+                     help="fraction of local thickness removed at channel center")
+    sub.add_argument("--groove-start", type=float, default=_GROOVES.span_start,
+                     dest="groove_start",
+                     help="first groove center as fraction of depth")
+    sub.add_argument("--groove-surface", choices=["outer", "both"],
+                     default=_GROOVES.surface.value, dest="groove_surface",
+                     help="outer face only (G1) or both faces (G2, not on flat)")
 
 
 def _fin_from_args(args: argparse.Namespace):
@@ -69,6 +96,11 @@ def _fin_from_args(args: argparse.Namespace):
         thickness_tip_factor=args.tip_factor,
         tabs=TabParams(system=_TAB_MAP[args.tabs], fit_offset=args.tab_fit,
                        tab_depth=args.tab_depth),
+        grooves=GrooveParams(count=args.grooves, length=args.groove_length,
+                             pitch=args.groove_pitch, width=args.groove_width,
+                             depth_ratio=args.groove_depth,
+                             span_start=args.groove_start,
+                             surface=GrooveSurface(args.groove_surface)),
     )
 
 

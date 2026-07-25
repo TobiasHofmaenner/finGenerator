@@ -24,6 +24,8 @@ planar inner face (printable flat on the bed).
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import numpy as np
 
 from fingen.params import FoilFamily, FoilParams
@@ -74,6 +76,8 @@ def section_points(
     chord: float,
     thickness_ratio: float | None = None,
     n_points: int = 100,
+    thin_outer: Callable[[np.ndarray], np.ndarray] | None = None,
+    thin_inner: Callable[[np.ndarray], np.ndarray] | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Return (upper, lower) surface point arrays for one section, in mm.
 
@@ -83,6 +87,10 @@ def section_points(
     closes it with a straight TE segment).
 
     thickness_ratio overrides foil.thickness_ratio (spanwise schedules).
+    thin_outer/thin_inner scale the per-side thickness distribution as a
+    function of normalized chordwise position — the hook for spanwise
+    thinning grooves [Els22]. Thinning acts on the thickness envelope (about
+    the camber line), so cambered sections groove cleanly too.
     """
     if chord <= 0.0:
         raise ValueError(f"chord must be positive, got {chord}")
@@ -90,22 +98,24 @@ def section_points(
     n = max(n_points // 2, 20)
     x = _cosine_x(n)
     yt = _thickness(x, t)
+    yt_u = yt * thin_outer(x) if thin_outer is not None else yt
+    yt_l = yt * thin_inner(x) if thin_inner is not None else yt
 
     if foil.family is FoilFamily.FLAT_INSIDE:
         # Flat face at y=0; the full section thickness goes outboard: the outer
         # surface is the doubled thickness envelope (upper half of a NACA
         # section of parameter 2t), so max total thickness = t·chord [BW04].
-        upper = np.column_stack((x, 2.0 * yt))
+        upper = np.column_stack((x, 2.0 * yt_u))
         lower = np.column_stack((x, np.zeros_like(x)))
     elif foil.family is FoilFamily.CAMBERED and foil.camber_ratio > 0.0:
         yc, dyc = _camber(x, foil.camber_ratio, foil.camber_position)
         theta = np.arctan(dyc)
-        upper = np.column_stack((x - yt * np.sin(theta), yc + yt * np.cos(theta)))
-        lower = np.column_stack((x + yt * np.sin(theta), yc - yt * np.cos(theta)))
+        upper = np.column_stack((x - yt_u * np.sin(theta), yc + yt_u * np.cos(theta)))
+        lower = np.column_stack((x + yt_l * np.sin(theta), yc - yt_l * np.cos(theta)))
         lower[0] = upper[0]  # exact shared LE point
     else:  # SYMMETRIC (or CAMBERED with zero camber)
-        upper = np.column_stack((x, yt))
-        lower = np.column_stack((x, -yt))
+        upper = np.column_stack((x, yt_u))
+        lower = np.column_stack((x, -yt_l))
 
     upper *= chord
     lower *= chord
