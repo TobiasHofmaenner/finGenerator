@@ -95,6 +95,15 @@ PARAM_HELP = {
     "foil_family": "Symmetric 50/50 for center fins, flat inside for sides, cambered between.",
     "tabs": "Mounting: dual (FCS-compatible), single (Futures), click (FCS II), or none.",
     "tab_fit": "Print-fit tweak of tab thickness. Print a test coupon, adjust in 0.1 mm steps.",
+    "grooves": "Thinning grooves on the upper fin: +11% lift-to-drag at hard "
+               "turn angles, softer tip flex (Wollongong studies). 0 = smooth fin.",
+    "groove_length": "How far each groove runs back from the leading edge.",
+    "groove_pitch": "Spanwise spacing between groove centers.",
+    "groove_width": "Width of each groove channel (≤ pitch).",
+    "groove_depth": "Fraction of local thickness removed at a groove center. "
+                    "Deeper = more effect, softer fin.",
+    "groove_start": "Where the groove band begins, as a fraction of depth.",
+    "groove_surface": "Outer face only (G1, prints flat) or both faces (G2).",
 }
 
 
@@ -221,6 +230,48 @@ def generate_all(outdir: str | Path, png: bool = False) -> list[Path]:
                 family="monospace")
     ax.set_xlim(-6, 190)
     _save(fig, outdir, "foil_family", png)
+
+    # grooves: planform with the thinned band + dimension arrows
+    from fingen.params import FinParams, GrooveParams
+    fig, ax = _fig()
+    _draw_outline(ax, color=_DIM, lw=1.4)
+    fin = FinParams(grooves=GrooveParams(count=6))
+    g = fin.grooves
+    d = default.depth
+    from fingen.outline import planform
+    zpl, x_le_pl, chord_pl = planform(default)
+    for i in range(g.count):
+        zc = g.span_start * d + i * g.pitch
+        x0 = float(np.interp(zc, zpl, x_le_pl))
+        run = min(g.length, 0.55 * float(np.interp(zc, zpl, chord_pl)))
+        ax.plot([x0 + 2, x0 + 2 + run], [zc, zc], color=_MAIN, lw=2.6,
+                solid_capstyle="round", alpha=0.9)
+    z0 = g.span_start * d
+    _arrow(ax, (default.base * 1.02, z0), (default.base * 1.02, z0 + 5 * g.pitch), "")
+    ax.text(default.base * 1.08, z0 + 2.5 * g.pitch, "pitch × n", color=_MAIN,
+            fontsize=9, family="monospace", rotation=90, va="center")
+    ax.text(30, z0 - 12, "grooves", color=_MAIN, fontsize=11, family="monospace")
+    _save(fig, outdir, "grooves", png)
+
+    # groove depth: full vs thinned section overlay
+    fig, ax = _fig()
+    x, y = _section_xy(FoilParams(family=FoilFamily.FLAT_INSIDE, thickness_ratio=0.1))
+    ax.plot(x, y, color=_DIM, lw=1.4)
+    thin = lambda xs: 1.0 - 0.5 * np.where(  # noqa: E731
+        xs <= 0.45, 1.0, np.where(xs >= 0.6, 0.0,
+                                  0.5 * (1 + np.cos(np.pi * (xs - 0.45) / 0.15))))
+    upper, lower = section_points(
+        FoilParams(family=FoilFamily.FLAT_INSIDE, thickness_ratio=0.1), 100.0,
+        n_points=120, thin_outer=thin)
+    ax.plot(upper[:, 0], upper[:, 1] * _YX, color=_MAIN, lw=_LW)
+    i = int(np.argmax(y))
+    y_thin = float(np.interp(x[i], upper[:, 0], upper[:, 1])) * _YX
+    ax.plot([x[i], x[i]], [y_thin, y[i]], color=_MAIN, lw=1.2)
+    ax.plot([x[i] - 3, x[i] + 3], [y[i], y[i]], color=_MAIN, lw=1.2)
+    ax.plot([x[i] - 3, x[i] + 3], [y_thin, y_thin], color=_MAIN, lw=1.2)
+    ax.text(x[i], y[i] + 7, "groove depth", color=_MAIN, fontsize=11,
+            ha="center", family="monospace")
+    _save(fig, outdir, "groove_depth", png)
 
     return sorted(outdir.glob("*.svg"))
 
