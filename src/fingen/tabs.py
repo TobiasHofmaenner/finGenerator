@@ -93,16 +93,21 @@ def _tab_center_y(fin: FinParams, settings: GenSettings, thick: float) -> float:
     return y_c
 
 
-def _tab_x0(base: float, span: float, x_offset: float, label: str) -> float:
-    """Leading x of the tab set: centered on the base, slid by x_offset, and
-    required to stay on the base with 1 mm margins (clean rejection)."""
-    x0 = (base - span) / 2.0 + x_offset
-    if x0 < 1.0 or x0 + span > base - 1.0:
-        raise ValueError(
-            f"tab x_offset {x_offset:+.1f} mm pushes the {label} set off the "
-            f"base (usable range ±{max((base - span) / 2.0 - 1.0, 0.0):.1f} mm "
-            f"for base {base:.0f} mm)")
-    return x0
+def _require_engagement(intervals: list[tuple[float, float]], base: float,
+                        x_offset: float, label: str) -> None:
+    """Each tab must keep enough length engaged under the base footprint to
+    fuse structurally — but tabs MAY overhang the base ends: commercial
+    click fins align the rear indent with the fin's aft end, and on small
+    fins (base < set span) overhang is the only way the set fits at all.
+    Engagement floor: half the tab's length, at least 8 mm."""
+    for x_lo, x_hi in intervals:
+        need = max(0.5 * (x_hi - x_lo), 8.0)
+        got = min(x_hi, base) - max(x_lo, 0.0)
+        if got < need:
+            raise ValueError(
+                f"tab x_offset {x_offset:+.1f} mm leaves a {label} tab at "
+                f"[{x_lo:.1f}, {x_hi:.1f}] mm with only {max(got, 0.0):.1f} mm "
+                f"engaged under the {base:.0f} mm base (needs {need:.1f} mm)")
 
 
 def _raked_cut(x_face: float, angle_deg: float, side: str) -> Part:
@@ -135,10 +140,10 @@ def build_tabs(fin: FinParams, settings: GenSettings) -> Part | None:
         thick = _DUAL_THICK + tabs.fit_offset
         y_c = _tab_center_y(fin, settings, thick)
         span = _DUAL_PITCH + _DUAL_LEN  # 73 mm outer span
-        if base < span + 6.0:
-            raise ValueError(f"dual-tab needs a base of at least {span + 6.0:.0f} mm "
-                             f"(got {base:.0f} mm)")
-        x0 = _tab_x0(base, span, tabs.x_offset, "dual-tab")
+        x0 = (base - span) / 2.0 + tabs.x_offset
+        _require_engagement([(x0, x0 + _DUAL_LEN),
+                             (x0 + _DUAL_PITCH, x0 + span)],
+                            base, tabs.x_offset, "dual-tab")
         solid = None
         for cx in (x0 + _DUAL_LEN / 2.0, x0 + _DUAL_PITCH + _DUAL_LEN / 2.0):
             tab = Pos(cx, y_c, -depth / 2.0) * Box(_DUAL_LEN, thick, depth)
@@ -153,7 +158,8 @@ def build_tabs(fin: FinParams, settings: GenSettings) -> Part | None:
         length = min(base - 12.0, _SINGLE_MAXLEN)
         if length < 50.0:
             raise ValueError(f"single-tab needs a base of at least 62 mm (got {base:.0f} mm)")
-        x0 = _tab_x0(base, length, tabs.x_offset, "single-tab")
+        x0 = (base - length) / 2.0 + tabs.x_offset
+        _require_engagement([(x0, x0 + length)], base, tabs.x_offset, "single-tab")
         tab = Pos(x0 + length / 2.0, y_c, -depth / 2.0) * Box(length, thick, depth)
         # Angled front face, bottom edge leading: the fin hooks in nose-first.
         tab -= _raked_cut(x0 + depth * 0.06, _SINGLE_FRONT_ANGLE, "front")
@@ -162,10 +168,10 @@ def build_tabs(fin: FinParams, settings: GenSettings) -> Part | None:
     # CLICK_TAB
     thick = _CLICK_THICK + tabs.fit_offset
     y_c = _tab_center_y(fin, settings, thick)
-    if base < _CLICK_SPAN + 6.0:
-        raise ValueError(f"click-tab needs a base of at least {_CLICK_SPAN + 6.0:.0f} mm "
-                         f"(got {base:.0f} mm)")
-    x0 = _tab_x0(base, _CLICK_SPAN, tabs.x_offset, "click-tab")
+    x0 = (base - _CLICK_SPAN) / 2.0 + tabs.x_offset
+    rear_span = (x0 + _CLICK_FRONT + _CLICK_GAP, x0 + _CLICK_SPAN)
+    _require_engagement([(x0, x0 + _CLICK_FRONT), rear_span],
+                        base, tabs.x_offset, "click-tab")
     front = Pos(x0 + _CLICK_FRONT / 2.0, y_c, -depth / 2.0) * Box(_CLICK_FRONT, thick, depth)
     # Trailing-edge rake (bottom forward) eases the insertion rotation.
     front -= _raked_cut(x0 + _CLICK_FRONT, _CLICK_TE_RAKE, "aft")

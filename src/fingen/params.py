@@ -149,8 +149,11 @@ class TabParams:
         0 disables them (printed indents deform after some cycles — the
         box's grub screws are the standard fallback).
     x_offset: slides the whole tab set along the base chord, mm (+ = toward
-        the trailing edge). Feasibility against the actual base length is
-        checked at build time (the set must stay on the base).
+        the trailing edge). Tabs may overhang the base ends — commercial
+        click fins align the rear indent with the fin's aft end, and small
+        fins need overhang for the set to fit at all — but each tab must
+        keep ≥ half its length (min 8 mm) engaged under the base (checked
+        at build time with a per-tab message).
     y_offset: shifts the tabs across the section thickness, mm, applied on
         top of the family anchor: FLAT_INSIDE fins anchor the tab's inner
         face flush with the y = 0 flat plane (bed-flat printing, matching

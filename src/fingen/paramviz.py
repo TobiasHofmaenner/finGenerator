@@ -95,7 +95,8 @@ PARAM_HELP = {
     "foil_family": "Symmetric 50/50 for center fins, flat inside for sides, cambered between.",
     "tabs": "Mounting: dual (FCS-compatible), single (Futures), click (FCS II), or none.",
     "tab_fit": "Print-fit tweak of tab thickness. Print a test coupon, adjust in 0.1 mm steps.",
-    "tab_x": "Slide the tab set fore/aft along the base.",
+    "tab_x": "Slide the tab set fore/aft. Tabs may overhang the base ends "
+             "(commercial click fins do); each keeps ≥ half its length engaged.",
     "tab_y": "Shift tabs across the fin thickness. Flat fins anchor the tabs "
              "flush with the flat side, so fin and tabs print flat on the bed.",
     "grooves": "Thinning grooves on the upper fin: +11% lift-to-drag at hard "

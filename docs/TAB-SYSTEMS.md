@@ -107,9 +107,14 @@ printer/filament; CF-reinforced filament over PLA.
 
 ## Tab positioning (v0.4.0)
 
-`TabParams.x_offset` slides the whole tab set along the base chord
-(feasibility-checked at build time: the set must stay on the base with 1 mm
-margins); `y_offset` shifts it across the section thickness. The thickness
+`TabParams.x_offset` slides the whole tab set along the base chord;
+`y_offset` shifts it across the section thickness. The set may overhang
+the base ends — commercial click fins align the rear indent with the
+fin's aft end so the rear tab protrudes past the trailing base corner,
+and on small fins (base shorter than the 98 mm click span) overhang is
+the only way the set fits. The build-time guard checks *engagement*
+instead of containment: each tab keeps at least half its length (min
+8 mm) under the base, or a per-tab ValueError names the shortfall. The thickness
 anchor is family-aware: **flat-inside fins carry the tab's inner face flush
 with the y = 0 flat plane**, so blade and tabs print flat on the bed with no
 supports — commercial flat-foiled fins sit in their boxes exactly this way,

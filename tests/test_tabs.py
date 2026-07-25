@@ -78,10 +78,18 @@ def test_fit_offset_changes_thickness():
 
 
 def test_small_base_rejected_cleanly():
+    # base 70 with dual tabs is LEGAL under the engagement rule (1.5 mm
+    # overhang per end, 18.5 mm engaged — real grom fins do this); a base
+    # where a tab cannot reach its engagement floor still rejects cleanly.
     fin = FinParams(outline=OutlineParams(depth=90.0, base=70.0),
                     tabs=TabParams(system=TabSystem.DUAL_TAB))
+    fin_solid(fin, COARSE)  # builds
+    tiny = FinParams(outline=OutlineParams(depth=90.0, base=45.0),
+                     tabs=TabParams(system=TabSystem.DUAL_TAB))
+    # (the y-envelope guard fires first here — a 6.15 mm tab can't fit a
+    # ±2.1 mm section; either way: clean rejection, never a corrupt build)
     with pytest.raises(ValueError):
-        fin_solid(fin, COARSE)
+        fin_solid(tiny, COARSE)
 
 
 def test_coupons_build():
@@ -150,8 +158,26 @@ def test_tab_leaving_section_envelope_rejected():
         build_tabs(fin, COARSE)
 
 
-def test_tab_x_offset_off_base_rejected():
-    fin = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
-                    tabs=TabParams(system=TabSystem.DUAL_TAB, x_offset=25.0))
-    with pytest.raises(ValueError, match="off the base"):
-        build_tabs(fin, COARSE)
+def test_tab_overhang_allowed_but_engagement_required():
+    # Commercial-style: rear tab overhangs the aft base corner — legal.
+    over = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
+                     tabs=TabParams(system=TabSystem.CLICK_TAB, x_offset=8.0))
+    bb = build_tabs(over, COARSE).bounding_box()
+    overhang = bb.max.X - over.outline.base
+    assert overhang > 0  # genuinely past the aft base corner
+    # But an unengaged tab is refused, naming the shortfall.
+    off = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
+                    tabs=TabParams(system=TabSystem.DUAL_TAB, x_offset=35.0))
+    with pytest.raises(ValueError, match="engaged"):
+        build_tabs(off, COARSE)
+
+
+def test_click_tabs_fit_small_base_via_overhang():
+    # base 96 < click span 98: impossible under the old containment rule,
+    # normal on commercial small fins. Whole-fin build + check must pass.
+    fin = FinParams(outline=OutlineParams(base=96.0),
+                    foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
+                    tabs=TabParams(system=TabSystem.CLICK_TAB))
+    part = fin_solid(fin, COARSE)
+    report = check_solid(part, fin, COARSE)
+    assert report.ok, report.issues
