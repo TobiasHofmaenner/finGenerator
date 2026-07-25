@@ -59,11 +59,18 @@ thoroughness is cheap relative to what a wrong bench would cost:
    the steep mid-transition region). The transition-model machinery our
    CaseSpec(transition=True) mode uses reproduces the canonical
    benchmark. Plot: `out/t3a-validation.png`.
-2. **NASA TMR 2D flat plate** (turbmodels.larc.nasa.gov) — Cf(x)/u⁺
-   against CFL3D/FUN3D reference solutions: the k-ω SST implementation +
-   wall-function behavior isolated from meshing. The gold standard for
-   "is my solver setup sane"; their 2D bump / NACA 0012 / RAE 2822
-   families follow if the plate passes.
+2. **NASA TMR 2D flat plate** — ✅ DONE (`scripts/tmr_flatplate.py`;
+   the TMR now lives at tmbwg.github.io/turbmodels). Incompressible
+   analog at Re_L 5×10⁶ vs the CFL3D SST reference: wall-resolved mesh
+   (y⁺ 0.04–0.12) hits Cf(0.97) within **−2.5 %** with mean |ΔCf| 1.8 %
+   and the u⁺(y⁺) profile on the law-of-the-wall reference through
+   sublayer, log layer and wake — the SST implementation is sane. The
+   production wall-function band (y⁺ 12–91, our fin-bench regime) lands
+   Cf(0.97) within **−0.2 %** with mean |ΔCf| 3.7 %, the error
+   concentrated in the leading-edge transient (x < 0.25) where y⁺ falls
+   out of band — for the fin this is a small chord fraction. Plot:
+   `out/tmr-flatplate.png`. Their 2D bump / NACA 0012 / RAE 2822
+   families remain available as follow-ups.
 3. **Extruded NACA 0012 vs [SK81]** — section machinery against the
    tabulated polars the tier-0 model cites, incl. post-stall.
 4. **Zarruk 2014 towing-tank replication** — modern force + deflection
