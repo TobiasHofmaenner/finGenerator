@@ -122,3 +122,40 @@ fully-turbulent SST vs their transitional Re ≈ 6.6×10⁵ flow; digitizing
 error. The mean-ΔCL gate stays **red** until a transition model
 (γ-Reθ, the next validation tier) can close it for physics reasons
 rather than gate-widening.
+
+## Transition tier (γ-Reθ) — a clean null on lift, a real shift on drag
+
+Setup: `CaseSpec(transition=True)` = kOmegaSSTLM on the mesh-level-4
+resolved wall (1.19 M cells, absolute prism layers targeting cell-center
+y⁺ ≈ 1; achieved y⁺ 0.07–113, avg 11 — ≈ 10 % of faces near the root/tip
+seams lost their layers, away from the transition zone). Inlet Tu 1 %
+(assumed — the tunnel's value is unpublished), verified by a line probe
+to survive undecayed to the fin (0.99 → 1.00 %). Ideal reflection wall,
+angles 0/4/8°, 2 500 iterations each (~1.5–1.8 h per angle at 10 ranks).
+Data: `bench/bw04-polar-transition.json`.
+
+The model does real transition physics here: at α = 0 the fin runs
+**≈ 87 % laminar** (surface eddy viscosity below molecular over the front
+90 % of chord, transition only near the TE — matching the extensive
+laminar running [BW04]'s own flow visualization describes), and drag
+drops accordingly (CD₀ 0.0260 → 0.0245, −8 % at α = 8°).
+
+| ideal wall, 0–8° | slope [/°] | α_ZL | mean \|ΔCL\| |
+|---|---|---|---|
+| Fully-turbulent SST | 0.0572 | −3.77° | 0.070 |
+| γ-Reθ transition | **0.0574** | −3.81° | 0.073 |
+| [BW04] measurement | 0.0500 | −3.5° | — |
+
+**Verdict: transition modeling does not move linear-range lift** — the
+laminar boundary layer is marginally thinner, decambers the section
+marginally less, and nudges CL microscopically *up*. Combined with the
+tunnel-wall result, the gap decomposition is: wall BL ≈ ⅓ (measured,
+generous upper bound), transition ≈ 0 (measured), remainder — most
+plausibly the paper's one-significant-figure slope statement (0.05/°
+spans 0.045–0.055; our wall-corrected 0.0548 sits inside it) plus
+digitizing error. The linear-range bench is not hiding a physics
+deficiency; the red mean-ΔCL gate measures the experiment's reporting
+precision as much as our model. Transition's real value going forward is
+**drag** (laminar CD₀ feeds the speed axis) and the post-knee regime,
+where [BW04]'s laminar-bubble burst lives — steady linear-range lift
+never needed it.
