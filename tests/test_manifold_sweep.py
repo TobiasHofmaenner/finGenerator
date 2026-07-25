@@ -93,7 +93,7 @@ fin_components = st.fixed_dictionaries({
     "grooves": groove_strategy(),
 })
 
-_outcomes = {"produced": 0, "rejected": 0}
+_outcomes = {"produced": 0, "rejected": 0, "invalid": 0}
 
 
 @given(fin_components)
@@ -102,6 +102,15 @@ _outcomes = {"produced": 0, "rejected": 0}
 def test_any_valid_params_yield_a_manifold(components):
     try:
         fin = FinParams(**components)
+    except ValueError:
+        # Cross-field parameter validation (groove band vs depth, groove
+        # surface vs family) — the front door, not the escape hatch. Counted
+        # apart so the acceptance floor keeps measuring what it always did:
+        # of the vectors that pass validation, most must build.
+        _outcomes["invalid"] += 1
+        event("invalid parameter vector")
+        return
+    try:
         part = fin_solid(fin, COARSE)
     except ValueError:
         _outcomes["rejected"] += 1
