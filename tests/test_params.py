@@ -8,6 +8,7 @@ from fingen import (
     FoilParams,
     GenSettings,
     OutlineParams,
+    TabParams,
 )
 
 
@@ -32,6 +33,14 @@ def test_rejects_out_of_range_values():
         FinParams(thickness_tip_factor=0.1)
     with pytest.raises(ValueError):
         GenSettings(n_stations=3)
+
+
+def test_tab_offset_validation():
+    TabParams(x_offset=10.0, y_offset=-1.5)
+    with pytest.raises(ValueError):
+        TabParams(x_offset=60.0)
+    with pytest.raises(ValueError):
+        TabParams(y_offset=5.0)
 
 
 def test_groove_validation():
@@ -88,6 +97,8 @@ def test_cli_defaults_match_dataclass_defaults():
         g.length, g.pitch, g.width)
     assert (args.groove_depth, args.groove_start) == (g.depth_ratio, g.span_start)
     assert args.groove_surface == g.surface.value
+    t = TabParams()
+    assert (args.tab_x, args.tab_y) == (t.x_offset, t.y_offset)
 
 
 def test_cli_groove_args_reach_the_dataclass():

@@ -8,8 +8,12 @@ patent/trademark situation — generic names are deliberate):
 - SINGLE_TAB (Futures-compatible): one blade-length tab, angled front face.
 - CLICK_TAB  (FCS II-compatible): 45+33 mm tabs, hook notch, side indents.
 
-Tabs extend below the base plane (z < 0), centered on the base section's
-mid-thickness, and are fused onto the blade. All dimensions carry a
+Tabs extend below the base plane (z < 0) and are fused onto the blade.
+Thickness anchor: FLAT_INSIDE fins carry the tab's inner face flush with the
+y = 0 flat plane (the whole fin prints flat on the bed, like commercial
+flat-foiled fins — boxes have the lateral clearance for it); other families
+center the tab on the base section's mid-thickness. TabParams.x_offset /
+y_offset slide the set along the base / across the thickness from there. All dimensions carry a
 `fit_offset` on thickness — printers vary, boxes are the ground truth; print
 the test coupon (`fingen coupon`) before a full fin. v1 simplifications,
 documented deliberately: no draft angles, sharp hook-notch root (R2 in the
@@ -23,7 +27,14 @@ import numpy as np
 from build123d import Axis, Box, Part, Plane, Polygon, Pos, extrude
 
 from fingen.foil import section_points
-from fingen.params import DEFAULT_SETTINGS, FinParams, GenSettings, TabParams, TabSystem
+from fingen.params import (
+    DEFAULT_SETTINGS,
+    FinParams,
+    FoilFamily,
+    GenSettings,
+    TabParams,
+    TabSystem,
+)
 
 # Nominal (slot-side) dimensions in mm from docs/TAB-SYSTEMS.md.
 _DUAL_LEN, _DUAL_DEPTH, _DUAL_THICK, _DUAL_PITCH = 20.0, 14.0, 6.35, 53.0
@@ -51,10 +62,31 @@ def system_depth(tabs: TabParams) -> float:
 
 
 def _base_mid_y(fin: FinParams, settings: GenSettings) -> float:
-    """Mid-thickness of the base section — the tab centerline."""
+    """Mid-thickness of the base section — the non-flat-family tab centerline."""
     upper, lower = section_points(fin.foil, fin.outline.base,
                                   n_points=settings.n_foil_points)
     return float((upper[:, 1].max() + lower[:, 1].min()) / 2.0)
+
+
+def _tab_center_y(fin: FinParams, settings: GenSettings, thick: float) -> float:
+    """Tab centerline in y for a tab of the given thickness: flush with the
+    flat face on FLAT_INSIDE fins (printability anchor), mid-thickness
+    elsewhere; TabParams.y_offset shifts from that anchor."""
+    if fin.foil.family is FoilFamily.FLAT_INSIDE:
+        return thick / 2.0 + fin.tabs.y_offset
+    return _base_mid_y(fin, settings) + fin.tabs.y_offset
+
+
+def _tab_x0(base: float, span: float, x_offset: float, label: str) -> float:
+    """Leading x of the tab set: centered on the base, slid by x_offset, and
+    required to stay on the base with 1 mm margins (clean rejection)."""
+    x0 = (base - span) / 2.0 + x_offset
+    if x0 < 1.0 or x0 + span > base - 1.0:
+        raise ValueError(
+            f"tab x_offset {x_offset:+.1f} mm pushes the {label} set off the "
+            f"base (usable range ±{max((base - span) / 2.0 - 1.0, 0.0):.1f} mm "
+            f"for base {base:.0f} mm)")
+    return x0
 
 
 def _raked_cut(x_face: float, angle_deg: float, side: str) -> Part:
@@ -82,18 +114,18 @@ def build_tabs(fin: FinParams, settings: GenSettings) -> Part | None:
 
     base = fin.outline.base
     depth = system_depth(tabs)
-    y_mid = _base_mid_y(fin, settings)
 
     if tabs.system is TabSystem.DUAL_TAB:
         thick = _DUAL_THICK + tabs.fit_offset
+        y_c = _tab_center_y(fin, settings, thick)
         span = _DUAL_PITCH + _DUAL_LEN  # 73 mm outer span
         if base < span + 6.0:
             raise ValueError(f"dual-tab needs a base of at least {span + 6.0:.0f} mm "
                              f"(got {base:.0f} mm)")
-        x0 = (base - span) / 2.0
+        x0 = _tab_x0(base, span, tabs.x_offset, "dual-tab")
         solid = None
         for cx in (x0 + _DUAL_LEN / 2.0, x0 + _DUAL_PITCH + _DUAL_LEN / 2.0):
-            tab = Pos(cx, y_mid, -depth / 2.0) * Box(_DUAL_LEN, thick, depth)
+            tab = Pos(cx, y_c, -depth / 2.0) * Box(_DUAL_LEN, thick, depth)
             bottom = tab.edges().filter_by(Axis.Y).group_by(Axis.Z)[0]
             tab = tab.fillet(_DUAL_CORNER, bottom)
             solid = tab if solid is None else solid + tab
@@ -101,37 +133,39 @@ def build_tabs(fin: FinParams, settings: GenSettings) -> Part | None:
 
     if tabs.system is TabSystem.SINGLE_TAB:
         thick = _SINGLE_THICK + tabs.fit_offset
+        y_c = _tab_center_y(fin, settings, thick)
         length = min(base - 12.0, _SINGLE_MAXLEN)
         if length < 50.0:
             raise ValueError(f"single-tab needs a base of at least 62 mm (got {base:.0f} mm)")
-        x0 = (base - length) / 2.0
-        tab = Pos(x0 + length / 2.0, y_mid, -depth / 2.0) * Box(length, thick, depth)
+        x0 = _tab_x0(base, length, tabs.x_offset, "single-tab")
+        tab = Pos(x0 + length / 2.0, y_c, -depth / 2.0) * Box(length, thick, depth)
         # Angled front face, bottom edge leading: the fin hooks in nose-first.
         tab -= _raked_cut(x0 + depth * 0.06, _SINGLE_FRONT_ANGLE, "front")
         return Part() + tab
 
     # CLICK_TAB
     thick = _CLICK_THICK + tabs.fit_offset
+    y_c = _tab_center_y(fin, settings, thick)
     if base < _CLICK_SPAN + 6.0:
         raise ValueError(f"click-tab needs a base of at least {_CLICK_SPAN + 6.0:.0f} mm "
                          f"(got {base:.0f} mm)")
-    x0 = (base - _CLICK_SPAN) / 2.0
-    front = Pos(x0 + _CLICK_FRONT / 2.0, y_mid, -depth / 2.0) * Box(_CLICK_FRONT, thick, depth)
+    x0 = _tab_x0(base, _CLICK_SPAN, tabs.x_offset, "click-tab")
+    front = Pos(x0 + _CLICK_FRONT / 2.0, y_c, -depth / 2.0) * Box(_CLICK_FRONT, thick, depth)
     # Trailing-edge rake (bottom forward) eases the insertion rotation.
     front -= _raked_cut(x0 + _CLICK_FRONT, _CLICK_TE_RAKE, "aft")
     # Hook notch in the leading edge: the material below it is the nose that
     # slides under the plug's internal bar.
-    front -= (Pos(x0 + _NOTCH_DEEP / 2.0, y_mid, -(_NOTCH_TOP + _NOTCH_BOTTOM) / 2.0)
+    front -= (Pos(x0 + _NOTCH_DEEP / 2.0, y_c, -(_NOTCH_TOP + _NOTCH_BOTTOM) / 2.0)
               * Box(_NOTCH_DEEP, thick + 2.0, _NOTCH_BOTTOM - _NOTCH_TOP))
 
     rear_x0 = x0 + _CLICK_FRONT + _CLICK_GAP
-    rear = Pos(rear_x0 + _CLICK_REAR / 2.0, y_mid, -depth / 2.0) * Box(_CLICK_REAR, thick, depth)
+    rear = Pos(rear_x0 + _CLICK_REAR / 2.0, y_c, -depth / 2.0) * Box(_CLICK_REAR, thick, depth)
     rear -= _raked_cut(rear_x0 + _CLICK_REAR, _CLICK_TE_RAKE, "aft")
     # Spring-barrel indents on BOTH faces of the rear tab.
     if tabs.click_indent_depth > 0.0:
         z_mid = -(_INDENT_TOP + _INDENT_TALL / 2.0)
         for side in (-1.0, 1.0):
-            y_face = y_mid + side * thick / 2.0
+            y_face = y_c + side * thick / 2.0
             rear -= (Pos(rear_x0 + _INDENT_SETBACK + _INDENT_LEN / 2.0,
                          y_face - side * tabs.click_indent_depth / 2.0, z_mid)
                      * Box(_INDENT_LEN, tabs.click_indent_depth + 0.2, _INDENT_TALL))
@@ -143,7 +177,12 @@ def coupon_solid(tabs: TabParams, settings: GenSettings = DEFAULT_SETTINGS) -> P
     print, so the fit_offset gets dialed against real boxes before a full fin."""
     if tabs.system is TabSystem.NONE:
         raise ValueError("coupon needs a tab system (dual/single/click)")
+    from dataclasses import replace
+
     from fingen.params import FinParams, FoilParams
+
+    # The coupon tests the box interface, not the placement — offsets zeroed.
+    tabs = replace(tabs, x_offset=0.0, y_offset=0.0)
 
     span = {TabSystem.DUAL_TAB: 79.0, TabSystem.SINGLE_TAB: 92.0,
             TabSystem.CLICK_TAB: 104.0}[tabs.system]

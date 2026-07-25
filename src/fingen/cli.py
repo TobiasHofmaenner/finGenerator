@@ -57,6 +57,11 @@ def _add_geometry_args(sub: argparse.ArgumentParser) -> None:
                      help="tab thickness offset in mm; calibrate with `fingen coupon`")
     sub.add_argument("--tab-depth", type=float, default=None, dest="tab_depth",
                      help="override tab insertion depth in mm (default: system value)")
+    sub.add_argument("--tab-x", type=float, default=_TABS.x_offset, dest="tab_x",
+                     help="slide the tab set along the base, mm (+ = toward TE)")
+    sub.add_argument("--tab-y", type=float, default=_TABS.y_offset, dest="tab_y",
+                     help="shift tabs across the thickness, mm (flat fins anchor "
+                          "flush with the flat side)")
     sub.add_argument("--grooves", type=int, default=_GROOVES.count, dest="grooves",
                      help="number of spanwise thinning grooves, 0 = none "
                           "([Els22]: +11%% L/D at high incidence, adds tip flex)")
@@ -95,7 +100,8 @@ def _fin_from_args(args: argparse.Namespace):
                         te_thickness=args.te_thickness),
         thickness_tip_factor=args.tip_factor,
         tabs=TabParams(system=_TAB_MAP[args.tabs], fit_offset=args.tab_fit,
-                       tab_depth=args.tab_depth),
+                       tab_depth=args.tab_depth, x_offset=args.tab_x,
+                       y_offset=args.tab_y),
         grooves=GrooveParams(count=args.grooves, length=args.groove_length,
                              pitch=args.groove_pitch, width=args.groove_width,
                              depth_ratio=args.groove_depth,

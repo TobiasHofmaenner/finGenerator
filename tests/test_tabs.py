@@ -5,7 +5,15 @@ from build123d import Box, Pos
 
 from fingen.check import check_solid
 from fingen.loft import fin_solid
-from fingen.params import FinParams, GenSettings, OutlineParams, TabParams, TabSystem
+from fingen.params import (
+    FinParams,
+    FoilFamily,
+    FoilParams,
+    GenSettings,
+    OutlineParams,
+    TabParams,
+    TabSystem,
+)
 from fingen.tabs import build_tabs, coupon_solid, system_depth
 
 COARSE = GenSettings(n_stations=11, n_foil_points=60)
@@ -83,3 +91,35 @@ def test_coupons_build():
         assert part.volume > 4000
     with pytest.raises(ValueError):
         coupon_solid(TabParams())
+
+
+def test_flat_fin_tabs_flush_with_flat_side():
+    # FLAT_INSIDE anchors the tab's inner face at y=0: fin + tabs print
+    # flat on the bed together. Symmetric fins keep the centered anchor.
+    flat = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
+                     tabs=TabParams(system=TabSystem.DUAL_TAB))
+    part = build_tabs(flat, COARSE)
+    assert abs(part.bounding_box().min.Y) < 1e-6
+    sym = FinParams(foil=FoilParams(family=FoilFamily.SYMMETRIC),
+                    tabs=TabParams(system=TabSystem.DUAL_TAB))
+    part = build_tabs(sym, COARSE)
+    assert part.bounding_box().min.Y < -2.0  # centered: crosses the midline
+
+
+def test_tab_offsets_move_the_set():
+    base = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
+                     tabs=TabParams(system=TabSystem.DUAL_TAB))
+    moved = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
+                      tabs=TabParams(system=TabSystem.DUAL_TAB,
+                                     x_offset=8.0, y_offset=1.5))
+    bb0 = build_tabs(base, COARSE).bounding_box()
+    bb1 = build_tabs(moved, COARSE).bounding_box()
+    assert abs((bb1.min.X - bb0.min.X) - 8.0) < 1e-6
+    assert abs((bb1.min.Y - bb0.min.Y) - 1.5) < 1e-6
+
+
+def test_tab_x_offset_off_base_rejected():
+    fin = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
+                    tabs=TabParams(system=TabSystem.DUAL_TAB, x_offset=25.0))
+    with pytest.raises(ValueError, match="off the base"):
+        build_tabs(fin, COARSE)

@@ -95,6 +95,9 @@ PARAM_HELP = {
     "foil_family": "Symmetric 50/50 for center fins, flat inside for sides, cambered between.",
     "tabs": "Mounting: dual (FCS-compatible), single (Futures), click (FCS II), or none.",
     "tab_fit": "Print-fit tweak of tab thickness. Print a test coupon, adjust in 0.1 mm steps.",
+    "tab_x": "Slide the tab set fore/aft along the base.",
+    "tab_y": "Shift tabs across the fin thickness. Flat fins anchor the tabs "
+             "flush with the flat side, so fin and tabs print flat on the bed.",
     "grooves": "Thinning grooves on the upper fin: +11% lift-to-drag at hard "
                "turn angles, softer tip flex (Wollongong studies). 0 = smooth fin.",
     "groove_length": "How far each groove runs back from the leading edge.",
@@ -272,6 +275,20 @@ def generate_all(outdir: str | Path, png: bool = False) -> list[Path]:
     ax.text(x[i], y[i] + 7, "groove depth", color=_MAIN, fontsize=11,
             ha="center", family="monospace")
     _save(fig, outdir, "groove_depth", png)
+
+    # tab position: outline with tabs below the base + x/y arrows
+    fig, ax = _fig()
+    _draw_outline(ax, color=_DIM, lw=1.4)
+    for cx in (28.5, 81.5):  # dual-tab centers on the default 110 base
+        ax.fill([cx - 10, cx + 10, cx + 10, cx - 10], [0, 0, -14, -14],
+                color=_MAIN, alpha=0.85)
+    _arrow(ax, (55, -24), (80, -24), "")
+    ax.text(67, -34, "tab x", color=_MAIN, fontsize=11, ha="center",
+            family="monospace")
+    ax.text(2, -34, "tab y: across thickness", color=_DIM, fontsize=8,
+            family="monospace")
+    ax.set_ylim(-40, None)
+    _save(fig, outdir, "tab_position", png)
 
     return sorted(outdir.glob("*.svg"))
 

@@ -103,3 +103,18 @@ printer/filament; CF-reinforced filament over PLA.
    parameterized; grub-screw fallback documented.
 3. Every system ships with a **test-fit coupon** (tab-only, minutes to print) with a
    `fit_offset` parameter — the user's boxes are the ground truth, not internet numbers.
+
+
+## Tab positioning (v0.4.0)
+
+`TabParams.x_offset` slides the whole tab set along the base chord
+(feasibility-checked at build time: the set must stay on the base with 1 mm
+margins); `y_offset` shifts it across the section thickness. The thickness
+anchor is family-aware: **flat-inside fins carry the tab's inner face flush
+with the y = 0 flat plane**, so blade and tabs print flat on the bed with no
+supports — commercial flat-foiled fins sit in their boxes exactly this way,
+and slot clearance absorbs the ~1–2 mm lateral shift. Symmetric/cambered
+fins keep the tab centered on the base section's mid-thickness. The fit
+coupon ignores both offsets (it tests the box interface, not placement).
+Note: large |y_offset| on rear tabs can outrun the thin aft section — the
+geometry checker refuses the degenerate union rather than exporting it.

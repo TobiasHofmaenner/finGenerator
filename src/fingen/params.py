@@ -148,12 +148,22 @@ class TabParams:
     click_indent_depth: per-side depth of the click-tab retention indents;
         0 disables them (printed indents deform after some cycles — the
         box's grub screws are the standard fallback).
+    x_offset: slides the whole tab set along the base chord, mm (+ = toward
+        the trailing edge). Feasibility against the actual base length is
+        checked at build time (the set must stay on the base).
+    y_offset: shifts the tabs across the section thickness, mm, applied on
+        top of the family anchor: FLAT_INSIDE fins anchor the tab's inner
+        face flush with the y = 0 flat plane (bed-flat printing, matching
+        commercial flat-foiled fins); other families center the tab on the
+        base section's mid-thickness.
     """
 
     system: TabSystem = TabSystem.NONE
     fit_offset: float = -0.2
     tab_depth: float | None = None
     click_indent_depth: float = 0.9
+    x_offset: float = 0.0
+    y_offset: float = 0.0
 
     def __post_init__(self) -> None:
         _require(-0.6 <= self.fit_offset <= 0.4,
@@ -162,6 +172,10 @@ class TabParams:
                  f"tab_depth {self.tab_depth} mm outside 8–20 mm")
         _require(0.0 <= self.click_indent_depth <= 1.5,
                  f"click_indent_depth {self.click_indent_depth} mm outside 0–1.5 mm")
+        _require(-40.0 <= self.x_offset <= 40.0,
+                 f"tab x_offset {self.x_offset} mm outside ±40 mm")
+        _require(-3.0 <= self.y_offset <= 3.0,
+                 f"tab y_offset {self.y_offset} mm outside ±3 mm")
 
 
 @dataclass(frozen=True)

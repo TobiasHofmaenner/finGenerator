@@ -63,6 +63,8 @@ tab_strategy = st.builds(
     fit_offset=st.floats(-0.6, 0.4),
     tab_depth=st.one_of(st.none(), st.floats(8.0, 20.0)),
     click_indent_depth=st.floats(0.0, 1.5),
+    x_offset=st.floats(-40.0, 40.0),
+    y_offset=st.floats(-3.0, 3.0),
 )
 
 @st.composite
