@@ -89,9 +89,24 @@ thoroughness is cheap relative to what a wrong bench would cost:
    3D fin bench (AR-diluted) stays inside its measured gates — exactly
    the tiered picture the ladder exists to draw. Plot:
    `out/sk81-naca0012.png`.
-4. **Zarruk 2014 towing-tank replication** — modern force + deflection
-   data with published uncertainties; the drag-fidelity anchor BW04's
-   digitization cannot provide, and an FSI hook via tip deflections.
+4. **Zarruk 2014 replication** — ✅ DONE (`scripts/zarruk_polar.py`,
+   `bench/zarruk/cfd-polar.json`, plot `out/zarruk-typeI-ss.png`).
+   In-tunnel simulation (0.6×0.6 m section, no-slip ceiling, foil
+   rotated per angle — their data carry no blockage corrections), Type
+   I-SS foil, Tu 0.5 % measured. Re 10⁶ gates: lift slope 4.68 vs
+   measured 4.82/rad (**−2.9 %, PASS**), CM within 3 % everywhere
+   (independently pins the planform/CP call), CD at α=6° within
+   0.0004 of measurement — the drag-fidelity anchor BW04 couldn't
+   provide. CD₀ low by 0.006 (their balance carries root-fairing
+   parasitics we don't model). Re 0.6×10⁶ stall side: early separation
+   as expected fully-turbulent (transition tier upgrade available).
+   **Tier-0 flex pre-validation**: pressure-integrated root moment +
+   the paper's own stiffness gives tip deflection 4.29 mm vs their
+   4.9 mm anchor — CFD load itself only −3 %; the residual is water-
+   temperature/q ambiguity at fixed Re. The beam-model approach is
+   validated before the flex track even opens. Ceiling-BL caveat:
+   natural growth gives 8.2 vs 19 mm measured (clean-inlet undershoot;
+   paper states BL variation moves lift < 1 %).
 5. **URANS post-knee study** (16–24°) — does unsteady vortex lift
    reproduce the measured CL climb to 1.10 that steady RANS plateaus
    below? Gates optimizer use of near-stall axes.
