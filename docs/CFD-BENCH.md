@@ -50,8 +50,15 @@ shape gates · [BW04] point-by-point gates · tunnel-wall systematic
 · Oswald-e internal consistency. Open items, in execution order —
 thoroughness is cheap relative to what a wrong bench would cost:
 
-1. **ERCOFTAC T3A flat plate** *(in progress)* — the transition-model
-   implementation itself, against the canonical transition benchmark.
+1. **ERCOFTAC T3A flat plate** — ✅ DONE. Tutorial mesh, kOmegaSSTLM,
+   Tu 3.3 %: laminar plateau tracks Blasius, transition onset at
+   Re_x 1.1×10⁵ vs measured ≈ 1.4×10⁵ (≈ 20 % early — inside the
+   published scatter of γ-Reθ implementations, onset being sensitive to
+   the inlet viscosity ratio), turbulent recovery converges onto the
+   measured Cf within a few % downstream. Mean |ΔCf| 12 % (dominated by
+   the steep mid-transition region). The transition-model machinery our
+   CaseSpec(transition=True) mode uses reproduces the canonical
+   benchmark. Plot: `out/t3a-validation.png`.
 2. **NASA TMR 2D flat plate** (turbmodels.larc.nasa.gov) — Cf(x)/u⁺
    against CFL3D/FUN3D reference solutions: the k-ω SST implementation +
    wall-function behavior isolated from meshing. The gold standard for
