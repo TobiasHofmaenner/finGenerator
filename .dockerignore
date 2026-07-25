@@ -1,0 +1,4 @@
+.git
+out/
+.venv
+**/__pycache__
