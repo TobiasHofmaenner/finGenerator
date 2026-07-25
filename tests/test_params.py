@@ -131,3 +131,20 @@ def test_cli_groove_args_reach_the_dataclass():
     assert (g.depth_ratio, g.span_start) == (0.2, 0.6)
     assert g.surface is GrooveSurface.BOTH
     assert (fin.tabs.x_offset, fin.tabs.y_offset) == (-6.0, 1.25)
+
+
+def test_cli_halves_and_hand(tmp_path):
+    from fingen.cli import main
+
+    # --halves on a non-symmetric family: refused before any OCCT work.
+    assert main(["make", str(tmp_path / "f.stl"), "--family", "flat",
+                 "--halves"]) == 1
+    # Symmetric halves: two files, mirror-pair naming.
+    assert main(["make", str(tmp_path / "c.stl"), "--family", "symmetric",
+                 "--halves"]) == 0
+    assert (tmp_path / "c-half-A.stl").exists()
+    assert (tmp_path / "c-half-B.stl").exists()
+    # Hand fan-out: right + left files.
+    assert main(["make", str(tmp_path / "s.stl"), "--family", "flat",
+                 "--hand", "both"]) == 0
+    assert (tmp_path / "s-R.stl").exists() and (tmp_path / "s-L.stl").exists()

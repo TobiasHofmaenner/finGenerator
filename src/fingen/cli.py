@@ -123,6 +123,14 @@ def _build_parser() -> argparse.ArgumentParser:
     _add_geometry_args(make)
     make.add_argument("--force", action="store_true",
                       help="export even if the geometry check fails")
+    make.add_argument("--hand", choices=["right", "left", "both"], default="right",
+                      help="blade handedness: side fins are chiral (flat face "
+                           "toward the board) — 'both' writes <stem>-R and "
+                           "<stem>-L files for a full set")
+    make.add_argument("--halves", action="store_true",
+                      help="symmetric fins only: export the blade as two "
+                           "flat-faced halves (<stem>-half-A/-B, a mirror "
+                           "pair) to print flat and glue at the midplane")
 
     preview = sub.add_parser("preview", help="render a PNG preview of a fin blade")
     preview.add_argument("output", type=Path, nargs="?", default=Path("out/fin.png"))
@@ -167,8 +175,14 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     from fingen.check import check_solid
-    from fingen.export import to_step, to_stl
+    from fingen.export import mirror_hand, split_halves, to_step, to_stl
     from fingen.loft import fin_solid
+    from fingen.params import FoilFamily
+
+    if args.halves and fin.foil.family is not FoilFamily.SYMMETRIC:
+        print("--halves needs a symmetric section: flat-inside fins already "
+              "print flat whole, and a cambered midplane is not a flat face")
+        return 1
 
     part = fin_solid(fin)
     report = check_solid(part, fin)
@@ -182,6 +196,20 @@ def main(argv: list[str] | None = None) -> int:
         print("exporting anyway (--force)")
 
     writer = to_stl if args.output.suffix.lower() == ".stl" else to_step
-    written = writer(part, args.output)
-    print(f"wrote {written} ({written.stat().st_size} bytes)")
+    if args.halves:
+        # A mirror PAIR: a physical flip is a rotation and cannot turn one
+        # half into its mate — print one of each, glue at the midplane.
+        half_a, half_b = split_halves(part)
+        outputs = [(half_a, "-half-A"), (half_b, "-half-B")]
+    elif args.hand == "both":
+        outputs = [(part, "-R"), (mirror_hand(part), "-L")]
+    elif args.hand == "left":
+        outputs = [(mirror_hand(part), "")]
+    else:
+        outputs = [(part, "")]
+    for solid, suffix in outputs:
+        out = (args.output if not suffix else
+               args.output.with_stem(args.output.stem + suffix))
+        written = writer(solid, out)
+        print(f"wrote {written} ({written.stat().st_size} bytes)")
     return 0

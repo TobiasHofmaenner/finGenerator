@@ -99,6 +99,10 @@ PARAM_HELP = {
              "(commercial click fins do); each keeps ≥ half its length engaged.",
     "tab_y": "Shift tabs across the fin thickness. Flat fins anchor the tabs "
              "flush with the flat side, so fin and tabs print flat on the bed.",
+    "hand": "Side fins are chiral: right and left are mirror images. A twin "
+            "or thruster set needs one of each.",
+    "halves": "Symmetric fins only: export two flat-faced halves (a mirror "
+              "pair) to print flat on the bed and glue at the midplane.",
     "grooves": "Thinning grooves on the upper fin: +11% lift-to-drag at hard "
                "turn angles, softer tip flex (Wollongong studies). 0 = smooth fin.",
     "groove_length": "How far each groove runs back from the leading edge.",

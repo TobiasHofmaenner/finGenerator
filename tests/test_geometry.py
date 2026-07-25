@@ -144,3 +144,32 @@ def test_level2_offset_fin_is_checked_like_any_other():
     settings = GenSettings(n_stations=11, n_foil_points=60)
     report = check_solid(fin_solid(fin, settings), fin, settings)
     assert report.ok, report.issues
+
+
+def test_mirror_hand_flips_chirality(side_fin):
+    from fingen.export import mirror_hand
+
+    _, part = side_fin
+    left = mirror_hand(part)
+    bb, lb = part.bounding_box(), left.bounding_box()
+    # Volume preserved; foil bulge flips from +y to -y; flat face stays y=0.
+    assert abs(left.volume - part.volume) < 1e-3 * part.volume
+    assert abs(lb.min.Y + bb.max.Y) < 1e-6
+    assert abs(lb.max.Y) < 1e-6
+    assert len(left.solids()) == 1
+
+
+def test_split_halves_is_a_mirror_pair():
+    from fingen.export import split_halves
+
+    fin = FinParams(foil=FoilParams(family=FoilFamily.SYMMETRIC))
+    part = fin_solid(fin)
+    half_a, half_b = split_halves(part)
+    # Each half is one solid with a flat face at the midplane, volumes sum
+    # to the whole, and each prints flat (one lives in y>=0, the other y<=0).
+    assert len(half_a.solids()) == 1 and len(half_b.solids()) == 1
+    assert abs(half_a.volume + half_b.volume - part.volume) < 1e-3 * part.volume
+    assert half_a.bounding_box().min.Y > -1e-6
+    assert half_b.bounding_box().max.Y < 1e-6
+    # Symmetric section: the halves mirror each other in volume too.
+    assert abs(half_a.volume - half_b.volume) < 1e-3 * part.volume
