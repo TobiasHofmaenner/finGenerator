@@ -1,0 +1,50 @@
+# Digitized from: Zarruk, Brandner, Pearce & Phillips (2014), "Experimental study of the
+# steady fluid-structure interaction of flexible hydrofoils", J. Fluids & Structures 51:326-343.
+# Source: author-accepted manuscript (preprint dated 1 Sep 2014), Figure 8 (p.13), right panel.
+# Foil: TypeI-AL; series Re_c = 0.6e6 (chord-based, mean chord c=0.09 m).
+# Method: 600-dpi page render; axis calibration from frame lines cross-checked against the
+#   in-figure alpha=0 and CL=0 dashed lines (agreement < 1 px). Marker centers located by
+#   color segmentation + morphological marker-core detection; cross-checked by overlaying
+#   extracted points on the source figure.
+# Coefficients per paper: CL=2L/(rho U^2 s c), CD=2D/(rho U^2 s c), CM=2M/(rho U^2 s c^2),
+#   moments about mid-chord; flow-fixed axes; s=0.3 m span, c=0.09 m mean chord.
+# Quality flags: A = clean marker (est. reading error +/-0.003 CL, +/-0.0015 CD/CM);
+#   B = partially occluded / deblended / column-centroid (est. +/-0.006 CL, +/-0.003 CD/CM);
+#   C = fragment or merged cluster (est. +/-0.015 CL, +/-0.008 CD/CM) - use with caution.
+# Empty value = marker not visible in figure (data occluded by an overlying Re series that
+#   coincides within plot resolution, i.e. within ~0.005 in CL / ~0.003 in CD,CM).
+# Measurement uncertainty stated by the paper: force balance precision <0.5 percent of
+#   full calibration on all six components; incidence absolute position <0.1 deg,
+#   incremental precision <0.001 deg.
+alpha_deg,CL,CL_q,CD,CD_q,CM,CM_q,note
+-0.5,-0.0378,C,0.0135,C,-0.0189,C,CL-merged-with-other-branch CM-merged-with-other-branch
+0.5,,,0.0158,C,,,
+1.0,0.0579,B,,,,,
+1.5,0.0998,C,0.0142,C,0.0392,C,
+2.0,0.1405,C,0.0142,C,0.0507,C,
+2.5,0.1828,C,0.0153,C,0.0615,C,
+3.0,0.2515,C,0.0163,C,0.0719,C,
+3.5,0.2977,C,0.0179,C,0.0833,C,
+4.0,0.3441,B,0.0192,C,0.0942,C,
+4.5,0.3909,C,0.0213,C,0.1053,C,
+5.0,0.4116,C,0.0232,C,0.1149,C,
+5.5,0.4518,C,0.0255,C,0.1247,C,
+6.0,0.4881,A,,,0.1353,C,
+6.5,0.5376,A,0.0237,A,0.1392,A,
+7.0,0.5731,A,0.0251,A,0.1496,A,
+7.5,0.6101,A,0.0276,A,0.1596,A,
+8.0,0.6468,A,0.0296,A,0.1702,A,
+8.5,0.682,A,0.0333,A,0.1792,A,
+9.0,0.7168,A,0.0357,A,0.1887,A,
+9.5,0.7437,A,0.038,A,0.2002,A,
+10.0,0.7761,A,0.0422,A,0.2102,A,
+10.5,0.8082,A,0.0466,B,0.2171,A,
+11.0,0.7772,A,0.1002,B,0.194,A,
+11.5,0.7811,A,0.1272,A,0.179,A,
+12.0,0.7811,A,0.1621,A,0.1494,A,
+12.5,0.7811,A,,,0.1452,A,
+13.0,0.7772,A,0.182,A,0.1332,A,
+13.5,0.7733,A,0.1963,A,0.121,A,
+14.0,0.7716,A,0.2092,A,0.1133,A,
+14.5,0.7642,A,0.2192,A,0.1052,A,
+15.0,0.7564,A,0.2291,A,0.1001,A,

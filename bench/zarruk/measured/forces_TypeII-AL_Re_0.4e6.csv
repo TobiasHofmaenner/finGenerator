@@ -1,0 +1,44 @@
+# Digitized from: Zarruk, Brandner, Pearce & Phillips (2014), "Experimental study of the
+# steady fluid-structure interaction of flexible hydrofoils", J. Fluids & Structures 51:326-343.
+# Source: author-accepted manuscript (preprint dated 1 Sep 2014), Figure 9 (p.14), right panel.
+# Foil: TypeII-AL; series Re_c = 0.4e6 (chord-based, mean chord c=0.09 m).
+# Method: 600-dpi page render; axis calibration from frame lines cross-checked against the
+#   in-figure alpha=0 and CL=0 dashed lines (agreement < 1 px). Marker centers located by
+#   color segmentation + morphological marker-core detection; cross-checked by overlaying
+#   extracted points on the source figure.
+# Coefficients per paper: CL=2L/(rho U^2 s c), CD=2D/(rho U^2 s c), CM=2M/(rho U^2 s c^2),
+#   moments about mid-chord; flow-fixed axes; s=0.3 m span, c=0.09 m mean chord.
+# Quality flags: A = clean marker (est. reading error +/-0.003 CL, +/-0.0015 CD/CM);
+#   B = partially occluded / deblended / column-centroid (est. +/-0.006 CL, +/-0.003 CD/CM);
+#   C = fragment or merged cluster (est. +/-0.015 CL, +/-0.008 CD/CM) - use with caution.
+# Empty value = marker not visible in figure (data occluded by an overlying Re series that
+#   coincides within plot resolution, i.e. within ~0.005 in CL / ~0.003 in CD,CM).
+# Measurement uncertainty stated by the paper: force balance precision <0.5 percent of
+#   full calibration on all six components; incidence absolute position <0.1 deg,
+#   incremental precision <0.001 deg.
+alpha_deg,CL,CL_q,CD,CD_q,CM,CM_q,note
+-0.5,-0.0517,C,,,,,
+3.0,0.2443,C,,,,,
+3.5,0.2862,C,,,,,
+4.0,0.3283,C,,,,,
+4.5,0.3683,C,,,,,
+5.0,0.4087,C,,,,,
+5.5,0.449,B,,,,,
+6.0,0.4887,C,,,,,
+6.5,0.5284,B,,,0.1352,C,CD-pruned-occlusion-artifact
+7.0,0.5677,B,,,0.1452,C,CD-pruned-occlusion-artifact
+7.5,0.607,B,,,0.1553,C,CD-pruned-occlusion-artifact
+8.0,0.6455,B,,,0.1657,C,CD-pruned-occlusion-artifact
+8.5,0.6837,B,,,0.175,C,CD-pruned-occlusion-artifact
+9.0,0.7202,B,,,0.1845,C,CD-pruned-occlusion-artifact
+9.5,0.755,B,0.0445,C,0.1943,C,
+10.0,0.7867,B,0.0497,B,0.2029,C,
+11.0,0.7853,B,0.1245,B,0.1703,B,
+11.5,0.7871,B,0.1497,B,0.1497,C,CM-merged-with-other-branch
+12.0,0.7822,B,,,0.1385,B,CD-pruned-occlusion-artifact
+12.5,0.7726,B,,,0.1243,B,CD-pruned-occlusion-artifact
+13.0,0.7513,B,,,0.1112,B,CD-pruned-occlusion-artifact
+13.5,0.7455,B,0.198,B,0.1032,B,
+14.0,0.7321,B,0.2063,B,0.0971,B,
+14.5,0.7205,B,0.215,B,0.0913,B,
+15.0,0.7085,B,0.2231,B,0.086,B,

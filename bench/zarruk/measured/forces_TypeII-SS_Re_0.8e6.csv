@@ -1,0 +1,40 @@
+# Digitized from: Zarruk, Brandner, Pearce & Phillips (2014), "Experimental study of the
+# steady fluid-structure interaction of flexible hydrofoils", J. Fluids & Structures 51:326-343.
+# Source: author-accepted manuscript (preprint dated 1 Sep 2014), Figure 9 (p.14), left panel.
+# Foil: TypeII-SS; series Re_c = 0.8e6 (chord-based, mean chord c=0.09 m).
+# Method: 600-dpi page render; axis calibration from frame lines cross-checked against the
+#   in-figure alpha=0 and CL=0 dashed lines (agreement < 1 px). Marker centers located by
+#   color segmentation + morphological marker-core detection; cross-checked by overlaying
+#   extracted points on the source figure.
+# Coefficients per paper: CL=2L/(rho U^2 s c), CD=2D/(rho U^2 s c), CM=2M/(rho U^2 s c^2),
+#   moments about mid-chord; flow-fixed axes; s=0.3 m span, c=0.09 m mean chord.
+# Quality flags: A = clean marker (est. reading error +/-0.003 CL, +/-0.0015 CD/CM);
+#   B = partially occluded / deblended / column-centroid (est. +/-0.006 CL, +/-0.003 CD/CM);
+#   C = fragment or merged cluster (est. +/-0.015 CL, +/-0.008 CD/CM) - use with caution.
+# Empty value = marker not visible in figure (data occluded by an overlying Re series that
+#   coincides within plot resolution, i.e. within ~0.005 in CL / ~0.003 in CD,CM).
+# Measurement uncertainty stated by the paper: force balance precision <0.5 percent of
+#   full calibration on all six components; incidence absolute position <0.1 deg,
+#   incremental precision <0.001 deg.
+alpha_deg,CL,CL_q,CD,CD_q,CM,CM_q,note
+-1.0,-0.0868,C,0.0181,C,-0.0135,C,
+0.5,,,0.0206,C,,,
+1.0,0.0664,C,,,,,
+1.5,0.113,C,,,0.0422,C,
+2.0,,,0.0183,C,,,
+2.5,0.2001,C,0.0195,C,,,
+3.0,0.2437,C,0.0206,C,,,
+3.5,0.286,C,0.0213,C,,,
+4.0,0.3282,C,,,0.0833,C,
+4.5,0.3704,C,,,0.0937,C,
+5.0,0.412,C,,,0.1043,C,
+5.5,0.4535,C,,,0.1149,C,
+6.0,0.4946,B,,,0.1251,C,
+6.5,0.5435,A,0.0257,A,0.1404,A,
+7.0,0.5837,A,0.0281,A,0.1508,A,
+7.5,0.6241,A,0.0303,A,0.1607,A,
+8.0,0.6655,A,0.0329,A,0.1709,A,
+8.5,0.7067,A,0.0359,A,0.1811,A,
+9.0,0.7434,A,0.0387,A,0.1908,A,
+9.5,0.7818,A,0.0421,A,0.2007,A,
+10.0,0.8199,A,0.0454,A,0.21,A,

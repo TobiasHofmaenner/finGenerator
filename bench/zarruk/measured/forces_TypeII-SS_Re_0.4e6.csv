@@ -1,0 +1,43 @@
+# Digitized from: Zarruk, Brandner, Pearce & Phillips (2014), "Experimental study of the
+# steady fluid-structure interaction of flexible hydrofoils", J. Fluids & Structures 51:326-343.
+# Source: author-accepted manuscript (preprint dated 1 Sep 2014), Figure 9 (p.14), left panel.
+# Foil: TypeII-SS; series Re_c = 0.4e6 (chord-based, mean chord c=0.09 m).
+# Method: 600-dpi page render; axis calibration from frame lines cross-checked against the
+#   in-figure alpha=0 and CL=0 dashed lines (agreement < 1 px). Marker centers located by
+#   color segmentation + morphological marker-core detection; cross-checked by overlaying
+#   extracted points on the source figure.
+# Coefficients per paper: CL=2L/(rho U^2 s c), CD=2D/(rho U^2 s c), CM=2M/(rho U^2 s c^2),
+#   moments about mid-chord; flow-fixed axes; s=0.3 m span, c=0.09 m mean chord.
+# Quality flags: A = clean marker (est. reading error +/-0.003 CL, +/-0.0015 CD/CM);
+#   B = partially occluded / deblended / column-centroid (est. +/-0.006 CL, +/-0.003 CD/CM);
+#   C = fragment or merged cluster (est. +/-0.015 CL, +/-0.008 CD/CM) - use with caution.
+# Empty value = marker not visible in figure (data occluded by an overlying Re series that
+#   coincides within plot resolution, i.e. within ~0.005 in CL / ~0.003 in CD,CM).
+# Measurement uncertainty stated by the paper: force balance precision <0.5 percent of
+#   full calibration on all six components; incidence absolute position <0.1 deg,
+#   incremental precision <0.001 deg.
+alpha_deg,CL,CL_q,CD,CD_q,CM,CM_q,note
+-1.0,-0.0874,C,,,-0.0437,C,CL-merged-with-other-branch CM-merged-with-other-branch
+-0.5,-0.0485,C,,,-0.0243,C,CL-merged-with-other-branch CM-merged-with-other-branch
+0.5,0.015,B,,,,,
+1.0,0.037,C,,,,,
+2.5,0.1019,B,,,,,
+3.0,0.1239,B,,,,,
+6.5,,,0.0294,C,0.1371,C,
+7.0,,,0.0318,C,0.1474,C,
+7.5,,,0.0343,C,0.1571,C,
+8.0,,,0.0371,C,0.1673,C,
+8.5,,,0.0403,C,0.1768,C,
+9.0,,,0.0436,C,0.1863,C,
+9.5,,,0.0483,B,0.1959,C,
+10.0,0.761,B,,,0.1968,B,
+10.5,0.7723,B,,,,,
+11.0,0.7765,B,0.1668,B,0.1668,C,CM-merged-with-other-branch
+11.5,0.7744,B,,,0.1501,B,
+12.0,0.7668,B,,,0.1352,B,
+12.5,0.748,B,,,0.12,B,
+13.0,0.7349,B,,,0.1127,C,
+13.5,0.713,B,,,0.1028,C,
+14.0,0.6919,B,,,0.0959,C,
+14.5,0.6795,B,,,0.0901,C,
+15.0,0.6651,B,,,0.0854,C,

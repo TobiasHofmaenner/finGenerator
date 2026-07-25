@@ -1,0 +1,53 @@
+# Digitized from: Zarruk et al. (2014) JFS 51:326-343, author-accepted manuscript.
+# Figure 22 TOP panel (p.26): tip twist angle theta (deg) vs incidence for the composite
+# foils. Open symbols = Type II CFRP00, closed = Type II CFRP30.
+# NOTE (metal foils): text p.15 states that for the SS and AL models no twist was resolved
+# within the precision of the method (negligible twist) - there is no metal-foil twist curve.
+# Anchors (exact, from Fig.17 caption): Re=1.0e6, alpha=6deg: CFRP00 +0.6 deg, CFRP30
+#   -2.2 deg. Digitized values reproduce these (+0.59/-2.19).
+# Reading error: +/-0.03 deg (clean), +/-0.06 deg (stub/split flag), +/-0.10 deg (C flag,
+#   near-zero overlapping blue/green symbols).
+alpha_deg,Re,foil,theta_deg,quality
+2,0.2e6,CFRP00,0.02,C
+2,0.2e6,CFRP30,-0.02,C
+2,0.4e6,CFRP00,0.10,A
+2,0.4e6,CFRP30,-0.16,B
+2,0.6e6,CFRP00,0.12,A
+2,0.6e6,CFRP30,-0.34,B
+2,0.8e6,CFRP00,0.13,A
+2,0.8e6,CFRP30,-0.55,A
+2,1.0e6,CFRP00,0.21,B
+2,1.0e6,CFRP30,-0.77,B
+4,0.2e6,CFRP00,-0.03,C
+4,0.2e6,CFRP30,-0.11,C
+4,0.4e6,CFRP00,0.09,C
+4,0.6e6,CFRP00,0.14,B
+4,0.6e6,CFRP30,-0.67,B
+4,0.8e6,CFRP00,0.22,B
+4,0.8e6,CFRP30,-1.15,B
+4,1.0e6,CFRP00,0.40,B
+4,1.0e6,CFRP30,-1.47,B
+6,0.2e6,CFRP00,-0.09,C
+6,0.2e6,CFRP30,-0.16,C
+6,0.4e6,CFRP00,0.08,B
+6,0.4e6,CFRP30,-0.48,B
+6,0.6e6,CFRP00,0.20,B
+6,0.6e6,CFRP30,-1.06,B
+6,0.8e6,CFRP00,0.33,B
+6,0.8e6,CFRP30,-1.62,B
+6,1.0e6,CFRP00,0.59,B
+6,1.0e6,CFRP30,-2.19,B
+8,0.2e6,CFRP00,0.04,B
+8,0.2e6,CFRP30,-0.19,B
+8,0.4e6,CFRP00,0.11,B
+8,0.4e6,CFRP30,-0.63,B
+8,0.6e6,CFRP00,0.26,B
+8,0.6e6,CFRP30,-1.38,B
+8,0.8e6,CFRP00,0.46,B
+8,0.8e6,CFRP30,-2.00,B
+10,0.2e6,CFRP00,0.03,B
+10,0.2e6,CFRP30,-0.19,B
+10,0.4e6,CFRP00,0.12,B
+10,0.4e6,CFRP30,-0.72,B
+10,0.6e6,CFRP00,0.31,B
+10,0.6e6,CFRP30,-1.60,B

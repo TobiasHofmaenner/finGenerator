@@ -1,0 +1,106 @@
+# Digitized from: Zarruk et al. (2014) JFS 51:326-343, author-accepted manuscript.
+# Figures 18 (Type I, p.23) and 19 (Type II, p.23), LEFT panels: dimensionless mid-chord
+# tip deflection delta' = delta*E*I/(F_N s^3) vs incidence, one symbol per Re_c.
+# Open symbols = SS foil, closed = AL foil (per figure captions).
+# CAUTION: symbols overlap heavily (all Type I data lie within 0.196-0.212). Individual
+# SS-vs-AL attribution is only partially resolvable graphically; rows with foil='?' give a
+# symbol position whose foil could not be attributed. Estimated reading error +/-0.002
+# (clean single symbol), +/-0.003 (deblended/occluded).
+# In-plot calibration anchors (exact, from captions): Type I means: SS 0.204 (solid line),
+#   AL 0.202 (dashed); Type II means: SS 0.227, AL 0.219. Detected line rows reproduce
+#   these values to +/-0.0004, validating the axis mapping.
+# Absolute-deflection anchors (exact, from text p.15): at Re_c=1.0e6, alpha=6deg:
+#   Type I SS 4.9 mm, Type I AL 13.4 mm, Type II SS 5.0 mm, Type II AL 12.5 mm.
+# Deflection measurement uncertainty stated by paper (p.11): worst case 13% (alpha=2deg,
+#   Re=0.2e6), best 2% (alpha=6deg, Re=1.0e6), average 3.2%.
+# To recover delta [m]: delta = delta' * F_N * s^3 / (E*I) with s=0.3 m and E, I from
+#   Table 2 (p.10): SS E=193 GPa; AL E=71 GPa; I: TypeI 5956e-12 m^4, TypeII SS 6148e-12,
+#   TypeII AL 6350e-12; F_N from digitized C_N = CL*cos(alpha)+CD*sin(alpha).
+foil_type,alpha_deg,Re,foil,delta_prime,quality
+TypeI,2,0.2e6,?,0.2050,C
+TypeI,2,0.2e6,?,0.2009,C
+TypeI,2,0.4e6,AL,0.2115,C
+TypeI,2,0.4e6,AL,0.2084,C
+TypeI,2,0.6e6,?,0.2072,C
+TypeI,2,0.6e6,?,0.2008,C
+TypeI,2,0.8e6,?,0.2019,C
+TypeI,2,1.0e6,?,0.2067,C
+TypeI,2,1.0e6,AL,0.1986,C
+TypeI,2,1.0e6,AL,0.1972,C
+TypeI,4,0.2e6,?,0.2073,C
+TypeI,4,0.4e6,?,0.2009,C
+TypeI,4,0.6e6,?,0.2074,C
+TypeI,4,1.0e6,?,0.2068,C
+TypeI,4,1.0e6,AL,0.1999,B
+TypeI,6,0.2e6,?,0.1997,C
+TypeI,6,0.2e6,SS,0.1979,C
+TypeI,6,0.4e6,SS,0.1994,B
+TypeI,6,0.6e6,?,0.2008,C
+TypeI,6,1.0e6,AL,0.2001,B
+TypeI,8,0.2e6,AL,0.2112,C
+TypeI,8,0.2e6,AL,0.2103,C
+TypeI,8,0.4e6,AL,0.2085,B
+TypeI,8,0.6e6,?,0.2027,C
+TypeI,8,0.8e6,AL,0.2023,B
+TypeI,10,0.2e6,?,0.2058,C
+TypeI,10,0.2e6,SS,0.1975,C
+TypeI,10,0.2e6,SS,0.1957,C
+TypeI,10,0.4e6,AL,0.2097,C
+TypeI,10,0.4e6,AL,0.2083,C
+TypeI,10,0.4e6,SS,0.2006,B
+TypeI,10,0.6e6,AL,0.2069,B
+TypeI,10,0.6e6,?,0.2030,C
+TypeII,2,0.2e6,SS,0.2175,B
+TypeII,2,0.2e6,AL,0.2070,C
+TypeII,2,0.2e6,AL,0.2052,C
+TypeII,2,0.4e6,AL,0.2163,C
+TypeII,2,0.4e6,AL,0.2133,C
+TypeII,2,0.6e6,AL,0.2325,C
+TypeII,2,0.6e6,AL,0.2293,C
+TypeII,2,0.6e6,?,0.2206,C
+TypeII,2,1.0e6,?,0.2278,C
+TypeII,4,0.2e6,?,0.2203,C
+TypeII,4,0.2e6,?,0.2196,C
+TypeII,4,0.2e6,AL,0.2063,C
+TypeII,4,0.2e6,AL,0.2047,C
+TypeII,4,0.4e6,AL,0.2157,C
+TypeII,4,0.4e6,AL,0.2140,C
+TypeII,4,0.6e6,SS,0.2282,B
+TypeII,4,0.6e6,?,0.2197,C
+TypeII,4,0.6e6,AL,0.2171,C
+TypeII,4,0.8e6,?,0.2248,C
+TypeII,4,1.0e6,?,0.2274,C
+TypeII,6,0.2e6,?,0.2238,C
+TypeII,6,0.2e6,AL,0.2076,C
+TypeII,6,0.2e6,AL,0.2058,C
+TypeII,6,0.4e6,SS,0.2286,B
+TypeII,6,0.4e6,?,0.2179,C
+TypeII,6,0.4e6,AL,0.2165,C
+TypeII,6,0.6e6,?,0.2307,C
+TypeII,6,0.6e6,?,0.2293,C
+TypeII,6,0.6e6,?,0.2232,C
+TypeII,6,0.8e6,?,0.2292,C
+TypeII,6,0.8e6,SS,0.2283,C
+TypeII,6,0.8e6,?,0.2246,C
+TypeII,6,1.0e6,SS,0.2351,C
+TypeII,6,1.0e6,?,0.2318,C
+TypeII,6,1.0e6,AL,0.2226,C
+TypeII,6,1.0e6,?,0.2193,C
+TypeII,8,0.2e6,AL,0.2107,C
+TypeII,8,0.2e6,AL,0.2089,C
+TypeII,8,0.4e6,SS,0.2309,B
+TypeII,8,0.4e6,?,0.2211,C
+TypeII,8,0.4e6,AL,0.2179,B
+TypeII,8,0.6e6,SS,0.2307,C
+TypeII,8,0.8e6,?,0.2299,C
+TypeII,8,0.8e6,?,0.2235,C
+TypeII,8,0.8e6,?,0.2222,C
+TypeII,10,0.2e6,?,0.2254,C
+TypeII,10,0.2e6,AL,0.2144,C
+TypeII,10,0.2e6,AL,0.2127,C
+TypeII,10,0.4e6,?,0.2289,C
+TypeII,10,0.4e6,AL,0.2241,C
+TypeII,10,0.4e6,AL,0.2214,C
+TypeII,10,0.6e6,?,0.2304,C
+TypeII,10,0.8e6,SS,0.2341,C
+TypeII,10,0.8e6,SS,0.2315,C

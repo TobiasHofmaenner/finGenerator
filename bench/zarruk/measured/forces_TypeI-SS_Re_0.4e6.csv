@@ -1,0 +1,50 @@
+# Digitized from: Zarruk, Brandner, Pearce & Phillips (2014), "Experimental study of the
+# steady fluid-structure interaction of flexible hydrofoils", J. Fluids & Structures 51:326-343.
+# Source: author-accepted manuscript (preprint dated 1 Sep 2014), Figure 8 (p.13), left panel.
+# Foil: TypeI-SS; series Re_c = 0.4e6 (chord-based, mean chord c=0.09 m).
+# Method: 600-dpi page render; axis calibration from frame lines cross-checked against the
+#   in-figure alpha=0 and CL=0 dashed lines (agreement < 1 px). Marker centers located by
+#   color segmentation + morphological marker-core detection; cross-checked by overlaying
+#   extracted points on the source figure.
+# Coefficients per paper: CL=2L/(rho U^2 s c), CD=2D/(rho U^2 s c), CM=2M/(rho U^2 s c^2),
+#   moments about mid-chord; flow-fixed axes; s=0.3 m span, c=0.09 m mean chord.
+# Quality flags: A = clean marker (est. reading error +/-0.003 CL, +/-0.0015 CD/CM);
+#   B = partially occluded / deblended / column-centroid (est. +/-0.006 CL, +/-0.003 CD/CM);
+#   C = fragment or merged cluster (est. +/-0.015 CL, +/-0.008 CD/CM) - use with caution.
+# Empty value = marker not visible in figure (data occluded by an overlying Re series that
+#   coincides within plot resolution, i.e. within ~0.005 in CL / ~0.003 in CD,CM).
+# Measurement uncertainty stated by the paper: force balance precision <0.5 percent of
+#   full calibration on all six components; incidence absolute position <0.1 deg,
+#   incremental precision <0.001 deg.
+alpha_deg,CL,CL_q,CD,CD_q,CM,CM_q,note
+-1.0,,,0.018,C,,,
+-0.5,,,0.0178,C,,,
+0.0,,,0.0171,C,,,
+0.5,,,0.0192,C,,,
+1.0,0.0614,C,0.017,C,,,
+1.5,0.0831,C,0.0173,C,0.0644,C,
+2.0,,,0.0168,C,0.0874,B,
+2.5,0.2228,B,0.0176,C,,,
+3.0,0.2678,B,0.0186,C,,,
+3.5,0.3076,B,0.0205,B,,,
+4.0,0.3457,C,0.021,C,,,
+5.5,0.4447,C,,,,,
+6.0,0.4822,C,,,,,
+6.5,0.5182,C,,,,,CD-pruned-occlusion-artifact
+7.0,0.5566,C,0.0324,B,,,
+7.5,0.5938,C,0.0362,B,,,
+8.0,0.6278,C,0.0385,B,,,
+8.5,0.6605,B,0.0395,C,,,
+9.0,0.6937,B,0.0413,C,,,
+9.5,0.7251,B,0.0454,C,,,
+10.0,0.7531,B,0.0534,B,,,
+10.5,0.7543,B,,,,,
+11.0,0.761,B,0.1213,B,,,
+11.5,0.7564,B,0.1641,B,,,
+12.0,0.7487,B,,,,,
+12.5,0.7353,B,,,,,
+13.0,0.7243,B,,,,,
+13.5,0.7124,B,,,,,
+14.0,0.7141,B,0.357,C,,,CD-merged-with-other-branch
+14.5,0.6893,B,,,,,
+15.0,0.6785,B,,,,,
