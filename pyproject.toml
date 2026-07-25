@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "fingen"
-version = "0.4.1"
+version = "0.5.0"
 description = "Parametric surfboard fin geometry generator: rider data in, 3D-printable fin set out"
 readme = "README.md"
 license = "Apache-2.0"
