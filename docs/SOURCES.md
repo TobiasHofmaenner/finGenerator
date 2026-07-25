@@ -344,6 +344,17 @@ Euler–Bernoulli bending: σ = My/I, tapered cantilever deflection by integrati
 Tabulated cantilever and tapered-beam formulas.
 **Cited for:** closed-form cross-checks of the numerical structural model.
 
+### [BAH96] Bisplinghoff, Ashley & Halfman (1955/1996) — Aeroelasticity
+*Addison-Wesley 1955; corrected Dover republication 1996, 880 pp., ISBN 978-0-486-69189-3.*
+[AbeBooks ISBN record](https://www.abebooks.com/9780486691893/Aeroelasticity-Dover-Books-Aeronautical-Engineering-0486691896/plp)
+The classical aeroelasticity text: static aeroelastic phenomena (torsional divergence of a
+uniform cantilever wing, q_D = (π/2s)²·GJ/(c²e′a), and its strip-theory generalizations),
+swept-wing bending–incidence coupling (washout ∝ −θ·sinΛ), thin-section torsion, and the 2D
+incompressible apparent (added) mass πρb² of a plate of semichord b.
+**Cited for:** the tier-0 flex module — the strip divergence estimate, the rake bend-twist
+coupling, the solid-thin-section torsion constant, and the flat-plate added mass in the
+wet-frequency Rayleigh quotient.
+
 ### [Zar14] Zarruk, Brandner, Pearce & Phillips (2014) — Steady fluid-structure interaction of flexible hydrofoils
 *J. Fluids and Structures 51:326–343.* [DOI 10.1016/j.jfluidstructs.2014.09.009](https://doi.org/10.1016/j.jfluidstructs.2014.09.009)
 Tapered NACA0009 cantilever hydrofoils (metal + CFRP): tip deflection/twist vs load; layup

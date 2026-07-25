@@ -131,8 +131,11 @@ to start above 12 % of depth, so the z = 0 root section (tab junction, root
 stress check §8) stays full thickness — but a deep groove low on the span can
 still be the *critical bending section* (the moment there is nearly the root
 moment while the modulus cut is disproportionate: thickness enters the section
-modulus squared). Until the sizing gate checks stress at the first groove,
-treat depth_ratio ≥ ~0.4 low on the span as structurally unvetted. Softer
+modulus squared). The tier-0 groove-band stress check now exists: `flex.py`
+(§5b) evaluates σ = M/W at every station — groove centers injected exactly —
+and reports the band's own maximum next to the root value; for the default
+groove set the critical section indeed falls inside the band, so grooved
+candidates are gated on that margin, not just the root check. Softer
 tips are the expected (and in [For24], desired) side effect.
 
 ## 5. Loft (`loft.py`)
@@ -150,6 +153,45 @@ segmented loft: smooth fit below and above the band, *ruled* loft (linear
 between stations, overshoot-free by construction) through it, with stations
 injected at channel edges/quarters/centers and gap midpoints; the segments
 share exact boundary sections so the fuse joins on identical planar faces.
+
+## 5b. Tier-0 flex model (`flex.py`)
+
+The blade is a tapered solid-section cantilever [GT97, Zar14], solved numerically on the
+station arrays (cumulative trapezoids — milliseconds, optimizer-embeddable). Per station,
+from the actual section polygon: area A, bending inertia I about the chordwise neutral axis
+(asymmetry of flat-inside/grooved sections resolved), and the solid-thin-section strip
+torsion constant J = (1/3)∫t(x)³dx — valid for t/c ≤ 0.15 and NOT the polar moment, which
+grossly overestimates torsional stiffness of non-circular sections [BAH96, Roa01]. The
+distributed side load defaults to w ∝ c (uniform CL; callable override) and is integrated
+twice for slope θ(z) and deflection δ(z). Two mechanisms change local incidence:
+
+- **Rake coupling**: Δα = −θ·sinΛ_e, with Λ_e the local sweep of the elastic axis
+  (section-centroid locus, differentiated through a chord-weighted cubic fit — the raw locus
+  curls forward inside the tip lobe on millimetre chords carrying no load). An unswept axis
+  gives exactly zero, matching the no-resolvable-twist metal foils of [Zar14].
+- **Direct torsion**: the sectional cp (≈ quarter chord) sits ahead of the elastic axis, so
+  m = w·(x_ea − x_c/4) integrated with GJ twists the blade nose-up [BAH96] — the sign of the
+  +0.6° measured on the torsionally soft CFRP00 blade of [Zar14].
+
+Derived outputs: washout lift knockdown ΔCL/CL = a·∫Δα·c dz/S · qS/F with hydro's DATCOM
+slope (§6); wet natural frequency from a Rayleigh quotient on the static shape with the 2D
+flat-plate added mass πρ_w(c/2)² per unit span [BAH96] — added mass dominates thin blades
+and is what separates the steel [Zar14] foil's 62 Hz in water from 100 Hz in air; a
+strip-theory torsional divergence speed from q_D = ∫GJφ′²/∫a·c·e·φ² (reducing to the classic
+(π/2s)²·GJ/(c²e′a) for the uniform wing [BAH96]; sweep neglected, so conservative for raked
+fins, whose washout raises the true divergence speed); and the per-station bending stress
+σ = M·y/I against the §8 allowables — with the groove band's own maximum reported, the
+tier-0 critical-section check promised in §4.
+
+**Calibration.** The pure wetted-span beam misses root warping, shear lag and plate behavior,
+all growing with how stubby the blade is: bending compliance is scaled by 1 + 0.55·(c_root/s),
+one slope calibrated on the two available 3D anchors — the measured [Zar14] Type I δ′ = 0.204
+(slender, c/s = 0.4, needs ×1.18 over the raw beam) and the CalculiX demo blade (stubby,
+c/s ≈ 0.96, needs ×1.51) — both land within a few percent, and the [Zar14] wet frequency
+follows to −4 %. Torsion carries no such factor yet (no torsional anchor). E defaults to a
+7000 MPa PET-CF print placeholder until the load-cell rig measures effective printed-blade
+moduli [PETCF, Fis23]; the FEM tier (scripts/fem_demo.py) re-anchors per-geometry. Validity:
+pre-stall distributed loads, small deflections, solid thin sections.
 
 ## 6. Fast hydro model (lift, drag, stall)
 
