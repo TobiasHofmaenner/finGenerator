@@ -118,6 +118,38 @@ def test_tab_offsets_move_the_set():
     assert abs((bb1.min.Y - bb0.min.Y) - 1.5) < 1e-6
 
 
+def test_flat_fin_with_tabs_is_one_checked_solid():
+    # The anchor change altered the union topology: pin it at whole-fin
+    # level for the common side-fin case.
+    fin = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
+                    tabs=TabParams(system=TabSystem.DUAL_TAB))
+    part = fin_solid(fin, COARSE)
+    report = check_solid(part, fin, COARSE)
+    assert report.ok, report.issues
+    assert part.bounding_box().min.Y > -1e-6  # nothing below the flat plane
+
+
+def test_symmetric_y_offset_sign():
+    # A sign flip in the y_offset application must not survive the suite.
+    lo = FinParams(foil=FoilParams(family=FoilFamily.SYMMETRIC),
+                   tabs=TabParams(system=TabSystem.DUAL_TAB, y_offset=-1.5))
+    hi = FinParams(foil=FoilParams(family=FoilFamily.SYMMETRIC),
+                   tabs=TabParams(system=TabSystem.DUAL_TAB, y_offset=1.5))
+    shift = (build_tabs(hi, COARSE).bounding_box().min.Y
+             - build_tabs(lo, COARSE).bounding_box().min.Y)
+    assert shift == pytest.approx(3.0)
+
+
+def test_tab_leaving_section_envelope_rejected():
+    # Thin blade + full positive y travel: clean ValueError naming the
+    # parameter, not a post-loft checker refusal.
+    fin = FinParams(foil=FoilParams(family=FoilFamily.SYMMETRIC,
+                                    thickness_ratio=0.04),
+                    tabs=TabParams(system=TabSystem.DUAL_TAB, y_offset=3.0))
+    with pytest.raises(ValueError, match="envelope"):
+        build_tabs(fin, COARSE)
+
+
 def test_tab_x_offset_off_base_rejected():
     fin = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
                     tabs=TabParams(system=TabSystem.DUAL_TAB, x_offset=25.0))

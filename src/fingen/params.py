@@ -154,8 +154,10 @@ class TabParams:
     y_offset: shifts the tabs across the section thickness, mm, applied on
         top of the family anchor: FLAT_INSIDE fins anchor the tab's inner
         face flush with the y = 0 flat plane (bed-flat printing, matching
-        commercial flat-foiled fins); other families center the tab on the
-        base section's mid-thickness.
+        commercial flat-foiled fins) and accept only y_offset ≥ 0 — a
+        negative value would protrude past the flat plane, defeating the
+        anchor (rejected at FinParams construction); other families center
+        the tab on the base section's mid-thickness and take the full ±3.
     """
 
     system: TabSystem = TabSystem.NONE
@@ -241,6 +243,13 @@ class FinParams:
     def __post_init__(self) -> None:
         _require(0.5 <= self.thickness_tip_factor <= 1.2,
                  f"thickness_tip_factor {self.thickness_tip_factor} outside 0.5–1.2")
+        if (self.tabs.system is not TabSystem.NONE
+                and self.foil.family is FoilFamily.FLAT_INSIDE):
+            _require(self.tabs.y_offset >= 0.0,
+                     f"tab y_offset {self.tabs.y_offset} mm is negative on a "
+                     "flat-inside fin: the tab anchors flush with the flat "
+                     "face, and a negative offset would protrude past the "
+                     "flat plane (defeats bed-flat printing); use ≥ 0")
         if self.grooves.count:
             _require(self.foil.family is not FoilFamily.FLAT_INSIDE
                      or self.grooves.surface is GrooveSurface.OUTER,

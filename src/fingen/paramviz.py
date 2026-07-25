@@ -276,7 +276,7 @@ def generate_all(outdir: str | Path, png: bool = False) -> list[Path]:
             ha="center", family="monospace")
     _save(fig, outdir, "groove_depth", png)
 
-    # tab position: outline with tabs below the base + x/y arrows
+    # tab x: outline with tabs below the base + chordwise arrow
     fig, ax = _fig()
     _draw_outline(ax, color=_DIM, lw=1.4)
     for cx in (28.5, 81.5):  # dual-tab centers on the default 110 base
@@ -285,10 +285,22 @@ def generate_all(outdir: str | Path, png: bool = False) -> list[Path]:
     _arrow(ax, (55, -24), (80, -24), "")
     ax.text(67, -34, "tab x", color=_MAIN, fontsize=11, ha="center",
             family="monospace")
-    ax.text(2, -34, "tab y: across thickness", color=_DIM, fontsize=8,
-            family="monospace")
     ax.set_ylim(-40, None)
-    _save(fig, outdir, "tab_position", png)
+    _save(fig, outdir, "tab_x", png)
+
+    # tab y: base section with the tab crossing the thickness + y arrow
+    fig, ax = _fig()
+    x, y = _section_xy(FoilParams(family=FoilFamily.FLAT_INSIDE, thickness_ratio=0.1))
+    ax.plot(x, y, color=_DIM, lw=1.4)
+    ax.plot([0, 100], [0, 0], color=_DIM, lw=1.4)
+    ax.fill([22, 42, 42, 22], [0, 0, 22, 22], color=_MAIN, alpha=0.75)
+    _arrow(ax, (52, 2), (52, 22), "")
+    ax.text(56, 12, "tab y", color=_MAIN, fontsize=11, family="monospace",
+            va="center")
+    ax.text(2, -12, "flat side = print bed", color=_DIM, fontsize=8,
+            family="monospace")
+    ax.set_ylim(-18, None)
+    _save(fig, outdir, "tab_y", png)
 
     return sorted(outdir.glob("*.svg"))
 

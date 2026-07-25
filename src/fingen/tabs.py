@@ -71,10 +71,26 @@ def _base_mid_y(fin: FinParams, settings: GenSettings) -> float:
 def _tab_center_y(fin: FinParams, settings: GenSettings, thick: float) -> float:
     """Tab centerline in y for a tab of the given thickness: flush with the
     flat face on FLAT_INSIDE fins (printability anchor), mid-thickness
-    elsewhere; TabParams.y_offset shifts from that anchor."""
+    elsewhere; TabParams.y_offset shifts from that anchor. Raises a clean
+    ValueError (naming the parameter) when the tab would leave the base
+    section's thickness envelope — the checker would refuse that geometry
+    anyway, but only after a full loft+fuse and with a message that blames
+    the blade instead of y_offset."""
     if fin.foil.family is FoilFamily.FLAT_INSIDE:
-        return thick / 2.0 + fin.tabs.y_offset
-    return _base_mid_y(fin, settings) + fin.tabs.y_offset
+        y_c = thick / 2.0 + fin.tabs.y_offset
+    else:
+        y_c = _base_mid_y(fin, settings) + fin.tabs.y_offset
+    upper, lower = section_points(fin.foil, fin.outline.base,
+                                  n_points=settings.n_foil_points)
+    y_max, y_min = float(upper[:, 1].max()), float(lower[:, 1].min())
+    slack = 0.3
+    if y_c + thick / 2.0 > y_max + slack or y_c - thick / 2.0 < y_min - slack:
+        raise ValueError(
+            f"tab (thickness {thick:.2f} mm at y_offset "
+            f"{fin.tabs.y_offset:+.1f} mm) leaves the base section envelope "
+            f"[{y_min:.2f}, {y_max:.2f}] mm — reduce |y_offset| or thicken "
+            "the section")
+    return y_c
 
 
 def _tab_x0(base: float, span: float, x_offset: float, label: str) -> float:

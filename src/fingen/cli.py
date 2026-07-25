@@ -61,7 +61,7 @@ def _add_geometry_args(sub: argparse.ArgumentParser) -> None:
                      help="slide the tab set along the base, mm (+ = toward TE)")
     sub.add_argument("--tab-y", type=float, default=_TABS.y_offset, dest="tab_y",
                      help="shift tabs across the thickness, mm (flat fins anchor "
-                          "flush with the flat side)")
+                          "flush with the flat side and accept only >= 0)")
     sub.add_argument("--grooves", type=int, default=_GROOVES.count, dest="grooves",
                      help="number of spanwise thinning grooves, 0 = none "
                           "([Els22]: +11%% L/D at high incidence, adds tip flex)")

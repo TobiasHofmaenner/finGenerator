@@ -116,5 +116,8 @@ supports — commercial flat-foiled fins sit in their boxes exactly this way,
 and slot clearance absorbs the ~1–2 mm lateral shift. Symmetric/cambered
 fins keep the tab centered on the base section's mid-thickness. The fit
 coupon ignores both offsets (it tests the box interface, not placement).
-Note: large |y_offset| on rear tabs can outrun the thin aft section — the
-geometry checker refuses the degenerate union rather than exporting it.
+The y range is asymmetric on flat fins: only y_offset ≥ 0 is accepted
+(negative would push the tab through the flat plane — rejected at
+parameter construction). On any family, a tab whose thickness + offset
+leaves the base section's envelope is rejected at build time with a
+ValueError naming y_offset, before any loft work.

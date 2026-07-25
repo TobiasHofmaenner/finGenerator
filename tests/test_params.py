@@ -41,6 +41,18 @@ def test_tab_offset_validation():
         TabParams(x_offset=60.0)
     with pytest.raises(ValueError):
         TabParams(y_offset=5.0)
+    # Flat fins anchor flush at the flat plane: negative y would protrude
+    # past it — rejected at construction, naming the parameter.
+    from fingen.params import TabSystem
+
+    with pytest.raises(ValueError, match="y_offset"):
+        FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
+                  tabs=TabParams(system=TabSystem.DUAL_TAB, y_offset=-1.0))
+    # Fine without tabs, and fine on symmetric fins.
+    FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
+              tabs=TabParams(y_offset=-1.0))
+    FinParams(foil=FoilParams(family=FoilFamily.SYMMETRIC),
+              tabs=TabParams(system=TabSystem.DUAL_TAB, y_offset=-1.0))
 
 
 def test_groove_validation():
@@ -111,8 +123,11 @@ def test_cli_groove_args_reach_the_dataclass():
         ["make", "x.step", "--family", "symmetric", "--grooves", "3",
          "--groove-length", "40", "--groove-pitch", "8", "--groove-width", "4",
          "--groove-depth", "0.2", "--groove-start", "0.6",
-         "--groove-surface", "both"])
-    g = _fin_from_args(args).grooves
+         "--groove-surface", "both", "--tabs", "dual",
+         "--tab-x", "-6", "--tab-y", "1.25"])
+    fin = _fin_from_args(args)
+    g = fin.grooves
     assert (g.count, g.length, g.pitch, g.width) == (3, 40.0, 8.0, 4.0)
     assert (g.depth_ratio, g.span_start) == (0.2, 0.6)
     assert g.surface is GrooveSurface.BOTH
+    assert (fin.tabs.x_offset, fin.tabs.y_offset) == (-6.0, 1.25)
