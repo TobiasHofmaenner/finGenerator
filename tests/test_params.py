@@ -148,3 +148,13 @@ def test_cli_halves_and_hand(tmp_path):
     assert main(["make", str(tmp_path / "s.stl"), "--family", "flat",
                  "--hand", "both"]) == 0
     assert (tmp_path / "s-R.stl").exists() and (tmp_path / "s-L.stl").exists()
+    # Halves demand true y-symmetry (and hand-independence) — all refused
+    # before any OCCT work.
+    assert main(["make", str(tmp_path / "y.stl"), "--family", "symmetric",
+                 "--halves", "--tabs", "dual", "--tab-y", "2"]) == 1
+    assert main(["make", str(tmp_path / "g.stl"), "--family", "symmetric",
+                 "--halves", "--grooves", "4"]) == 1
+    assert main(["make", str(tmp_path / "h.stl"), "--family", "symmetric",
+                 "--halves", "--hand", "left"]) == 1
+    assert main(["make", str(tmp_path / "gb.stl"), "--family", "symmetric",
+                 "--halves", "--grooves", "4", "--groove-surface", "both"]) == 0

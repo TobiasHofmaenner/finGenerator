@@ -177,12 +177,29 @@ def main(argv: list[str] | None = None) -> int:
     from fingen.check import check_solid
     from fingen.export import mirror_hand, split_halves, to_step, to_stl
     from fingen.loft import fin_solid
-    from fingen.params import FoilFamily
+    from fingen.params import FoilFamily, GrooveSurface
 
-    if args.halves and fin.foil.family is not FoilFamily.SYMMETRIC:
-        print("--halves needs a symmetric section: flat-inside fins already "
-              "print flat whole, and a cambered midplane is not a flat face")
-        return 1
+    if args.halves:
+        if fin.foil.family is not FoilFamily.SYMMETRIC:
+            print("--halves needs a symmetric section: flat-inside fins already "
+                  "print flat whole, and a cambered midplane is not a flat face")
+            return 1
+        # The halves promise (a flat-faced MIRROR PAIR) requires y-symmetry
+        # of the whole blade: y-shifted tabs leave sub-print-layer sliver
+        # flaps on one half, and outer-face grooves put all the grooves in
+        # one half — both break the pair.
+        if fin.tabs.y_offset != 0.0:
+            print("--halves needs tab y_offset 0: a y-shifted tab leaves "
+                  "paper-thin slivers on one half at the midplane cut")
+            return 1
+        if fin.grooves.count and fin.grooves.surface is not GrooveSurface.BOTH:
+            print("--halves with grooves needs --groove-surface both: outer-"
+                  "face grooves make the halves asymmetric, not a mirror pair")
+            return 1
+        if args.hand != "right":
+            print("--halves is hand-independent (the blade is y-symmetric); "
+                  "drop --hand")
+            return 1
 
     part = fin_solid(fin)
     report = check_solid(part, fin)
