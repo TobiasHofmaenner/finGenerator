@@ -71,8 +71,24 @@ thoroughness is cheap relative to what a wrong bench would cost:
    out of band — for the fin this is a small chord fraction. Plot:
    `out/tmr-flatplate.png`. Their 2D bump / NACA 0012 / RAE 2822
    families remain available as follow-ups.
-3. **Extruded NACA 0012 vs [SK81]** — section machinery against the
-   tabulated polars the tier-0 model cites, incl. post-stall.
+3. **Extruded NACA 0012 vs [SK81]** — ✅ DONE (`scripts/sk81_naca0012.py`,
+   data `bench/sk81-naca0012-700k.json`). Forensics first: the popular
+   OWENSAero digitization of the SK81 tables is **mislabeled 10×** (its
+   "Re 3.6M" is the report's 360k block — verified digit-for-digit against
+   the original scan; SK81 has no 3.6M table). Reference re-transcribed
+   from the scan's Re 700k block (`bench/ref-sk81-naca0012-re0.7M.dat`).
+   Quasi-2D extruded section, fin-bench L2-style wall-function recipe:
+   lift slope 5.12 vs 6.30/rad (**−18.7 %, PASS < 20 %**), decomposed by
+   a ±8c domain probe — 28 % domain confinement, the rest wall-function
+   decambering. CD₀ +24 % vs the transitional measurement (expected:
+   fully-turbulent vs natural laminar run). Break onset lands within
+   1–3° of the table but CL_max is 32 % soft — steady wall-function RANS
+   can't hold the suction peak; the resolved-wall (level-4) rerun is the
+   known upgrade path. Verdict: section-level numbers carry the
+   wall-function regime's documented limits at high loading, while the
+   3D fin bench (AR-diluted) stays inside its measured gates — exactly
+   the tiered picture the ladder exists to draw. Plot:
+   `out/sk81-naca0012.png`.
 4. **Zarruk 2014 towing-tank replication** — modern force + deflection
    data with published uncertainties; the drag-fidelity anchor BW04's
    digitization cannot provide, and an FSI hook via tip deflections.

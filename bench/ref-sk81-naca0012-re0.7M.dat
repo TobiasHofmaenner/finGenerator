@@ -1,0 +1,29 @@
+NACA 0012 — Sheldahl & Klimas, SAND80-2114 (Sandia, 1981), Table 2
+Re = 700,000 block (Eppler model wind-tunnel data, natural transition)
+Transcribed 2026-07-25 from the SAND80-2114 report scan, printed page 20
+(PDF page 25 of scratchpad/sand80-2114.pdf). Columns: alpha[deg] CL CD.
+Provenance note: the OWENSAero.jl digitization (airfoils/NACA_0012.dat)
+claims "3.6 Reynolds numbers in millions" but its values match the report's
+Re = 360,000 block — the header is off by 10x; SK81 has no 3.6M table
+(blocks run ... 1M, 2M, 5M). Verified against the same scan.
+0.0000 0.0000 0.0067
+1.0000 0.1100 0.0068
+2.0000 0.2200 0.0070
+3.0000 0.3300 0.0075
+4.0000 0.4400 0.0083
+5.0000 0.5500 0.0097
+6.0000 0.6600 0.0108
+7.0000 0.7700 0.0118
+8.0000 0.8800 0.0128
+9.0000 0.9598 0.0144
+10.0000 1.0343 0.0159
+11.0000 1.0749 0.0175
+12.0000 1.0390 0.0195
+13.0000 0.8737 0.0216
+14.0000 0.6284 0.0236
+15.0000 0.4907 0.1170
+16.0000 0.4696 0.2100
+17.0000 0.5175 0.2300
+18.0000 0.5584 0.2520
+19.0000 0.6032 0.2740
+20.0000 0.6474 0.2970
