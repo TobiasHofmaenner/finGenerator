@@ -146,7 +146,88 @@ def _build_parser() -> argparse.ArgumentParser:
     coupon.add_argument("--tabs", choices=["dual", "single", "click"], required=True)
     coupon.add_argument("--tab-fit", type=float, default=_TABS.fit_offset, dest="tab_fit")
     coupon.add_argument("--tab-depth", type=float, default=None, dest="tab_depth")
+
+    opt = sub.add_parser("optimize", help="search the design space for the fin "
+                                          "closest to a rider's spider targets; "
+                                          "writes a result card PNG, a result JSON "
+                                          "and STEP exports of the winner")
+    opt.add_argument("--weight", type=float, required=True, dest="weight",
+                     help="rider weight in kg")
+    opt.add_argument("--skill", choices=["cruiser", "intermediate", "advanced", "pro"],
+                     default="intermediate", help="rider skill (sets turn intensity "
+                     "and default speed)")
+    opt.add_argument("--config", choices=["single", "twin", "thruster", "quad",
+                                          "two_plus_one"],
+                     default="thruster", help="fin configuration (sets the blade "
+                     "family and interference environment)")
+    opt.add_argument("--material", default="pet-cf",
+                     help="print material card (default: pet-cf)")
+    opt.add_argument("--speed", type=float, default=None,
+                     help="design riding speed in m/s (default: from skill)")
+    opt.add_argument("--budget", type=int, default=4000, dest="budget",
+                     help="evaluation budget for the CMA-ES search")
+    opt.add_argument("--seed", type=int, default=0, help="RNG seed (deterministic)")
+    opt.add_argument("--out", type=Path, default=Path("out/optimize"), dest="out",
+                     help="output directory for the card, JSON and STEP exports")
+    opt.add_argument("--hand", choices=["right", "left", "both"], default="both",
+                     help="STEP handedness for side-fin configs (default: both, a "
+                          "full set); ignored for the single symmetric center fin")
     return parser
+
+
+_SKILL_MAP = {"cruiser": "CRUISER", "intermediate": "INTERMEDIATE",
+              "advanced": "ADVANCED", "pro": "PRO"}
+_CONFIG_MAP = {"single": "SINGLE", "twin": "TWIN", "thruster": "THRUSTER",
+               "quad": "QUAD", "two_plus_one": "TWO_PLUS_ONE"}
+
+
+def _run_optimize(args: argparse.Namespace) -> int:
+    from fingen.export import mirror_hand, to_step
+    from fingen.loft import fin_solid
+    from fingen.optimize import (
+        RiderSpec,
+        optimize,
+        render_result_card,
+        write_result_json,
+    )
+    from fingen.params import FinConfig
+    from fingen.sizing import Skill
+
+    config = FinConfig[_CONFIG_MAP[args.config]]
+    rider = RiderSpec(weight_kg=args.weight, skill=Skill[_SKILL_MAP[args.skill]],
+                      speed_ms=args.speed, config=config, material=args.material)
+    print(f"optimizing for {args.weight:.0f} kg {args.skill} · {args.config} · "
+          f"{args.material} · {rider.speed:.1f} m/s (budget {args.budget}, "
+          f"seed {args.seed})", flush=True)
+    result = optimize(rider, budget_evals=args.budget, seed=args.seed)
+    r = result.result
+    print(f"done: {result.n_evals} evals · objective {r.objective:.3f} "
+          f"({'feasible' if r.feasible else 'INFEASIBLE'})", flush=True)
+    if not r.feasible:
+        for issue in r.issues:
+            print(f"  constraint: {issue}", flush=True)
+
+    out = args.out
+    out.mkdir(parents=True, exist_ok=True)
+    card = render_result_card(result, out / "result-card.png")
+    js = write_result_json(result, out / "result.json")
+    print(f"wrote {card}\nwrote {js}", flush=True)
+
+    # STEP exports of the winning blade. Side-fin configs are chiral (both
+    # hands make a set); the single symmetric center fin is one blade.
+    part = fin_solid(result.fin)
+    if config is FinConfig.SINGLE:
+        outputs = [(part, "")]
+    elif args.hand == "both":
+        outputs = [(part, "-R"), (mirror_hand(part), "-L")]
+    elif args.hand == "left":
+        outputs = [(mirror_hand(part), "")]
+    else:
+        outputs = [(part, "")]
+    for solid, suffix in outputs:
+        written = to_step(solid, out / f"fin{suffix}.step")
+        print(f"wrote {written} ({written.stat().st_size} bytes)", flush=True)
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -164,6 +245,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"wrote {written} ({written.stat().st_size} bytes) — trial-fit and "
               "adjust --tab-fit in 0.1 mm steps")
         return 0
+
+    if args.command == "optimize":
+        return _run_optimize(args)
 
     fin = _fin_from_args(args)
 

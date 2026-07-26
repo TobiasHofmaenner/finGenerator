@@ -14,6 +14,7 @@ keywords = ["surfboard", "fin", "parametric", "cad", "hydrodynamics", "3d-printi
 dependencies = [
     "build123d>=0.9",
     "numpy>=1.26",
+    "cma>=3.3",
 ]
 
 [project.optional-dependencies]
