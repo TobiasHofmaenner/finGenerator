@@ -1,0 +1,220 @@
+{
+  "generated": "2026-07-26",
+  "section": "flat-inside (thin-foil free-run winner, 95kg pro free-b2)",
+  "tc": 0.044639453285725224,
+  "chord_m": 0.07725174202392444,
+  "speed_ms": 8.5,
+  "Re_meanchord": 625371.2449555789,
+  "mesh_cells": 425027,
+  "yplus_alpha0": [
+    0.06345522,
+    68.50113
+  ],
+  "n_layers": 16,
+  "first_layer_m": 5.529908125616327e-06,
+  "angles": [
+    0.0,
+    2.0,
+    4.0,
+    6.0,
+    8.0,
+    10.0
+  ],
+  "tier0": {
+    "section_slope_rad": 6.283185307179586,
+    "section_slope_deg": 0.1096622711232151,
+    "cd0_hoerner": 0.011175531984706036,
+    "cf": 0.00512866270720787
+  },
+  "models": {
+    "lm": {
+      "rasmodel": "kOmegaSSTLM",
+      "tier": "transition (gamma-Re_theta, Tu 1%)",
+      "slope_0_6_rad": 5.581091842431369,
+      "slope_0_8_rad": 5.340720841410781,
+      "slope_dev_vs_2pi_pct": -11.174164542719415,
+      "cd0_at_alpha0": 0.013923404674999999,
+      "cd_min": 0.012345653699999999,
+      "cd0_from_polar": 0.012398751434871147,
+      "cd0_polar_ratio_vs_hoerner": 1.1094551428817092,
+      "cd0_alpha0_ratio_vs_hoerner": 1.2458829426692606,
+      "knee_deg": 10.0,
+      "cl_max": 0.9160156049447,
+      "cl_max_alpha": 10.0,
+      "attached_through_range": false,
+      "rows": [
+        {
+          "alpha": 0.0,
+          "cl": 0.17670614575,
+          "cd": 0.013923404674999999,
+          "cm": -0.03831005935,
+          "iters": 2000.0,
+          "yplus": [
+            0.06345522,
+            68.50113
+          ],
+          "wall_s": 574.9
+        },
+        {
+          "alpha": 2.0,
+          "cl": 0.371471093,
+          "cd": 0.012345653699999999,
+          "cm": -0.0384878575,
+          "iters": 2000.0,
+          "yplus": [
+            0.5156415,
+            63.31272
+          ],
+          "wall_s": 515.8
+        },
+        {
+          "alpha": 4.0,
+          "cl": 0.5680036786324787,
+          "cd": 0.01710750923076923,
+          "cm": -0.039383242649572645,
+          "iters": 581.0,
+          "yplus": [
+            0.5190055,
+            68.63419
+          ],
+          "wall_s": 152.8
+        },
+        {
+          "alpha": 6.0,
+          "cl": 0.76058480725,
+          "cd": 0.02616525745,
+          "cm": -0.040597681975,
+          "iters": 2000.0,
+          "yplus": [
+            0.1430056,
+            73.8132
+          ],
+          "wall_s": 556.3
+        },
+        {
+          "alpha": 8.0,
+          "cl": 0.91428091975,
+          "cd": 0.0473378324,
+          "cm": -0.036435815275,
+          "iters": 2000.0,
+          "yplus": [
+            0.03138728,
+            78.51018
+          ],
+          "wall_s": 687.5
+        },
+        {
+          "alpha": 10.0,
+          "cl": 0.9160156049447,
+          "cd": 0.118756674575,
+          "cm": -0.091169249775,
+          "iters": 2000.0,
+          "yplus": [
+            0.05152289,
+            234.1473
+          ],
+          "wall_s": 555.5
+        }
+      ]
+    },
+    "ft": {
+      "rasmodel": "kOmegaSST",
+      "tier": "fully-turbulent (Tu 5%)",
+      "slope_0_6_rad": 5.698007342961963,
+      "slope_0_8_rad": 5.4769314487952325,
+      "slope_dev_vs_2pi_pct": -9.313396559368694,
+      "cd0_at_alpha0": 0.017101083274999998,
+      "cd_min": 0.017101083274999998,
+      "cd0_from_polar": 0.01601484773441918,
+      "cd0_polar_ratio_vs_hoerner": 1.433027774994144,
+      "cd0_alpha0_ratio_vs_hoerner": 1.5302254334203695,
+      "knee_deg": 10.0,
+      "cl_max": 0.9286162577499999,
+      "cl_max_alpha": 8.0,
+      "attached_through_range": false,
+      "rows": [
+        {
+          "alpha": 0.0,
+          "cl": 0.1697759615,
+          "cd": 0.017101083274999998,
+          "cm": -0.038492227749999997,
+          "iters": 2000.0,
+          "yplus": [
+            0.1745875,
+            72.6032
+          ],
+          "wall_s": 392.1
+        },
+        {
+          "alpha": 2.0,
+          "cl": 0.3721106,
+          "cd": 0.017154103224999998,
+          "cm": -0.03980807325,
+          "iters": 2000.0,
+          "yplus": [
+            0.9344738,
+            73.67704
+          ],
+          "wall_s": 389.0
+        },
+        {
+          "alpha": 4.0,
+          "cl": 0.5716990395,
+          "cd": 0.021460969375,
+          "cm": -0.041408311074999996,
+          "iters": 2000.0,
+          "yplus": [
+            0.905286,
+            74.31375
+          ],
+          "wall_s": 374.6
+        },
+        {
+          "alpha": 6.0,
+          "cl": 0.76623974125,
+          "cd": 0.0295499614,
+          "cm": -0.042302058149999995,
+          "iters": 2000.0,
+          "yplus": [
+            0.8357657,
+            75.6138
+          ],
+          "wall_s": 425.8
+        },
+        {
+          "alpha": 8.0,
+          "cl": 0.9286162577499999,
+          "cd": 0.04990242742500001,
+          "cm": -0.039338977925,
+          "iters": 2000.0,
+          "yplus": [
+            0.07320548,
+            78.03843
+          ],
+          "wall_s": 374.8
+        },
+        {
+          "alpha": 10.0,
+          "cl": 0.8609045819025001,
+          "cd": 0.11472779595,
+          "cm": -0.0819034977305,
+          "iters": 2000.0,
+          "yplus": [
+            0.02182991,
+            110.5379
+          ],
+          "wall_s": 448.0
+        }
+      ]
+    }
+  },
+  "verdict": {
+    "slope_keeps_2pi_within20pct": true,
+    "early_separation_knee_le8deg": false,
+    "cd0_penalty_over_hoerner_gt15pct": false,
+    "cd0_polar_ratio_vs_hoerner": 1.1094551428817092,
+    "alpha_work_deg": 7.108,
+    "hydro_claim_survives": true,
+    "needle_context": "needle finding (commit 2454f01): fully-turbulent CFD overshoots cd0 by +24% vs the transitional measurement at low Re \u2014 the 'ft' tier here is that pessimistic drag bracket; 'lm' (transition) is the fair low-Re cd0."
+  }
+}
