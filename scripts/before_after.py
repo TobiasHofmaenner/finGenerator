@@ -148,7 +148,10 @@ def draw_radar(ax, before_res, after_res) -> None:
     ax.plot(ang_c, a, color=_CYAN, lw=2.0, label="after")
 
     ax.set_xticks(ang)
-    ax.set_xticklabels([name.upper() for name in axes], color=_INK, fontsize=7,
+    # HOLD* is requirement-relative (headroom over F_req), not fleet-ranked like
+    # the other five axes (spider.hold_score).
+    ax.set_xticklabels([(name.upper() + "*" if name == "hold" else name.upper())
+                        for name in axes], color=_INK, fontsize=7,
                        family="monospace")
     ax.set_ylim(0, 100)
     ax.set_yticks([25, 50, 75])
@@ -158,6 +161,9 @@ def draw_radar(ax, before_res, after_res) -> None:
     ax.spines["polar"].set_color(_GRID)
     ax.legend(loc="upper right", bbox_to_anchor=(1.30, 1.07), facecolor=_PANEL,
               edgecolor=_GRID, labelcolor=_INK, fontsize=7)
+    ax.text(0.5, -0.11, "* hold = requirement-relative (f_max / F_req)",
+            color=_MUTED, fontsize=6, family="monospace", ha="center",
+            va="top", transform=ax.transAxes)
 
 
 # --- numbers panel -----------------------------------------------------------

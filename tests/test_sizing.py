@@ -2,8 +2,14 @@
 
 import pytest
 
-from fingen.params import FinParams, FoilParams, OutlineParams, TabSystem
-from fingen.sizing import Skill, anchor, base_bending_stress_mpa, check_anchor
+from fingen.params import FinConfig, FinParams, FoilParams, OutlineParams, TabSystem
+from fingen.sizing import (
+    Skill,
+    anchor,
+    base_bending_stress_mpa,
+    check_anchor,
+    required_side_force_n,
+)
 
 
 def test_anchor_matches_measured_loads():
@@ -51,3 +57,19 @@ def test_stress_scales_with_thickness():
 def test_unknown_material_rejected():
     with pytest.raises(ValueError):
         anchor(75.0, material="unobtainium")
+
+
+def test_required_side_force_pins_the_safety_factor():
+    # House pin against a hand-computed literal so the FORCE_SF factor (and the
+    # force_work_n build-up it multiplies) cannot silently vanish — dropping it
+    # weakens the capacity gate AND inflates every hold score. For a 75 kg
+    # intermediate thruster (m_total = 75 + 3 = 78 kg, share = 0.6):
+    #   F_req = SUSTAINED_WEIGHT_FRACTION · m_total·g · (share/0.6) · FORCE_SF
+    #         = 0.103 · 78 · 9.81 · (0.6/0.6) · 1.3
+    #         = 78.81354 · 1.3 = 102.457602 N
+    sheet = anchor(75.0, Skill.INTERMEDIATE, 6.4, FinConfig.THRUSTER, "pet-cf")
+    assert required_side_force_n(sheet) == pytest.approx(102.457602, rel=1e-6)
+    # And it is strictly the working load scaled UP by the factor (guards the
+    # factor being dropped or set to 1): F_req = force_work_n · 1.3.
+    assert required_side_force_n(sheet) == pytest.approx(sheet.force_work_n * 1.3,
+                                                         rel=1e-12)

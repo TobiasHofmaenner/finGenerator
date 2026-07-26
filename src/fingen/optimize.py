@@ -60,7 +60,13 @@ from fingen.params import (
     OutlineParams,
 )
 from fingen.roll import roll_report, roll_set_report
-from fingen.sizing import FORCE_SF, AnchorSheet, Skill, anchor, check_anchor
+from fingen.sizing import (
+    AnchorSheet,
+    Skill,
+    anchor,
+    check_anchor,
+    required_side_force_n,
+)
 
 # --- objective tuning constants ---------------------------------------------
 # Structural floors the flex report is gated against. f_wet 8 Hz keeps the wet
@@ -263,13 +269,17 @@ def interference_factor(config: FinConfig, alpha_deg: float) -> float:
 # --- normalization against the reference fleet -------------------------------
 
 
-@functools.lru_cache(maxsize=16)
-def _fleet_raw(speed_key: float) -> tuple[tuple[tuple[str, float], ...], ...]:
-    """Reference-fleet raw axis values at `speed_key`, cached (the fleet is
-    fixed; recomputing six fins' raw scores every evaluate would blow the
-    budget). Returned as hashable sorted-item tuples."""
+@functools.lru_cache(maxsize=64)
+def _fleet_raw(speed_key: float, weight_key: float
+               ) -> tuple[tuple[tuple[str, float], ...], ...]:
+    """Reference-fleet raw axis values at `speed_key`/`weight_key`, cached (the
+    fleet is fixed; recomputing six fins' raw scores every evaluate would blow
+    the budget). Keyed on weight too because the drive/forgiveness working point
+    scales with the rider's force (spider.work_force_n), so the fleet must be
+    ranked at the same weight as the candidate. Returned as hashable sorted-item
+    tuples."""
     fleet = spider.reference_fleet()
-    return tuple(tuple(sorted(spider.raw_scores(f, speed_key).items()))
+    return tuple(tuple(sorted(spider.raw_scores(f, speed_key, weight_key).items()))
                  for f in fleet.values())
 
 
@@ -341,7 +351,7 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
     a_break = stall_alpha_deg(ar_eff)
     q = 0.5 * RHO_SEAWATER * speed**2
     f_capacity = q * area * 1e-6 * slope * math.radians(a_break)
-    req = sheet.force_work_n * FORCE_SF
+    req = required_side_force_n(sheet)  # F_req: also the hold axis reference
     if f_capacity < req:
         penalties["capacity"] = (req - f_capacity) / req
     if fin.outline.base < sheet.base_min_mm:
@@ -394,9 +404,12 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
     roll = roll_report(fin, speed)
     roll_set = roll_set_report(_roll_context(fin, rider.config), speed)
 
-    # Raw spider axes, then washout + interference on the lift-magnitude axes.
-    raw = spider.raw_scores(fin, speed)
-    cl_work = min(spider.WORK_FORCE_N / (q * area * 1e-6),
+    # Raw spider axes at the rider's working point, then washout on the
+    # lift-magnitude axes. work_force_n scales the drive/forgiveness working
+    # point with rider weight (spider.raw_scores takes it), so a light rider's
+    # drive is read at a lighter force budget than an adult's.
+    raw = spider.raw_scores(fin, speed, rider.weight_kg)
+    cl_work = min(spider.work_force_n(rider.weight_kg) / (q * area * 1e-6),
                   0.95 * slope * math.radians(a_break))
     alpha_work = math.degrees(cl_work / slope)
     washout = max(0.0, 1.0 + flex.lift_knockdown)  # knockdown < 0 = lift lost
@@ -406,10 +419,19 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
     # isolated is unmeasured; treated as 1.0 and documented). The deficit
     # curve stays available (interference_factor) for the future set-level
     # optimizer that designs the rear member too.
-    for axis in ("hold", "drive"):
-        raw[axis] *= washout
+    #
+    # DRIVE stays fleet-ranked (an intensive L/D), so the washout multiplies its
+    # raw value before ranking. HOLD is EXTENSIVE (side force in N): ranking it
+    # against the adult fleet is what put the light rider's target out of reach,
+    # so it becomes requirement-relative (spider.hold_score) against F_req — the
+    # same threshold the capacity gate uses. Washout still knocks the effective
+    # f_max down (a floppy blade makes less side force).
+    raw["drive"] *= washout
+    f_max_eff = raw["hold"] * washout
 
-    predicted = _normalize(raw, _fleet_raw(round(speed, 2)))
+    predicted = _normalize(raw, _fleet_raw(round(speed, 2),
+                                           round(rider.weight_kg, 2)))
+    predicted["hold"] = spider.hold_score(f_max_eff, req)
     targets = rider.resolved_targets()
     distance = 0.0
     for axis in spider.AXES:
@@ -810,8 +832,10 @@ def _draw_radar(ax, result: OptimizationResult) -> None:
         ax.plot(ang_c, v, color=color, lw=2.0, label=label)
         ax.fill(ang_c, v, color=color, alpha=fill)
     ax.set_xticks(ang)
-    ax.set_xticklabels([a.upper() for a in axes], color=_INK, fontsize=8,
-                       family="monospace")
+    # HOLD carries a * — it is requirement-relative (headroom over F_req), not
+    # fleet-ranked like the other five axes (spider.hold_score).
+    ax.set_xticklabels([(a.upper() + "*" if a == "hold" else a.upper())
+                        for a in axes], color=_INK, fontsize=8, family="monospace")
     ax.set_ylim(0, 100)
     ax.set_yticks([25, 50, 75])
     ax.set_yticklabels(["25", "50", "75"], color=_MUTED, fontsize=6)
@@ -821,6 +845,9 @@ def _draw_radar(ax, result: OptimizationResult) -> None:
     ax.legend(loc="upper right", bbox_to_anchor=(1.32, 1.14), facecolor=_PANEL,
               edgecolor=_GRID, labelcolor=_INK, fontsize=8)
     ax.set_title("spider: predicted vs target", color=_INK, fontsize=10, pad=18)
+    ax.text(0.5, -0.13, "* hold = requirement-relative (f_max / F_req)",
+            color=_MUTED, fontsize=6.5, family="monospace", ha="center",
+            va="top", transform=ax.transAxes)
 
 
 def _draw_convergence(ax, result: OptimizationResult) -> None:

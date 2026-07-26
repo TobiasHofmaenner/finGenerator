@@ -307,6 +307,35 @@ def test_washout_actually_reaches_the_score(monkeypatch):
     assert softer["drive"] < base["drive"]
 
 
+def test_hold_is_requirement_relative_not_fleet_ranked(monkeypatch):
+    # The light-rider fix: hold measures side-force headroom over F_req
+    # (spider.hold_score), not Newtons ranked against the adult reference fleet.
+    # Two pins: (1) a 45 kg rider's adequately-sized fin clears the old
+    # fleet-rank hold ceiling (~35, which made its hold target structurally
+    # unreachable); (2) inflating F_req alone LOWERS hold — impossible for a
+    # fleet-ranked axis, which never sees F_req.
+    import fingen.optimize as opt
+
+    rider = RiderSpec(weight_kg=45.0, skill=Skill.ADVANCED, config=FinConfig.THRUSTER)
+    fin = FinParams(outline=OutlineParams(depth=130.0, base=118.0, sweep=22.0,
+                                          tip_width_ratio=0.30, le_fullness=0.07,
+                                          te_shape=-0.34),
+                    foil=FoilParams(family=FoilFamily.FLAT_INSIDE,
+                                    thickness_ratio=0.14))
+    res = evaluate(fin, rider)
+    assert res.margins["capacity_n"] > res.margins["capacity_req_n"]  # has headroom
+    assert res.spider_predicted["hold"] > 52.0  # clears the old ~35 fleet ceiling
+
+    real = opt.required_side_force_n
+
+    def inflated(sheet):
+        return real(sheet) * 4.0
+
+    monkeypatch.setattr(opt, "required_side_force_n", inflated)
+    harder = evaluate(fin, rider)
+    assert harder.spider_predicted["hold"] < res.spider_predicted["hold"] - 10.0
+
+
 def test_stage_b_decode_applies_offsets():
     # Review finding: a no-op stage B passed every test. Pin the decode:
     # nonzero offset entries must reach the FinParams, bounded vs the
@@ -343,6 +372,45 @@ def test_objective_guard_covers_evaluate(monkeypatch):
                       config=FinConfig.THRUSTER)
     result = optimize(rider, budget_evals=60, seed=3)
     assert result.result.objective < DECODE_PENALTY
+
+
+def test_evaluate_scores_track_rider_weight_not_wref():
+    # Review finding: evaluate()'s raw_scores call must pass rider.weight_kg —
+    # substituting the W_REF default (spider.raw_scores(fin, speed)) passed the
+    # entire suite. The drive/forgiveness working point is a fixed side FORCE that
+    # scales with rider mass (spider.work_force_n), so on the IDENTICAL fin at a
+    # FIXED speed a lighter rider loads a smaller work force -> smaller cl_work,
+    # which gives (a) a smaller working angle and thus a LARGER stall margin
+    # (higher forgiveness), and (b) operation further below the induced-drag rise
+    # and thus a HIGHER L/D-at-load (higher drive). Both predicted axes must be
+    # strictly greater for the 45 kg rider than the 95 kg rider.
+    import fingen.optimize as opt
+    from fingen import spider
+
+    fin = FinParams(outline=OutlineParams(depth=128.0, base=101.0, sweep=33.0,
+                                          tip_width_ratio=0.35),
+                    foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
+    light = RiderSpec(weight_kg=45.0, skill=Skill.INTERMEDIATE,
+                      config=FinConfig.THRUSTER, speed_ms=6.4)
+    heavy = RiderSpec(weight_kg=95.0, skill=Skill.INTERMEDIATE,
+                      config=FinConfig.THRUSTER, speed_ms=6.4)
+    res_l = evaluate(fin, light).spider_predicted
+    res_h = evaluate(fin, heavy).spider_predicted
+    assert res_l["forgiveness"] > res_h["forgiveness"]
+    assert res_l["drive"] > res_h["drive"]
+
+    # Magnitude pin. Substituting the W_REF default would REVERSE both directions
+    # above (the 77.5 kg work force stalls this fin, flooring the light rider),
+    # but pin it independently anyway: forgiveness carries no washout, so
+    # evaluate's predicted forgiveness for the 45 kg rider must equal the
+    # fleet-normalized rank of spider.raw_scores(fin, 6.4, 45.0)['forgiveness']
+    # against the 45 kg fleet — computed here directly WITH the weight. Under the
+    # W_REF default this reads ~0 (the floored margin) instead of ~59.
+    raw45 = spider.raw_scores(fin, 6.4, 45.0)
+    expected_forgiveness = opt._normalize(
+        raw45, opt._fleet_raw(6.4, 45.0))["forgiveness"]
+    assert expected_forgiveness > 55.0          # the real value, not the ~0 floor
+    assert res_l["forgiveness"] == pytest.approx(expected_forgiveness)
 
 
 def test_normalize_stable_at_tied_fleet_values():

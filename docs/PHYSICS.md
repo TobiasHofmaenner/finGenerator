@@ -463,6 +463,51 @@ The chain from user inputs to geometry:
    from design speed (§4), placement from configuration (§2) — validated against commercial
    template ranges [FCS26, Fut26, Gre26].
 
+## 9b. Spider axes: the normalized objective (`spider.py`)
+
+The optimizer's objective is six surfer-language axes (speed, drive, hold, pivot, release,
+forgiveness), each a 0–100 score derived from the §6 hydro metrics at the rider's working
+point. Five are **normalized against the reference fleet** — a fixed set of template presets
+swept through the same formulas — so 50 means "mid-fleet", not an absolute grade.
+
+**Extensive vs intensive axes.** The normalization only behaves if the underlying metric is
+**intensive** — a ratio that a big fin and a small fin can score equally. Five axes are:
+speed (1/drag *coefficient*-driven trim drag), drive (L/D at the working load), pivot
+(1/yaw-stiffness), release (a shape proxy), forgiveness (degrees of stall margin). Ranking
+these against an adult fleet is fair regardless of fin size.
+
+Hold was the exception. Its raw metric is **maximum side force in Newtons** —
+`f_max = q·S·a·α_break` — an **extensive** quantity that grows with area `S`. Ranking Newtons
+against an adult-sized fleet means a light rider, whose fin area is rightly *capped* by the
+sizing anchor (§9), can never reach a mid hold score no matter the shape: extensive metric ×
+adult fleet × weight-capped size = a structurally unreachable target. The coupled intensive
+axes (drive) then overshoot as the search tries to compensate.
+
+**Requirement-relative hold.** Hold is therefore scored against *what this rider needs*, not
+against the fleet:
+
+    hold_score = 100 · r / (r + r_ref),   r = f_max / F_req
+
+where `F_req` is the **same** steady side-force requirement the sizing capacity gate screens
+against (`sizing.required_side_force_n` = `force_work_n · FORCE_SF`, §9) — one definition, no
+duplicated constant. The map is saturating, strictly monotone in headroom, and smooth (no
+flat/cliff regions — CMA-friendly). `r = 1` (a fin exactly meeting its requirement) scores
+~52.8; `r = 2` (twice the required force) ~69.1; the flex washout still knocks the effective
+`f_max` down for a floppy blade. `r_ref = 0.89285` is calibrated **once** for backward
+compatibility: at the committed 75 kg intermediate anchor (`f_max/F_req = 1.2175548` at
+6.4 m/s) it reproduces the hold value 57.69293 to <10⁻⁴ pt, so adult results move negligibly
+while light riders become reachable. (The earlier 4-dp `0.8929` reproduced it to only
+~1.3·10⁻³ pt — both the constant and the calibration `r` had been over-rounded.)
+
+**Weight-scaled work force.** The drive/forgiveness working point is a fixed side *force*
+(a surfer loads the turn's force budget [Knies25]), and that budget scales with rider mass.
+`work_force_n(w) = 120·(w/W_REF)` with `W_REF = 77.5 kg` (mid of the 75/80 kg adult reference
+band at which the original 120 N was implicitly calibrated); `WORK_FORCE_N = 120` is retained
+as the `w = W_REF` alias for rider-agnostic callers (plotting defaults). Drive's working `C_L`
+and forgiveness's `α_work` then follow per rider: a 45 kg rider is read at a lighter budget
+than a 95 kg rider, and the fleet is re-ranked at the same weight so the comparison stays
+apples-to-apples.
+
 ## 10. CFD & optimization stage
 
 - **Solver setup:** RANS with SST k-ω for attached/pre-stall polars; URANS for post-stall and

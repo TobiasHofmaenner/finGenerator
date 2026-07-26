@@ -140,6 +140,15 @@ def anchor(rider_mass_kg: float, skill: Skill = Skill.INTERMEDIATE,
     )
 
 
+def required_side_force_n(sheet: AnchorSheet) -> float:
+    """F_req: the steady side force the fin must deliver — the sustained working
+    load with the sizing safety factor. THE single definition of that threshold:
+    the capacity gate (check_anchor / optimize.evaluate) screens against it, and
+    the spider hold axis measures a fin's side-force headroom relative to it
+    (fingen.spider.hold_score). One constant, no duplicated literals."""
+    return sheet.force_work_n * FORCE_SF
+
+
 def base_bending_stress_mpa(fin: FinParams, force_n: float) -> float:
     """Bending stress at the base section under the peak load applied at the
     spanwise CP — Euler-Bernoulli with the section modulus integrated
@@ -175,10 +184,10 @@ def check_anchor(fin: FinParams, sheet: AnchorSheet) -> list[str]:
     q = 0.5 * RHO_SEAWATER * sheet.design_speed**2
     f_capacity = (q * m.area * 1e-6 * slope
                   * math.radians(stall_alpha_deg(ar_eff)))
-    if f_capacity < sheet.force_work_n * FORCE_SF:
+    f_req = required_side_force_n(sheet)
+    if f_capacity < f_req:
         issues.append(f"steady side-force capacity {f_capacity:.0f} N below "
-                      f"the sustained requirement "
-                      f"{sheet.force_work_n * FORCE_SF:.0f} N")
+                      f"the sustained requirement {f_req:.0f} N")
     stress = base_bending_stress_mpa(fin, sheet.force_peak_n)
     if stress > sheet.allow_mpa:
         issues.append(f"base bending stress {stress:.0f} MPa exceeds "
