@@ -125,18 +125,22 @@ thoroughness is cheap relative to what a wrong bench would cost:
    with honest expectations). Optimizer guidance: near-stall axes use
    the knee LOCATION (validated ±1–3°) and treat post-knee magnitudes
    as lower bounds.
-6. **[Els22] groove replication** — steady tier ✅ DONE (EPYC container,
-   `scripts/groove_ab.py`, polars in `bench/groove-ab/`). Verdict so far:
-   in the 0–20° steady range the grooves are a small net *penalty* —
-   ΔCL −1…−3 % pre-knee (removed thickness), and at the knee (12–16°)
-   ΔL/D **−10…−19 %** (earlier, messier separation: ΔCD +16.5 % at 12°).
-   No L/D gain anywhere steady RANS can see. This does NOT yet refute
-   [Els22]: their +11 % lives at 30°, deep post-stall — URANS territory —
-   and our 3 mm channels carry only 2–5 cells at level 2 (A/B-adequate,
-   not absolute). But it sharpens a hypothesis: [For24]'s field gains
-   (faster, preferred, measurably softer fins) may be **flex-driven, not
-   steady-hydro-driven** — exactly what the flex track will test.
-   Remaining: reuse the URANS machinery at 30° for the groove pair.
+6. **[Els22] groove replication** — ✅ DONE, both tiers
+   (`bench/groove-ab/`, `bench/els22/`). Steady 0–20° on the BW04
+   replica: grooves never help (knee penalty ΔL/D −10…−19 %). Referee
+   experiment at THEIR claim point — Merrick-template fin, 30°,
+   time-resolved: **ΔL/D −0.5 % (ΔCL −0.2 %, ΔCD +0.3 %) — a NULL**
+   within bench noise, vs their claimed +11 % L/D (−13 % drag). The
+   +11 % does not reproduce on a mesh-frozen, measurement-validated
+   bench under the G1 interpretation of their (unspecified) groove
+   profile. Surviving explanations: their groove depth/width/profile
+   differ from our interpretation (ask Wollongong), channel resolution
+   (2–5 cells at level 2), or their steady-CFX-at-30° number sits in
+   the converged-but-wrong band our bench documents. Meanwhile
+   [For24]'s *field* gains (real surfers, faster, preferred) stand —
+   and with the hydro path null at every angle tested, the
+   **flex-mediated explanation** (their grooved fins measured softer)
+   is now the leading hypothesis, quantifiable by the flex track.
 7. **Physical structure bench** (user-side) — force–stroke stiffness
    (plain vs grooved, replicating [For24] panel C), load-to-failure vs
    FORCE_SF allowables, seawater-soak stiffness recheck.

@@ -1,0 +1,38 @@
+[
+  {
+    "variant": "plain",
+    "alpha": 24.0,
+    "cl_mean": 0.81988,
+    "cd_mean": 0.32142,
+    "cl_std": 1e-05,
+    "shed_hz": 2466.36,
+    "wall_s": 4410.4
+  },
+  {
+    "variant": "plain",
+    "alpha": 30.0,
+    "cl_mean": 0.78087,
+    "cd_mean": 0.43009,
+    "cl_std": 2e-05,
+    "shed_hz": 0.83,
+    "wall_s": 3876.8
+  },
+  {
+    "variant": "grooved",
+    "alpha": 24.0,
+    "cl_mean": 0.82202,
+    "cd_mean": 0.32676,
+    "cl_std": 0.00038,
+    "shed_hz": 41.66,
+    "wall_s": 4586.2
+  },
+  {
+    "variant": "grooved",
+    "alpha": 30.0,
+    "cl_mean": 0.77906,
+    "cd_mean": 0.43117,
+    "cl_std": 3e-05,
+    "shed_hz": 38.33,
+    "wall_s": 4065.2
+  }
+]
