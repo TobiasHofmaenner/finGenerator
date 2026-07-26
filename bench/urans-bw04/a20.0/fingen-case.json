@@ -1,0 +1,45 @@
+{
+  "outline": {
+    "depth": 120.0,
+    "base": 100.0,
+    "sweep": 25.0,
+    "tip_width_ratio": 0.45,
+    "le_fullness": 0.75,
+    "te_shape": 0.8,
+    "le_dx": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "te_dx": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "foil": {
+    "family": "flat_inside",
+    "thickness_ratio": 0.09,
+    "camber_ratio": 0.0,
+    "camber_position": 0.4,
+    "te_thickness": 0.7
+  },
+  "grooves": {
+    "count": 0,
+    "length": 60.0,
+    "pitch": 6.0,
+    "width": 3.0,
+    "depth_ratio": 0.35,
+    "span_start": 0.45,
+    "surface": "outer"
+  },
+  "thickness_tip_factor": 1.0,
+  "speed": 7.0,
+  "leeway_deg": 20.0
+}

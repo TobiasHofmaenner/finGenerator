@@ -107,9 +107,24 @@ thoroughness is cheap relative to what a wrong bench would cost:
    validated before the flex track even opens. Ceiling-BL caveat:
    natural growth gives 8.2 vs 19 mm measured (clean-inlet undershoot;
    paper states BL variation moves lift < 1 %).
-5. **URANS post-knee study** (16–24°) — does unsteady vortex lift
-   reproduce the measured CL climb to 1.10 that steady RANS plateaus
-   below? Gates optimizer use of near-stall axes.
+5. **URANS post-knee study** — ✅ DONE (`scripts/bw04_urans.py`, EPYC
+   container, ~5.8 h wall; `bench/urans-bw04/urans.json`). **Clean null:
+   time resolution is not the missing physics.** URANS means sit within
+   1–2 % of the steady plateau (16°: 0.853 vs 0.856; 20°: 0.853 vs
+   0.862; 24°: 0.830 vs 0.815) with negligible oscillation (CL std
+   ≈ 1e-4 — the separated state is quasi-steady at this fidelity),
+   recovering only ~4 % of the steady-vs-measured gap. Conclusion: the
+   measured post-knee climb (to 1.10 at 24°) is **transition physics**
+   — [BW04]'s own attribution, the bursting laminar separation bubble —
+   which fully-turbulent modeling cannot produce at any time
+   resolution. Two consequences: (a) the steady plateau is a genuine
+   model prediction, not a solver artifact — steady RANS post-knee
+   numbers are as good as URANS ones here, at 1/50th the cost;
+   (b) closing the post-knee gap requires the transition model on the
+   resolved-wall mesh (γ-Reθ post-stall — a known-hard regime, parked
+   with honest expectations). Optimizer guidance: near-stall axes use
+   the knee LOCATION (validated ±1–3°) and treat post-knee magnitudes
+   as lower bounds.
 6. **[Els22] groove replication** — steady tier ✅ DONE (EPYC container,
    `scripts/groove_ab.py`, polars in `bench/groove-ab/`). Verdict so far:
    in the 0–20° steady range the grooves are a small net *penalty* —
