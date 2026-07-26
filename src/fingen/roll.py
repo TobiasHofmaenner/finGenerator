@@ -79,10 +79,13 @@ FLAT_PLATE_CD = 1.1
 # [GF49]) ≈ 0.73, honest band 0.56–0.77. It is a CALIBRATION CONSTANT, not the
 # textbook A/(A+4): planform-dependent (this value fits the near-triangular default
 # taper — a rectangular planform carries more rolling relief and would take a
-# smaller κ) and PROVISIONAL, pending the fixed-rig CFD rerun + a GF49 bench
-# replication. TQ48 (Toll & Queijo, NACA TN 1581) and GF49 (Goodman & Fisher)
-# remain the theory family / measured class it is anchored to; only the applied
-# number is audit-calibrated. Multiplies the lift-loading term ONLY — the added-
+# smaller κ) and now MEASUREMENT-ANCHORED: the GF49 bench replication
+# (bench/roll-validation/gf49-replication.md) showed wall-function RANS keeps
+# only ~9 % viscous knockdown where the wind tunnel measured ~29 %, i.e. the
+# fixed-rig CFD's implied κ≈0.90 rode the RANS's own optimism; the
+# measurement-implied band is 0.66–0.78 and 0.73 sits inside it. TQ48
+# (Toll & Queijo, NACA TN 1581) and GF49 (Goodman & Fisher) remain the theory
+# family / measured pin it is anchored to. Multiplies the lift-loading term ONLY — the added-
 # inertia and z³-drag terms are not lift quantities and keep the raw strip value.
 KAPPA_FS = 0.73
 # Station resolution for the FinParams/FinSetParams wrappers. The roll integrands

@@ -1,0 +1,91 @@
+{
+  "generated": "2026-07-26",
+  "wing": "GF49 Rep 968 / TN 1835 wing 4 \u2014 untapered NACA 0012, AR 2.61, unswept",
+  "setup": {
+    "speed_ms": 6.4,
+    "chord_m": 0.1641,
+    "semispan_m": 0.2141505,
+    "Re_c": 1000228.5714285716,
+    "AR_full": 2.61,
+    "mesh_level": 2,
+    "end_time": 800,
+    "procs": 12,
+    "mesh_cells": 470661,
+    "foil": "NACA 0012 (t/c 0.12, 0.4 mm blunt TE)",
+    "omegas": [
+      0.0,
+      1.0,
+      2.0
+    ],
+    "helix_pb2V": [
+      0.0,
+      0.033461015625,
+      0.06692203125
+    ],
+    "board_bc": "symmetryPlane (symmetric-mirror problem)",
+    "inflow_bc": "exprFixedValue uy(z)=omega*pos().z() on inlet+farfield"
+  },
+  "cases": [
+    {
+      "omega": 0.0,
+      "M_x_half": 1.6974763312500003,
+      "M_x_last": 1.696646,
+      "tail_std": 0.005127679418754984,
+      "iters": 800.0,
+      "wall_s": 0.0
+    },
+    {
+      "omega": 1.0,
+      "M_x_half": -1.8754442624999998,
+      "M_x_last": -1.874674,
+      "tail_std": 0.0013011367361249017,
+      "iters": 800.0,
+      "wall_s": 0.0
+    },
+    {
+      "omega": 2.0,
+      "M_x_half": -5.1563983,
+      "M_x_last": -5.149181,
+      "tail_std": 0.0027941774008641597,
+      "iters": 800.0,
+      "wall_s": 0.0
+    }
+  ],
+  "mesh_cells": 470661,
+  "derivative_half_Nms": {
+    "lsq": -3.4269373156250005,
+    "near_zero_secant": -3.57292059375
+  },
+  "normalization": "C_lp = 2V*(dMx_full/domega)/(q*S_full*b^2), dMx_full=2*dMx_half, S_full=c*b, b=2s (GF49 convention)",
+  "clp_cfd": {
+    "sym_mirror_lsq": -0.3241428616610267,
+    "sym_mirror_near_zero": -0.33795094543026977,
+    "antisym_corrected_lsq": -0.26971588862092893,
+    "antisym_corrected_near_zero": -0.2812054508617543,
+    "antisym_factor": 0.832089552238806,
+    "antisym_note": "symmetryPlane solves the symmetric-mirror problem (alpha=omega*|z|); x0.832 = audit LL 0.223/0.268 maps it to true antisymmetric rolling"
+  },
+  "anchors": {
+    "measured_GF49": -0.22,
+    "LL_TollQueijo": -0.31011939583469594,
+    "strip_2D": -1.0471975511965976,
+    "strip_3D_helmbold": -0.5168484784167817
+  },
+  "viscous_knockdown": {
+    "note": "how far below the inviscid lifting line (antisym LL=-0.310) each lands; knockdown = value/LL",
+    "cfd_over_LL_antisym": 0.9067651189790343,
+    "measured_over_LL_antisym": 0.7094041938520588,
+    "rolling_relief": 0.93,
+    "kappa_implied_by_cfd": 0.8432915606505019,
+    "kappa_implied_by_measured": 0.6597459002824146
+  },
+  "verdict": {
+    "compare": "antisym-corrected CFD (near-zero derivative) vs measured -0.22",
+    "clp_cfd_antisym_near_zero": -0.2812054508617543,
+    "pct_error_near_zero": -27.82065948261559,
+    "pct_error_lsq": -22.598131191331333,
+    "reproduces_within_15pct": false,
+    "outcome": "OVER-PREDICTS the measurement by 28%",
+    "kappa_fs_implication": "FAIL/over-predict -> the wall-function RANS lands near the inviscid lifting line (CFD/LL=0.91) and MISSES most of the viscous/lifting-surface knockdown the GF49 measurement shows (measured/LL=0.71). This CONFIRMS RERUN-VERDICT.md hedge 2: the fixed-rig's implied kappa~0.90 (from the RANS's own weak knockdown ~0.97) is a wall-function artifact; the independent GF49 MEASUREMENT is the truth, so roll.KAPPA_FS should stay ~0.73-0.78 (measurement-implied kappa=0.66), NOT be raised to 0.90. The wall-function hedge is real."
+  }
+}
