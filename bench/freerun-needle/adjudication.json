@@ -1,0 +1,82 @@
+{
+  "task": "exploit-adjudication #17 nomination #1 — HIGH-ASPECT NEEDLE",
+  "fin": "high-ar-needle (free-run 60kg cruiser, out/freerun-60kg-cruiser-free-b1.json)",
+  "rider": {"weight_kg": 60.0, "skill": "CRUISER", "speed_ms": 5.5},
+  "planform": {"depth_mm": 175.674, "base_mm": 96.351, "sweep_deg": 42.5,
+               "ar_geo": 2.6629, "area_mm2": 11589.24, "tc": 0.0764,
+               "tip_width_ratio": 0.5335, "grooves": 3},
+
+  "setup": {
+    "tier": "transition (bench/bw04-polar-transition machinery, matched)",
+    "turbulence_model": "kOmegaSSTLM (gamma-ReThetat)",
+    "mesh_level": 4, "mesh_cells": 1529071,
+    "inlet_Tu_pct": 1.0, "convention": "rotated-inlet freestream, board=symmetry plane (k=2 reflector)",
+    "speed_ms": 5.5, "end_time_cap": 2500, "procs": 12, "box": "EPYC (ssh.niguna.ch)",
+    "re_meanchord": 345557,
+    "re_outer_span_band": "~1.8e5 (90% span) to ~2.7e5 (nominal tip-width chord) — transitional",
+    "yplus_fin": {"min": 0.091, "max": 85.4, "mean": 10.56,
+      "note": "TARGET was ~1 (resolved wall); prism layers did NOT resolve the sublayer on this thin/grooved high-AR blade. Integral forces trustworthy; transition-LOCATION readout NOT reliable."},
+    "convergence": {
+      "alpha_0_to_8_deg": "converged on residualControl (p,U ~1e-6)",
+      "alpha_10_to_16_deg": "hit 2500-iter cap, residuals plateau (p 7e-5..9e-4) — unsteady separation steady RANS cannot fully converge; forces are tail-averaged means, wider error bars"}
+  },
+
+  "tier0_reference": {
+    "datcom_slope_rad": {"k2": 3.8679, "k1.7": 3.6697},
+    "datcom_slope_deg": {"k2": 0.06751, "k1.7": 0.06405},
+    "ar_eff": {"k2": 5.3259, "k1.7": 4.5270},
+    "stall_alpha_deg": 12.0,
+    "cd0": 0.013337,
+    "cdi_model": "CL^2/(pi*0.90*ar_eff)",
+    "note": "k=2 is the fair CFD (symmetry-plane) comparison per verify_candidate.py; k=1.7 is the optimizer's reward basis."
+  },
+
+  "polar": [
+    {"alpha": 0,  "cl": 0.1841, "cd": 0.01659, "cm": -0.1493, "ld": 11.1, "yplus_max": 85.4,  "conv": "converged"},
+    {"alpha": 2,  "cl": 0.3190, "cd": 0.01810, "cm": -0.2260, "ld": 17.6, "yplus_max": 81.3,  "conv": "converged"},
+    {"alpha": 4,  "cl": 0.4484, "cd": 0.02389, "cm": -0.2987, "ld": 18.8, "yplus_max": 77.2,  "conv": "converged"},
+    {"alpha": 6,  "cl": 0.5771, "cd": 0.03784, "cm": -0.3695, "ld": 15.3, "yplus_max": 101.9, "conv": "converged"},
+    {"alpha": 8,  "cl": 0.7023, "cd": 0.05909, "cm": -0.4319, "ld": 11.9, "yplus_max": 143.7, "conv": "converged"},
+    {"alpha": 10, "cl": 0.8043, "cd": 0.08530, "cm": -0.4681, "ld": 9.4,  "yplus_max": 135.0, "conv": "capped"},
+    {"alpha": 12, "cl": 0.8965, "cd": 0.12173, "cm": -0.4983, "ld": 7.4,  "yplus_max": 140.2, "conv": "capped"},
+    {"alpha": 14, "cl": 0.9352, "cd": 0.16633, "cm": -0.5029, "ld": 5.6,  "yplus_max": 147.2, "conv": "capped"},
+    {"alpha": 16, "cl": 0.9048, "cd": 0.20851, "cm": -0.5015, "ld": 4.3,  "yplus_max": 159.7, "conv": "capped"}
+  ],
+
+  "verdicts": {
+    "a_lift_slope_gate": {
+      "cfd_slope_rad": 3.7085, "cfd_slope_deg": 0.06473, "cfd_zero_lift_deg": -2.89,
+      "fit_range_deg": "0-8",
+      "dev_vs_k2_pct": -4.12, "dev_vs_k1.7_pct": 1.06,
+      "gate_threshold_pct": 25.0, "result": "PASS",
+      "conclusion": "The DATCOM lift-slope extrapolation to AR 2.66 is CONFIRMED. CFD slope sits essentially on the k=1.7 reward line and 4% under the k=2 mirror line — far inside the 25% gate. The lift side of the induced-drag lever is real; hold (~slope*area*break) is validated."
+    },
+    "b_drag_decomposition": {
+      "cd0_cfd": 0.01659, "cd0_tier0": 0.01334, "cd0_excess_pct": 24.4,
+      "cd_ratio_cfd_over_tier0_k2": {
+        "alpha2": 0.90, "alpha4": 0.90, "alpha6": 1.07, "alpha8": 1.28,
+        "alpha10": 1.52, "alpha12": 1.82, "alpha14": 2.33, "alpha16": 3.08},
+      "result": "PARTIAL — collapse real at cruise, fails under load",
+      "conclusion": "In the ATTACHED range (alpha<=6, CL<=0.58) the drag polar tracks tier-0 within +/-10% (ratios 0.90-1.07) — the high-AR induced-drag collapse is REAL, and the scored drive/speed working points (CL~0.41 / trim) actually beat tier-0 (peak L/D 18.8 @ CL 0.45). ABOVE CL~0.7 (alpha>=8) CFD drag diverges hard (1.3x -> 3x) as the section separates: the constant-efficiency quadratic cdi has NO stall/separation-drag term. Plus a +24% transitional profile cd0 (section does not hold its Re-700k SK81/Zarruk polar at the needle's 2-3e5 outer-span Re). So the induced-drag 'collapse' is only partial: fine at cruise, badly optimistic under hard load."
+    },
+    "c_break_angle": {
+      "cfd_break_deg": 14.0, "cl_max": 0.935, "tier0_break_deg": 12.0,
+      "result": "PASS (tier-0 conservative)",
+      "conclusion": "CL_max at 14 deg — 2 deg LATER than the 12 deg stall_alpha_deg prediction. The feared early tip-Re break did NOT materialize; tier-0 was mildly conservative and the needle keeps (slightly exceeds) its forgiveness margin. CAVEAT: alpha>=10 cases are capped/un-converged at y+~10, so per the URANS-study convention the post-knee magnitude is a LOWER BOUND, not a resolved value."
+    },
+    "d_separation_transition_anomaly": {
+      "yplus_mean": 10.56,
+      "result": "no early-collapse anomaly; transition location NOT resolvable",
+      "conclusion": "y+~10 (not the intended ~1) means the gamma-ReThetat transition-onset location is NOT trustworthy here — cannot report transition positions. What the FORCES show: drag-rise onset at alpha~7-8 (CD peels off the quadratic) and a gentle CL_max at 14 with a soft post-peak (0.935->0.905 over 14->16) indicate PROGRESSIVE trailing-edge/outer-span separation, not an abrupt LE stall. The feared tip-Re LE-separation collapse was NOT seen in this steady-RANS bench (though steady RANS cannot be trusted for post-knee magnitude)."
+    },
+    "e_bottom_line": {
+      "verdict": "PARTIALLY SURVIVES",
+      "wrong_tier0_line_item": "the DRAG decomposition — profile cd0 (no tip-Re correction, ~+24%) and the constant-efficiency cdi=CL^2/(pi*0.9*AR_eff) quadratic past CL~0.7 (no separation/stall-drag term). NOT the DATCOM slope, NOT stall_alpha_deg.",
+      "survives": "Lift slope (DATCOM, gate pass), the induced-drag collapse AT CRUISE, and the break angle (14>12) — the load-bearing, least-controversial claims. A deep high-AR blade genuinely gives the predicted lift and cruise efficiency; the needle is NOT a pure model artifact.",
+      "erodes": "speed/drive magnitude under hard load (CL>0.7): CFD drag 1.3-3x tier-0 and L/D collapses 12->5 from alpha 8->14. The hard-turn efficiency the raw numbers promise is optimistic.",
+      "release_axis": "The tier-0 release axis is a GEOMETRIC proxy (0.6*sweep + 0.4*elliptic_dev) that CFD cannot falsify directly. Its intended physics replacement — the post-peak lift gradient — is GENTLE in this polar (CL sheds only 3% over 14->16 deg), which DIRECTIONALLY SUPPORTS a high release rather than killing it. Low confidence (capped/un-converged near-stall regime, y+~10); needs URANS to close.",
+      "open_risk_flag_ventilation": "NOT ADJUDICABLE by this deep-submergence single-phase bench. A 176 mm deep, narrow, high-AR blade near the free surface is the canonical ventilation/surface-piercing geometry; ventilation could dump the very lift the whole reward assumes. This remains the single largest un-tested risk and the needle can ship only with this caveat flagged."
+    }
+  },
+  "raw_run_json": "needle-adjudication.json (per-case residuals + full drag table, produced on the box)"
+}
