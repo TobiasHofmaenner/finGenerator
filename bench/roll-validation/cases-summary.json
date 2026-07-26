@@ -1,0 +1,70 @@
+{
+  "generated": "2026-07-26",
+  "speed_ms": 6.4,
+  "mesh_level": 2,
+  "end_time": 800,
+  "procs": 12,
+  "mesh_cells": 360134,
+  "yplus_fin": {
+    "min": 15.07003,
+    "max": 440.6086,
+    "avg": 81.6138
+  },
+  "convergence_note": "all cases ran to the end_time=800 cap (residualControl not tripped simultaneously; final p-residual ~3-7e-5) but M_x plateaus: the last-160-iter tail std is ~3e-4 N.m (0.02%), so the tail mean is a converged value.",
+  "inlet_note": "twist imposed via exprFixedValue uy(z)=omega*pos().z(); codedFixedValue swapped out because this OpenFOAM install is runtime-only (no wmake) so the coded BC cannot compile. Physics identical. CofR=(0 0 0), z0=0 -> matches tier-0 roll axis exactly.",
+  "cases": [
+    {
+      "omega": 0.0,
+      "M_x_converged": -1.5838245,
+      "M_x_last": -1.583702,
+      "iterations": 800,
+      "converged_residualControl": false,
+      "final_residuals": {
+        "p": 2.82365e-05,
+        "Ux": 1.15065e-05,
+        "Uy": 4.28954e-05
+      },
+      "wall_s": 554.8
+    },
+    {
+      "omega": 1.0,
+      "M_x_converged": -1.70072128125,
+      "M_x_last": -1.700697,
+      "iterations": 800,
+      "converged_residualControl": false,
+      "final_residuals": {
+        "p": 7.47588e-05,
+        "Ux": 2.30067e-05,
+        "Uy": 4.89272e-05
+      },
+      "wall_s": 438.0
+    },
+    {
+      "omega": 2.0,
+      "M_x_converged": -1.7874740125,
+      "M_x_last": -1.788057,
+      "iterations": 800,
+      "converged_residualControl": false,
+      "final_residuals": {
+        "p": 5.62493e-05,
+        "Ux": 4.41595e-05,
+        "Uy": 3.9024e-05
+      },
+      "wall_s": 397.8
+    },
+    {
+      "omega": 3.0,
+      "M_x_converged": -1.86226934375,
+      "M_x_last": -1.863313,
+      "iterations": 800,
+      "converged_residualControl": false,
+      "final_residuals": {
+        "p": 5.60832e-05,
+        "Ux": 6.92294e-05,
+        "Uy": 3.85941e-05
+      },
+      "wall_s": 299.0
+    }
+  ],
+  "failures": []
+}

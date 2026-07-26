@@ -1,0 +1,130 @@
+{
+  "generated": "2026-07-26",
+  "cfd_slope_lsq_dMx_domega": -0.09220872624999997,
+  "cfd_slope_near_zero_secant": -0.11689678125000014,
+  "cfd_fit_intercept": -1.5952591949999997,
+  "cfd_baseline_Mx0": -1.5838245,
+  "linearity_r2": 0.9893029967001136,
+  "response_shape": "sub-linear (concave): |secant| decreases with omega",
+  "tier0_L_p": -0.23829337830751496,
+  "tier0_Clp_finnorm": -0.7228356344742856,
+  "tier0_lift_slope_per_rad": 3.310343976738666,
+  "cfd_over_tier0_lsq": 0.38695463090462223,
+  "cfd_over_tier0_near_zero": 0.49055824412857224,
+  "percent_error_lsq_vs_tier0": -61.30453690953777,
+  "percent_error_near_zero_vs_tier0": -50.94417558714278,
+  "finite_span_theory": {
+    "note": "tier-0 is a strip integral; the rolling-specific induced / lifting-surface span-load relief it omits reduces the real derivative to ~half at this AR. The deficit is a RATIO (measured/strip ~0.45-0.55, taper-robust), corroborated by Toll-Queijo lifting-line and DATCOM lifting-surface methods.",
+    "AR_geom": 1.7376023905348221,
+    "AR_full_reflected": 3.4752047810696443,
+    "expected_cfd_over_tier0_from_literature": [
+      0.45,
+      0.55
+    ],
+    "expected_cfd_L_p_mid": -0.11914668915375748,
+    "cfd_near_zero_over_expected_mid": 0.9811164882571445,
+    "cfd_lsq_over_expected_mid": 0.7739092618092445,
+    "refs": [
+      "[GF49] NACA Rep 968/TN 1835 Goodman&Fisher rolling-flow Clp (unswept AR2.61 -0.22, AR5.16 -0.38 /rad)",
+      "[TQ48] NACA TN 1581 Toll&Queijo eq.27 Clp=-(a0/8)A/(A+4)",
+      "USAF DATCOM Sec 7.1.2.2 Weissinger lifting-surface Clp"
+    ]
+  },
+  "shear_preservation": {
+    "note": "uy(z)/(omega*z) sampled on vertical lines, omega=3 field. The imposed linear shear decays ~10-15% from inlet to the fin because the freestream top/side BCs relax uy toward 0; the near-fin drop also includes the fin's own bound-vortex sidewash (physical). Net effect biases the CFD slope LOW by ~10-15% -> the CFD/tier0 ratios are slight lower bounds.",
+    "upper_span_z_0.05_0.11": {
+      "freestream_x-0.30": {
+        "z_band_m": [
+          0.05,
+          0.11
+        ],
+        "mean_uy_over_nominal": 0.86983189774086,
+        "min": 0.8087809523809524,
+        "max": 0.9084857756159525,
+        "n": 21
+      },
+      "near_fin_x-0.15": {
+        "z_band_m": [
+          0.05,
+          0.11
+        ],
+        "mean_uy_over_nominal": 0.7510129463723136,
+        "min": 0.6371301587301588,
+        "max": 0.8228219150475877,
+        "n": 21
+      },
+      "near_fin_x-0.03": {
+        "z_band_m": [
+          0.05,
+          0.11
+        ],
+        "mean_uy_over_nominal": 0.7571696203094722,
+        "min": 0.638336507936508,
+        "max": 0.8159364398887332,
+        "n": 21
+      }
+    }
+  },
+  "roll_axis_z0_mm": 0.0,
+  "cfd_CofR": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "axis_match_tier0": true,
+  "setup": {
+    "speed_ms": 6.4,
+    "omegas_rad_s": [
+      0.0,
+      1.0,
+      2.0,
+      3.0
+    ],
+    "mesh_level": 2,
+    "end_time": 800,
+    "mesh_cells": 360134,
+    "yplus_fin": {
+      "min": 15.07003,
+      "max": 440.6086,
+      "avg": 81.6138
+    },
+    "procs": 12,
+    "solver": "simpleFoam kOmegaSST wall-functions (frozen L2 polar recipe)",
+    "inlet_bc": "exprFixedValue uy(z)=omega*pos().z() (== codedFixedValue physics)",
+    "fin_hash": "6d3b60c3d0c7ca22",
+    "fin_params": {
+      "outline": {
+        "depth": 115.0,
+        "base": 110.0,
+        "sweep": 33.0,
+        "tip_width_ratio": 0.4,
+        "le_fullness": 0.65,
+        "te_shape": -0.3,
+        "le_dx": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "te_dx": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "foil": {
+        "family": "flat_inside",
+        "thickness_ratio": 0.09,
+        "camber_ratio": 0.0,
+        "camber_position": 0.4,
+        "te_thickness": 0.7
+      },
+      "thickness_tip_factor": 0.85
+    }
+  }
+}
