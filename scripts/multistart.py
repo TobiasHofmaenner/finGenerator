@@ -82,11 +82,20 @@ _BASIN_COLORS = ["#7fd4e0", "#d55181", "#9085e9", "#199e70", "#e66767", "#c98500
 # The two rider profiles: the well-conditioned mid case and the antagonistic
 # heavy/aggressive case whose flattened landscape is the multimodality suspect.
 RIDERS: tuple[tuple[str, str, RiderSpec], ...] = (
+    ("45kg-intermediate", "45 kg intermediate · thruster",
+     RiderSpec(weight_kg=45.0, skill=Skill.INTERMEDIATE, config=FinConfig.THRUSTER)),
+    ("45kg-pro", "45 kg pro · thruster",
+     RiderSpec(weight_kg=45.0, skill=Skill.PRO, config=FinConfig.THRUSTER)),
     ("75kg-intermediate", "75 kg intermediate · thruster",
      RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE, config=FinConfig.THRUSTER)),
     ("95kg-pro", "95 kg pro · thruster",
      RiderSpec(weight_kg=95.0, skill=Skill.PRO, config=FinConfig.THRUSTER)),
 )
+# Session note: light riders (groms/smaller adults) are underserved by
+# commercial ranges — if their optima corner at the depth-corridor floor,
+# that is a finding about adult-biased corridors, not about the rider.
+
+_ONLY = None  # set via argv[4] as comma-separated slugs to run a subset
 
 # Basins are single-link agglomerative clusters on euclidean distance in the
 # normalized slider space — but only over the sliders the objective actually
@@ -835,7 +844,11 @@ def main() -> None:
 
     print(f"multistart: {n_starts} starts x {budget} evals x {len(RIDERS)} riders,"
           f" base seed {seed}", flush=True)
+    import sys as _sys
+    only = set(_sys.argv[5].split(",")) if len(_sys.argv) > 5 else None
     for slug, label, rider in RIDERS:
+        if only and slug not in only:
+            continue
         study_rider(slug, label, rider, out_prefix, n_starts, budget, seed)
 
 
