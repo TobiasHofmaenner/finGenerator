@@ -238,6 +238,61 @@ follows to −4 %. Torsion carries no such factor yet (no torsional anchor). E d
 moduli [PETCF, Fis23]; the FEM tier (scripts/fem_demo.py) re-anchors per-geometry. Validity:
 pre-stall distributed loads, small deflections, solid thin sections.
 
+## 5c. Tier-0 roll dynamics (`roll.py`)
+
+Rail-to-rail feel is a **roll** problem (rotation p about the fore-aft x axis), and the fin's
+job there is to *damp* it. When the board rolls, a blade element at height z above the roll
+axis is swept sideways at p·z_eff (z_eff = z + z0, z0 the roll-axis height above the board —
+default 0, referencing it to the fin root); the forward speed U converts that into a local
+incidence Δα = p·z_eff/U, whose extra lift opposes the roll. This is the exact roll analogue of
+a wing's damping in roll [Pol49], solved as a strip integral on the chord schedule
+(milliseconds, optimizer-embeddable — the same numeric spirit as §5b).
+
+**Two regimes.**
+- **z² (at speed).** The lift-based roll-damping derivative L_p = ∂(roll moment)/∂p =
+  −q·a/U·∫c(z)·z_eff² dz (a = the fin's DATCOM lift slope §6). The arm enters *squared* — once
+  for the induced incidence, once for the moment arm — so at fixed chord damping grows with span
+  **cubed**. Rectangular closed form ∫c·z² dz = c·s³/3, so the dimensionless C_lp = L_p·U/(q·S·s²)
+  → −a/3. This is the dominant fin contribution to roll feel while moving.
+- **z³ (near zero speed).** With no forward flow there is no lift; the swept element pushes water
+  broadside as a flat plate (normal-force coefficient C_d ≈ 1.1 [Hoe75]), a drag moment
+  M_drag = −½ρC_d·∫c(z)·z_eff³ dz · p·|p| — quadratic in p, reported separately as the low-speed
+  number.
+
+**Roll added inertia** I_add = ρ·∫(πc(z)²/4)·z_eff² dz — the 2D flat-plate apparent mass
+πρ_w(c/2)² per span [BAH96], moment-weighted by z_eff² like any mass moment of inertia (∝ c² s³
+for a rectangle; the same added-mass line as the §5b wet frequency, here weighted for roll).
+
+**Set geometry.** A side blade at lateral offset y_f is off the roll axis, so rolling both
+*sweeps* it (the z-component, as for the center fin) and *heaves* it (a vertical velocity p·y_f
+from the offset). On an upright blade the heave is pure spanwise flow and makes no lift; **cant**
+γ tilts the lift normal to n̂ = (0, cosγ, sinγ), and the incidence-driving normal-wash and the
+roll-moment arm both reduce to ℓ(z) = z + z0·cosγ + y_f·sinγ (reciprocity). Damping is
+q·a/U·∫c·ℓ² dz per blade; the sweep contribution carries cosγ (it *decreases* with cant) while
+the y_f·sinγ heave *rises* from zero. The arm is mirror-symmetric, so a right and a left side
+blade add the same positive damping — a thruster's pair adds to the center fin. The center fin
+(y_f = γ = 0) is the pure-sweep case. Placement fields come from `assembly.py`; toe is neglected
+(second order for roll).
+
+**Outputs & scope.** L_p (and C_lp), I_add, the low-speed drag coefficient, a roll time constant
+τ = I_add/|L_p|, and a rail-to-rail agility proxy 1/|L_p| (higher = looser). The time constant
+uses I_add **only**: the board+rider rotational inertia — which actually sets the maneuver
+timescale — and the board's own hydrostatic/rail roll *stiffness* are **out of scope**. The
+division of labour is deliberate: the **board dominates static roll stiffness**, the **fins
+dominate roll damping at speed**, and this module is the fin-damping half. τ is thus the fin's own
+roll-rate decay time (milliseconds — a relative feel index, not an absolute maneuver time). The
+product-relevant result is that at *fixed area* damping ∝ S·s² and inertia ∝ S·s, so a deep,
+narrow blade damps and resists roll far more than a shallow, wide one of the same area — the
+physics that prices depth, and the intended eventual replacement for the empirical depth-corridor
+fence in the optimizer (deferred until CFD confirms the pricing; report-only for now).
+
+**Validation.** The quadrature is checked against the rectangular closed forms (c·s³/3, ρπc²s³/12,
+c·s⁴/4) to 0.1 % and the span/chord scalings pinned (test_roll). scripts/roll_validation.py stages
+the CFD cross-check: the single-fin case with the uniform inlet replaced by a codedFixedValue
+shear uy(z) = ω·z (the velocity roll induces) at a baseline + two ω, and a `forces` FO reporting
+the roll moment M_x about the root — the CFD C_lp = dM_x/dω to compare against tier-0's L_p (the
+EPYC solves it; the script only writes the dictionaries).
+
 ## 6. Fast hydro model (lift, drag, stall)
 
 The fin is a low-aspect-ratio swept wing next to a wall.

@@ -52,12 +52,14 @@ from fingen.outline import metrics, planform
 from fingen.params import (
     FinConfig,
     FinParams,
+    FinSetParams,
     FoilFamily,
     FoilParams,
     GrooveParams,
     GrooveSurface,
     OutlineParams,
 )
+from fingen.roll import roll_report, roll_set_report
 from fingen.sizing import FORCE_SF, AnchorSheet, Skill, anchor, check_anchor
 
 # --- objective tuning constants ---------------------------------------------
@@ -204,6 +206,17 @@ def family_for_config(config: FinConfig) -> FoilFamily:
     fin for a single, a flat-inside side fin for every set (the dominant,
     chiral blade exported both hands)."""
     return FoilFamily.SYMMETRIC if config is FinConfig.SINGLE else FoilFamily.FLAT_INSIDE
+
+
+def _roll_context(fin: FinParams, config: FinConfig) -> FinSetParams:
+    """Place the optimized blade into its set at DEFAULT placements, so the
+    report-only roll metrics can show the set-level damping the fin lives in.
+    The MVP designs the dominant blade — the center fin for a single, the side
+    blade for every set (family_for_config) — so it goes in that slot; the other
+    slot keeps the template default (context only, not designed here)."""
+    if config is FinConfig.SINGLE:
+        return FinSetParams(config=config, center=fin)
+    return FinSetParams(config=config, side=fin)
 
 
 # --- multi-fin interference environment (bench/falk) -------------------------
@@ -371,6 +384,16 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
     penalty_sum = float(sum(penalties.values()))
     feasible = penalty_sum <= 1e-9
 
+    # Tier-0 roll dynamics (fingen.roll) — REPORT-ONLY this commit. The blade's
+    # own roll damping/inertia/agility plus the set-level damping it lives in
+    # (default placements). This is the physics that will eventually price fin
+    # depth directly; wiring it into the OBJECTIVE (a roll-agility axis feeding
+    # pivot/forgiveness) is deferred to its own study-backed step, and the
+    # practical DEPTH CORRIDOR above stays a hard-ish gate until those reruns
+    # confirm roll pricing holds up — so the corridor is NOT demoted here.
+    roll = roll_report(fin, speed)
+    roll_set = roll_set_report(_roll_context(fin, rider.config), speed)
+
     # Raw spider axes, then washout + interference on the lift-magnitude axes.
     raw = spider.raw_scores(fin, speed)
     cl_work = min(spider.WORK_FORCE_N / (q * area * 1e-6),
@@ -408,6 +431,14 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
         "washout_pct": 100.0 * flex.lift_knockdown,
         "env_factor": 1.0,  # dominant blade: no measured in-set knockdown
         "tip_deflection_mm": flex.tip_deflection_mm,
+        # Roll dynamics (report-only, not in the objective): blade damping |L_p|
+        # and added inertia, the fin-only roll time constant, the rail-to-rail
+        # agility proxy (1/|L_p|, higher = looser), and the set-level damping.
+        "roll_damping_nm_s": roll.roll_damping_nm_s,
+        "roll_inertia_kgm2": roll.added_inertia_kgm2,
+        "roll_tau_ms": roll.tau_ms,
+        "roll_agility": roll.agility_proxy,
+        "roll_set_damping_nm_s": roll_set.roll_damping_nm_s,
     }
     issues = check_anchor(fin, sheet)
     if stress_sf < 1.0:
@@ -865,12 +896,14 @@ def _draw_numbers(ax, result: OptimizationResult) -> None:
          f"washout {mg['washout_pct']:+.1f}%", _MUTED),
         (f"working {mg['alpha_work_deg']:.1f}deg  env x{mg['env_factor']:.2f}"
          f"  tipdefl {mg['tip_deflection_mm']:.2f}mm", _MUTED),
+        (f"roll Lp {mg['roll_damping_nm_s']:.3f}Nms  tau {mg['roll_tau_ms']:.1f}ms"
+         f"  set {mg['roll_set_damping_nm_s']:.2f}", _MUTED),
     ]
     y = 0.97
     for text, color in lines:
         ax.text(0.02, y, text, color=color, fontsize=9, family="monospace",
                 va="top", transform=ax.transAxes)
-        y -= 0.083
+        y -= 0.077
     ax.set_title("margins & headline params", color=_INK, fontsize=10)
 
 

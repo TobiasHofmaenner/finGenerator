@@ -142,8 +142,10 @@ Leading-edge-suction analogy: C_L = K_p sinα cos²α + K_v cosα sin²α.
 ### [Pol49] Polhamus (1949) — A Simple Method of Estimating the Subsonic Lift and Damping in Roll of Sweptback Wings
 *NACA TN 1862.* [NTRS 19930082534](https://ntrs.nasa.gov/citations/19930082534)
 Origin of the closed-form swept-wing lift-curve slope later canonized in DATCOM; reduces to
-Helmbold at Λ=0 and to πAR/2 as AR→0.
-**Cited for:** the sweep-corrected C_Lα implemented for raked fins.
+Helmbold at Λ=0 and to πAR/2 as AR→0. Also the paper's other half: a strip estimate of the
+**damping in roll** of a wing.
+**Cited for:** the sweep-corrected C_Lα implemented for raked fins; the lift-based roll-damping
+derivative L_p in the tier-0 roll model (`fingen.roll`).
 
 ### [Die51] Diederich (1951) — A Plan-Form Parameter for Correlating Certain Aerodynamic Characteristics of Swept Wings
 *NACA TN 2335.* [NTRS 19930082969](https://ntrs.nasa.gov/citations/19930082969)
@@ -179,8 +181,10 @@ Ch. 5: lifting line, induced drag, and Helmbold's equation recommended for AR < 
 ### [Hoe75] Hoerner & Borst (1975) — Fluid-Dynamic Lift, 2nd ed.
 *Hoerner Fluid Dynamics.* [Internet Archive scan](https://archive.org/details/FluidDynamicLiftHoerner1985)
 Empirical compendium: low-AR nonlinear (sin²α cross-flow) lift, end-plate factor
-(1 + 1.9 h/b), reflection-plane doubling for a fin on a wall.
-**Cited for:** effective-AR treatment and the empirical nonlinear lift term.
+(1 + 1.9 h/b), reflection-plane doubling for a fin on a wall, and bluff-plate normal-force
+(drag) coefficients.
+**Cited for:** effective-AR treatment and the empirical nonlinear lift term; the flat-plate
+normal-force coefficient C_d ≈ 1.1 in the zero-speed roll-drag form (`fingen.roll`).
 
 ### [Tra23] Traub (2023) — Lift Components of Low Aspect Ratio Rectangular Flat Plate Wings
 *Aerospace 10(7):597, open access.* [DOI 10.3390/aerospace10070597](https://doi.org/10.3390/aerospace10070597)

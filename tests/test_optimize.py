@@ -218,6 +218,72 @@ def test_dominant_blade_carries_no_rear_deficit():
     assert res.margins["env_factor"] == 1.0
 
 
+def test_roll_metrics_reported_but_not_in_objective(monkeypatch):
+    # Roll dynamics are REPORT-ONLY this commit: evaluate() surfaces the blade's
+    # damping/inertia/tau/agility and the set-level damping on margins, but the
+    # objective/distance/spider are untouched (the objective change is a later
+    # study-backed step). A deeper blade must read more roll damping and less
+    # agility, and the thruster set damping must exceed the lone blade's.
+    import dataclasses
+
+    import fingen.optimize as opt
+
+    rider = RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE,
+                      config=FinConfig.THRUSTER)
+    side = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
+    res = evaluate(side, rider)
+    for key in ("roll_damping_nm_s", "roll_inertia_kgm2", "roll_tau_ms",
+                "roll_agility", "roll_set_damping_nm_s"):
+        assert key in res.margins and res.margins[key] > 0.0
+    # Set (center + side pair) damps more than the single dominant blade.
+    assert res.margins["roll_set_damping_nm_s"] > res.margins["roll_damping_nm_s"]
+    deep = FinParams(outline=OutlineParams(depth=135, base=95, sweep=33,
+                                           tip_width_ratio=0.35),
+                     foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
+    res_deep = evaluate(deep, rider)
+    assert res_deep.margins["roll_damping_nm_s"] > res.margins["roll_damping_nm_s"]
+    assert res_deep.margins["roll_agility"] < res.margins["roll_agility"]
+
+    # The report-must-not-leak pin. Patch the roll reports evaluate() consumes
+    # (at their point of use in fingen.optimize) so the damping/inertia they hand
+    # back are scaled by a huge factor. If ANY roll quantity — however small its
+    # coefficient — leaked into the objective, that ×137 swing would move the
+    # scored outputs. They must stay BITWISE identical while the roll MARGINS
+    # move by exactly the injected factor.
+    K = 137.0
+    real_report = opt.roll_report
+    real_set = opt.roll_set_report
+
+    def scaled_report(*a, **k):
+        rep = real_report(*a, **k)
+        return dataclasses.replace(rep, l_p=rep.l_p * K,
+                                   added_inertia_kgm2=rep.added_inertia_kgm2 * K)
+
+    def scaled_set(*a, **k):
+        rep = real_set(*a, **k)
+        return dataclasses.replace(
+            rep, roll_damping_nm_s=rep.roll_damping_nm_s * K,
+            added_inertia_kgm2=rep.added_inertia_kgm2 * K)
+
+    monkeypatch.setattr(opt, "roll_report", scaled_report)
+    monkeypatch.setattr(opt, "roll_set_report", scaled_set)
+    patched = evaluate(side, rider)
+
+    # Scored outputs: byte-for-byte identical (roll never enters them).
+    assert patched.objective == res.objective
+    assert patched.distance == res.distance
+    assert patched.penalty == res.penalty
+    assert patched.spider_predicted == res.spider_predicted
+    # Report-only margins: moved by exactly the injected factor (proves the
+    # patched reports really are the ones evaluate() read).
+    assert patched.margins["roll_damping_nm_s"] == pytest.approx(
+        K * res.margins["roll_damping_nm_s"])
+    assert patched.margins["roll_inertia_kgm2"] == pytest.approx(
+        K * res.margins["roll_inertia_kgm2"])
+    assert patched.margins["roll_set_damping_nm_s"] == pytest.approx(
+        K * res.margins["roll_set_damping_nm_s"])
+
+
 def test_washout_actually_reaches_the_score(monkeypatch):
     # Review finding: dropping the washout multiplication would survive the
     # suite. Pin: a larger flex knockdown must lower hold/drive.
