@@ -60,6 +60,12 @@ Bambu PLA Basic ([PLA]), a low-stiffness reference only. The DRY X-Y bending
 STRENGTHS here (`strength_xy_mpa`) are the inputs fingen.sizing knocks down
 (print + moisture) into its design allowables; that module cross-references
 this one.
+
+Production finish: fins are impregnated with DIAMANT dichtol AM
+(capillary sealant) — moisture-uptake figures here are upper bounds for
+sealed production parts, and sealed surfaces approach the hydraulically
+smooth walls the CFD bench assumes (bare FDM roughness is transitional
+at fin Reynolds numbers). Test specimens should carry the same finish.
 """
 
 from __future__ import annotations

@@ -169,3 +169,21 @@ out/sidefin-004/fingen-case.json`. Out comes `run.card.json`
 full provenance) and a dark QC plot (`run.qc.png`: both branches, the fit
 line, residuals). Drop `--fin-json` to get K + QC without the modulus
 inversion.
+
+
+## Production finish note (dichtol AM)
+
+Production fins are impregnated with DIAMANT dichtol AM (capillary
+sealant). Consequences for testing and modeling:
+
+1. **Test specimens must match production finish** — run Tests A–G on
+   sealed prints, not bare ones; an unsealed soak test (G) would
+   overstate moisture uptake that production fins never see.
+2. **Process order: anneal first, then impregnate** (PET-CF17 anneal is
+   120 °C/10 h; do not re-heat after sealing).
+3. **Hydrodynamic relevance**: bare FDM layer roughness (~10–30 µm) is
+   comparable to the viscous sublayer at fin Reynolds numbers — bare
+   prints are transitionally rough (extra skin friction, earlier
+   transition) while the CFD assumes hydraulically smooth walls. Sealed
+   + smoothed fins move the physical article toward the simulated one;
+   treat finish as part of the fin, not cosmetics.
