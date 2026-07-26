@@ -372,17 +372,71 @@ Foundational FDM anisotropy study: strength strongly dependent on raster/layer o
 Short-CF nylon: roughly factor-2 modulus difference across print orientations.
 **Cited for:** orientation-appropriate modulus (not datasheet-longitudinal) in E·I calculations.
 
+### [FibPET26] Polymaker — Fiberon PET-CF17 Technical Data Sheet V1.0
+[TDS PDF](https://3d.nice-cdn.com/upload/file/TDS_FIBERON-PET-CF17_V1.0_EN.pdf), accessed 2026-07-26
+(text-extracted from the official PDF). The user's actual print filament (17 wt% carbon-fiber
+PET). Full ISO-method table, all values for specimens **annealed 120 °C / 10 h** (stated on the
+TDS): ISO 178 bending modulus XY 4744.4 ± 136.3 MPa / Z 2768.2 ± 422.6 MPa; bending strength XY
+109.3 ± 2.0 / Z 43.4 ± 8.8 MPa; ISO 527 tensile (Young's) modulus XY 5481.0 ± 223.7 / Z 3558.8 ±
+260.4 MPa; tensile strength XY 65.9 ± 1.0 / Z 27.9 ± 1.3 MPa; ISO 1183 density 1.34 g/cm³ at
+23 °C; Tg 79.3 °C; HDT 105 °C @1.8 MPa / 147.5 °C @0.45 MPa; equilibrium water absorption ≈0.53%
+at 70% RH (low uptake → near-indifferent to humid/seawater service).
+**Cited for:** the PRIMARY `pet-cf` material card in `fingen.materials` (e_mpa = XY bending
+modulus 4744 MPa) and the derived sizing allowable in `fingen.sizing`
+(`_MATERIAL_ALLOW_MPA["pet-cf"]` = 109.3 · 0.5 / 2 = 27.325 MPa). Datasheet numbers are the
+annealed ceiling; the load-cell rig measures the real as-printed/annealed state.
+
 ### [PETCF] Bambu Lab (2023) — Technical Data Sheet V3.0 — PET-CF
-[TDS PDF](https://wiki.bambulab.com/filament-acc/petcf-ppacf/07689de83afd4cc480f136c7697e6de3.pdf) (server requires a browser user agent).
+[TDS PDF](https://wiki.bambulab.com/filament-acc/petcf-ppacf/07689de83afd4cc480f136c7697e6de3.pdf)
+(official server requires a browser user agent; re-pulled and text-extracted 2026-07-26).
 ISO 178 bending modulus XY 5320 ± 270 MPa / Z 2210 ± 180 MPa; bending strength XY 131 ± 6 /
-Z 49 ± 5 MPa; density 1.29 g/cm³.
-**Cited for:** PET-CF stiffness/strength inputs and the ~2.4× XY/Z anisotropy.
+Z 49 ± 5 MPa; ISO 527 tensile modulus XY 4730 ± 260 / Z 2160 ± 170 MPa; tensile strength XY
+74 ± 6 / Z 35 ± 5 MPa; density 1.29 g/cm³. Specimens annealed/dried 80 °C / 12 h.
+**Cited for:** the secondary `bambu-pet-cf` comparison card in `fingen.materials` and the ~2.4×
+XY/Z anisotropy; no longer the `pet-cf` default (superseded by [FibPET26], the user's filament).
 
 ### [PAHTCF] Bambu Lab (2023) — Technical Data Sheet V3.0 — PAHT-CF
-[TDS PDF](https://wiki.bambulab.com/filament-acc/asacf-pahtcf/65f1b18a6d6142d794a1a6a00f1496ef.pdf) (server requires a browser user agent).
+[TDS PDF](https://wiki.bambulab.com/filament-acc/asacf-pahtcf/65f1b18a6d6142d794a1a6a00f1496ef.pdf)
+(official server requires a browser user agent; re-pulled and text-extracted 2026-07-26).
 ISO 178 bending modulus XY 4230 ± 210 MPa / Z 1820 ± 170 MPa; bending strength XY 125 ± 7 /
-Z 61 ± 5 MPa; Charpy XY 57.5 kJ/m²; retains properties when wet.
-**Cited for:** PAHT-CF inputs; the tougher/wet-stable option for seawater use.
+Z 61 ± 5 MPa; ISO 527 tensile modulus XY 3860 ± 230 / Z 2180 ± 130 MPa; tensile strength XY
+92 ± 7 / Z 47 ± 5 MPa; Charpy XY 57.5 kJ/m² (unnotched); density 1.06 g/cm³ (PA12+CF); retains
+properties when wet.
+**Cited for:** the `bambu-paht-cf` comparison card in `fingen.materials` AND the structural
+analog behind the approximated Elegoo `paht-cf` card (same PA12+CF class) — its X-Y/Z modulus
+and strength ratios fill Elegoo's Z-direction gaps. Also anchors the retained paht-cf sizing
+allowable (125 · 0.5 / 2 = 31.25 MPa).
+
+### [ELPAHT26] Elegoo — PAHT-CF (PA12 Carbon Fiber) filament, published specifications
+[Product page](https://us.elegoo.com/products/paht-cf-filament-1-75mm-colored-1kg) and the
+[filamentdb aggregation](https://www.filamentdb.app/filament/elegoo/paht-cf-carbon-fiber),
+accessed 2026-07-26. The user's actual PAHT-CF filament; no thorough TDS is published. Only a
+few X-Y, dry values are given: flexural modulus 5089 MPa, flexural strength 138 MPa, tensile
+strength 87 MPa, elongation at break 14.2%, unnotched Charpy 70.4 kJ/m²; base polymer PA12-CF.
+No Z-direction data, no density, no test standard stated.
+**Cited for:** the PRIMARY `paht-cf` material card in `fingen.materials`, built as an
+`"approximated"` card — Elegoo's own X-Y numbers plus Bambu-analog [PAHTCF] fill and a PA12
+wet-conditioning derate [3DXPA]; see that card's `derivation` field for the exact split and
+uncertainty. Test G (docs/BENCH-PROTOCOL.md) is decision-grade for this card.
+
+### [3DXPA] 3DXTech — PA6-CF vs. PA12-CF Carbon Fiber Nylon comparison *(grey literature)*
+[3dxtech.com/blogs/featured/pa6-cf-vs-pa12-cf-carbon-fiber-nylon-comparison](https://www.3dxtech.com/blogs/featured/pa6-cf-vs-pa12-cf-carbon-fiber-nylon-comparison),
+accessed 2026-07-26. Compares moisture behaviour: PA6 absorbs 3-9% water and its stiffness drops
+in humid environments (a companion figure gives PA6-CF flexural modulus ~7453 MPa dry vs
+~5666 MPa conditioned, ≈24% loss), whereas PA12-CF absorbs <1% and "maintains its stiffness
+regardless of ambient humidity."
+**Cited for:** the PA12-CF conditioned/wet modulus retention (~0.85, band ~10-20%) applied to
+the Elegoo `paht-cf` card and its sizing allowable — the honest, material-appropriate knockdown
+(NOT the PA6/66 30-50% figure). Non-peer-reviewed vendor material; the load-cell rig's Test G
+supersedes it.
+
+### [PLA] Bambu Lab — Technical Data Sheet V3.0 — PLA Basic
+[TDS PDF](https://store.bblcdn.com/s1/default/58b85d0f3db94878854a28fdb8a0006e/Bambu_PLA_Basic_Technical_Data_Sheet.pdf),
+accessed 2026-07-26 (text-extracted from the official PDF). ISO 178 bending modulus XY 2750 ± 160
+MPa / Z 2370 ± 150 MPa; bending strength XY 76 ± 5 / Z 59 ± 6 MPa; ISO 527 tensile modulus XY
+2580 ± 220 / Z 2060 ± 170 MPa; tensile strength XY 35 ± 4 / Z 31 ± 3 MPa; density 1.24 g/cm³.
+**Cited for:** the generic `pla` low-stiffness reference card in `fingen.materials` — NOT a
+seawater candidate, kept only for card wiring and filament comparison.
 
 ### [Gat17] Gately et al. (2017) — Additive Manufacturing, Modeling and Performance Evaluation of 3D Printed Fins
 *MRS Advances 2(16):913–920.* [DOI 10.1557/adv.2017.107](https://doi.org/10.1557/adv.2017.107)

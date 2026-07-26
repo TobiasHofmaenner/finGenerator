@@ -5,6 +5,13 @@ All dimensions are millimetres, all angles degrees, unless stated otherwise.
 The math is specified in docs/PHYSICS.md with citations in docs/SOURCES.md.
 """
 
+from fingen.materials import (
+    CARDS,
+    MaterialCard,
+    get_card,
+    load_measured_card,
+    register_card,
+)
 from fingen.params import (
     FinConfig,
     FinParams,
@@ -33,5 +40,10 @@ __all__ = [
     "OutlineParams",
     "TabParams",
     "TabSystem",
+    "MaterialCard",
+    "CARDS",
+    "get_card",
+    "register_card",
+    "load_measured_card",
     "__version__",
 ]

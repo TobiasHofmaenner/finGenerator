@@ -57,9 +57,23 @@ SUSTAINED_WEIGHT_FRACTION = 0.103
 CL_USABLE = 0.65
 FORCE_SF = 1.3
 
-# Material design allowables: ISO-178 XY bending strength [PETCF, PAHTCF]
-# times a 0.5 print/layup knockdown [Fis23], over a structural SF of 2.
-_MATERIAL_ALLOW_MPA = {"pet-cf": 131.0 * 0.5 / 2.0, "paht-cf": 125.0 * 0.5 / 2.0}
+# Material design allowables: ISO-178 XY bending strength times a 0.5
+# print/layup knockdown [Fis23], over a structural SF of 2. The strength
+# literals ARE the datasheet XY bending strengths carried as
+# MaterialCard.strength_xy_mpa in fingen.materials (kept in sync there).
+#   pet-cf = Polymaker Fiberon PET-CF17 [FibPET26], XY bending strength
+#     109.3 MPa (annealed coupon; the 0.5 knockdown covers the as-printed
+#     reality). 109.3·0.5/2 = 27.325 MPa — this REPLACES the former Bambu-PET
+#     value 32.75 (from 131 MPa): a −16.6% move on switching to the user's
+#     actual filament, past the 10% threshold, so re-derived here in step.
+#   paht-cf = Elegoo PAHT-CF (PA12-CF, approximated card [ELPAHT26]). The user's
+#     filament: Elegoo dry XY flexural strength 138 MPa, wet-derated ~0.85 for
+#     PA12 conditioning [3DXPA] -> ~117 MPa; 117·0.5/2 = 29.3 MPa — within ~6%
+#     of the retained 31.25 (the Bambu-analog 125·0.5/2), inside the 10% band
+#     and well inside the approximation's own ±20-30%, so KEPT as-is (literal
+#     stays 125·0.5/2). Test E/G on the real filament is decision-grade.
+#     (Default fin sits far under both: base stress ~13 MPa at peak.)
+_MATERIAL_ALLOW_MPA = {"pet-cf": 109.3 * 0.5 / 2.0, "paht-cf": 125.0 * 0.5 / 2.0}
 
 # Spanwise center of pressure for the bending arm (fraction of depth) —
 # consistent with the measured tip-first loading fin [BW04].

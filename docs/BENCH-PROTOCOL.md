@@ -4,8 +4,20 @@ Status 2026-07-26. Task #7 (user-side), the structural anchor for the tier-0
 flex model (`src/fingen/flex.py`). The rig inverts that beam: push a clamped
 blade with a known force at a known spanwise station, measure displacement,
 and hand `scripts/bench_intake.py` a CSV that comes back as a material card
-(`E_eff_mpa`) — the number that replaces the `E_PLACEHOLDER_MPA = 7000 MPa`
-guess flex.py carries today.
+(`E_eff_mpa`) — the number that replaces the datasheet estimate flex.py carries
+today.
+
+**Datasheet cards are the default; measured cards are the upgrade.** Until this
+rig runs, `fingen.materials` ships published-datasheet cards (provenance
+`"datasheet"`, or `"approximated"` for Elegoo PAHT-CF) and `fingen.flex` reads
+`get_card(material).e_mpa` — so the whole model is usable now, roughly a month
+before load-cell data exists. When a bench sweep is processed, its
+`<csv>.card.json` drops straight into
+`fingen.materials.load_measured_card(path)`, which builds a `MaterialCard` with
+provenance `"measured"` (the measured `E_eff_mpa` becomes `e_mpa`, datasheet
+strength/density inherited); `register_card()` then shadows the datasheet
+default so every downstream flex/sizing call uses the measured modulus. The rig
+is an accuracy upgrade, not a blocker.
 
 **The rig.** 100 kg load cell on a rail sled, SFU1204 ball screw (lead
 4 mm) turned by a stepper with an integrated controller, roller/PTFE tip
@@ -96,9 +108,10 @@ let go with a snap. Drive *displacement*, not force, and creep up slowly:
 past the elastic line you'll see a **force plateau / rollover** (the section
 yielding) well before fracture — that plateau, not the break, is the useful
 number. Compare peak stress to the design allowables in `sizing.py`
-(`_MATERIAL_ALLOW_MPA`: pet-cf 32.75 MPa, paht-cf 31.25 MPa — already
-knocked down ×0.5 for print/layup over an SF of 2, so real first-yield
-should land well above them, confirming `FORCE_SF = 1.3` has margin).
+(`_MATERIAL_ALLOW_MPA`: pet-cf 27.33 MPa — Fiberon PET-CF17 XY bending strength
+109.3 MPa ×0.5/2; paht-cf 31.25 MPa — already knocked down ×0.5 for print/layup
+over an SF of 2, so real first-yield should land well above them, confirming
+`FORCE_SF = 1.3` has margin).
 
 ## Test F — fatigue
 
@@ -115,6 +128,17 @@ Soak PET-CF and PAHT-CF coupons/blades in seawater 1 week. Re-run Test A
 hydrolyses; PAHT-CF is the wet-service candidate — this test is what decides
 which resin ships. Log soak days in the run notes and keep the before/after
 cards paired.
+
+**Decision-grade for Elegoo PAHT-CF.** The `paht-cf` card in `fingen.materials`
+is an *approximated* card whose default `e_mpa` is a CONDITIONED estimate —
+Elegoo's dry X-Y flexural modulus 5089 MPa derated ×0.85 for PA12 wet
+conditioning [3DXPA] ≈ 4326 MPa — because a submerged fin operates wet, not
+dry. That derate is the single softest assumption in the material stack. Test G
+measures the real soaked modulus directly; feed the post-soak card through
+`load_measured_card(..., annealed=<state>)` + `register_card()` and it replaces
+the estimate everywhere. (The `pet-cf` Fiberon card needs no such soak
+correction — ≈0.53% equilibrium uptake — so Test G on PET-CF is mainly a
+hydrolysis/degradation check, not a stiffness recalibration.)
 
 ## CSV format (what `bench_intake.py` reads)
 

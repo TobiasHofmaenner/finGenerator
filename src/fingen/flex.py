@@ -30,10 +30,14 @@ reads consistently STIFF against 3D references — root warping, shear lag
 and plate behavior are missing, and they grow with how stubby the blade is —
 so bending compliance carries a single calibrated knockdown (see
 ROOT_COMPLIANCE_SLOPE); torsion is left uncorrected (no torsional anchor
-yet). CALIBRATION NOTE: E defaults to 7000 MPa — a PET-CF print placeholder
-(TDS XY bending modulus 5320 MPa [PETCF]; CF-aligned perimeters run stiffer
-than the coupon) — until the load-cell bench rig supplies the measured
-effective modulus of printed blades; feed that through `e_mpa`.
+yet). CALIBRATION NOTE: with no explicit override, E now comes from the
+material card — `get_card(material).e_mpa`, the datasheet ISO-178 X-Y bending
+modulus (4744 MPa for pet-cf = Polymaker Fiberon PET-CF17 [FibPET26], the
+user's filament), which is the correct span-bending stiffness of a flat-printed
+blade (fingen.materials explains why flexural-X-Y, and that the datasheet is
+the ANNEALED ceiling). Feed the measured effective modulus through `e_mpa`
+once the load-cell bench rig supplies it. The 7000 MPa E_PLACEHOLDER_MPA below
+is retained only as scripts/bench_intake.py's e_ratio anchor, not the default.
 
 Geometry in mm like the rest of fingen; the solve converts to SI internally.
 """
@@ -49,11 +53,13 @@ import numpy as np
 from fingen.foil import section_points
 from fingen.hydro import RHO_SEAWATER, lift_curve_slope
 from fingen.loft import _groove_thins, _thickness_at, groove_station_z
+from fingen.materials import get_card
 from fingen.outline import chord_schedule
 from fingen.params import FinParams, GenSettings
 from fingen.sizing import _MATERIAL_ALLOW_MPA
 
-# PET-CF print placeholder modulus — see the CALIBRATION NOTE above.
+# Retained as bench_intake's e_ratio reference anchor only — the live flex
+# default now reads get_card(material).e_mpa (see the CALIBRATION NOTE above).
 E_PLACEHOLDER_MPA = 7000.0
 POISSON = 0.35  # short-CF thermoplastics; G = E / (2(1+ν))
 # Printed short-CF blade density [PETCF: 1.29 g/cm³], solid infill assumed.
@@ -291,7 +297,9 @@ def flex_report(fin: FinParams, force_n: float, speed: float,
     """
     if material not in _MATERIAL_ALLOW_MPA:
         raise ValueError(f"material {material!r} not in {sorted(_MATERIAL_ALLOW_MPA)}")
-    e = E_PLACEHOLDER_MPA if e_mpa is None else e_mpa
+    # Default modulus from the datasheet card (in-plane flexural, fingen.materials);
+    # an explicit e_mpa (e.g. the bench-measured effective modulus) overrides it.
+    e = get_card(material).e_mpa if e_mpa is None else e_mpa
     settings = GenSettings(n_stations=_N_STATIONS, n_foil_points=_N_FOIL_POINTS)
     stations = chord_schedule(fin.outline, settings, tip_chord_min=settings.cap_chord,
                               extra_z=groove_station_z(fin))

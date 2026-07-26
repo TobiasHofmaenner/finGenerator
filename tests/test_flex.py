@@ -14,6 +14,7 @@ import pytest
 
 from fingen.flex import flex_report, flex_solve, section_mech
 from fingen.foil import section_points
+from fingen.materials import get_card
 from fingen.params import FinParams, FoilFamily, FoilParams, GrooveParams
 
 # [Zar14] Type I geometry and Table 2 properties (bench/zarruk/geometry.md).
@@ -136,10 +137,13 @@ def test_wrapper_material_and_modulus_paths():
     fin = FinParams()
     soft = flex_report(fin, 74.0, 6.4, e_mpa=3500.0)
     stiff = flex_report(fin, 74.0, 6.4, e_mpa=7000.0)
-    # Deflection is linear in compliance; the placeholder default is 7000.
+    # Deflection is linear in compliance (explicit e_mpa 3500 → 2× the 7000 run).
     assert soft.tip_deflection_mm == pytest.approx(2.0 * stiff.tip_deflection_mm)
+    # With no override the default E is the pet-cf material card (fingen.materials,
+    # the datasheet in-plane flexural modulus), not the 7000 placeholder.
+    card_run = flex_report(fin, 74.0, 6.4, e_mpa=get_card("pet-cf").e_mpa)
     assert flex_report(fin, 74.0, 6.4).tip_deflection_mm == \
-        pytest.approx(stiff.tip_deflection_mm)
+        pytest.approx(card_run.tip_deflection_mm)
     paht = flex_report(fin, 74.0, 6.4, material="paht-cf")
     assert paht.allow_mpa == pytest.approx(125.0 * 0.5 / 2.0)
     with pytest.raises(ValueError):
