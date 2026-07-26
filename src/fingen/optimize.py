@@ -77,6 +77,19 @@ PENALTY_WEIGHT = 100.0
 # value: the search simply routes around the pocket.
 DECODE_PENALTY = 1.0e4
 
+# Practical planform corridor (graded gates, not hard walls). Depth bounds
+# per config reflect board clearance / swing weight / commercial practice:
+# side fins cluster near 110-125 mm, singles run far deeper. Geometric AR
+# band from the replicated references (BW04 1.51, Merrick 1.78) with slack.
+_DEPTH_CORRIDOR_MM = {
+    FinConfig.SINGLE: (160.0, 290.0),
+    FinConfig.TWIN: (95.0, 150.0),
+    FinConfig.THRUSTER: (90.0, 140.0),
+    FinConfig.QUAD: (85.0, 135.0),
+    FinConfig.TWO_PLUS_ONE: (90.0, 140.0),
+}
+AR_GEO_MIN, AR_GEO_MAX = 1.05, 2.6
+
 # --- rider → working-point mapping ------------------------------------------
 # Design riding speed per skill (m/s): the sizing default 6.4 [Forsyth24] is the
 # intermediate anchor; cruisers ride slower, advanced/pro faster (the working
@@ -129,7 +142,14 @@ def default_spider_targets(weight_kg: float, skill: Skill) -> dict[str, float]:
         "release": 0.35 + 0.40 * s,
         "forgiveness": 0.75 - 0.55 * s - 0.10 * w,
     }
-    return {axis: float(min(0.95, max(0.05, raw[axis]))) for axis in spider.AXES}
+    # Damp toward the achievable envelope: undamped heavy/aggressive profiles
+    # demand hold+drive+speed simultaneously (physically antagonistic), which
+    # floors the best feasible distance ~0.7 and flattens the landscape into
+    # seed lottery. Compression keeps the ORDERING of the rider's priorities
+    # while placing the vector near the reachable frontier; the result card
+    # reports predicted-vs-target shortfall honestly either way.
+    return {axis: float(min(0.85, max(0.12, 0.5 + 0.72 * (raw[axis] - 0.5))))
+            for axis in spider.AXES}
 
 
 @dataclass
@@ -298,6 +318,23 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
         penalties["base_min"] = ((sheet.base_min_mm - fin.outline.base)
                                  / max(sheet.base_min_mm, 1.0))
 
+    # Practical planform corridor — constraints reality imposes that no hydro
+    # axis prices: board clearance / swing weight bound the span per config,
+    # and commercial fins live in a narrow geometric-AR band (BW04 replica
+    # 1.51, Merrick template 1.78). Without these the search ships pancakes
+    # (base 3.5x depth) or longboard-depth "side fins" as feasible winners.
+    d_lo, d_hi = _DEPTH_CORRIDOR_MM[rider.config]
+    depth = fin.outline.depth
+    if depth < d_lo:
+        penalties["depth_low"] = (d_lo - depth) / d_lo
+    if depth > d_hi:
+        penalties["depth_high"] = (depth - d_hi) / d_hi
+    ar_geo = m.aspect_ratio
+    if ar_geo < AR_GEO_MIN:
+        penalties["ar_low"] = (AR_GEO_MIN - ar_geo) / AR_GEO_MIN
+    if ar_geo > AR_GEO_MAX:
+        penalties["ar_high"] = (ar_geo - AR_GEO_MAX) / AR_GEO_MAX
+
     # Structural gates: stress at the transient PEAK load, washout/frequency at
     # the working speed (the knockdown is load-independent — see flex.py).
     flex = flex_report(fin, sheet.force_peak_n, speed, material=rider.material)
@@ -319,9 +356,14 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
                   0.95 * slope * math.radians(a_break))
     alpha_work = math.degrees(cl_work / slope)
     washout = max(0.0, 1.0 + flex.lift_knockdown)  # knockdown < 0 = lift lost
-    env = interference_factor(rider.config, alpha_work)
+    # Interference: the measured Falk deficit belongs to the REAR/center
+    # member relative to the dominant front — and the MVP designs the
+    # dominant blade, so it does NOT carry that knockdown (front-in-set vs
+    # isolated is unmeasured; treated as 1.0 and documented). The deficit
+    # curve stays available (interference_factor) for the future set-level
+    # optimizer that designs the rear member too.
     for axis in ("hold", "drive"):
-        raw[axis] *= washout * env
+        raw[axis] *= washout
 
     predicted = _normalize(raw, _fleet_raw(round(speed, 2)))
     targets = rider.resolved_targets()
@@ -343,7 +385,7 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
         "capacity_req_n": req,
         "alpha_work_deg": alpha_work,
         "washout_pct": 100.0 * flex.lift_knockdown,
-        "env_factor": env,
+        "env_factor": 1.0,  # dominant blade: no measured in-set knockdown
         "tip_deflection_mm": flex.tip_deflection_mm,
     }
     issues = check_anchor(fin, sheet)

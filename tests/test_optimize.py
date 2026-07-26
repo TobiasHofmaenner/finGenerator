@@ -14,6 +14,7 @@ import pytest
 from fingen.check import check_solid
 from fingen.loft import fin_solid
 from fingen.optimize import (
+    DECODE_PENALTY,
     RiderSpec,
     default_spider_targets,
     evaluate,
@@ -182,3 +183,75 @@ def test_absurd_thin_fin_via_outline_is_infeasible():
     assert not res.feasible
     assert res.objective > 10.0
     assert len(res.penalties) >= 2
+
+
+def test_formerly_crashing_seeds_now_complete():
+    # Review finding: chord_schedule ValueErrors beyond _decode aborted the
+    # whole search (75kg/thruster/seed 8 crashed deterministically).
+    rider = RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE,
+                      config=FinConfig.THRUSTER)
+    result = optimize(rider, budget_evals=300, seed=8)
+    assert result.result.objective < DECODE_PENALTY
+
+
+def test_winner_is_a_plausible_fin():
+    # Review finding: pancakes (base 3.5x depth) and 165mm-deep "side fins"
+    # shipped as feasible. The practical corridor must keep winners saleable.
+    rider = RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE,
+                      config=FinConfig.THRUSTER)
+    result = optimize(rider, budget_evals=250, seed=0)
+    out = result.fin.outline
+    assert out.depth <= 150.0, out.depth          # corridor 90-140 + slack
+    assert out.depth >= 80.0, out.depth
+    from fingen.outline import metrics
+    ar = metrics(out).aspect_ratio
+    assert 0.95 <= ar <= 2.8, ar                   # no pancakes, no needles
+
+
+def test_dominant_blade_carries_no_rear_deficit():
+    # Review finding: the measured rear-fin deficit was applied to the front
+    # blade the optimizer builds. env is 1.0 for the dominant blade now.
+    rider = RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE,
+                      config=FinConfig.THRUSTER)
+    res = evaluate(FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE)),
+                   rider)
+    assert res.margins["env_factor"] == 1.0
+
+
+def test_washout_actually_reaches_the_score(monkeypatch):
+    # Review finding: dropping the washout multiplication would survive the
+    # suite. Pin: a larger flex knockdown must lower hold/drive.
+    import fingen.optimize as opt
+
+    rider = RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE,
+                      config=FinConfig.THRUSTER)
+    fin = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
+    base = evaluate(fin, rider).spider_predicted
+
+    real = opt.flex_report
+
+    def soft(*a, **k):
+        rep = real(*a, **k)
+        object.__setattr__(rep, "lift_knockdown", -0.5)
+        return rep
+
+    monkeypatch.setattr(opt, "flex_report", soft)
+    softer = evaluate(fin, rider).spider_predicted
+    assert softer["hold"] < base["hold"]
+    assert softer["drive"] < base["drive"]
+
+
+def test_stage_b_decode_applies_offsets():
+    # Review finding: a no-op stage B passed every test. Pin the decode:
+    # nonzero offset entries must reach the FinParams, bounded vs the
+    # DECODED base (the 0.3*base coupling).
+    import numpy as np
+
+    import fingen.optimize as opt
+
+    x = np.full(opt._N_SLIDERS + 12, 0.5)
+    x[opt._N_SLIDERS] = 0.9         # first le_dx entry, well off center
+    fin = opt._decode(x, FinConfig.THRUSTER, use_offsets=True,
+                      use_grooves=False)
+    assert abs(fin.outline.le_dx[0]) > 1.0
+    assert abs(fin.outline.le_dx[0]) <= 0.3 * fin.outline.base + 1e-6
