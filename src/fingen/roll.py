@@ -15,7 +15,11 @@ Two regimes (documented in §5c):
 - **z² regime (at speed).** Lift damping ∝ ∫c(z)·z_eff² dz — the arm enters
   squared (once for the induced incidence, once for the moment arm), so damping
   grows with span **cubed** at fixed chord. This is the dominant fin contribution
-  to roll feel while the board is moving.
+  to roll feel while the board is moving. The strip already uses the 3D lift slope,
+  so the residual finite-span relief is modest (~7 % for our near-triangular taper,
+  not 2×); the lift term is scaled by an audit-calibrated constant `KAPPA_FS` (the
+  rolling-relief × viscous-knockdown factor, anchored to [GF49, TQ48]) — see
+  KAPPA_FS and docs/PHYSICS.md §5c.
 - **z³ regime (near zero speed).** With no forward flow there is no lift; the
   swept element instead pushes water broadside as a flat plate (normal-force
   coefficient C_d ≈ 1.1 [Hoe75]), a drag moment ∝ ∫c(z)·z_eff³ dz that is
@@ -63,6 +67,24 @@ ROLL_AXIS_OFFSET_MM = 0.0
 # broadside bluff-plate value [Hoe75]. A finite plate sits ~1.1–1.2; the 2D value
 # is ~1.98. Used only for the low-speed number, never for the at-speed damping.
 FLAT_PLATE_CD = 1.1
+# Finite-span roll-damping calibration factor κ (docs/PHYSICS.md §5c;
+# bench/roll-validation/AUDIT-ADDENDUM.md). The strip integral already carries the
+# fin's 3D DATCOM lift slope, so it is NOT ~2× high: the ADDITIONAL rolling-
+# specific finite-span relief a converged lifting-line gives our near-triangular
+# tapered fin is only ~7 % (LL C_lp −0.2228 vs strip −0.2384). The larger observed
+# CFD/strip ratio (~0.49) was mostly rig + analysis artifacts, not span-load
+# physics. KAPPA_FS folds the audit's *de-artifacted* lift-loading knockdown into
+# the strip — provenance = 0.93 (real antisymmetric rolling relief, lifting-line
+# vs strip) × 0.78 (real viscous / lifting-surface knockdown, LL → measured
+# [GF49]) ≈ 0.73, honest band 0.56–0.77. It is a CALIBRATION CONSTANT, not the
+# textbook A/(A+4): planform-dependent (this value fits the near-triangular default
+# taper — a rectangular planform carries more rolling relief and would take a
+# smaller κ) and PROVISIONAL, pending the fixed-rig CFD rerun + a GF49 bench
+# replication. TQ48 (Toll & Queijo, NACA TN 1581) and GF49 (Goodman & Fisher)
+# remain the theory family / measured class it is anchored to; only the applied
+# number is audit-calibrated. Multiplies the lift-loading term ONLY — the added-
+# inertia and z³-drag terms are not lift quantities and keep the raw strip value.
+KAPPA_FS = 0.73
 # Station resolution for the FinParams/FinSetParams wrappers. The roll integrands
 # are smooth low-order polynomials in z against the chord schedule, so the
 # trapezoid converges far below the model error at this count (well under 0.1 %
@@ -76,10 +98,18 @@ class RollReport:
     """Tier-0 roll answers for one blade at one operating point.
 
     l_p is the signed roll-damping derivative ∂(roll moment)/∂p [N·m·s], negative
-    (a restoring/damping moment); roll_damping_nm_s is its magnitude. clp is the
-    dimensionless form, normalized by q·S·s²/U (S the strip planform area, s the
-    span) — it folds in the lift slope and lands at −a/3 for a rectangular blade.
-    added_inertia_kgm2 is the roll added inertia I_add; drag_damping_kgm2 is the
+    (a restoring/damping moment); roll_damping_nm_s is its magnitude. It carries
+    the finite-span calibration: l_p = kappa_fs · l_p_strip, where l_p_strip is the
+    uncorrected strip integral (exposed for audit) and kappa_fs = KAPPA_FS (the
+    audit-calibrated constant 0.73, planform-specific and provisional — see
+    KAPPA_FS). ar_full = 2·AR_geom is the reflected aspect ratio, reported as
+    provenance context only (the applied factor is a constant, not AR_full/(AR_full
+    +4)). clp is the dimensionless form, normalized by q·S·s²/U (S the strip
+    planform area, s the span) — it folds in the lift slope and lands at
+    kappa_fs·(−a/3) for a rectangular blade (the uncorrected strip value is −a/3).
+    The calibration touches ONLY the lift-loading term: added_inertia_kgm2 (I_add)
+    and drag_damping_kgm2 keep the raw strip integral, as they are not lift
+    quantities. drag_damping_kgm2 is the
     low-speed coefficient B in M_drag = −B·p·|p|. sweep_/heave_damping_nm_s are the
     diagonal (self) contributions of the two mechanisms — for a center fin the
     damping is all sweep; cant moves weight from sweep into heave (their sum omits
@@ -91,8 +121,11 @@ class RollReport:
     chord_mm: np.ndarray
     speed_ms: float
     lift_slope: float
-    l_p: float  # signed roll-damping derivative, N·m·s (< 0)
-    clp: float  # dimensionless, normalized by q·S·s²/U (< 0)
+    l_p: float  # signed roll-damping derivative, N·m·s (< 0), finite-span corrected
+    l_p_strip: float  # uncorrected strip integral (audit): l_p = kappa_fs·l_p_strip
+    kappa_fs: float  # Toll & Queijo finite-span factor AR_full/(AR_full+4) [TQ48]
+    ar_full: float  # reflected aspect ratio 2·AR_geom the factor is evaluated at
+    clp: float  # dimensionless, normalized by q·S·s²/U (< 0), finite-span corrected
     added_inertia_kgm2: float
     drag_damping_kgm2: float  # B in M_drag = −B·p·|p|
     sweep_damping_nm_s: float
@@ -150,10 +183,12 @@ def roll_solve(z_mm: np.ndarray, chord_mm: np.ndarray, lift_slope: float,
 
     The z0·cosγ and y_f·sinγ terms are the roll-axis offset and the cant-projected
     heave; without cant the y_f heave is pure spanwise flow and drops out (sinγ=0).
-    Damping is q·a/U·∫c·ℓ² dz; the sweep/heave split reports the diagonal parts
-    (D·cosγ)² and (Y·sinγ)² separately — note the sweep part carries a cosγ that
-    the mirror-symmetric left blade shares, so both a right and a left side blade
-    add the *same* positive damping.
+    Damping is kappa_fs·q·a/U·∫c·ℓ² dz — the bare strip integral times the
+    audit-calibrated finite-span constant kappa_fs = KAPPA_FS (the uncorrected
+    value is exposed as l_p_strip). The sweep/heave split reports the diagonal
+    parts (D·cosγ)² and (Y·sinγ)² separately (each also carrying kappa_fs) — note
+    the sweep part carries a cosγ that the mirror-symmetric left blade shares, so
+    both a right and a left side blade add the *same* positive damping.
     """
     z_mm = np.asarray(z_mm, dtype=float)
     chord_mm = np.asarray(chord_mm, dtype=float)
@@ -180,28 +215,48 @@ def roll_solve(z_mm: np.ndarray, chord_mm: np.ndarray, lift_slope: float,
     arm = arm_sweep + arm_heave  # ℓ(z), the effective roll arm
 
     q = 0.5 * rho_fluid * speed**2
+
+    # Finite-span calibration (docs/PHYSICS.md §5c, KAPPA_FS). The strip already
+    # carries the 3D lift slope, so the residual rolling-specific relief is small;
+    # scale the lift-loading term by the audit-calibrated constant KAPPA_FS. It is
+    # planform-specific (fit to the near-triangular default taper) — NOT the
+    # textbook A/(A+4). ar_full = 2·AR_geom (the fin's reflection across the board
+    # plane [GF49]) is computed for the report as provenance context only, from the
+    # strip's own span²/area so a per-blade set member reports its own AR. This is
+    # a lift quantity ONLY — the inertia and z³ drag terms below are NOT scaled.
+    area = float(np.trapezoid(chord, z))
+    span = float(z[-1] - z[0])
+    ar_geom = span**2 / max(area, 1e-30)
+    ar_full = 2.0 * ar_geom
+    kappa_fs = KAPPA_FS
+
     # Lift-based damping (z² regime): each strip's rolled incidence p·ℓ/U makes
     # side force q·a·(p·ℓ/U)·c dz, reacted at arm ℓ — moment ∝ ℓ². Negative =
-    # damping (opposes p). L_p = ∂M/∂p [Pol49].
+    # damping (opposes p). L_p = ∂M/∂p [Pol49]. l_p_strip is the bare strip value;
+    # the reported l_p folds in kappa_fs (the sweep/heave diagonals scale with it).
     arm2_int = float(np.trapezoid(chord * arm**2, z))
-    l_p = -q * lift_slope / speed * arm2_int
-    sweep_damp = q * lift_slope / speed * float(np.trapezoid(chord * arm_sweep**2, z))
-    heave_damp = q * lift_slope / speed * float(np.trapezoid(chord * arm_heave**2, z))
+    l_p_strip = -q * lift_slope / speed * arm2_int
+    l_p = kappa_fs * l_p_strip
+    sweep_damp = kappa_fs * q * lift_slope / speed * float(
+        np.trapezoid(chord * arm_sweep**2, z))
+    heave_damp = kappa_fs * q * lift_slope / speed * float(
+        np.trapezoid(chord * arm_heave**2, z))
 
     # Roll added inertia: 2D flat-plate added mass πρ_w(c/2)² per span [BAH96],
-    # weighted by ℓ² like any mass moment of inertia.
+    # weighted by ℓ² like any mass moment of inertia. NOT a lift quantity → no
+    # finite-span factor.
     added_inertia = rho_fluid * float(np.trapezoid(math.pi * chord**2 / 4.0 * arm**2, z))
 
     # Zero-speed drag form (z³ regime): broadside flat-plate drag ½ρC_d·c·(p·ℓ)²
     # per span [Hoe75], reacted at ℓ — moment quadratic in p, M_drag = −B·p·|p|.
     # ℓ²·|ℓ| (not ℓ³) so the moment stays a damper if the arm ever goes negative.
+    # Bluff-body drag, NOT lift loading → no finite-span factor.
     arm3_int = float(np.trapezoid(chord * arm**2 * np.abs(arm), z))
     drag_damping = 0.5 * rho_fluid * FLAT_PLATE_CD * arm3_int
 
-    # Dimensionless damping: normalize by q·S·s²/U with S the strip planform area
-    # and s the span — folds in the lift slope, → −a/3 for a rectangular blade.
-    area = float(np.trapezoid(chord, z))
-    span = float(z[-1] - z[0])
+    # Dimensionless damping: normalize the CORRECTED l_p by q·S·s²/U with S the
+    # strip planform area and s the span — folds in the lift slope, →
+    # kappa_fs·(−a/3) for a rectangular blade (bare strip is −a/3).
     clp = l_p * speed / max(q * area * span**2, 1e-30)
 
     return RollReport(
@@ -210,6 +265,9 @@ def roll_solve(z_mm: np.ndarray, chord_mm: np.ndarray, lift_slope: float,
         speed_ms=speed,
         lift_slope=lift_slope,
         l_p=l_p,
+        l_p_strip=l_p_strip,
+        kappa_fs=kappa_fs,
+        ar_full=ar_full,
         clp=clp,
         added_inertia_kgm2=added_inertia,
         drag_damping_kgm2=drag_damping,

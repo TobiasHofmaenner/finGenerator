@@ -253,11 +253,54 @@ a wing's damping in roll [Pol49], solved as a strip integral on the chord schedu
   −q·a/U·∫c(z)·z_eff² dz (a = the fin's DATCOM lift slope §6). The arm enters *squared* — once
   for the induced incidence, once for the moment arm — so at fixed chord damping grows with span
   **cubed**. Rectangular closed form ∫c·z² dz = c·s³/3, so the dimensionless C_lp = L_p·U/(q·S·s²)
-  → −a/3. This is the dominant fin contribution to roll feel while moving.
+  → −a/3 (the *uncorrected* strip value — the finite-span correction below scales it). This is the
+  dominant fin contribution to roll feel while moving.
 - **z³ (near zero speed).** With no forward flow there is no lift; the swept element pushes water
   broadside as a flat plate (normal-force coefficient C_d ≈ 1.1 [Hoe75]), a drag moment
   M_drag = −½ρC_d·∫c(z)·z_eff³ dz · p·|p| — quadratic in p, reported separately as the low-speed
   number.
+
+**Finite-span calibration (the z² lift term only).** The strip integral already substitutes the
+fin's **3D** DATCOM lift slope for the 2D section slope (§6), so it is *not* a raw-2D over-predictor.
+A converged lifting-line solve (validated against the elliptic closed form, [TQ48], and [GF49])
+gives our **near-triangular tapered** default fin C_lp = −0.2228 vs the strip's −0.2384 — an
+*additional* rolling-specific finite-span relief of only **~7 %**, not 2×. The apparent "~2×" of the
+original bench attribution was **apples-to-oranges** (it compared the *rectangular* closed form
+−a₃D/6 → C_lp ≈ −1.10 for "fingen" against rectangular [GF49] wings, whereas the actual tapered fin
+is −0.72; see the correction banner in `out/roll-clp-anchors.md` §4 and
+`bench/roll-validation/AUDIT-ADDENDUM.md`).
+
+The observed twisted-inflow **CFD/strip ≈ 0.49** decomposes into one real effect and three
+artifacts: **0.93** (real antisymmetric rolling relief, lifting-line vs strip) × **0.78** (real
+viscous / lifting-surface knockdown, LL → measured [GF49]) × **0.80** (rig artifact — the imposed
+shear is relaxed by the freestream lateral BCs, so the fin sees ~0.75–0.87 of nominal ω·z) ×
+**0.85** (analysis artifact — the concave secant read at finite ω vs the true ω→0 derivative; a
+Richardson extrapolation recovers −0.124…−0.138 N·m·s). The concavity is itself a **rig artifact**
+(the BCs relax a larger imposed shear proportionally more), *not* span-load physics. And the
+`symmetryPlane` board solves the **symmetric-mirror** problem (α = ω·|z|), ~20 % different from true
+*antisymmetric* rolling, so the [GF49]-rig equivalence is inexact. De-artifacted, the honest
+**CFD/strip ≈ 0.70** (band 0.56–0.77), i.e. tier-0's real over-prediction is only **≈1.3–1.4×**.
+
+roll.py therefore keeps the strip integral as the geometric backbone — it carries the c(z)·z²
+distribution, the cant/offset/z0 arm machinery and the set composition, all validated in *shape* by
+the CFD — and multiplies **only the lift-loading term** (L_p and its sweep/heave diagonals) by an
+**audit-calibrated constant**
+
+  **κ = KAPPA_FS = 0.73** (provenance: 0.93 rolling relief × 0.78 viscous knockdown; honest band
+  0.56–0.77),
+
+**not** the textbook A/(A+4) — that form matched an artifact-laden 0.49 and is ~2× too aggressive
+here. κ is **planform-dependent** (this value fits the near-triangular default taper; a rectangular
+planform carries more rolling relief and would take a smaller κ) and **provisional**: the refinement
+path is a fixed-rig CFD rerun (shear imposed on all inflow boundaries — already applied to
+`scripts/roll_validation.py`) with an ω→0 extrapolation, plus a [GF49] bench replication. [TQ48]
+(Toll & Queijo, NACA TN 1581) and [GF49] (Goodman & Fisher) remain the theory family and measured
+class the calibration is anchored to; the reflected aspect ratio A = AR_full = 2·AR_geom (a fin
+mirrors across the board plane [GF49]) is still reported (`ar_full`) as provenance context. The
+uncorrected strip value is exposed as `l_p_strip` (auditable: l_p_strip/l_p = 1/κ). **The
+added-inertia (πc²/4·z²) and broadside-drag (z³) terms are NOT scaled**: they are apparent-mass and
+bluff-body-drag quantities, not lifting-surface loads, so the rolling-load relief — an
+induced-downwash effect specific to the *lift* loading — does not apply to them.
 
 **Roll added inertia** I_add = ρ·∫(πc(z)²/4)·z_eff² dz — the 2D flat-plate apparent mass
 πρ_w(c/2)² per span [BAH96], moment-weighted by z_eff² like any mass moment of inertia (∝ c² s³
@@ -287,11 +330,30 @@ physics that prices depth, and the intended eventual replacement for the empiric
 fence in the optimizer (deferred until CFD confirms the pricing; report-only for now).
 
 **Validation.** The quadrature is checked against the rectangular closed forms (c·s³/3, ρπc²s³/12,
-c·s⁴/4) to 0.1 % and the span/chord scalings pinned (test_roll). scripts/roll_validation.py stages
-the CFD cross-check: the single-fin case with the uniform inlet replaced by a codedFixedValue
-shear uy(z) = ω·z (the velocity roll induces) at a baseline + two ω, and a `forces` FO reporting
-the roll moment M_x about the root — the CFD C_lp = dM_x/dω to compare against tier-0's L_p (the
-EPYC solves it; the script only writes the dictionaries).
+c·s⁴/4) to 0.1 % and the span/chord scalings pinned on the uncorrected `l_p_strip` backbone
+(test_roll). The strip **shape** (its S·s² depth scaling — the depth-ranking the module exists for)
+is validated by the twisted-inflow RANS bench (bench/roll-validation, committed a51ddbc) and by the
+converged lifting-line audit; only the **absolute level** carries the (now modest) finite-span
+knockdown. For the default fin at 6.4 m/s the calibrated **|L_p| = 0.174 N·m·s** (strip 0.238,
+κ = 0.73) sits at the top of the **de-artifacted CFD derivative band 0.143–0.184 N·m·s** — the audit
+Richardson ω→0 derivative −0.124…−0.138 divided by the shear-preservation 0.75–0.87 — consistent
+with a tier-0 over-prediction of **≈1.3–1.4×**.
+
+> **Superseded (see `bench/roll-validation/AUDIT-ADDENDUM.md`).** The committed VERDICT.md's "~2×
+> strip deficit" attribution and its "CFD near-zero secant −0.117 within 2 % of ½·strip −0.119"
+> comparison are **withdrawn**: the ½·strip target came from a rectangular-vs-tapered mix-up, and
+> −0.117 is an artifact-laden finite-ω secant, not the ω→0 derivative. An independent
+> factor-of-2 audit (converged lifting-line, N = 80–480) verified the roll code clean — formula,
+> units, quadrature and CFD moment path all confirmed — but reattributes the discrepancy to
+> 0.93 rolling relief × 0.78 viscous knockdown × 0.80 shear-rig artifact × 0.85 concave-secant
+> analysis artifact. The strip SHAPE stands; the 2× magnitude claim does not.
+
+scripts/roll_validation.py stages the (fixed-rig) cross-check: the single-fin case with the uniform
+inlet replaced by a codedFixedValue shear uy(z) = ω·z imposed on **both the inlet and the top/side
+farfield** (a freestreamVelocity farfield let the imposed shear relax ~10–15 % before the fin — the
+audit-endorsed rig fix), plus a `forces` FO reporting M_x about the root, at a baseline + a denser
+low-ω sweep (0, 0.5, 1, 2, 3) for the ω→0 extrapolation — the CFD dM_x/dω→0 against the calibrated
+tier-0 L_p (the EPYC solves it; the script only writes the dictionaries).
 
 ## 6. Fast hydro model (lift, drag, stall)
 

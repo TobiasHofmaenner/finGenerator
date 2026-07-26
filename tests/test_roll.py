@@ -38,10 +38,16 @@ _SPEC.loader.exec_module(roll_validation)
 
 A_SECTION = 2.0 * math.pi  # thin-section 2D lift slope, for the analytic checks
 SPEED = 6.4
+# The audit-calibrated finite-span factor, written as an INDEPENDENT literal (not
+# imported from roll.KAPPA_FS): a mutated constant moves only the module side of
+# the pin. Provenance: 0.93 rolling relief × 0.78 viscous knockdown ≈ 0.73
+# (bench/roll-validation/AUDIT-ADDENDUM.md); planform-specific, provisional.
+KAPPA_LITERAL = 0.73
 
 
 def _rect(chord_mm: float, span_mm: float, n: int = 200):
-    """Rectangular strip arrays (constant chord, root→tip)."""
+    """Rectangular strip arrays (constant chord, root→tip). A rectangle's
+    geometric AR is span/chord, so its reflected AR_full = 2·span/chord."""
     z = np.linspace(0.0, span_mm, n)
     return z, np.full(n, chord_mm)
 
@@ -64,13 +70,66 @@ def test_closed_form_quadrature():
     # and still pass). Duplicating it lets the pin catch a changed constant.
     assert rep.drag_damping_kgm2 == pytest.approx(
         0.5 * RHO_SEAWATER * 1.1 * c * s**4 / 4.0, rel=1e-3)
-    # Dimensionless damping of a rectangular blade is exactly −a/3.
-    assert rep.clp == pytest.approx(-A_SECTION / 3.0, rel=1e-3)
-    # L_p is a damping moment (negative); magnitude matches the strip integral.
+    # Finite-span calibration: kappa_fs is the audit-calibrated CONSTANT 0.73
+    # (not AR-dependent); ar_full = 2·s/c is still reported as provenance context.
+    ar_full = 2.0 * (s / c)  # reflected AR of the rectangle (reported only)
+    assert rep.ar_full == pytest.approx(ar_full, rel=1e-3)
+    assert rep.kappa_fs == pytest.approx(KAPPA_LITERAL, rel=1e-9)
+    # UNCORRECTED backbone: the strip integral is still −q·a/U·c·s³/3 (the
+    # geometric quadrature the module exists to carry), exposed as l_p_strip.
     q = 0.5 * RHO_SEAWATER * SPEED**2
+    assert rep.l_p_strip == pytest.approx(-q * A_SECTION / SPEED * c * s**3 / 3.0, rel=1e-3)
+    # CORRECTED L_p is that strip value times kappa (a damping moment, negative).
     assert rep.l_p < 0.0
+    assert rep.l_p == pytest.approx(KAPPA_LITERAL * rep.l_p_strip, rel=1e-9)
     assert rep.roll_damping_nm_s == pytest.approx(
-        q * A_SECTION / SPEED * c * s**3 / 3.0, rel=1e-3)
+        KAPPA_LITERAL * q * A_SECTION / SPEED * c * s**3 / 3.0, rel=1e-3)
+    # Dimensionless damping of a rectangular blade is kappa·(−a/3) (bare −a/3).
+    assert rep.clp == pytest.approx(KAPPA_LITERAL * (-A_SECTION / 3.0), rel=1e-3)
+
+
+def test_kappa_fs_is_calibration_constant():
+    # (a) The finite-span factor pin. kappa_fs is the audit-calibrated CONSTANT
+    # 0.73 — planform-INdependent as applied (the physics of WHICH constant is
+    # planform-specific, but the code applies one number), so it must read 0.73 for
+    # every planform while ar_full still reports the reflected AR 2·(s/c). Mutation
+    # guard: a mutated KAPPA_FS moves rep.kappa_fs off the independent literal 0.73;
+    # a resurrected AR-dependent A/(A+4) would make kappa_fs VARY with AR here (it
+    # must not) and land at 0.33/0.43/0.56 instead of a flat 0.73.
+    kappas = []
+    for c_mm, s_mm in ((100.0, 100.0), (80.0, 120.0), (60.0, 150.0)):
+        z, chord = _rect(c_mm, s_mm)
+        rep = roll_solve(z, chord, A_SECTION, SPEED)
+        assert rep.ar_full == pytest.approx(2.0 * (s_mm / c_mm), rel=1e-3)
+        assert rep.kappa_fs == pytest.approx(KAPPA_LITERAL, rel=1e-9)  # flat 0.73
+        kappas.append(rep.kappa_fs)
+    assert max(kappas) - min(kappas) == pytest.approx(0.0, abs=1e-12)  # AR-invariant
+
+
+def test_corrected_clp_rectangular_literal():
+    # (b) Corrected fin-norm Clp of a rectangular blade against a hand-computed
+    # literal. Bare strip Clp = −a/3; corrected = kappa·(−a/3) with kappa = 0.73,
+    # so Clp = 0.73·(−2π/3) = 0.73·(−2.0943951) = −1.52891.
+    c, s = 0.085, 0.115  # m
+    z, chord = _rect(c * 1e3, s * 1e3)
+    rep = roll_solve(z, chord, A_SECTION, SPEED)
+    assert rep.clp == pytest.approx(KAPPA_LITERAL * (-A_SECTION / 3.0), rel=1e-3)
+    assert rep.clp == pytest.approx(-1.52891, rel=2e-3)  # independent numeric literal
+
+
+def test_l_p_strip_over_l_p_is_inverse_kappa():
+    # (c) Auditability contract: the reported l_p is exactly kappa_fs·l_p_strip,
+    # so l_p_strip / l_p == 1/kappa_fs — for ANY planform (rect and a real taper).
+    # Mutation guard: applying 1/kappa (inverted) makes this ratio come out as
+    # kappa, not 1/kappa; not applying kappa at all makes l_p == l_p_strip so the
+    # ratio is 1 ≠ 1/kappa. Both fail here.
+    z, chord = _rect(90.0, 150.0)
+    rect = roll_solve(z, chord, A_SECTION, SPEED)
+    real = roll_report(FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE)), SPEED)
+    for rep in (rect, real):
+        assert 0.0 < rep.kappa_fs < 1.0
+        assert rep.l_p == pytest.approx(rep.kappa_fs * rep.l_p_strip, rel=1e-12)
+        assert rep.l_p_strip / rep.l_p == pytest.approx(1.0 / rep.kappa_fs, rel=1e-12)
 
 
 def test_span_and_chord_scalings():
@@ -82,8 +141,11 @@ def test_span_and_chord_scalings():
 
     assert long_span.moment_arm_int_m4 == pytest.approx(
         8.0 * base.moment_arm_int_m4, rel=1e-3)
-    assert long_span.roll_damping_nm_s == pytest.approx(
-        8.0 * base.roll_damping_nm_s, rel=1e-3)
+    # The ×8 span scaling is a property of the strip backbone, pinned on the
+    # UNCORRECTED l_p_strip. kappa_fs is a constant, so the corrected roll_damping
+    # scales ×8 too — but l_p_strip is the backbone the module exists to carry.
+    assert abs(long_span.l_p_strip) == pytest.approx(8.0 * abs(base.l_p_strip), rel=1e-3)
+    assert long_span.kappa_fs == pytest.approx(base.kappa_fs, rel=1e-12)  # AR-invariant
     assert fat_chord.moment_arm_int_m4 == pytest.approx(
         2.0 * base.moment_arm_int_m4, rel=1e-3)
     assert fat_chord.added_inertia_kgm2 == pytest.approx(
@@ -99,10 +161,14 @@ def test_deep_vs_shallow_prices_depth():
     shallow = roll_solve(*_rect(100.0, 98.0), A_SECTION, SPEED)  # c 100, s 98 mm
     # equal area (both 9800 mm²), span exactly doubled
     assert pytest.approx(0.050 * 0.196) == 0.100 * 0.098
-    # span doubled ⇒ damping ×4 (s²), inertia ×2 (s)
-    assert deep.roll_damping_nm_s == pytest.approx(4.0 * shallow.roll_damping_nm_s, rel=1e-3)
+    # span doubled ⇒ strip damping ×4 (s²), inertia ×2 (s). The ×4 is a backbone
+    # scaling, pinned on the UNCORRECTED l_p_strip; kappa_fs is a constant, so the
+    # corrected damping scales ×4 as well (the factor cancels in the ratio).
+    assert abs(deep.l_p_strip) == pytest.approx(4.0 * abs(shallow.l_p_strip), rel=1e-3)
     assert deep.added_inertia_kgm2 == pytest.approx(2.0 * shallow.added_inertia_kgm2, rel=1e-3)
-    assert deep.roll_damping_nm_s > 2.0 * shallow.roll_damping_nm_s
+    assert deep.kappa_fs == pytest.approx(shallow.kappa_fs, rel=1e-12)  # AR-invariant
+    assert deep.roll_damping_nm_s == pytest.approx(4.0 * shallow.roll_damping_nm_s, rel=1e-3)
+    assert deep.roll_damping_nm_s > 2.0 * shallow.roll_damping_nm_s  # depth pays
 
 
 def test_center_fin_is_pure_sweep():
@@ -163,9 +229,11 @@ def test_heave_contribution_magnitude_pins_offset_and_units():
     # ℓ_h(z) = Y(z)·sinγ with the lateral offset Y(z) = y_f + z·sinγ, and
     # heave_damp = q·a/U · ∫₀ˢ c·ℓ_h² dz. With ℓ_h² = sin²γ·(y_f + z·sinγ)² and
     #     ∫₀ˢ (y_f + z·sinγ)² dz = y_f²·s + y_f·sinγ·s² + sin²γ·s³/3,
-    # heave_damp = q·a/U · c·sin²γ·(y_f²·s + y_f·sinγ·s² + sin²γ·s³/3).
-    # Here the y_f² term dominates, so dropping y_f or slipping mm→m moves the
-    # expectation by ~100–1000×, far outside the quadrature tolerance.
+    # heave_damp = kappa·q·a/U · c·sin²γ·(y_f²·s + y_f·sinγ·s² + sin²γ·s³/3),
+    # where kappa = 0.73 is the audit-calibrated finite-span constant (the heave
+    # diagonal is a lift-loading term, so it carries kappa like l_p). Here the
+    # y_f² term dominates, so dropping y_f or slipping mm→m moves the expectation
+    # by ~100–1000×, far outside the quadrature tolerance.
     c, s = 0.090, 0.120  # m (chord, span)
     y_off_mm, cant = 118.0, 8.0  # offset > 0 and cant > 0, as required
     z, chord = _rect(c * 1e3, s * 1e3)
@@ -175,7 +243,7 @@ def test_heave_contribution_magnitude_pins_offset_and_units():
     sg = math.sin(math.radians(cant))
     q = 0.5 * RHO_SEAWATER * SPEED**2
     lateral_sq_int = y_f**2 * s + y_f * sg * s**2 + sg**2 * s**3 / 3.0
-    expected_heave = q * A_SECTION / SPEED * c * sg**2 * lateral_sq_int
+    expected_heave = KAPPA_LITERAL * q * A_SECTION / SPEED * c * sg**2 * lateral_sq_int
     assert rep.heave_damping_nm_s == pytest.approx(expected_heave, rel=1e-3)
     # The offset term genuinely dominates the heave (guards against a pin that a
     # dropped y_f could still satisfy): y_f²·s ≫ sin²γ·s³/3.

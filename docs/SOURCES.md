@@ -147,6 +147,29 @@ Helmbold at Λ=0 and to πAR/2 as AR→0. Also the paper's other half: a strip e
 **Cited for:** the sweep-corrected C_Lα implemented for raked fins; the lift-based roll-damping
 derivative L_p in the tier-0 roll model (`fingen.roll`).
 
+### [GF49] Goodman & Fisher (1949) — Investigation at Low Speeds of the Effect of Aspect Ratio and Sweep on Rolling Stability Derivatives of Untapered Wings
+*NACA TN 1835 (1949); republished as NACA Report 968 (1950).* [NTRS 19930092033](https://ntrs.nasa.gov/citations/19930092033)
+Rolling-flow (Langley stability tunnel) MEASUREMENTS of C_lp, C_np, C_Yp for 9 untapered NACA 0012
+wings: AR 1.34/2.61/5.16, sweep 0/45/60°, M 0.13–0.17, Re 1–2×10⁶. C_lp(C_L=0), unswept:
+AR1.34≈−0.13, AR2.61≈−0.22, AR5.16≈−0.38 /rad (Figs 5–6, digitizable). Its rig — a rotated airstream
+about a fixed wing — is *close* to the twisted-inflow bench (uy = ω·z), but the board symmetry plane
+solves the symmetric-mirror problem, ~20 % off true antisymmetric rolling (see AUDIT-ADDENDUM).
+**Cited for:** the external measured damping-in-roll class the tier-0 roll knockdown is anchored to
+(`fingen.roll`, docs/PHYSICS.md §5c) — the viscous / lifting-surface level LL → measured; the
+reflection map AR_full = 2·AR_geom (reported as provenance); the bench-replication target for
+twisted-inflow RANS. (An early "~2× strip deficit" reading was a rectangular-vs-tapered mix-up,
+corrected in `out/roll-clp-anchors.md` §4 and `bench/roll-validation/AUDIT-ADDENDUM.md`.)
+
+### [TQ48] Toll & Queijo (1948) — Approximate Relations and Charts for Low-Speed Stability Derivatives of Swept Wings
+*NACA TN 1581.* [NTRS 19930082233](https://ntrs.nasa.gov/citations/19930082233)
+Single-panel induced-angle + effective-edge-velocity method; eq. (27) C_lp,Λ=0 = −(a₀/8)·A/(A+4),
+sweep factor (A+4)cosΛ/(A+4cosΛ) — the strip reference −a₀/8 cut by the antisymmetric-loading
+induced relief A/(A+2a₀/π).
+**Cited for:** the lifting-line theory family for the finite-span roll knockdown, used to *decompose*
+the tier-0 over-prediction (the rolling-relief term is only ~7 % for the tapered fin — the applied
+factor is the audit-calibrated constant `roll.KAPPA_FS`, NOT A/(A+4), which fit an artifact-laden
+CFD ratio); the sweep-scaling of C_lp for raked fins.
+
 ### [Die51] Diederich (1951) — A Plan-Form Parameter for Correlating Certain Aerodynamic Characteristics of Swept Wings
 *NACA TN 2335.* [NTRS 19930082969](https://ntrs.nasa.gov/citations/19930082969)
 Collapse parameter F = A/(κ cosΛ); basis of the Helmbold–Diederich equation.
@@ -157,11 +180,16 @@ Collapse parameter F = A/(κ cosΛ); basis of the Helmbold–Diederich equation.
 Source of the swept Helmbold form (a₀ → a₀cosΛ) reproduced in Anderson.
 **Cited for:** the minimal sweep correction to Helmbold.
 
-### [DAT78] Hoak & Finck (1978) — USAF Stability and Control DATCOM, §4.1.3.2
+### [DAT78] Hoak & Finck (1978) — USAF Stability and Control DATCOM, §4.1.3.2 & §7.1.2.2
 *AFFDL, Wright-Patterson AFB.* [Full scan (Datcom+ mirror)](https://www.holycows.net/datcom/Downloads/USAF%20Stability%20and%20Control%20DATCOM.pdf)
 The production wing lift-curve-slope equation with sweep, section-slope ratio κ and
-compressibility; valid across the fin regime AR 1–3.5, Λ 25–37°.
-**Cited for:** the exact C_Lα formula implemented in the fast hydro model.
+compressibility; valid across the fin regime AR 1–3.5, Λ 25–37°. §7.1.2.2 (wing rolling derivative
+C_lp): the Weissinger lifting-surface roll-damping parameter chart 7.1.2.2-20 + Table 7.1.2.2-A
+test comparison (unswept AR4 C_lp −0.322 calc / −0.345 test) — the independent lifting-surface
+corroboration of the [GF49]/[TQ48] viscous/lifting-surface roll knockdown (the ~0.78 term in the
+audit decomposition).
+**Cited for:** the exact C_Lα formula implemented in the fast hydro model; the lifting-surface
+cross-check backing the finite-span roll-damping correction (`fingen.roll`, docs/PHYSICS.md §5c).
 
 ### [Osw33] Oswald (1933) — General Formulas and Charts for the Calculation of Airplane Performance
 *NACA Report 408.* [NTRS 19930091482](https://ntrs.nasa.gov/citations/19930091482)
