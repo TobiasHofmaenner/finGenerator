@@ -160,6 +160,14 @@ class RiderSpec:
     symmetric center fin, everything else → flat-inside side fin) and its
     interference environment. spider_targets, when given, MERGES over the
     derived defaults (pass just the axes you want to override).
+
+    practical_corridor (default True, the product contract) gates the two
+    CONVENTION penalties — the per-config depth band and the geometric-AR band
+    — that encode board clearance / swing weight / commercial practice, NOT
+    physics. Set it False to let the search run free of them (the free-run
+    exploit study): the load-bearing PHYSICS gates (area anchor, side-force
+    capacity, base minimum, bending stress SF, wet fundamental, divergence)
+    always stay on. See docs/… / scripts/freerun.py.
     """
 
     weight_kg: float
@@ -168,6 +176,7 @@ class RiderSpec:
     config: FinConfig = FinConfig.THRUSTER
     material: str = "pet-cf"
     spider_targets: dict[str, float] | None = None
+    practical_corridor: bool = True
 
     def __post_init__(self) -> None:
         if not 30.0 <= self.weight_kg <= 160.0:
@@ -258,7 +267,15 @@ def _normalize(raw: dict[str, float], fleet: tuple) -> dict[str, float]:
     for axis in spider.AXES:
         values = np.sort([f[axis] for f in fleet_dicts])
         ranks = np.linspace(0.0, 100.0, len(values))
-        out[axis] = float(np.interp(raw[axis], values, ranks))
+        # Tied fleet values (e.g. four fins at the stall-limited forgiveness
+        # floor) make np.interp's rank flip 0<->40 on sub-ULP input changes —
+        # a deterministic noise band that polluted ~10% of feasible space
+        # (found by the landscape characterization). Collapse ties to their
+        # mean rank so the interpolant is single-valued and stable.
+        uniq, inverse = np.unique(np.round(values, 9), return_inverse=True)
+        mean_ranks = np.array([ranks[inverse == i].mean()
+                               for i in range(len(uniq))])
+        out[axis] = float(np.interp(raw[axis], uniq, mean_ranks))
     return out
 
 
@@ -323,17 +340,21 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
     # and commercial fins live in a narrow geometric-AR band (BW04 replica
     # 1.51, Merrick template 1.78). Without these the search ships pancakes
     # (base 3.5x depth) or longboard-depth "side fins" as feasible winners.
-    d_lo, d_hi = _DEPTH_CORRIDOR_MM[rider.config]
-    depth = fin.outline.depth
-    if depth < d_lo:
-        penalties["depth_low"] = (d_lo - depth) / d_lo
-    if depth > d_hi:
-        penalties["depth_high"] = (depth - d_hi) / d_hi
-    ar_geo = m.aspect_ratio
-    if ar_geo < AR_GEO_MIN:
-        penalties["ar_low"] = (AR_GEO_MIN - ar_geo) / AR_GEO_MIN
-    if ar_geo > AR_GEO_MAX:
-        penalties["ar_high"] = (ar_geo - AR_GEO_MAX) / AR_GEO_MAX
+    # CONVENTION, not physics: rider.practical_corridor=False skips exactly
+    # this block (the free-run exploit study); the physics gates above/below
+    # always apply.
+    if rider.practical_corridor:
+        d_lo, d_hi = _DEPTH_CORRIDOR_MM[rider.config]
+        depth = fin.outline.depth
+        if depth < d_lo:
+            penalties["depth_low"] = (d_lo - depth) / d_lo
+        if depth > d_hi:
+            penalties["depth_high"] = (depth - d_hi) / d_hi
+        ar_geo = m.aspect_ratio
+        if ar_geo < AR_GEO_MIN:
+            penalties["ar_low"] = (AR_GEO_MIN - ar_geo) / AR_GEO_MIN
+        if ar_geo > AR_GEO_MAX:
+            penalties["ar_high"] = (ar_geo - AR_GEO_MAX) / AR_GEO_MAX
 
     # Structural gates: stress at the transient PEAK load, washout/frequency at
     # the working speed (the knockdown is load-independent — see flex.py).
@@ -547,9 +568,12 @@ def _run_cma(rider: RiderSpec, x0: list[float], sigma0: float, *, use_offsets: b
         try:
             fin = _decode(np.asarray(x), config, use_offsets=use_offsets,
                           use_grooves=use_grooves)
+            return evaluate(fin, rider).objective
         except ValueError:
+            # Production contract: rejection paths live beyond _decode too
+            # (chord_schedule's needle-tip/waist guards fire inside
+            # flex_report for outlines planform() accepts).
             return DECODE_PENALTY
-        return evaluate(fin, rider).objective
 
     es = cma.CMAEvolutionStrategy(list(x0), sigma0, {
         "bounds": [0.0, 1.0],
@@ -574,20 +598,33 @@ def _run_cma(rider: RiderSpec, x0: list[float], sigma0: float, *, use_offsets: b
     return best_x, best_f, history, n_evals
 
 
-def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0
-             ) -> OptimizationResult:
+def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
+             x0: list[float] | None = None) -> OptimizationResult:
     """Search the design space for the fin closest to the rider's targets.
 
     Stage A optimizes the eight level-1 sliders (CMA-ES, broad sigma). Stage B
     unlocks the twelve level-2 le_dx/te_dx Bézier offsets from the stage-A
     optimum with a tight sigma, plus grooves when `groove_trigger` fires. Decode
     is ValueError→penalty; deterministic under `seed`.
+
+    `x0` overrides the stage-A start: a level-1 slider vector in the normalized
+    [0,1]^8 box (default None → the template default via `_x0_sliders`, i.e. the
+    original behavior). Only stage A's mean moves; stage B still unlocks from
+    stage A's optimum. This lets a multistart study spread starts across the
+    grid without touching the search internals.
     """
+    if x0 is None:
+        x0_a = _x0_sliders(rider.config)
+    elif len(x0) != _N_SLIDERS:
+        raise ValueError(f"x0 must hold {_N_SLIDERS} level-1 sliders, got {len(x0)}")
+    else:
+        x0_a = [float(v) for v in x0]
+
     budget_a = max(int(budget_evals * 0.6), 1)
     budget_b = max(budget_evals - budget_a, 0)
     use_grooves = groove_trigger(rider)
 
-    xa, fa, hist_a, na = _run_cma(rider, _x0_sliders(rider.config), _SIGMA_A,
+    xa, fa, hist_a, na = _run_cma(rider, x0_a, _SIGMA_A,
                                   use_offsets=False, use_grooves=False,
                                   budget=budget_a, seed=seed)
     fin_a = _decode(xa, rider.config, use_offsets=False, use_grooves=False)
@@ -686,6 +723,7 @@ def result_to_dict(result: OptimizationResult) -> dict:
             "speed_ms": rider.speed, "config": rider.config.value,
             "material": rider.material,
             "spider_targets": rider.resolved_targets(),
+            "practical_corridor": rider.practical_corridor,
         },
         "fin": fin_to_dict(result.fin),
         "objective": r.objective,

@@ -255,3 +255,45 @@ def test_stage_b_decode_applies_offsets():
                       use_grooves=False)
     assert abs(fin.outline.le_dx[0]) > 1.0
     assert abs(fin.outline.le_dx[0]) <= 0.3 * fin.outline.base + 1e-6
+
+
+def test_objective_guard_covers_evaluate(monkeypatch):
+    # The first guard patch silently no-opped (str.replace mismatch) and its
+    # test passed by trajectory luck. This one cannot be dodged: evaluate()
+    # itself raises, and the search must still complete.
+    import fingen.optimize as opt
+
+    real_evaluate = opt.evaluate
+    calls = {"n": 0}
+
+    def sometimes_raises(fin, rider):
+        calls["n"] += 1
+        if calls["n"] % 3 == 0:
+            raise ValueError("synthetic deep-rejection")
+        return real_evaluate(fin, rider)
+
+    monkeypatch.setattr(opt, "evaluate", sometimes_raises)
+    rider = RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE,
+                      config=FinConfig.THRUSTER)
+    result = optimize(rider, budget_evals=60, seed=3)
+    assert result.result.objective < DECODE_PENALTY
+
+
+def test_normalize_stable_at_tied_fleet_values():
+    # Landscape finding: tied fleet breakpoints made ranks flip 0<->40 under
+    # sub-ULP jitter. Ranks at a tie must sit at the tie-group mean, stably.
+
+    import fingen.optimize as opt
+    from fingen import spider
+
+    tied = 0.6
+    fleet = tuple(
+        tuple({ax: (tied if i < 4 else 5.0 + i) for ax in spider.AXES}.items())
+        for i in range(6))
+    a = opt._normalize({ax: tied for ax in spider.AXES}, fleet)
+    b = opt._normalize({ax: tied + 1e-12 for ax in spider.AXES}, fleet)
+    c = opt._normalize({ax: tied - 1e-12 for ax in spider.AXES}, fleet)
+    for ax in spider.AXES:
+        assert abs(a[ax] - 30.0) < 1.0     # mean rank of the 4-way tie
+        assert abs(a[ax] - b[ax]) < 0.5
+        assert abs(a[ax] - c[ax]) < 0.5
