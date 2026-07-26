@@ -53,7 +53,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from build123d import Axis, Compound, Part, Pos
+from build123d import Axis, Box, Compound, Part, Pos
 
 from fingen.export import mirror_hand, to_step, to_stl
 from fingen.loft import fin_solid
@@ -63,6 +63,21 @@ from fingen.params import DEFAULT_SETTINGS, FinConfig, FinSetParams, GenSettings
 # overlapping. A hair over zero: disjoint blades share nothing, and any real
 # interpenetration is many mm³ (see _validate_no_overlap).
 _OVERLAP_TOL = 1.0
+
+
+def _base_plane_center(part: Part):
+    """Center of the blade's base cross-section just above z = 0.
+
+    The naive lowest-face pick grabs a tab bottom on tabbed fins (tabs
+    extend below the base plane), pivoting the placement ~6 mm off; and
+    the z=0 planar faces themselves are partitioned by tab footprints,
+    shifting their area centroid. A thin slice at z = 0.5 mm sees the
+    pure blade section — identical for tabbed and tabless variants of
+    the same blade — and its volume centroid is the section's area
+    centroid."""
+    slab = Pos(0.0, 0.0, 0.5) * Box(4000.0, 4000.0, 0.2)
+    section = part & slab
+    return section.center()
 
 
 def place_fin(part: Part, *, toe_deg: float, cant_deg: float, x: float, y: float,
@@ -84,7 +99,7 @@ def place_fin(part: Part, *, toe_deg: float, cant_deg: float, x: float, y: float
         part = mirror_hand(part)
     sgn = 1.0 if hand == "right" else -1.0
 
-    base = part.faces().sort_by(Axis.Z)[0].center()  # base face on z=0
+    base = _base_plane_center(part)
     part = Pos(-base.X, -base.Y, 0.0) * part  # base center → origin
     part = part.rotate(Axis.Z, sgn * toe_deg)  # toe: about vertical, nose-in +
     part = part.rotate(Axis.X, -sgn * cant_deg)  # cant: outward tip lean
@@ -92,11 +107,10 @@ def place_fin(part: Part, *, toe_deg: float, cant_deg: float, x: float, y: float
     return Part() + part
 
 
-def _bbox_overlap(a: Part, b: Part, margin: float = 1e-6) -> bool:
-    """Cheap AABB pre-filter: do the two blades' bounding boxes overlap on all
-    three axes? Disjoint boxes cannot share volume, so the expensive boolean is
-    skipped for a well-spaced set (the normal path)."""
-    ba, bb = a.bounding_box(), b.bounding_box()
+def _bbox_overlap(ba, bb, margin: float = 1e-6) -> bool:
+    """Cheap AABB pre-filter on precomputed bounding boxes: disjoint boxes
+    cannot share volume, so the expensive boolean is skipped for a
+    well-spaced set (the normal path)."""
 
     def gap(lo1, hi1, lo2, hi2) -> bool:  # do 1-D intervals [lo,hi] stay apart?
         return hi1 + margin < lo2 or hi2 + margin < lo1
@@ -110,10 +124,11 @@ def _validate_no_overlap(placed: list[tuple[str, Part]]) -> None:
     """Reject a set whose blades interpenetrate (e.g. side_y too small): the
     minimum safe spacing depends on blade thickness/toe/cant, so it is checked
     on the placed solids rather than by a scalar bound. Raises ValueError."""
+    boxes = [p.bounding_box() for _, p in placed]  # one OCCT eval per blade
     for i in range(len(placed)):
         for j in range(i + 1, len(placed)):
             (ni, pi), (nj, pj) = placed[i], placed[j]
-            if not _bbox_overlap(pi, pj):
+            if not _bbox_overlap(boxes[i], boxes[j]):
                 continue
             inter = pi & pj
             vol = inter.volume if inter is not None else 0.0
@@ -134,28 +149,39 @@ def fin_set(set_params: FinSetParams,
     Raises ValueError if any two placed blades overlap.
     """
     cfg = set_params.config
-    center = (fin_solid(set_params.center, settings)
-              if set_params.center is not None else None)
-    side = (fin_solid(set_params.side, settings)
-            if set_params.side is not None else None)
+    # Lazy lofts: FinSetParams populates both slots for every config, but
+    # e.g. SINGLE never places the side blade — don't pay for solids the
+    # config discards (this path sits in optimizer/CFD-prep loops).
+    _cache: dict[str, Part] = {}
+
+    def center() -> Part:
+        if "center" not in _cache:
+            _cache["center"] = fin_solid(set_params.center, settings)
+        return _cache["center"]
+
+    def side() -> Part:
+        if "side" not in _cache:
+            _cache["side"] = fin_solid(set_params.side, settings)
+        return _cache["side"]
+
     sx, sy = set_params.side_x, set_params.side_y
     toe, cant = set_params.toe, set_params.cant
 
     placed: list[tuple[str, Part]] = []
     if cfg is FinConfig.SINGLE:
         placed.append(("center",
-                       place_fin(center, toe_deg=0.0, cant_deg=0.0, x=0.0, y=0.0,
-                                 hand="right")))
+                       place_fin(center(), toe_deg=0.0, cant_deg=0.0, x=0.0,
+                                 y=0.0, hand="right")))
     elif cfg is FinConfig.TWIN:
-        placed += _side_pair(side, "", toe, cant, sx, sy)
+        placed += _side_pair(side(), "", toe, cant, sx, sy)
     elif cfg in (FinConfig.THRUSTER, FinConfig.TWO_PLUS_ONE):
         placed.append(("center",
-                       place_fin(center, toe_deg=0.0, cant_deg=0.0, x=0.0, y=0.0,
-                                 hand="right")))
-        placed += _side_pair(side, "", toe, cant, sx, sy)
+                       place_fin(center(), toe_deg=0.0, cant_deg=0.0, x=0.0,
+                                 y=0.0, hand="right")))
+        placed += _side_pair(side(), "", toe, cant, sx, sy)
     elif cfg is FinConfig.QUAD:
-        placed += _side_pair(side, "front_", toe, cant, sx, sy)
-        placed += _side_pair(side, "rear_", set_params.rear_toe,
+        placed += _side_pair(side(), "front_", toe, cant, sx, sy)
+        placed += _side_pair(side(), "rear_", set_params.rear_toe,
                              set_params.rear_cant, set_params.rear_x,
                              set_params.rear_y)
     else:  # pragma: no cover - enum is exhaustive above
@@ -249,7 +275,7 @@ def preview_set(set_params: FinSetParams, path: str | Path,
         if len(segs):
             ax.add_collection(LineCollection(segs, colors=color, linewidths=1.4))
         # Toe annotation at the blade's base-face center (x-y).
-        base = part.faces().sort_by(Axis.Z)[0].center()
+        base = _base_plane_center(part)
         is_rear = "rear" in name
         toe = set_params.rear_toe if is_rear else set_params.toe
         signed = 0.0 if "center" in name else (toe if "right" in name else -toe)

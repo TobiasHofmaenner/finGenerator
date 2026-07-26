@@ -125,3 +125,43 @@ def test_preview_set_renders_png(tmp_path):
                       COARSE)
     assert png.exists()
     assert png.stat().st_size > 15_000
+
+
+def test_placement_sign_and_position_pins():
+    # Regression guards the review demanded: these survive nothing —
+    # a cant sign flip, a side_x/side_y swap, or a quad front/rear
+    # transpose each breaks at least one assertion below.
+    from fingen.params import FinConfig, FinSetParams
+
+    quad = fin_set(FinSetParams(config=FinConfig.QUAD, center=None), COARSE)
+    by_name = dict(quad)
+    fr, rr = by_name["front_right"], by_name["rear_right"]
+    fr_bb, rr_bb = fr.bounding_box(), rr.bounding_box()
+    # Fronts sit FORWARD of rears (+x aft frame): front x-extent starts first.
+    assert fr_bb.min.X < rr_bb.min.X
+    # Rears sit closer to the stringer than fronts.
+    assert rr_bb.min.Y < fr_bb.min.Y
+    # Cant leans the tip OUTBOARD on the right rail: the widest-y material
+    # sits high on the blade, wider than the base's outboard edge.
+    base_slab_max_y = max(v.Y for v in fr.vertices() if v.Z < 5.0)
+    tip_max_y = fr_bb.max.Y
+    assert tip_max_y > base_slab_max_y + 2.0  # outward lean, not inboard
+
+
+def test_tabbed_fin_pivot_is_base_plane():
+    # Tabs extend below z=0; the pivot must still be the base-plane center
+    # (the naive lowest-face pick landed on a tab bottom, ~6 mm off).
+    from fingen.params import TabParams, TabSystem
+
+    tabbed = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
+                       tabs=TabParams(system=TabSystem.DUAL_TAB))
+    plain = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
+    pt = place_fin(fin_solid(tabbed, COARSE), toe_deg=0.0, cant_deg=0.0,
+                   x=0.0, y=0.0, hand="right")
+    pp = place_fin(fin_solid(plain, COARSE), toe_deg=0.0, cant_deg=0.0,
+                   x=0.0, y=0.0, hand="right")
+    # Same blade above the board plane -> identical x-extent after placement.
+    bt = pt.bounding_box()
+    bp = pp.bounding_box()
+    assert abs(bt.min.X - bp.min.X) < 0.5
+    assert abs(bt.max.X - bp.max.X) < 0.5
