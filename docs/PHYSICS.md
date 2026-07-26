@@ -47,6 +47,51 @@ study used toe 4° [Knies25]. fingen defaults: **toe 3.5°, cant 8.0°**.
 foil profile, tip geometry, cant, fin system) [Nov21]; optimization-grade parameterization via
 chord/depth/sweep/camber/camber-position/thickness [Sak17].
 
+## 2b. Fin-set assembly conventions (`assembly.py`)
+
+Toe and cant are **placement transforms**, not blade geometry: one right-hand blade is
+lofted and CHECKed, its left-hand mate is `export.mirror_hand` of it (mirror across the
+y = 0 plane), and each blade is toed, canted and translated into the set. The assembly
+frame is each blade's own frame — no remapping — so `fin_solid` output is placed directly:
+
+- **+x aft** (toward the tail; a blade's LE is at local x = 0, TE at +x),
+- **+y toward the right rail** (outboard for the right fin; the canonical right-hand blade's
+  foil bulges to +y with its flat/inboard face on y = 0, per `export.py`),
+- **+z up, out of the board** (blades hang in z ≥ 0; the board plane is z = 0).
+
+The origin is the center-fin base center; side blades are positioned by their base-center
+offset from it, so front fins sit at **negative side_x** (forward) [Gre26].
+
+**Sign convention.** Toe is a rotation about the vertical **z** axis; **nose-in (leading edge
+toward the stringer) is positive toe**. Cant is an outward lean about the longitudinal **x**
+axis (the tip leans toward the near rail). Left and right take **opposite signs of the same
+magnitude**: the right fin is `+toe` about +z and `−cant` about +x, the left the negatives.
+
+**Cant × the z ≥ 0 convention (the classic bug).** A canted blade's root must stay on the
+board plane. Cant therefore rotates about the x-parallel line through the blade's **own base
+centerline** (base-face center, recentered to the origin) *before* the outboard translation —
+never about the global x axis after translating to side_y, which would lift the whole root by
+`side_y·sin(cant)` (centimetres off the board). Rotating about the base centerline leaves only
+the finite base-thickness tilt (≤ ~1 mm at 8°), so `bbox.min.Z ≈ 0` for every placed blade.
+
+**Defaults** (production conventions [Gre26]; CFD'd production setups toe 3.5°/cant 8.5° [Falk20]):
+
+| Config | Slots | Toe | Cant | Notes |
+|---|---|---|---|---|
+| SINGLE | center | 0° | 0° | rides the stringer, symmetric foil |
+| TWIN | 2 sides | 3.5° | 8.0° | forward + outboard, no center |
+| THRUSTER | 2 sides + center | fronts 3.5° | fronts 8.0° | center 0/0; sides forward of center [Gre26 1/4″ toe, 7-9° cant] |
+| QUAD | front pair + rear pair | fronts 3.5°, rears 2.0° | fronts 8.0°, rears 4.0° | rears have their own x/y/toe/cant [Gre26 1/8-3/16″ toe, 3-5° cant] |
+| 2+1 | 2 sides + big center | 3.5° | 8.0° | center box tunable between single and thruster |
+
+Fore-aft/lateral offsets (side_x ≈ −195 mm, side_y ≈ 118 mm; quad rears −60/95 mm) are
+representative shortboard cluster spacing (front fins ≈ 8″ ahead of the rear box, ≈ 4.6″ off
+the stringer [Gre26]); the exact values are board-width dependent, so their scalar bounds stay
+loose and the **minimum safe spacing** — which depends on blade thickness, toe and cant — is
+enforced geometrically by a pairwise solid-intersection check at assembly (a `ValueError` on
+interpenetrating blades), not by a fixed number. The set exports as one multi-solid STL surface
+named `fins` (snappyHexMesh meshes it as a single patch) or a STEP scene for CAD.
+
 ## 3. Outline math (`outline.py`)
 
 The planform (side-view silhouette) is built from Bézier curves in Bernstein form,

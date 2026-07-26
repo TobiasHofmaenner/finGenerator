@@ -284,10 +284,32 @@ def _default_center() -> FinParams:
 
 @dataclass(frozen=True)
 class FinSetParams:
-    """A complete fin set: per-slot blades plus placement angles.
+    """A complete fin set: per-slot blades plus placement angles and positions.
 
-    Toe and cant are placement transforms applied at assembly, not baked into
-    the blade geometry — one blade solid serves left/right via mirroring.
+    Toe and cant are placement transforms applied at assembly (fingen.assembly),
+    not baked into the blade geometry — one blade solid serves left/right via
+    mirroring [export.mirror_hand]. All positions live in the ASSEMBLY FRAME,
+    which coincides with each blade's own frame (docs/PHYSICS.md §2b):
+
+        +x  aft, toward the board's tail   (a blade's LE is at local x=0, TE aft)
+        +y  toward the RIGHT rail (starboard) = outboard for the right-hand fin
+        +z  up, out of the board bottom     (blades hang in z ≥ 0; board = z=0)
+
+    The origin is the center-fin base center. Side positions are that blade's
+    base-center offset FROM the origin: side_x is therefore NEGATIVE for the
+    forward-of-center thruster/quad fronts [Gre26], and the right fin sits at
+    +side_y, the left at −side_y.
+
+    toe/cant are the front (side) fins' toe-in and cant magnitudes; rear_* are
+    the quad rear pair's own placement. Defaults follow production conventions
+    [Gre26] (thruster fronts 1/4″ ≈ 3–4° toe, 7–9° cant; quad rears 1/8–3/16″ ≈
+    1.5–2.5° toe, 3–5° cant) and CFD'd production setups toe 3.5°/cant 8.5°
+    [Falk20]. Fore-aft/lateral offsets are representative shortboard cluster
+    spacing (front fins ≈ 8″ ahead of the rear box, ≈ 4.6″ off the stringer
+    [Gre26]); the true value is board-width dependent, so the lateral bounds
+    stay loose and the *minimum safe spacing* — which depends on blade
+    thickness, toe and cant — is enforced geometrically at assembly (an
+    overlap check), not by a scalar bound.
     """
 
     config: FinConfig = FinConfig.THRUSTER
@@ -295,6 +317,12 @@ class FinSetParams:
     side: FinParams | None = field(default_factory=_default_side)
     toe: float = 3.5
     cant: float = 8.0
+    side_x: float = -195.0  # side-fin base-center aft-offset (forward = negative)
+    side_y: float = 118.0  # side-fin base-center outboard offset (right fin +)
+    rear_x: float = -60.0  # quad rear pair aft-offset (aft of the fronts)
+    rear_y: float = 95.0  # quad rear pair outboard offset
+    rear_toe: float = 2.0  # quad rear toe-in [Gre26: 1/8–3/16″]
+    rear_cant: float = 4.0  # quad rear cant [Gre26: 3–5°]
 
     def __post_init__(self) -> None:
         needs_center = self.config in (FinConfig.SINGLE, FinConfig.THRUSTER,
@@ -307,6 +335,15 @@ class FinSetParams:
                  f"{self.config.value} requires a side fin definition")
         _require(0.0 <= self.toe <= 6.0, f"toe {self.toe}° outside 0–6°")
         _require(0.0 <= self.cant <= 12.0, f"cant {self.cant}° outside 0–12°")
+        _require(0.0 <= self.rear_toe <= 6.0, f"rear_toe {self.rear_toe}° outside 0–6°")
+        _require(0.0 <= self.rear_cant <= 12.0, f"rear_cant {self.rear_cant}° outside 0–12°")
+        # Fore-aft: forward (negative) dominant, small aft allowance. Lateral:
+        # strictly outboard and bounded only for sanity — the real minimum is
+        # the assembly overlap check (blade-thickness/toe/cant dependent).
+        for name, vx in (("side_x", self.side_x), ("rear_x", self.rear_x)):
+            _require(-300.0 <= vx <= 100.0, f"{name} {vx} mm outside −300–100 mm")
+        for name, vy in (("side_y", self.side_y), ("rear_y", self.rear_y)):
+            _require(0.0 < vy <= 400.0, f"{name} {vy} mm outside 0–400 mm (must be outboard)")
 
 
 @dataclass(frozen=True)

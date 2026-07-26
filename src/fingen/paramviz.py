@@ -101,6 +101,15 @@ PARAM_HELP = {
              "flush with the flat side, so fin and tabs print flat on the bed.",
     "hand": "Side fins are chiral: right and left are mirror images. A twin "
             "or thruster set needs one of each.",
+    "toe": "Toe-in: side fins angle their leading edges toward the stringer, "
+           "pre-loading the outside fin so it bites instantly. More toe = "
+           "quicker turns, more straight-line drag (thruster fronts ~3.5°).",
+    "cant": "Cant: side fins lean outward toward the rail, so their lift stays "
+            "useful as the board rolls onto edge. More cant = looser/more "
+            "rail-to-rail, less straight-line drive (fronts ~7-9°).",
+    "side_position": "Where the side fins sit relative to the center: forward "
+                     "(side_x, toward the nose) sets the moment arm — pivoty "
+                     "vs drivey — and outboard (side_y) sets rail spacing.",
     "halves": "Symmetric fins only (and y-symmetric: no tab y-shift, grooves "
               "on both faces): two flat-faced mirror halves to print flat "
               "and glue at the midplane.",
