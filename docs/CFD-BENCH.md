@@ -144,8 +144,25 @@ thoroughness is cheap relative to what a wrong bench would cost:
 7. **Physical structure bench** (user-side) — force–stroke stiffness
    (plain vs grooved, replicating [For24] panel C), load-to-failure vs
    FORCE_SF allowables, seawater-soak stiffness recheck.
-8. **Multi-fin interference vs [Falk19/Falk20]** — anchors
-   CONFIG_DOMINANT_SHARE; blocked on fin-set assembly geometry.
+8. **Multi-fin interference vs [Falk19/Falk20]** — ✅ DONE
+   (`src/fingen/cfd/setcase.py`, `scripts/falk_thruster.py`, per-fin
+   summary `bench/falk/thruster-run-summary.json`; ~75 min on the EPYC,
+   one shared L2 mesh, 0–30°). The interference structure is
+   textbook-correct: **toe hands load between the fronts** (windward
+   0.40 vs leeward 0.85 CL at 20° — the progressive-feel mechanism,
+   measured), and the **center-rear deficit grows with angle** (−21 %
+   at 5°, ≈parity 10–20°, **−27 % at 30°** as the front wake sweeps
+   across it). Totals peak 0.62 at 20–25° vs Falk19's ≈0.74 with a
+   *different blade* (their FCS template, no-slip board, URANS ≥20°) —
+   an absolute gap that is geometry difference, not physics failure.
+   Caveats: Falk19's per-fin thruster data is paywalled everywhere
+   (verified via five OA indices — ask the authors), so per-fin anchors
+   are Falk20's quad patterns (qualitative agreement); the 35–45°
+   post-stall tail was skipped (leeway bound, both codes questionable
+   there anyway). Exact-anchor follow-up available on demand:
+   replica-fit their FCS template like BW04 and rerun. The
+   CONFIG_DOMINANT_SHARE heuristics can now be replaced by measured
+   interference curves.
 
 Parked (out of scope until the single-blade bench is exhausted):
 free-surface ventilation/cavitation (multiphase); re-running the
