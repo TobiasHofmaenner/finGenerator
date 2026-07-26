@@ -1,0 +1,65 @@
+{
+  "steady/cpu/gamg": {
+    "n": 2,
+    "wall_s": 145.85,
+    "time_per_iter_s": 0.1824,
+    "cl": 0.357,
+    "cd": 0.0337,
+    "vram_peak_mib": null,
+    "ksp_wall_share": null
+  },
+  "steady/petsc/amgx": {
+    "n": 2,
+    "wall_s": 221.5,
+    "time_per_iter_s": 5.538,
+    "cl": 0.358,
+    "cd": 0.0338,
+    "vram_peak_mib": 10705.0,
+    "ksp_wall_share": 0.064
+  },
+  "steady/petsc/amgx-host": {
+    "n": 3,
+    "wall_s": 227.5,
+    "time_per_iter_s": 5.6866,
+    "cl": 0.358,
+    "cd": 0.0338,
+    "vram_peak_mib": 11315,
+    "ksp_wall_share": 0.07
+  },
+  "steady/petsc/cpu-gamg-petsc": {
+    "n": 1,
+    "wall_s": 11.9,
+    "time_per_iter_s": 0.2982,
+    "cl": 0.358,
+    "cd": 0.0338,
+    "vram_peak_mib": 5,
+    "ksp_wall_share": 0.058
+  },
+  "steady/petsc/cusparse-gamg": {
+    "n": 3,
+    "wall_s": 31.4,
+    "time_per_iter_s": 0.7841,
+    "cl": 0.358,
+    "cd": 0.0338,
+    "vram_peak_mib": 3521,
+    "ksp_wall_share": 0.167
+  },
+  "urans/cpu/gamg": {
+    "n": 2,
+    "wall_s": 102.8,
+    "time_per_iter_s": 0.5141,
+    "cl": 0.8635,
+    "cd": 0.2496,
+    "vram_peak_mib": null,
+    "ksp_wall_share": null
+  },
+  "urans/petsc/cusparse-gamg": {
+    "n": 2,
+    "wall_s": 409.75,
+    "time_per_iter_s": 2.0486,
+    "cl": 0.8636,
+    "cd": 0.2496,
+    "vram_peak_mib": 3692.0,
+    "ksp_wall_share": 0.3655
+  }
+}
