@@ -1,0 +1,51 @@
+# Falk20 = Falk et al. (2020), Appl. Sci. 10(3):816. TOTAL / entire-configuration results, commercial 4-fin (T:80/A:150).
+# Two blocks: (1) mean coefficients vs AoA (velocity-independent); (2) TOTAL force (sum over 4 fins) vs AoA at each inflow speed.
+# source: mean CL from Fig 12a / Fig 10a red; mean CD from Fig 13a / Fig 10b red; total forces DIGITIZED from Fig 12b (lift) & Fig 13b (drag), p.13-14.
+# All force values are read-off from plots: uncertainty ~ +/-3-5% of reading for the 18 m/s curve, larger (up to +/-15%) for the small 5/7.5 m/s curves at low AoA.
+# The plotted "Lift/Drag Force [N]" is the TOTAL of the 4 fins (verified: 18 m/s peak ~4450 N at 20deg matches CL=0.69 * 0.5*997*0.00986*18^2 * 4fins = 4396 N).
+# Stated-in-text anchors: max mean CL = 0.69 @ AoA 20 (p.18); max mean CD = 0.61 @ AoA 45 (p.18); max L/D = 7.44 @ AoA 5 (p.19).
+#
+# block,quantity,angle_deg,value
+COEF,mean_CL,0,0.01
+COEF,mean_CL,5,0.24
+COEF,mean_CL,10,0.43
+COEF,mean_CL,15,0.585
+COEF,mean_CL,20,0.695
+COEF,mean_CL,25,0.565
+COEF,mean_CL,30,0.50
+COEF,mean_CL,35,0.465
+COEF,mean_CL,40,0.535
+COEF,mean_CL,45,0.60
+COEF,mean_CD,0,0.018
+COEF,mean_CD,5,0.035
+COEF,mean_CD,10,0.06
+COEF,mean_CD,15,0.105
+COEF,mean_CD,20,0.215
+COEF,mean_CD,25,0.255
+COEF,mean_CD,30,0.29
+COEF,mean_CD,35,0.335
+COEF,mean_CD,40,0.45
+COEF,mean_CD,45,0.605
+# TOTAL lift force [N] (sum of 4 fins), Fig 12b, per inflow speed
+LIFT_N_18ms,total_lift_N,5,800
+LIFT_N_18ms,total_lift_N,10,1900
+LIFT_N_18ms,total_lift_N,15,3600
+LIFT_N_18ms,total_lift_N,20,4450
+LIFT_N_18ms,total_lift_N,25,3550
+LIFT_N_18ms,total_lift_N,30,3300
+LIFT_N_18ms,total_lift_N,35,2950
+LIFT_N_18ms,total_lift_N,40,3350
+LIFT_N_18ms,total_lift_N,45,3800
+LIFT_N_10ms,total_lift_N,20,1370
+LIFT_N_10ms,total_lift_N,45,1180
+LIFT_N_7p5ms,total_lift_N,20,770
+LIFT_N_7p5ms,total_lift_N,45,680
+LIFT_N_5ms,total_lift_N,20,340
+LIFT_N_5ms,total_lift_N,45,300
+# TOTAL drag force [N] (sum of 4 fins), Fig 13b, per inflow speed
+DRAG_N_18ms,total_drag_N,20,1350
+DRAG_N_18ms,total_drag_N,35,2100
+DRAG_N_18ms,total_drag_N,45,3850
+DRAG_N_10ms,total_drag_N,45,1200
+DRAG_N_7p5ms,total_drag_N,45,680
+DRAG_N_5ms,total_drag_N,45,300

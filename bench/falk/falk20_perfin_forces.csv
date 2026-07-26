@@ -1,0 +1,31 @@
+# Falk20 = Falk et al. (2020), Appl. Sci. 10(3):816, doi:10.3390/app10030816 (MDPI, OPEN ACCESS)
+# PER-FIN lift & drag coefficients, commercial 4-fin config T:80/A:150 (FCS Accelerator II fins)
+# source: DIGITIZED (read-off) from Figure 10a (CL) and Figure 10b (CD), p.12. Values are NOT tabulated in the paper text.
+# Uncertainty: +/-0.02-0.03 in coefficient where curves are separated; +/-0.03-0.05 in the tightly-bunched low-AoA region (AoA<=10).
+# Coefficient def (Eq.5,6): c = F / (0.5*rho*A_ref*u^2), A_ref = single-fin planform area = 9860 mm^2 = 9.86e-3 m^2, rho=997 kg/m^3.
+# Coefficients are ~velocity-independent (paper Sec 3.2/4.3), so these apply to all four inflow speeds 5/7.5/10/18 m/s.
+# Fin naming (paper Fig.3, Sec 2.1): IF = inside fin (near wave crest = "working" fin, loaded side); OF = outside fin (near shore = "passive" fin).
+#   front_IF = front inside, front_OF = front outside, rear_IF = rear inside, rear_OF = rear outside.
+# Sign convention (p.5): +lift = board turning toward shore; drag = along main flow. AoA = angle between flow and board longitudinal axis; positive AoA = bottom-turn (left-hand wave), fins rotated clockwise.
+# 'mean' column = paper's plotted red "Mean" curve (= sum of 4 fin forces / sum of 4 fin areas = simple average since areas equal), read directly from Fig 10.
+# quantity,angle_deg,front_IF,front_OF,rear_IF,rear_OF,mean
+CL,0,0.01,0.01,0.07,0.00,0.01
+CL,5,0.21,0.26,0.24,0.07,0.24
+CL,10,0.46,0.565,0.41,0.19,0.43
+CL,15,0.73,0.585,0.61,0.375,0.585
+CL,20,1.05,0.45,0.81,0.47,0.695
+CL,25,0.81,0.415,0.77,0.255,0.565
+CL,30,0.755,0.465,0.70,0.075,0.50
+CL,35,0.69,0.47,0.59,0.115,0.465
+CL,40,0.665,0.53,0.535,0.405,0.535
+CL,45,0.64,0.595,0.545,0.615,0.60
+CD,0,0.015,0.02,0.02,0.01,0.018
+CD,5,0.03,0.04,0.035,0.03,0.035
+CD,10,0.05,0.115,0.055,0.045,0.06
+CD,15,0.10,0.19,0.11,0.105,0.105
+CD,20,0.24,0.22,0.22,0.17,0.215
+CD,25,0.32,0.255,0.33,0.108,0.255
+CD,30,0.40,0.335,0.39,0.035,0.29
+CD,35,0.455,0.40,0.42,0.07,0.335
+CD,40,0.525,0.53,0.46,0.315,0.45
+CD,45,0.595,0.685,0.56,0.585,0.605

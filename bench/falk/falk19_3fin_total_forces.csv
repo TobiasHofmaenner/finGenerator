@@ -1,0 +1,28 @@
+# Falk19 = Falk et al. (2019), "Computational hydrodynamics of a typical 3-fin surfboard setup", J. Fluids Struct. 90:297-314, doi:10.1016/j.jfluidstructs.2019.07.006
+# STATUS: paper is CLOSED ACCESS (Unpaywall is_oa=false, zero OA locations). Full text / per-fin tables were NOT obtainable.
+# This file is the ENTIRE-3-fin-config (total) CL & CD, which Falk20 re-plots as its "FCS Accel. 3-fin" curve.
+# source: DIGITIZED (read-off) from Falk20 Figure 17a (CL) & 17b (CD), p.18 (red solid diamonds). NOT from the Falk19 paper directly.
+# Uncertainty: +/-0.03 in coefficient (curve overlaps 4-fin curve at low AoA; markers dense).
+# Cross-check anchor: paper text (Falk20 Sec 4.2.2, p.18) states 3-fin vs 4-fin max CL differ by 6.8%; 4-fin max=0.69 -> 3-fin max~0.737, consistent with digitized peak 0.74 @ 20deg.
+# NOTE: this is TOTAL 3-fin only. Falk19's PER-FIN breakdown (windward-front / leeward-front / center) is NOT available - see falk-reference.md "Gaps".
+# quantity,angle_deg,value
+CL_3fin_total,0,0.00
+CL_3fin_total,5,0.22
+CL_3fin_total,10,0.335
+CL_3fin_total,15,0.525
+CL_3fin_total,20,0.74
+CL_3fin_total,25,0.665
+CL_3fin_total,30,0.59
+CL_3fin_total,35,0.60
+CL_3fin_total,40,0.58
+CL_3fin_total,45,0.48
+CD_3fin_total,0,0.02
+CD_3fin_total,5,0.035
+CD_3fin_total,10,0.07
+CD_3fin_total,15,0.135
+CD_3fin_total,20,0.23
+CD_3fin_total,25,0.295
+CD_3fin_total,30,0.35
+CD_3fin_total,35,0.435
+CD_3fin_total,40,0.495
+CD_3fin_total,45,0.50
