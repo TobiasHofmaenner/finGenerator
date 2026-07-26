@@ -1,0 +1,202 @@
+{
+  "generated": "2026-07-26",
+  "note": "Fixed-rig rerun: shear imposed on inlet AND farfield (uy=omega*z) via exprFixedValue (codedFixedValue cannot compile on this runtime-only OpenFOAM install; physics identical). Denser sweep 0,0.5,1,2,3. Cases in scratchpad, not the repo.",
+  "setup": {
+    "speed_ms": 6.4,
+    "omegas_rad_s": [
+      0.0,
+      0.5,
+      1.0,
+      2.0,
+      3.0
+    ],
+    "mesh_level": 2,
+    "end_time": 800,
+    "mesh_cells": 360134,
+    "procs": 12,
+    "shear_bc": "exprFixedValue uy(z)=omega*pos().z() on inlet + farfield (the fix under test); outlet inletOutlet, board symmetryPlane",
+    "CofR": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "roll_axis_z0_mm": 0.0
+  },
+  "per_omega": [
+    {
+      "omega": 0.0,
+      "M_x": -1.5948170874999998,
+      "M_x_last": -1.59469,
+      "iters": 800,
+      "tail_std": 0.00025387721903265,
+      "tail_std_pct": 0.015918892581632815
+    },
+    {
+      "omega": 0.5,
+      "M_x": -1.7237091500000001,
+      "M_x_last": -1.723722,
+      "iters": 800,
+      "tail_std": 0.00010643062294283753,
+      "tail_std_pct": 0.006174511688519928,
+      "secant_from_prev": -0.2577841250000006,
+      "secant_from_zero": -0.2577841250000006
+    },
+    {
+      "omega": 1.0,
+      "M_x": -1.8506483125,
+      "M_x_last": -1.850606,
+      "iters": 800,
+      "tail_std": 3.74956976698739e-05,
+      "tail_std_pct": 0.0020260844492502083,
+      "secant_from_prev": -0.2538783249999996,
+      "secant_from_zero": -0.2558312250000001
+    },
+    {
+      "omega": 2.0,
+      "M_x": -2.1081042875000002,
+      "M_x_last": -2.108229,
+      "iters": 800,
+      "tail_std": 0.000172602193913501,
+      "tail_std_pct": 0.008187554806322692,
+      "secant_from_prev": -0.2574559750000003,
+      "secant_from_zero": -0.2566436000000002
+    },
+    {
+      "omega": 3.0,
+      "M_x": -2.36182284375,
+      "M_x_last": -2.361856,
+      "iters": 800,
+      "tail_std": 5.4144084034526586e-05,
+      "tail_std_pct": 0.0022924701646360127,
+      "secant_from_prev": -0.25371855624999995,
+      "secant_from_zero": -0.25566858541666676
+    }
+  ],
+  "shear_preservation": {
+    "omega": 2.0,
+    "z_band_m": [
+      0.05,
+      0.11
+    ],
+    "stations": {
+      "fs_x30": {
+        "x_m": -0.3,
+        "z_band_m": [
+          0.05,
+          0.11
+        ],
+        "n": 69,
+        "mean_uy_over_nominal": 1.0157241793389935,
+        "min": 1.010409510986545,
+        "max": 1.0243703231686745,
+        "median": 1.0149273523840978
+      },
+      "nf_x03": {
+        "x_m": -0.03,
+        "z_band_m": [
+          0.05,
+          0.11
+        ],
+        "n": 69,
+        "mean_uy_over_nominal": 1.3185940541096346,
+        "min": 1.182828199562187,
+        "max": 1.5048817586562684,
+        "median": 1.305286374474878
+      },
+      "nf_x15": {
+        "x_m": -0.15,
+        "z_band_m": [
+          0.05,
+          0.11
+        ],
+        "n": 69,
+        "mean_uy_over_nominal": 1.066882899135011,
+        "min": 1.042599767354528,
+        "max": 1.1062426142315742,
+        "median": 1.063267353735216
+      }
+    },
+    "freestream_preservation": 1.0157241793389935,
+    "near_fin_preservation": 1.3185940541096346,
+    "target": 1.0,
+    "used_for_debias": 1.0157241793389935
+  },
+  "fit_lsq": {
+    "slope_dMx_domega": -0.25574962209051766,
+    "intercept": -1.5953458275323273,
+    "r2": 0.9999923569889729
+  },
+  "fit_omega0_derivative": {
+    "estimators": {
+      "quad_5pt": -0.2574269108009077,
+      "cubic_5pt": -0.2552206633027881,
+      "quad_low3": -0.2597370250000022,
+      "richardson": -0.25973702500000106,
+      "fd3_low3": -0.2597370250000013
+    },
+    "median": -0.25973702500000106,
+    "spread_lo": -0.2597370250000022,
+    "spread_hi": -0.2552206633027881,
+    "curvature_d2Mx_domega2": 0.0011054857409391803
+  },
+  "honest_damping_derivative": {
+    "shear_debias_factor": 1.0,
+    "value_Nms": 0.25973702500000106,
+    "band_lo": 0.2552206633027881,
+    "band_hi": 0.2597370250000022
+  },
+  "tier0": {
+    "L_p_corrected_kappa073": -0.17395416616448592,
+    "L_p_strip_uncorrected": -0.23829337830751496,
+    "kappa_fs_current": 0.73,
+    "lift_slope_per_rad": 3.310343976738666,
+    "ar_full": 3.4715031679995008
+  },
+  "implied_kappa_direct_symmetric_mirror": {
+    "value": 1.0899884287376769,
+    "band_lo": 1.0710354820410857,
+    "band_hi": 1.0899884287376815,
+    "definition": "|honest CFD omega->0 derivative| / |strip L_p| (CFD solves the symmetric-mirror problem via the symmetryPlane board)",
+    "current_kappa_fs": 0.73
+  },
+  "symmetric_mirror_correction": {
+    "note": "symmetryPlane board => CFD solves alpha=omega*|z| (symmetric-mirror), ~20% above true antisymmetric rolling (audit caveat 4). De-mirror to recover the roll-relevant true-antisymmetric derivative the tier-0 model represents.",
+    "audit_mirror_lifting_line_inviscid_Nms": 0.268,
+    "cfd_over_mirror_LL": 0.9691680037313471,
+    "viscous_knockdown_measured": 0.9691680037313471,
+    "audit_assumed_viscous_knockdown": 0.78,
+    "demirror_factor": 1.2,
+    "deriv_antisymmetric_Nms": -0.21644752083333424,
+    "kappa_demirrored": 0.9083236906147308,
+    "kappa_demirrored_band": [
+      0.8719907429901416,
+      0.9478160249892843
+    ],
+    "audit_true_derivative_band_Nms": [
+      0.143,
+      0.184
+    ],
+    "audit_kappa_band": [
+      0.6001006029444095,
+      0.7721574191732262
+    ]
+  },
+  "comparison": {
+    "honest_cfd_over_tier0_corrected": 1.4931348338872288,
+    "honest_cfd_over_strip": 1.0899884287376769,
+    "lsq_over_strip": 1.073255261673598,
+    "audit_mirror_lifting_line_inviscid_Nms": 0.268,
+    "audit_lifting_line_antisym_inviscid_over_strip": 0.93
+  },
+  "yplus_fin": {
+    "min": 15.21742,
+    "max": 441.7407,
+    "avg": 81.27398
+  },
+  "first_run_points": {
+    "0.0": -1.5838245,
+    "1.0": -1.70072128125,
+    "2.0": -1.7874740125,
+    "3.0": -1.86226934375
+  }
+}
