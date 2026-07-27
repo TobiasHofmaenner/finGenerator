@@ -43,7 +43,13 @@ from __future__ import annotations
 import math
 from pathlib import Path
 
-from fingen.hydro import RHO_SEAWATER, estimate, lift_curve_slope, stall_alpha_deg
+from fingen.hydro import (
+    RHO_SEAWATER,
+    estimate,
+    lift_curve_slope,
+    stall_alpha_deg,
+    stall_drag_cd,
+)
 from fingen.outline import metrics, planform
 from fingen.params import FinParams, FoilFamily, FoilParams, OutlineParams
 from fingen.roll import roll_report
@@ -104,14 +110,28 @@ def hold_score(f_max_n: float, f_req_n: float) -> float:
     return 100.0 * r / (r + HOLD_R_REF)
 
 
+# Re-aware profile-drag calibration factor (task #22). The 0.074/Re^0.2
+# friction line with the Hoerner form factor sits only ~10 % LOW of the
+# fair transition-tier CFD at fin Re — NOT a fully-turbulent rewrite. Both
+# 2026 transition polars agree: the needle reads cd0 ×1.24 at α=0, Re 3.5e5
+# and the thin-foil section ×1.11 zero-lift at Re 6.25e5, but the ×1.24 is
+# mostly the α=0 camber lift-drag; the FAIR like-for-like (zero-lift, drag-
+# bucket intercept) is only ×1.11 [bench/freerun-thinfoil/section-polar.md
+# §"task #22", pts 1–2; bench/freerun-needle/adjudication.md verdict (b)].
+# The Re-trend over 2–7e5 is flat (both ~×1.24 at α=0), so this is a single
+# calibration factor anchored to the fair +11 %, NOT a new Re exponent.
+CD0_CAL = 1.10
+
+
 def _cd0(fin: FinParams, speed: float) -> float:
     """Profile drag: turbulent flat-plate friction with a thickness form
-    factor [Hoe75], both sides of the fin."""
+    factor [Hoe75], both sides of the fin, times the fin-Re calibration
+    factor CD0_CAL (task #22)."""
     est = estimate(fin, speed, 0.0)
     cf = 0.074 / est.reynolds**0.2
     t = fin.foil.thickness_ratio
     form = 1.0 + 2.0 * t + 60.0 * t**4
-    return 2.0 * cf * form
+    return CD0_CAL * 2.0 * cf * form
 
 
 def raw_scores(fin: FinParams, speed: float = REF_SPEED,
@@ -129,18 +149,23 @@ def raw_scores(fin: FinParams, speed: float = REF_SPEED,
     slope, ar_eff = lift_curve_slope(fin)
     cd0 = _cd0(fin, speed)
 
-    # speed: inverse total drag at trim (α = 1°) in N
+    # speed: inverse total drag at trim (α = 1°) in N. α=1 sits far below the
+    # stall knee for every real fin, so the stall term is ~0 here and the speed
+    # axis just carries the uniform +CD0_CAL profile-drag bump (task #22).
     est_trim = estimate(fin, speed, 1.0)
-    drag_trim = q * area_m2 * (cd0 + est_trim.cdi)
+    drag_trim = q * area_m2 * (cd0 + est_trim.cdi
+                               + stall_drag_cd(est_trim.cl, slope, ar_eff))
     # hold: max side force in N (linear to the AR-dependent break)
     a_break = stall_alpha_deg(ar_eff)
     f_max = q * area_m2 * slope * math.radians(a_break)
     # drive: L/D delivering the rider's reference force (capped near the break
-    # for fins too small to deliver it at all)
+    # for fins too small to deliver it at all). CL_work CAN exceed the stall
+    # knee for small fins / light q, so the post-knee stall drag (task #22)
+    # bites here — repricing small blades that must work hard.
     cl_work = min(work_force_n(weight_kg) / (q * area_m2),
                   0.95 * slope * math.radians(a_break))
     cdi_work = cl_work**2 / (math.pi * 0.9 * ar_eff)
-    ld_work = cl_work / (cd0 + cdi_work)
+    ld_work = cl_work / (cd0 + cdi_work + stall_drag_cd(cl_work, slope, ar_eff))
     # pivot: inverse yaw stiffness — CP arm measured from the base center
     z, x_le, chord = planform(fin.outline)
     import numpy as np

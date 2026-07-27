@@ -391,9 +391,64 @@ accordingly [Tra23, Hoe75].
 with span efficiency e ≈ 0.85–0.95 for fin-like tapered planforms (calibrated later against
 CFD). Profile drag from section polars [SK81, Dre89].
 
+**Profile drag (C_D0) and its fin-Re calibration.** The base term is a turbulent flat-plate
+friction line with a Hoerner thickness form factor, both wetted sides [Hoe75]:
+
+    C_D0 = CD0_CAL · 2·c_f·(1 + 2t + 60t⁴),   c_f = 0.074/Re^0.2
+
+The 2026 transition-tier CFD (γ-Reθ) across the fin band shows this line sits only **~10 %
+low** of the *fair* (zero-lift, drag-bucket-intercept) profile drag: the thin-foil section
+reads ×1.11 at Re 6.25×10⁵ and the needle ×1.24 at α=0, Re 3.5×10⁵ — but the ×1.24 is mostly
+the α=0 camber lift-drag, and the like-for-like zero-lift value is the ×1.11. The Re-trend
+over 2–7×10⁵ is flat (both ≈×1.24 at α=0), so the correction is a **single calibration factor
+CD0_CAL = 1.10**, NOT a new Re exponent and NOT a refit to fully-turbulent c_f (which
+over-predicts +30–43 % at these transitional Re). *Provenance:*
+`bench/freerun-thinfoil/section-polar.md` §"task #22" (pts 1–2);
+`bench/freerun-needle/adjudication.md` verdict (b).
+
 **Stall.** Measured fin stall onset: lift-curve break at **α ≈ 12–14°**, a mix of tip stall
 and trailing-edge stall, nearly Re-independent in the operating range [BW04]. The design
 margin below this is the primary spin-out guard (§7).
+
+**Post-knee stall drag (C_D beyond the constant-efficiency quadratic).** The
+`C_Di = C_L²/(π·e·AR)` quadratic has no separation term, so tier-0 badly UNDER-predicts drag
+once the section loads up: the transition CFD shows C_D running **1.3–4.5× the quadratic above
+C_L ≈ 0.7·C_L,max** (needle 1.3–3×, thin-foil section 1.8–4.5×). fingen adds a post-knee rise
+
+    ΔC_D,stall = K_STALL · max(0, C_L − C_L,knee)²,   C_L,knee = 0.7·C_L,max
+
+with C_L,max = slope·α_knee. The term is **C1-continuous at the knee by construction** (value
+and slope both → 0 as C_L → C_L,knee⁺) and grafts onto the attached polar C_D = C_D0 + C_Di.
+**K_STALL = 0.580** is fit ONCE by least-squares through the knee against the needle polar's
+α = 8–16° points (residuals of C_D,cfd over the attached model, regressed on (C_L − C_L,knee)²);
+it reproduces the needle CFD to within ±25 % at α ≤ 14° (the capped α=16 deep-stall point, a CFD
+lower bound, reads −25 %). Cross-checks with the same K_STALL (full-model/CFD ratio): the [BW04]
+fin (AR_eff ≈ 2.6) is over-predicted ~1.5–1.7× at its near-stall α = 8° point, the Zarruk
+NACA0009 hydrofoil (AR 3.33 semi-span, AR_eff ≥ 3.3) under-predicted ~0.30–0.61× at α = 8–10° —
+the needle calibration sits centrally between the two. In scoring this term bites `drive` (L/D at
+the working load, where a small fin's C_L,work can exceed the knee) and is ~0 for `speed` (trim at
+α=1°, far below the knee).
+
+**DRAG knee ≠ LIFT break — the knee-angle cap.** The knee angle α_knee is *not* the extended
+low-AR lift break `stall_alpha_deg(AR_eff)`; it is that value **capped at the AR-3 base 12°**:
+α_knee = min(stall_alpha_deg(AR_eff), 12°). The lift break genuinely extends at low AR — a
+delta-wing planform holds attached-*lift* to 25–35° on vortex lift [Pol66, Tra23], and the
+lift/hold/forgiveness side keeps using that extended break untouched. But **vortex lift is
+high-drag**: the separation-drag rise cannot begin *later* than the base angle merely because
+the foil keeps generating lift. Tying the drag knee to the extended lift break (the original
+task-#22 form) handed low-AR planforms a *higher* knee and thus an *escape* from the stall-drag
+penalty — a fleet-rank windfall that pulled the cruiser optimizer onto an AR-1.1 pancake
+attractor. The Zarruk NACA0009 bench sets the sign of the correction: a genuinely hard-stalling
+foil UNDER-predicts its excess drag (ratio 0.30–0.61, never > 1), so if anything the low-AR drag
+knee should come *earlier*, never later — pinning it at 12° is the conservative, defensible floor.
+All three calibration/cross-check benches sit at AR_eff ≥ 2.5 (needle 4.52, BW04 2.6, Zarruk
+≥ 3.3), where the cap is inert, so **every bench residual is unchanged by it** and no AR-dependent
+K_STALL is warranted; the cap changes scores only for the sub-2.5-AR_eff planforms the uncapped
+knee over-rewarded.
+
+*Provenance:* `bench/freerun-needle/adjudication.md` verdict (b) + routing;
+`bench/freerun-thinfoil/section-polar.md` §"task #22" (pt 3); `bench/zarruk/cfd-polar.json`
+(low-AR hard-stall sign check).
 
 ## 7. Free surface: ventilation & cavitation (spin-out)
 

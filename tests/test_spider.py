@@ -37,7 +37,17 @@ def test_fleet_scores_match_surf_intuition():
     # the big keel out-holds the thin thruster side fin at the same requirement.
     assert scores["fish-keel"]["hold"] > scores["thruster-side"]["hold"]
     assert scores["fish-keel"]["forgiveness"] >= 80.0
-    assert scores["hi-aspect"]["drive"] == max(s["drive"] for s in scores.values())
+    # Task #22 stall-drag repricing (FINDING 2+3): at the adult W_REF force
+    # budget the high-aspect blade works PAST its stall knee (cl_work ≈ 0.70 ≈
+    # 0.90·CL_max) and takes a separation-drag hit, while the huge longboard
+    # single delivers the same 120 N loafing FAR below its own knee. So the
+    # longboard now OUT-drives the hi-aspect blade for top L/D-at-force. Assert
+    # the documented swap DIRECTLY — deleting `+ stall_drag_cd(...)` from
+    # ld_work lifts hi-aspect back above the longboard and flips both lines —
+    # and pin the hi-aspect rank-2 literal (80.0, i.e. 2nd of six fleet fins) so
+    # the repricing is locked bidirectionally.
+    assert scores["longboard-single"]["drive"] > scores["hi-aspect"]["drive"]
+    assert scores["hi-aspect"]["drive"] == pytest.approx(80.0)
     # The raked gun releases; the compact quad-rear pivots and runs clean.
     assert scores["gun-rake"]["release"] >= 80.0
     assert scores["quad-rear"]["speed"] >= 80.0
