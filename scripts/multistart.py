@@ -90,6 +90,31 @@ RIDERS: tuple[tuple[str, str, RiderSpec], ...] = (
      RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE, config=FinConfig.THRUSTER)),
     ("95kg-pro", "95 kg pro · thruster",
      RiderSpec(weight_kg=95.0, skill=Skill.PRO, config=FinConfig.THRUSTER)),
+    # --- Non-thruster depth-band coverage (corridor-demotion sweep, 2026-07) ---
+    # The thruster-only depth verdict (out/CORRIDOR-EVIDENCE.md) never exercised
+    # the SINGLE (160,290), TWIN (95,150) or QUAD (85,135) bands. These riders
+    # exercise each, with realistic rider/config pairings. Weights/skills chosen
+    # so each band sees a demanding AND a milder case where two riders are given:
+    #   SINGLE — the deep (160-290) band. Longboard/mid-length riders legitimately
+    #     want span, so this is the band most likely to genuinely BIND. An 82 kg
+    #     ADVANCED single (a heavier logger who loads the blade and wants hold/
+    #     drive → depth) and a 68 kg INTERMEDIATE single (a lighter mid-length
+    #     cruiser) bracket it.
+    #   TWIN — the (95,150) band. A 72 kg INTERMEDIATE twin: the archetypal
+    #     fish/twin rider, mid weight, moderate load.
+    #   QUAD — the (85,135) band (shallowest, dominant share 0.45 so per-fin load
+    #     is lowest). A 78 kg PRO quad (aggressive, loads drive/hold/speed hardest)
+    #     and a 90 kg INTERMEDIATE quad (heavier, milder skill) bracket it.
+    ("82kg-advanced-single", "82 kg advanced · single",
+     RiderSpec(weight_kg=82.0, skill=Skill.ADVANCED, config=FinConfig.SINGLE)),
+    ("68kg-intermediate-single", "68 kg intermediate · single",
+     RiderSpec(weight_kg=68.0, skill=Skill.INTERMEDIATE, config=FinConfig.SINGLE)),
+    ("72kg-intermediate-twin", "72 kg intermediate · twin",
+     RiderSpec(weight_kg=72.0, skill=Skill.INTERMEDIATE, config=FinConfig.TWIN)),
+    ("78kg-pro-quad", "78 kg pro · quad",
+     RiderSpec(weight_kg=78.0, skill=Skill.PRO, config=FinConfig.QUAD)),
+    ("90kg-intermediate-quad", "90 kg intermediate · quad",
+     RiderSpec(weight_kg=90.0, skill=Skill.INTERMEDIATE, config=FinConfig.QUAD)),
 )
 # Session note: light riders (groms/smaller adults) are underserved by
 # commercial ranges — if their optima corner at the depth-corridor floor,

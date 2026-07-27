@@ -92,12 +92,21 @@ _GRID = (1.0, 1.0, 1.0, 0.12)
 _FREE_COLORS = [_CYAN, _ORANGE, _CYAN_LT, "#d55181", "#9085e9"]
 
 # --- study config ------------------------------------------------------------
-RIDERS: tuple[tuple[str, str, float, Skill], ...] = (
-    ("60kg-cruiser", "60 kg cruiser · thruster", 60.0, Skill.CRUISER),
-    ("75kg-intermediate", "75 kg intermediate · thruster", 75.0, Skill.INTERMEDIATE),
-    ("95kg-pro", "95 kg pro · thruster", 95.0, Skill.PRO),
+# Each rider carries its own config: the depth corridor + interference model are
+# per-config, so the free-run acid test (does the search escape the band once the
+# corridor is off?) has to be run in the config whose band is under test. The
+# three thruster riders are the original committed study; the three non-thruster
+# riders (2026-07 corridor-demotion sweep) are one representative per untested
+# depth band — SINGLE (160,290), TWIN (95,150), QUAD (85,135) — matched to the
+# multistart riders so the corridors-ON and corridors-OFF evidence align.
+RIDERS: tuple[tuple[str, str, float, Skill, FinConfig], ...] = (
+    ("60kg-cruiser", "60 kg cruiser · thruster", 60.0, Skill.CRUISER, FinConfig.THRUSTER),
+    ("75kg-intermediate", "75 kg intermediate · thruster", 75.0, Skill.INTERMEDIATE, FinConfig.THRUSTER),
+    ("95kg-pro", "95 kg pro · thruster", 95.0, Skill.PRO, FinConfig.THRUSTER),
+    ("82kg-advanced-single", "82 kg advanced · single", 82.0, Skill.ADVANCED, FinConfig.SINGLE),
+    ("72kg-intermediate-twin", "72 kg intermediate · twin", 72.0, Skill.INTERMEDIATE, FinConfig.TWIN),
+    ("78kg-pro-quad", "78 kg pro · quad", 78.0, Skill.PRO, FinConfig.QUAD),
 )
-_CONFIG = FinConfig.THRUSTER
 
 _CLUSTER_THRESHOLD = 0.10   # normalized-slider euclidean, matches multistart
 _CORNER_EPS = 0.02          # slider within 2 % of a [0,1] bound = cornered
@@ -683,8 +692,9 @@ def build_dossiers(riders_out: list[dict], out_md: Path) -> list[tuple[str, str]
         de, ae = sig["depth_excess"], sig["ar_excess"]
         lines.append(f"- outside the old corridor by: depth "
                      f"{de * 100:+.0f} %, AR {ae * 100:+.0f} %  "
-                     f"(corridor depth {_DEPTH_CORRIDOR_MM[_CONFIG][0]:.0f}–"
-                     f"{_DEPTH_CORRIDOR_MM[_CONFIG][1]:.0f} mm, AR "
+                     f"({rider.config.value} corridor depth "
+                     f"{_DEPTH_CORRIDOR_MM[rider.config][0]:.0f}–"
+                     f"{_DEPTH_CORRIDOR_MM[rider.config][1]:.0f} mm, AR "
                      f"{AR_GEO_MIN:.2f}–{AR_GEO_MAX:.2f})")
         corners = ", ".join(sig["cornered"]) or "none"
         gates = ", ".join(sig["gates_ridden"]) or "none"
@@ -761,7 +771,7 @@ def _axes_for_pattern(pat: str) -> tuple[str, ...]:
 
 def _probe_for_pattern(pat: str, rep: dict, rider: RiderSpec, field: str) -> list[dict]:
     fin = fin_from_dict(rep["fin"])
-    d_lo, d_hi = _DEPTH_CORRIDOR_MM[_CONFIG]
+    d_lo, d_hi = _DEPTH_CORRIDOR_MM[rider.config]
     if field == "thickness_ratio":
         # From a healthy 0.10 section down to the 0.04 floor (exploit extreme).
         values = np.linspace(0.10, 0.04, 7)
@@ -984,18 +994,23 @@ def main() -> None:
     seed = int(sys.argv[4]) if len(sys.argv) > 4 else 0
     # Cap at 5: a sibling multistart study shares the box (it too runs 5).
     workers = int(sys.argv[5]) if len(sys.argv) > 5 else min(5, os.cpu_count() or 5)
+    # argv[6]: comma-separated slug subset (run only these riders — used to run
+    # just the new non-thruster reps without recomputing the committed thruster
+    # three). None -> all riders in the table.
+    only = set(sys.argv[6].split(",")) if len(sys.argv) > 6 else None
     out_prefix.parent.mkdir(parents=True, exist_ok=True)
 
-    print(f"freerun: {n_starts} starts x {budget} evals x {len(RIDERS)} riders "
+    riders = [r for r in RIDERS if only is None or r[0] in only]
+    print(f"freerun: {n_starts} starts x {budget} evals x {len(riders)} riders "
           f"x 2 modes, seed {seed}, {workers} workers", flush=True)
 
     t0 = time.time()
     riders_out: list[dict] = []
-    for slug, label, weight, skill in RIDERS:
-        starts = make_starts(n_starts, _CONFIG, seed)
-        rider_corr = RiderSpec(weight_kg=weight, skill=skill, config=_CONFIG,
+    for slug, label, weight, skill, config in riders:
+        starts = make_starts(n_starts, config, seed)
+        rider_corr = RiderSpec(weight_kg=weight, skill=skill, config=config,
                                practical_corridor=True)
-        rider_free = RiderSpec(weight_kg=weight, skill=skill, config=_CONFIG,
+        rider_free = RiderSpec(weight_kg=weight, skill=skill, config=config,
                                practical_corridor=False)
         corr = run_mode(rider_corr, starts, budget, seed, workers)
         free = run_mode(rider_free, starts, budget, seed, workers)
@@ -1003,7 +1018,7 @@ def main() -> None:
         for basin in free["basins"]:
             rep = next(r for r in free["records"]
                        if r["idx"] == basin["representative_idx"])
-            basin["signature"] = exploit_signature(rep, _CONFIG)
+            basin["signature"] = exploit_signature(rep, config)
         riders_out.append({
             "slug": slug, "label": label,
             "rider_corr": rider_corr, "rider_free": rider_free,
@@ -1060,12 +1075,14 @@ def main() -> None:
         "study": {"n_starts": n_starts, "budget": budget, "seed": seed,
                   "workers": workers, "wall_s": wall_s,
                   "cluster_threshold": _CLUSTER_THRESHOLD},
-        "corridor": {"depth_mm": _DEPTH_CORRIDOR_MM[_CONFIG],
-                     "ar_band": [AR_GEO_MIN, AR_GEO_MAX]},
+        "ar_band": [AR_GEO_MIN, AR_GEO_MAX],
         "riders": [{
             "slug": ro["slug"], "label": ro["label"],
             "weight_kg": ro["rider_free"].weight_kg,
             "skill": ro["rider_free"].skill.name,
+            "config": ro["rider_free"].config.value,
+            "corridor": {"depth_mm": list(_DEPTH_CORRIDOR_MM[ro["rider_free"].config]),
+                         "ar_band": [AR_GEO_MIN, AR_GEO_MAX]},
             "corridored": {"verdict": ro["corridored"]["verdict"],
                            "basins": ro["corridored"]["basins"]},
             "free": {"verdict": ro["free"]["verdict"], "basins": ro["free"]["basins"],
