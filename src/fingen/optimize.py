@@ -263,7 +263,7 @@ def _roll_context(fin: FinParams, config: FinConfig) -> FinSetParams:
 # where CL_front is the more-loaded of the two fronts. Reproduces the [Falk20]
 # Fig 10 anchor (front→rear ≈ 23% at the 20° lift peak) and grows into the
 # post-peak wake shadow. Baked as the portable authority (the JSON is not
-# packaged); regenerate with scripts/falk_thruster.py on the EPYC.
+# packaged); regenerate with the thruster CFD driver (separate private repo).
 _FALK_ANGLE_DEG = np.array([0.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0])
 _FALK_REAR_DEFICIT = np.array([0.00, 0.296, 0.239, 0.223, 0.262, 0.276, 0.416])
 # Configs whose optimized blade lives in a downwash environment (a rear member
@@ -822,7 +822,7 @@ def result_to_dict(result: OptimizationResult) -> dict:
     """Full result → JSON dict for the web tier and the CFD verification stage.
 
     Carries the fin params, every scored number, and the search metadata. The
-    frozen CFD polar (scripts/verify_candidate.py) reads `fin` + `rider`.
+    frozen CFD polar (verification stage, now a separate private repo) reads `fin` + `rider`.
     """
     r = result.result
     rider = result.rider

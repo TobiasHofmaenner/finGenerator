@@ -7,10 +7,7 @@ the scaling and depth pins are the product-relevant behaviour the module exists
 to give the optimizer.
 """
 
-import importlib.util
 import math
-import sys
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -29,12 +26,6 @@ from fingen.roll import (
     roll_set_report,
     roll_solve,
 )
-
-_SPEC = importlib.util.spec_from_file_location(
-    "roll_validation", Path(__file__).resolve().parents[1] / "scripts" / "roll_validation.py")
-roll_validation = importlib.util.module_from_spec(_SPEC)
-sys.modules["roll_validation"] = roll_validation
-_SPEC.loader.exec_module(roll_validation)
 
 A_SECTION = 2.0 * math.pi  # thin-section 2D lift slope, for the analytic checks
 SPEED = 6.4
@@ -302,24 +293,3 @@ def test_input_validation():
         roll_solve(z[::-1], chord, A_SECTION, SPEED)  # not increasing
     with pytest.raises(ValueError):
         roll_solve(z, chord, A_SECTION, 0.0)  # zero speed
-
-
-def test_roll_validation_case_writes(tmp_path):
-    # CFD-prep smoke: the twisted-inflow case renders — the sheared inlet
-    # uy(z) = ω·z and the roll-moment forces FO are in place, the fin STL is
-    # exported. (The EPYC solves it; here we only prove the dictionaries write.)
-    from fingen.params import GenSettings
-
-    coarse = GenSettings(n_stations=11, n_foil_points=60)
-    fin = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
-    case = roll_validation.write_roll_case(fin, 6.4, 3.0, tmp_path / "w3", settings=coarse)
-    for rel in ("system/controlDict", "system/blockMeshDict", "0/U",
-                "constant/triSurface/fin.stl"):
-        assert (case / rel).exists(), rel
-    u = (case / "0/U").read_text()
-    assert "codedFixedValue" in u and "3*cf[i].z()" in u  # uy(z) = 3·z twist
-    control = (case / "system/controlDict").read_text()
-    assert "rollMoment" in control and "type            forces;" in control
-    # Baseline ω = 0 renders too (uniform inlet through the same coded path).
-    base = roll_validation.write_roll_case(fin, 6.4, 0.0, tmp_path / "w0", settings=coarse)
-    assert "0*cf[i].z()" in (base / "0/U").read_text()

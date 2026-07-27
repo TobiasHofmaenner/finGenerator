@@ -40,7 +40,7 @@ pro) the study:
   6. VIZ      corridored winner vs free basins per rider, the signature table,
      and the free-vs-corridored objective gap (what the corridor was costing).
 
-Winner JSONs are written for the scripts/verify_candidate.py handoff. Tier-0
+Winner JSONs are written for the CFD verification handoff (separate private repo). Tier-0
 analytic evaluate; nominated exploits are adjudicated by CFD/flex on demand.
 """
 
@@ -460,7 +460,7 @@ _DOSSIER_PROSE = {
             "bounds it by convention (side fins cluster 90–140 mm) and by the "
             "swing-weight physics the model can't see — both real, neither hydro."),
         "adjudication": (
-            "verify_candidate.py L2 polar measures the lift slope vs DATCOM (gate "
+            "the CFD verification L2 polar measures the lift slope vs DATCOM (gate "
             "<25 %): if CFD tracks, the hold/drive claim stands hydrodynamically. "
             "Swing weight is a rigid-body number — compute the fin's inertia "
             "about the box directly (no CFD needed) and add a clearance check "
@@ -498,7 +498,7 @@ _DOSSIER_PROSE = {
             "tool; the fleet simply doesn't contain one, so it reads as "
             "extrapolation rather than error."),
         "adjudication": (
-            "verify_candidate.py L2 polar first — the slope-vs-DATCOM gate tests "
+            "the CFD verification L2 polar first — the slope-vs-DATCOM gate tests "
             "the induced-drag lever directly. The tip-Re / early-separation "
             "question is the level-4 resolved-wall + γ-Reθ transition tier "
             "(bench/bw04-polar-transition, the validated machinery) run at the "
@@ -571,7 +571,7 @@ _DOSSIER_PROSE = {
             "instinct is directionally right even where its magnitude is a guess."),
         "adjudication": (
             "The break LOCATION is validated to ±1–3° but only at AR≈3; a "
-            "low-AR CFD polar (verify_candidate.py, angles extended past the knee, "
+            "low-AR CFD polar (the verification stage, angles extended past the knee, "
             "or a dedicated high-α URANS) measures the actual break for THIS "
             "planform — confirm the late break and the pancake earns its "
             "forgiveness; find an early break and it's a model artifact. The "
@@ -958,7 +958,7 @@ def _draw_signature_table(ax, riders_out: list[dict]) -> None:
         y -= 0.052
 
 
-# --- handoff JSONs (verify_candidate compatible) -----------------------------
+# --- handoff JSONs (CFD verification compatible) -----------------------------
 
 
 def build_handoff(rider: RiderSpec, rec: dict, sig: dict | None) -> dict:

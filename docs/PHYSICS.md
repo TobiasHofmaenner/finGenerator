@@ -293,7 +293,7 @@ the CFD — and multiplies **only the lift-loading term** (L_p and its sweep/hea
 here. κ is **planform-dependent** (this value fits the near-triangular default taper; a rectangular
 planform carries more rolling relief and would take a smaller κ) and **provisional**: the refinement
 path is a fixed-rig CFD rerun (shear imposed on all inflow boundaries — already applied to
-`scripts/roll_validation.py`) with an ω→0 extrapolation, plus a [GF49] bench replication. [TQ48]
+the roll-validation CFD rig, now in a separate private repo) with an ω→0 extrapolation, plus a [GF49] bench replication. [TQ48]
 (Toll & Queijo, NACA TN 1581) and [GF49] (Goodman & Fisher) remain the theory family and measured
 class the calibration is anchored to; the reflected aspect ratio A = AR_full = 2·AR_geom (a fin
 mirrors across the board plane [GF49]) is still reported (`ar_full`) as provenance context. The
@@ -348,7 +348,7 @@ with a tier-0 over-prediction of **≈1.3–1.4×**.
 > 0.93 rolling relief × 0.78 viscous knockdown × 0.80 shear-rig artifact × 0.85 concave-secant
 > analysis artifact. The strip SHAPE stands; the 2× magnitude claim does not.
 
-scripts/roll_validation.py stages the (fixed-rig) cross-check: the single-fin case with the uniform
+The roll-validation CFD rig (now maintained in a separate private repo) stages the (fixed-rig) cross-check: the single-fin case with the uniform
 inlet replaced by a codedFixedValue shear uy(z) = ω·z imposed on **both the inlet and the top/side
 farfield** (a freestreamVelocity farfield let the imposed shear relax ~10–15 % before the fin — the
 audit-endorsed rig fix), plus a `forces` FO reporting M_x about the root, at a baseline + a denser

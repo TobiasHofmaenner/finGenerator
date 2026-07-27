@@ -8,6 +8,9 @@ Parametric surfboard fin generator: rider data in (weight, board, wave speed, su
 The project is built around one principle: **the fin engine is a library, not a website.**
 Everything else — the web app, the CFD loop, the optimizer — is a consumer of that library.
 
+This public repository is the **geometry library plus the tier-0 (analytic) optimizer**. The
+CFD / compute-and-verification layer is maintained separately in a private repo.
+
 Planned components:
 
 - **`fingen`** (current focus) — pure-Python parametric fin geometry: outline curves, foil

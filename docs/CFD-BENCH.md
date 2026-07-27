@@ -1,5 +1,13 @@
 # CFD bench: setup, mesh-convergence ladder, frozen recipe
 
+> **Note (repo split).** The CFD harness itself — the `fingen.cfd` package and the
+> solver/mesh driver scripts referenced throughout this document
+> (`scripts/tmr_flatplate.py`, `sk81_naca0012.py`, `zarruk_polar.py`, `bw04_*.py`,
+> `falk_thruster.py`, and the rest) — now lives in a **separate private compute
+> repo**. This public repository retains the validation *findings* recorded here
+> and the benchmark data under `bench/`; the script paths named below are
+> historical pointers into that private repo, not files in this tree.
+
 Status 2026-07-25. The bench measures single blades in deep-submergence
 steady RANS (simpleFoam, k-ω SST, wall functions) with the board idealized
 as a symmetry plane at the fin base — mirroring the [BW04] tunnel-wall

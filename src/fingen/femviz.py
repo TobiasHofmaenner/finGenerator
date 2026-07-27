@@ -24,7 +24,7 @@ import numpy as np
 
 from fingen.sizing import _MATERIAL_ALLOW_MPA
 
-# T-FINS dark instrument palette (shared look with fingen.cfd.viz).
+# T-FINS dark instrument palette (shared instrument look across the viz modules).
 _BG = "#0b0e11"
 _TEXT = "#e8e8e8"
 _MUTED = "#8f8f8f"

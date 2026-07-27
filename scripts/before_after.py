@@ -16,7 +16,7 @@ Renders ONE combined dark-style sheet (~2200x2800), one row per rider, three
 panels: an outline overlay (before grey / after cyan), a spider radar
 (before / after / target), and a monospace numbers panel. Also drops a per-rider
 result JSON next to the PNG (`<stem>-<n>.json`) via `write_result_json` for the
-CFD verification stage (scripts/verify_candidate.py).
+CFD verification stage (maintained in a separate private repo).
 
 The predictions are tier-0 analytic; winners are verified by CFD on demand.
 """
