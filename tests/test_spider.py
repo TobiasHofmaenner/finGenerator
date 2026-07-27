@@ -2,6 +2,13 @@
 
 import pytest
 
+from fingen.params import (
+    FinParams,
+    FoilFamily,
+    FoilParams,
+    OutlineParams,
+)
+from fingen.roll import roll_report
 from fingen.spider import (
     AXES,
     HOLD_R_REF,
@@ -9,9 +16,14 @@ from fingen.spider import (
     WORK_FORCE_N,
     hold_score,
     normalized_scores,
+    raw_scores,
     reference_fleet,
     work_force_n,
 )
+
+# Independent literal for the audit-calibrated finite-span factor (NOT imported
+# from roll.KAPPA_FS): the corrected roll damping is 0.73× the bare strip value.
+KAPPA_LITERAL = 0.73
 
 
 def test_fleet_scores_match_surf_intuition():
@@ -64,3 +76,39 @@ def test_doubled_requirement_halves_r():
     # hold_score(f/2, fr) (both sides have the same r).
     for f, fr in ((130.0, 100.0), (240.0, 90.0), (55.0, 70.0)):
         assert hold_score(f, 2.0 * fr) == pytest.approx(hold_score(f / 2.0, fr))
+
+
+def test_stability_axis_present_and_kappa_corrected():
+    # The seventh axis. Its raw metric is the blade's KAPPA_FS-CORRECTED roll
+    # damping |L_p| (fingen.roll at the scoring speed), appended LAST so the
+    # first six axes keep their radar positions.
+    assert AXES == ("speed", "drive", "hold", "pivot", "release", "forgiveness",
+                    "stability")
+    speed = 6.4
+    fin = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
+    rep = roll_report(fin, speed)
+    raw = raw_scores(fin, speed)
+    assert "stability" in raw
+    # Mutation guard "KAPPA path bypassed in the fleet roll values": the raw metric
+    # must be the CORRECTED damping, which is 0.73× the bare strip magnitude — NOT
+    # l_p_strip. Swapping in l_p_strip fails the first equality; the second shows
+    # the two genuinely differ (kappa really is applied).
+    assert raw["stability"] == pytest.approx(rep.roll_damping_nm_s, rel=1e-12)
+    assert rep.roll_damping_nm_s == pytest.approx(KAPPA_LITERAL * abs(rep.l_p_strip),
+                                                  rel=1e-9)
+    assert raw["stability"] != pytest.approx(abs(rep.l_p_strip), rel=1e-3)
+
+
+def test_stability_is_fleet_ranked_and_monotone():
+    # Fleet-ranked in [0, 100] like the other non-hold axes; strictly monotone in
+    # |L_p|, so a deep, planted blade out-ranks a shallow, agile side fin.
+    deep = FinParams(outline=OutlineParams(depth=240, base=160, sweep=45,
+                                           tip_width_ratio=0.28),
+                     foil=FoilParams(family=FoilFamily.SYMMETRIC))
+    shallow = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
+    sd = normalized_scores(deep)
+    ss = normalized_scores(shallow)
+    for s in (sd, ss):
+        assert set(s) == set(AXES)
+        assert 0.0 <= s["stability"] <= 100.0
+    assert sd["stability"] > ss["stability"]

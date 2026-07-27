@@ -79,6 +79,91 @@ _MATERIAL_ALLOW_MPA = {"pet-cf": 109.3 * 0.5 / 2.0, "paht-cf": 125.0 * 0.5 / 2.0
 # consistent with the measured tip-first loading fin [BW04].
 CP_SPAN_FRACTION = 0.45
 
+# Tab-neck stress-concentration factor at the tab-to-blade fillet junction.
+# 2.5 is a representative filleted-shoulder value from the stress-concentration
+# charts [Roa01] (the Peterson family): printed tabs carry a small root radius,
+# so tier-0 takes the mid filleted value rather than a sharp-corner K_t of 3+
+# or the unity of a generous radius. Calibration target for the load-cell rig.
+KT_TAB = 2.5
+# Structural tab geometry (mm), transcribed from docs/TAB-SYSTEMS.md and the
+# nominal constants fingen.tabs lofts (_DUAL_DEPTH / _CLICK_DEPTH = 14 mm,
+# _SINGLE_DEPTH_SIDE = 17.5 mm). Each entry: (insertion depth below the base
+# plane, per-tab fused neck lengths). The blade root SIDE-BENDING moment is
+# reacted PER TAB as a bearing couple over the insertion DEPTH (see
+# tab_neck_stress_mpa for the free-body); the root shear splits over the tabs;
+# the shortest-neck tab sets the stress. Tier-0 — the exact box-engagement
+# reaction (clamp screw preload, sidewall friction, base bearing) is a
+# bench/tier-1 refinement. The fin's TabParams do NOT parameterize these
+# (x_offset only slides the set; fit_offset/tab_depth change thickness/insertion,
+# not the neck couple), so the nominal geometry is used; the blade thickness at
+# the base IS fin-specific.
+#   DUAL_TAB : two 20 mm tabs, 14 mm insertion depth [FCS-compatible].
+#   CLICK_TAB: 45 + 33 mm tabs, 14 mm insertion depth [FCS II].
+# SINGLE_TAB is handled in the function (its length tracks the base; the Futures
+# 3/4" side-box channel is _SINGLE_TAB_DEPTH deep).
+_TAB_NECK_GEOM = {
+    TabSystem.DUAL_TAB: (14.0, (20.0, 20.0)),
+    TabSystem.CLICK_TAB: (14.0, (45.0, 33.0)),
+}
+_SINGLE_TAB_DEPTH = 17.5
+
+
+def tab_neck_stress_mpa(fin: FinParams, moment_nm: float, shear_n: float
+                        ) -> float | None:
+    """Peak tab-neck stress (MPa) under a root bending `moment_nm` and root
+    `shear_n`, or None when the fin carries no tabs (TabSystem.NONE / glass-on
+    — the gate is then inactive). The worst (highest-stress) tab is returned
+    (docs/TAB-SYSTEMS.md; [Roa01]).
+
+    REACTION MODEL (corrected in the bundle-2 physics pass). The root load is a
+    SIDE-BENDING moment about the CHORDWISE (fore-aft) axis plus a lateral shear.
+    A moment about the fore-aft axis is reacted by forces separated in the
+    SPANWISE direction — i.e. over the tab's INSERTION DEPTH into the box — NOT
+    by the tabs' chordwise spacing. (A lateral-force couple separated chordwise
+    reacts YAW/torsion about the spanwise axis, a different load; flex.py exports
+    no torsion moment to this gate — FlexReport carries only the bending moment
+    and shear — so the chordwise spacing lever is dropped entirely here.)
+
+    Bearing-couple lever = (2/3)·depth. Free-body: treat each rigid tab as
+    rotating with the base about the base plane; the tab tip interferes with the
+    slot wall by an amount growing linearly with depth, so the bearing pressure
+    is TRIANGULAR — zero at the base plane, peak at the tab tip. Its resultant
+    R acts at the centroid of that triangle, 2/3 of the depth below the base
+    plane, and forms a couple with the counter-bearing at the base-plane edge:
+        M_tab = R · (2/3)·d   =>   R = M_tab / ((2/3)·d).
+    The side-bending moment is shared EQUALLY across the (equal-depth) tabs, so
+    M_tab = moment_nm / n_tabs (a conservative tier-0 split for the shortest
+    tab: a stiffness-proportional split would give the shorter neck a smaller
+    share — a tier-1 refinement). The shear splits equally too. Each tab's fused
+    neck (chordwise length × blade thickness at the base) carries R_couple +
+    R_shear, and the fillet factor KT_TAB amplifies it.
+    """
+    system = fin.tabs.system
+    if system is TabSystem.NONE:
+        return None
+    # Blade thickness at the base station = t/c · base (the tab's actual fused
+    # thickness envelope; foil truncation is a sub-mm second order here).
+    t_base_m = fin.foil.thickness_ratio * fin.outline.base * 1e-3
+    if system is TabSystem.SINGLE_TAB:
+        # Futures-style full-base tab: one neck whose chordwise length tracks the
+        # base; the side-bending moment is reacted over the box channel depth.
+        length_mm = min(fin.outline.base - 12.0, 110.0)
+        depth_mm = _SINGLE_TAB_DEPTH
+        necks_m = (length_mm * 1e-3,)
+    else:
+        depth_mm, necks_mm = _TAB_NECK_GEOM[system]
+        necks_m = tuple(n * 1e-3 for n in necks_mm)
+    n_tabs = len(necks_m)
+    lever_m = (2.0 / 3.0) * depth_mm * 1e-3  # triangular-bearing effective lever
+    r_couple = (moment_nm / n_tabs) / max(lever_m, 1e-6)  # per-tab couple (N)
+    r_shear = shear_n / n_tabs  # shear share per tab (N)
+    peak = 0.0
+    for neck_m in necks_m:
+        area = neck_m * t_base_m  # fused neck footprint (m²)
+        sigma = KT_TAB * (r_couple + r_shear) / max(area, 1e-12) / 1e6
+        peak = max(peak, sigma)
+    return peak
+
 
 class Skill(Enum):
     """Turn intensity via design bank angle; durations per [ShormISEA20]."""

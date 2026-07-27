@@ -51,7 +51,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from fingen.foil import section_points
-from fingen.hydro import RHO_SEAWATER, lift_curve_slope
+from fingen.hydro import RHO_SEAWATER, lift_curve_slope, stall_alpha_deg
 from fingen.loft import _groove_thins, _thickness_at, groove_station_z
 from fingen.materials import get_card
 from fingen.outline import chord_schedule
@@ -128,6 +128,14 @@ class FlexReport:
     torsion); negative = washout. lift_knockdown is ΔCL/CL from that
     washout, closed with the hydro lift slope — negative = lift lost.
     stress_groove_mpa is None when the fin has no grooves.
+
+    Roll-augmented case (#23): stress_max_roll_mpa is the worst-station bending
+    stress under the STEADY peak load PLUS the roll-transient increment (a roll
+    rate p_design adds Δα(z) = p·z/U, clipped at the section stall — see
+    flex_solve). It equals stress_max_mpa when no roll rate is supplied. The
+    gate takes the WORSE of the two (stress_margin vs stress_margin_roll).
+    root_moment_roll_nm / root_shear_roll_n are the combined-case root bending
+    moment and shear (the reactions the tab gate resolves, fingen.sizing).
     """
 
     z_mm: np.ndarray
@@ -144,11 +152,20 @@ class FlexReport:
     z_stress_max_mm: float  # station of the critical bending section
     stress_groove_mpa: float | None
     allow_mpa: float
+    stress_max_roll_mpa: float  # worst-station stress, steady+roll-transient (#23)
+    root_moment_roll_nm: float  # combined-case root bending moment (tab gate)
+    root_shear_roll_n: float  # combined-case root shear / total side force (tab gate)
 
     @property
     def stress_margin(self) -> float:
         """Allowable / worst-station bending stress (< 1 means overstressed)."""
         return self.allow_mpa / max(self.stress_max_mpa, 1e-12)
+
+    @property
+    def stress_margin_roll(self) -> float:
+        """Allowable / worst-station stress under the steady+roll-transient case
+        (#23). Equals stress_margin when no roll rate was supplied."""
+        return self.allow_mpa / max(self.stress_max_roll_mpa, 1e-12)
 
 
 def _cumtrapz(y: np.ndarray, x: np.ndarray) -> np.ndarray:
@@ -163,7 +180,9 @@ def flex_solve(z_mm: np.ndarray, chord_mm: np.ndarray, x_le_mm: np.ndarray,
                load: Callable[[np.ndarray], np.ndarray] | None = None,
                rho_struct: float = RHO_PRINT, rho_fluid: float = RHO_SEAWATER,
                allow_mpa: float = _MATERIAL_ALLOW_MPA["pet-cf"],
-               groove_band_mm: tuple[float, float] | None = None) -> FlexReport:
+               groove_band_mm: tuple[float, float] | None = None,
+               p_design_rad_s: float = 0.0,
+               stall_alpha_rad: float = math.inf) -> FlexReport:
     """Core solve on station arrays (root at z_mm[0], free tip at z_mm[-1]).
 
     sections are (upper, lower) polygons per station in local mm (the
@@ -172,6 +191,14 @@ def flex_solve(z_mm: np.ndarray, chord_mm: np.ndarray, x_le_mm: np.ndarray,
     force_n); the default w ∝ c(z) is the uniform-CL assumption. lift_slope
     is the 3D dCL/dα per radian (hydro's DATCOM value) used for the washout
     knockdown and the divergence strip estimate.
+
+    Roll-augmented stress (#23): a roll rate p_design_rad_s adds the spanwise
+    incidence Δα(z) = p·z/U — the same rolling kinematics fingen.roll damps —
+    which loads the outer span harder in a rail-to-rail transient. Each section
+    is clipped at stall_alpha_rad (its stall break), so a station already near
+    stall takes no extra load. The extra distributed load q·c·a·Δα_eff is added
+    on top of the steady distribution and a second bending pass gives
+    stress_max_roll_mpa; p_design_rad_s = 0 reproduces the steady case exactly.
     """
     z_mm = np.asarray(z_mm, dtype=float)
     chord_mm = np.asarray(chord_mm, dtype=float)
@@ -267,6 +294,27 @@ def flex_solve(z_mm: np.ndarray, chord_mm: np.ndarray, x_le_mm: np.ndarray,
         in_band = (z_mm >= groove_band_mm[0]) & (z_mm <= groove_band_mm[1])
         groove_mpa = float(np.max(sigma_mpa[in_band])) if np.any(in_band) else 0.0
 
+    # Roll-augmented case (#23): a rail-to-rail roll rate p_design adds the
+    # spanwise incidence Δα(z) = p·z/U (the same rolling kinematics fingen.roll
+    # damps) on top of the steady peak distribution. Δα is capped at the section
+    # stall angle stall_alpha_rad: a strip cannot make more than its stall-limited
+    # extra lift from the roll sweep. (The clip is against the section stall
+    # rather than the headroom above the steady peak, because that "peak" is a
+    # transient STRUCTURAL fiction — CL well past attached flow, sizing.py — so
+    # the roll increment is bounded by the strip's own stall-limited lift.) The
+    # extra load q·c·a·Δα_eff biases toward the tip and raises the root moment;
+    # p_design = 0 leaves w unchanged, so the combined case reproduces the steady
+    # case bit-for-bit.
+    if p_design_rad_s > 0.0:
+        dalpha_roll = p_design_rad_s * z / speed  # Δα(z) = p·z/U
+        dalpha_eff = np.minimum(dalpha_roll, stall_alpha_rad)
+        w_roll = w + q * chord * lift_slope * dalpha_eff
+    else:
+        w_roll = w
+    v_roll = float(np.trapezoid(w_roll, z)) - _cumtrapz(w_roll, z)
+    moment_roll = float(np.trapezoid(v_roll, z)) - _cumtrapz(v_roll, z)
+    sigma_roll_mpa = moment_roll * y_max / np.maximum(i_m4, 1e-18) / 1e6
+
     return FlexReport(
         z_mm=z_mm,
         deflection_mm=delta * 1e3,
@@ -282,11 +330,15 @@ def flex_solve(z_mm: np.ndarray, chord_mm: np.ndarray, x_le_mm: np.ndarray,
         z_stress_max_mm=float(z_mm[i_max]),
         stress_groove_mpa=groove_mpa,
         allow_mpa=allow_mpa,
+        stress_max_roll_mpa=float(np.max(sigma_roll_mpa)),
+        root_moment_roll_nm=float(moment_roll[0]),
+        root_shear_roll_n=float(v_roll[0]),
     )
 
 
 def flex_report(fin: FinParams, force_n: float, speed: float,
-                material: str = "pet-cf", e_mpa: float | None = None) -> FlexReport:
+                material: str = "pet-cf", e_mpa: float | None = None,
+                p_design_rad_s: float = 0.0) -> FlexReport:
     """Tier-0 flex of a fingen blade under force_n at boat-speed `speed` [m/s].
 
     Stations come from the outline's chord schedule with the groove stations
@@ -294,6 +346,8 @@ def flex_report(fin: FinParams, force_n: float, speed: float,
     loft's spanwise thickness schedule and groove thinning — a grooved fin
     automatically gets its softened band and its groove-band stress check.
     e_mpa overrides the placeholder modulus (see the module CALIBRATION NOTE).
+    p_design_rad_s adds the roll-transient stress case (#23): the section stall
+    clip comes from the fin's own effective AR (hydro.stall_alpha_deg).
     """
     if material not in _MATERIAL_ALLOW_MPA:
         raise ValueError(f"material {material!r} not in {sorted(_MATERIAL_ALLOW_MPA)}")
@@ -310,7 +364,8 @@ def flex_report(fin: FinParams, force_n: float, speed: float,
                                        thickness_ratio=_thickness_at(fin, st.z),
                                        n_points=settings.n_foil_points,
                                        thin_outer=thin_outer, thin_inner=thin_inner))
-    slope, _ = lift_curve_slope(fin)
+    slope, ar_eff = lift_curve_slope(fin)
+    stall_rad = math.radians(stall_alpha_deg(ar_eff))
     band = None
     if fin.grooves.count:
         g = fin.grooves
@@ -320,4 +375,5 @@ def flex_report(fin: FinParams, force_n: float, speed: float,
                       np.array([st.chord for st in stations]),
                       np.array([st.x_le for st in stations]),
                       sections, e, force_n, speed, slope,
-                      allow_mpa=_MATERIAL_ALLOW_MPA[material], groove_band_mm=band)
+                      allow_mpa=_MATERIAL_ALLOW_MPA[material], groove_band_mm=band,
+                      p_design_rad_s=p_design_rad_s, stall_alpha_rad=stall_rad)

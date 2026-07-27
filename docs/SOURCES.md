@@ -373,8 +373,12 @@ Euler–Bernoulli bending: σ = My/I, tapered cantilever deflection by integrati
 
 ### [Roa01] Young & Budynas (2001) — Roark's Formulas for Stress and Strain, 7th ed.
 *McGraw-Hill, ISBN 9780071501811.* [Google Books record](https://books.google.com/books/about/Roark_s_Formulas_for_Stress_and_Strain.html?id=pummClLoFXEC)
-Tabulated cantilever and tapered-beam formulas.
-**Cited for:** closed-form cross-checks of the numerical structural model.
+Tabulated cantilever and tapered-beam formulas; also the standard
+stress-concentration-factor (K_t) charts for filleted shoulders and steps
+(the Peterson family).
+**Cited for:** closed-form cross-checks of the numerical structural model, and
+the tab-neck fillet stress-concentration factor `KT_TAB = 2.5` in the tier-0
+tab-mounting gate (fingen.sizing) — a representative mid filleted-shoulder value.
 
 ### [BAH96] Bisplinghoff, Ashley & Halfman (1955/1996) — Aeroelasticity
 *Addison-Wesley 1955; corrected Dover republication 1996, 880 pp., ISBN 978-0-486-69189-3.*

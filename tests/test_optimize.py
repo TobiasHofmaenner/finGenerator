@@ -31,6 +31,8 @@ from fingen.params import (
     FoilParams,
     GenSettings,
     OutlineParams,
+    TabParams,
+    TabSystem,
 )
 from fingen.sizing import Skill
 from fingen.spider import AXES
@@ -104,7 +106,11 @@ def test_micro_optimization_improves_and_builds():
     rider = RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE, config=FinConfig.THRUSTER)
     default_obj = evaluate(_side_default(), rider).objective
 
-    result = optimize(rider, budget_evals=150, seed=0)
+    # Budget 400: the seven-axis objective (the stability/roll axis was added on
+    # top of the original six) makes the tuned template start a harder point to
+    # beat, so the micro-search needs a few hundred evals — not the old 150 — to
+    # clear it; at 400 it improves by a clear margin and still builds one solid.
+    result = optimize(rider, budget_evals=400, seed=0)
     assert result.result.objective < default_obj, (
         f"opt {result.result.objective:.3f} did not beat default {default_obj:.3f}")
     assert result.result.feasible
@@ -112,7 +118,7 @@ def test_micro_optimization_improves_and_builds():
     assert 0 < result.stage_boundary < len(result.history)
 
     # Deterministic under seed.
-    again = optimize(rider, budget_evals=150, seed=0)
+    again = optimize(rider, budget_evals=400, seed=0)
     assert again.result.objective == result.result.objective
     assert again.fin == result.fin
 
@@ -219,11 +225,15 @@ def test_dominant_blade_carries_no_rear_deficit():
 
 
 def test_roll_metrics_reported_but_not_in_objective(monkeypatch):
-    # Roll dynamics are REPORT-ONLY this commit: evaluate() surfaces the blade's
-    # damping/inertia/tau/agility and the set-level damping on margins, but the
-    # objective/distance/spider are untouched (the objective change is a later
-    # study-backed step). A deeper blade must read more roll damping and less
-    # agility, and the thruster set damping must exceed the lone blade's.
+    # The roll REPORT MARGINS stay report-only. evaluate() surfaces the blade's
+    # damping/inertia/tau/agility and the set-level damping on margins via
+    # opt.roll_report/opt.roll_set_report; those numbers must NOT feed the
+    # objective. (This is DISTINCT from the stability spider axis, which enters
+    # the objective through spider.raw_scores -> spider.roll_report — a separate
+    # import path this patch deliberately does not touch; the stability axis is
+    # pinned separately in test_stability_axis_*.) A deeper blade must read more
+    # roll damping and less agility, and the thruster set damps more than the
+    # lone blade.
     import dataclasses
 
     import fingen.optimize as opt
@@ -245,11 +255,13 @@ def test_roll_metrics_reported_but_not_in_objective(monkeypatch):
     assert res_deep.margins["roll_agility"] < res.margins["roll_agility"]
 
     # The report-must-not-leak pin. Patch the roll reports evaluate() consumes
-    # (at their point of use in fingen.optimize) so the damping/inertia they hand
-    # back are scaled by a huge factor. If ANY roll quantity — however small its
-    # coefficient — leaked into the objective, that ×137 swing would move the
-    # scored outputs. They must stay BITWISE identical while the roll MARGINS
-    # move by exactly the injected factor.
+    # for its MARGINS (opt.roll_report/opt.roll_set_report) so the damping/inertia
+    # they hand back are scaled by a huge factor. If any of those REPORT numbers
+    # leaked into the objective, that ×137 swing would move the scored outputs.
+    # They must stay BITWISE identical while the roll MARGINS move by exactly the
+    # injected factor. (The stability axis rides spider.roll_report, untouched
+    # here, so the objective legitimately still depends on roll through THAT path
+    # — see test_stability_axis_in_objective.)
     K = 137.0
     real_report = opt.roll_report
     real_set = opt.roll_set_report
@@ -411,6 +423,111 @@ def test_evaluate_scores_track_rider_weight_not_wref():
         raw45, opt._fleet_raw(6.4, 45.0))["forgiveness"]
     assert expected_forgiveness > 55.0          # the real value, not the ~0 floor
     assert res_l["forgiveness"] == pytest.approx(expected_forgiveness)
+
+
+def test_stability_axis_in_objective():
+    # (A) The stability (roll) axis is SCORED, not report-only: moving only its
+    # target changes the weighted quadratic distance. Mutation guard "stability
+    # axis dropped from distance" (or from AXES): the objective would then be
+    # indifferent to the stability target.
+    fin = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
+    low = RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE, config=FinConfig.THRUSTER,
+                    spider_targets={"stability": 0.10})
+    high = RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE, config=FinConfig.THRUSTER,
+                     spider_targets={"stability": 0.90})
+    r_low = evaluate(fin, low)
+    r_high = evaluate(fin, high)
+    assert "stability" in r_low.spider_predicted
+    assert 0.0 <= r_low.spider_predicted["stability"] <= 100.0
+    # Same fin, same everything but the stability target -> different distance.
+    assert r_low.distance != pytest.approx(r_high.distance)
+    assert r_low.objective != pytest.approx(r_high.objective)
+
+
+def test_stability_target_varies_with_skill_and_weight():
+    # Mutation guard "stability target map returning constant" AND the Finding-2
+    # middle-tier permutation: the INTERMEDIATE↔ADVANCED base swap (0.55↔0.45)
+    # survived the old test because its only skill check was CRUISER vs PRO and
+    # its heavy/light pair shared — and thus cancelled — the INTERMEDIATE base.
+    # Pin STRICT MONOTONICITY across ALL FOUR skill bases at W_REF (77.5 kg, where
+    # the weight term is exactly 0) to hand-computed literals carried through the
+    # damping/clip pipeline  0.5 + 0.72·(base − 0.5), clipped to [0.12, 0.85]:
+    #   CRUISER 0.70 → 0.644   INTERMEDIATE 0.55 → 0.536
+    #   ADVANCED 0.45 → 0.464  PRO 0.35 → 0.392
+    st = {sk: default_spider_targets(77.5, sk)["stability"]
+          for sk in (Skill.CRUISER, Skill.INTERMEDIATE, Skill.ADVANCED, Skill.PRO)}
+    assert st[Skill.CRUISER] == pytest.approx(0.644, rel=1e-9)
+    assert st[Skill.INTERMEDIATE] == pytest.approx(0.536, rel=1e-9)
+    assert st[Skill.ADVANCED] == pytest.approx(0.464, rel=1e-9)
+    assert st[Skill.PRO] == pytest.approx(0.392, rel=1e-9)
+    # Strict monotone CRUISER > INTERMEDIATE > ADVANCED > PRO — an INTERMEDIATE↔
+    # ADVANCED base swap breaks both the middle literals and this ordering.
+    assert (st[Skill.CRUISER] > st[Skill.INTERMEDIATE] > st[Skill.ADVANCED]
+            > st[Skill.PRO])
+    # The named anchor the finding calls out, pinned on its own line, through the
+    # full damping/clip pipeline.
+    assert default_spider_targets(77.5, Skill.ADVANCED)["stability"] == pytest.approx(
+        0.464, rel=1e-9)
+    # Weight: at fixed skill a heavier rider wants more damping (control-torque
+    # scaling) — the original directional check, retained.
+    light = default_spider_targets(45.0, Skill.INTERMEDIATE)["stability"]
+    heavy = default_spider_targets(110.0, Skill.INTERMEDIATE)["stability"]
+    assert heavy > light + 0.10
+
+
+def test_p_design_map_varies_by_skill():
+    # (B) Mutation guard "p_design map collapsed to one value": the four skill
+    # tiers carry four distinct roll rates, pinned to independent literals.
+    from fingen.optimize import _P_DESIGN_RAD_S
+    vals = [_P_DESIGN_RAD_S[s] for s in
+            (Skill.CRUISER, Skill.INTERMEDIATE, Skill.ADVANCED, Skill.PRO)]
+    assert vals == [2.5, 4.0, 6.0, 8.0]
+    assert len(set(vals)) == 4
+
+
+def test_roll_augmented_stress_gate_uses_worse_case():
+    # (B) evaluate() reports BOTH stress margins and gates on the WORSE. A deep
+    # blade under a hard PRO roll rate overstresses more in the combined case, so
+    # the roll SF is the smaller one and it drives the penalty.
+    deep = FinParams(outline=OutlineParams(depth=140, base=95, sweep=33,
+                                           tip_width_ratio=0.35),
+                     foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
+    rider = RiderSpec(weight_kg=95.0, skill=Skill.PRO, config=FinConfig.THRUSTER)
+    r = evaluate(deep, rider)
+    assert "stress_sf" in r.margins and "stress_sf_roll" in r.margins
+    assert r.margins["stress_sf_roll"] < r.margins["stress_sf"]  # roll adds tip load
+    worst = min(r.margins["stress_sf"], r.margins["stress_sf_roll"])
+    assert worst < 1.0  # this blade is overstressed
+    # Mutation guard "gate uses steady only": the penalty must come from the
+    # WORSE (roll) margin, not the steady one.
+    assert r.penalties["stress"] == pytest.approx(1.0 - worst)
+    assert r.penalties["stress"] != pytest.approx(1.0 - r.margins["stress_sf"])
+
+
+def test_tab_sf_gate_active_inactive_and_grades():
+    # (C) Glass-on blade (TabSystem.NONE, what the optimizer decodes today):
+    # gate inactive, tab_sf = inf, no penalty.
+    import math as _m
+    rider = RiderSpec(weight_kg=80.0, skill=Skill.ADVANCED, config=FinConfig.THRUSTER)
+    glass = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
+    r = evaluate(glass, rider)
+    assert r.margins["tab_sf"] == _m.inf
+    assert "tab_sf" not in r.penalties
+    # The SAME blade with tabs activates the gate (finite, positive SF).
+    tabbed = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
+                       tabs=TabParams(system=TabSystem.DUAL_TAB))
+    rt = evaluate(tabbed, rider)
+    assert _m.isfinite(rt.margins["tab_sf"]) and rt.margins["tab_sf"] > 0.0
+    assert "tab_sf" not in rt.penalties  # a normal side fin's tabs are fine
+    # A small-base thin dual-tab under a heavy pro trips the gate -> graded penalty.
+    trip = FinParams(outline=OutlineParams(depth=135, base=70, sweep=33,
+                                           tip_width_ratio=0.35),
+                     foil=FoilParams(family=FoilFamily.FLAT_INSIDE, thickness_ratio=0.05),
+                     tabs=TabParams(system=TabSystem.DUAL_TAB))
+    rp = evaluate(trip, RiderSpec(weight_kg=105.0, skill=Skill.PRO,
+                                  config=FinConfig.THRUSTER))
+    assert rp.margins["tab_sf"] < 1.0
+    assert rp.penalties["tab_sf"] == pytest.approx(1.0 - rp.margins["tab_sf"])
 
 
 def test_normalize_stable_at_tied_fleet_values():

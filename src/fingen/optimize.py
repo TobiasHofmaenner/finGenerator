@@ -66,6 +66,7 @@ from fingen.sizing import (
     anchor,
     check_anchor,
     required_side_force_n,
+    tab_neck_stress_mpa,
 )
 
 # --- objective tuning constants ---------------------------------------------
@@ -109,6 +110,27 @@ _SKILL_SPEED_MS = {
     Skill.PRO: 8.5,
 }
 
+# Design roll rate per skill (rad/s) for the roll-augmented stress case (#23):
+# a rail-to-rail (90° = π/2 rad) reversal in 0.63/0.39/0.26/0.20 s → p ≈
+# 2.5/4.0/6.0/8.0 rad/s. Documented engineering estimates of how hard each skill
+# tier throws the board; a bench/IMU study calibrates them later.
+_P_DESIGN_RAD_S = {
+    Skill.CRUISER: 2.5,
+    Skill.INTERMEDIATE: 4.0,
+    Skill.ADVANCED: 6.0,
+    Skill.PRO: 8.0,
+}
+
+# Stability (roll-damping) target base per skill — a provisional PERCEPTUAL
+# prior (the Bali cohort calibrates it): cruisers want a planted, damped blade
+# (high), pros a loose/agile one (low). High = damped/locked-in, low = agile.
+_STABILITY_SKILL_BASE = {
+    Skill.CRUISER: 0.70,
+    Skill.INTERMEDIATE: 0.55,
+    Skill.ADVANCED: 0.45,
+    Skill.PRO: 0.35,
+}
+
 
 def _skill_norm(skill: Skill) -> float:
     """Skill on 0..1 from its design bank angle (CRUISER 0 … PRO 1)."""
@@ -137,6 +159,12 @@ def default_spider_targets(weight_kg: float, skill: Skill) -> dict[str, float]:
         pivot       0.60 − 0.30·s − 0.10·w    tight pivot favours light/casual
         release     0.35 + 0.40·s             drawn-out release is an advanced want
         forgiveness 0.75 − 0.55·s − 0.10·w    beginners need it; pros trade it away
+        stability   base(skill) + 0.10·(m−77.5)/32.5  planted vs agile roll feel
+
+    The stability base is a per-skill PERCEPTUAL prior (CRUISER 0.70 planted …
+    PRO 0.35 agile, `_STABILITY_SKILL_BASE`, Bali-cohort-calibrated later); the
+    weight term is control-torque scaling — a heavier rider needs more roll
+    damping for the same feel, +0.10 at 110 kg, −0.10 at 45 kg about W_REF 77.5.
 
     Clipped to [0.05, 0.95] so no axis is an unreachable 0 or 1.
     """
@@ -149,6 +177,7 @@ def default_spider_targets(weight_kg: float, skill: Skill) -> dict[str, float]:
         "pivot": 0.60 - 0.30 * s - 0.10 * w,
         "release": 0.35 + 0.40 * s,
         "forgiveness": 0.75 - 0.55 * s - 0.10 * w,
+        "stability": _STABILITY_SKILL_BASE[skill] + 0.10 * (weight_kg - 77.5) / 32.5,
     }
     # Damp toward the achievable envelope: undamped heavy/aggressive profiles
     # demand hold+drive+speed simultaneously (physically antagonistic), which
@@ -380,27 +409,45 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
             penalties["ar_high"] = (ar_geo - AR_GEO_MAX) / AR_GEO_MAX
 
     # Structural gates: stress at the transient PEAK load, washout/frequency at
-    # the working speed (the knockdown is load-independent — see flex.py).
-    flex = flex_report(fin, sheet.force_peak_n, speed, material=rider.material)
+    # the working speed (the knockdown is load-independent — see flex.py). The
+    # roll-augmented case (#23) adds the rider's skill-scaled roll rate on top of
+    # the steady peak; the gate takes the WORSE of steady-only and combined.
+    flex = flex_report(fin, sheet.force_peak_n, speed, material=rider.material,
+                       p_design_rad_s=_P_DESIGN_RAD_S[rider.skill])
     stress_sf = flex.stress_margin
-    if stress_sf < 1.0:
-        penalties["stress"] = 1.0 - stress_sf
+    stress_sf_roll = flex.stress_margin_roll
+    worst_stress_sf = min(stress_sf, stress_sf_roll)
+    if worst_stress_sf < 1.0:
+        penalties["stress"] = 1.0 - worst_stress_sf
     if flex.f_wet_hz < F_WET_MIN_HZ:
         penalties["f_wet"] = (F_WET_MIN_HZ - flex.f_wet_hz) / F_WET_MIN_HZ
     div_req = DIVERGENCE_SF * speed
     if flex.divergence_speed_ms < div_req:
         penalties["divergence"] = (div_req - flex.divergence_speed_ms) / div_req
 
+    # Tab-mounting gate (#24): resolve the combined-case root moment + shear into
+    # per-tab neck reactions (fingen.sizing.tab_neck_stress_mpa), against the SAME
+    # material allowable the blade gate uses. Inactive (tab_sf = ∞, no penalty)
+    # for glass-on / TabSystem.NONE fins — including every blade the optimizer
+    # decodes today, which carries no tab system.
+    tab_stress = tab_neck_stress_mpa(fin, flex.root_moment_roll_nm,
+                                     flex.root_shear_roll_n)
+    tab_sf = math.inf if tab_stress is None else sheet.allow_mpa / max(tab_stress, 1e-12)
+    if tab_sf < 1.0:
+        penalties["tab_sf"] = 1.0 - tab_sf
+
     penalty_sum = float(sum(penalties.values()))
     feasible = penalty_sum <= 1e-9
 
-    # Tier-0 roll dynamics (fingen.roll) — REPORT-ONLY this commit. The blade's
-    # own roll damping/inertia/agility plus the set-level damping it lives in
-    # (default placements). This is the physics that will eventually price fin
-    # depth directly; wiring it into the OBJECTIVE (a roll-agility axis feeding
-    # pivot/forgiveness) is deferred to its own study-backed step, and the
-    # practical DEPTH CORRIDOR above stays a hard-ish gate until those reruns
-    # confirm roll pricing holds up — so the corridor is NOT demoted here.
+    # Tier-0 roll dynamics (fingen.roll). Roll damping NOW prices into the
+    # objective through the `stability` spider axis (below, via spider.raw_scores
+    # → the CORRECTED |L_p|). These blocks compute the REPORT-ONLY roll margins:
+    # the blade's own damping/inertia/agility and the set-level damping it lives
+    # in (default placements) — surfaced for the card/JSON but NOT summed into
+    # the objective (the stability axis is the only roll term that scores).
+    # ROLL INERTIA stays report-only, never an axis. The practical DEPTH CORRIDOR
+    # above stays a hard-ish gate until the study rerun confirms roll pricing —
+    # so the corridor is NOT demoted here.
     roll = roll_report(fin, speed)
     roll_set = roll_set_report(_roll_context(fin, rider.config), speed)
 
@@ -442,6 +489,8 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
     objective = distance + PENALTY_WEIGHT * penalty_sum
     margins = {
         "stress_sf": stress_sf,
+        "stress_sf_roll": stress_sf_roll,
+        "tab_sf": tab_sf,
         "f_wet_hz": flex.f_wet_hz,
         "divergence_ms": flex.divergence_speed_ms,
         "area_mm2": area,
@@ -453,9 +502,10 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
         "washout_pct": 100.0 * flex.lift_knockdown,
         "env_factor": 1.0,  # dominant blade: no measured in-set knockdown
         "tip_deflection_mm": flex.tip_deflection_mm,
-        # Roll dynamics (report-only, not in the objective): blade damping |L_p|
-        # and added inertia, the fin-only roll time constant, the rail-to-rail
-        # agility proxy (1/|L_p|, higher = looser), and the set-level damping.
+        # Roll dynamics (report-only margins — the scoring |L_p| rides the
+        # stability axis via spider.raw_scores): blade damping |L_p| and added
+        # inertia, the fin-only roll time constant, the rail-to-rail agility
+        # proxy (1/|L_p|, higher = looser), and the set-level damping.
         "roll_damping_nm_s": roll.roll_damping_nm_s,
         "roll_inertia_kgm2": roll.added_inertia_kgm2,
         "roll_tau_ms": roll.tau_ms,
@@ -465,6 +515,12 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
     issues = check_anchor(fin, sheet)
     if stress_sf < 1.0:
         issues.append(f"flex bending SF {stress_sf:.2f} < 1.0 at the peak load")
+    if stress_sf_roll < 1.0:
+        issues.append(f"roll-augmented bending SF {stress_sf_roll:.2f} < 1.0 "
+                      f"(p_design {_P_DESIGN_RAD_S[rider.skill]:.1f} rad/s)")
+    if tab_sf < 1.0:
+        issues.append(f"tab-neck SF {tab_sf:.2f} < 1.0 at the combined load "
+                      f"({fin.tabs.system.value})")
     if flex.f_wet_hz < F_WET_MIN_HZ:
         issues.append(f"wet fundamental {flex.f_wet_hz:.1f} Hz < {F_WET_MIN_HZ:.0f} Hz")
     if flex.divergence_speed_ms < div_req:
@@ -917,7 +973,7 @@ def _draw_numbers(ax, result: OptimizationResult) -> None:
         ("", _INK),
         (f"area {mg['area_mm2']:.0f} mm2  "
          f"[{mg['area_min_mm2']:.0f}-{mg['area_max_mm2']:.0f}]", _MUTED),
-        (f"stress SF {mg['stress_sf']:.2f}   "
+        (f"stress SF {mg['stress_sf']:.2f} (roll {mg['stress_sf_roll']:.2f})   "
          f"f_wet {mg['f_wet_hz']:.0f} Hz", _MUTED),
         (f"divergence {mg['divergence_ms']:.0f} m/s   "
          f"washout {mg['washout_pct']:+.1f}%", _MUTED),

@@ -1,6 +1,6 @@
-"""The spiderweb: six surfer-language axes summarizing a fin's tradeoffs.
+"""The spiderweb: seven surfer-language axes summarizing a fin's tradeoffs.
 
-This is the optimizer's future target and the user's mental model. Each axis
+This is the optimizer's target and the user's mental model. Each axis
 is a normalized 0–100 score derived from hidden physics metrics; today they
 are backed by the tier-0 analytic model plus two labeled geometry proxies,
 and the CFD polar card replaces the backing numbers later WITHOUT changing
@@ -15,8 +15,10 @@ Axes and their hidden metrics (at the 7 m/s reference point):
   release      PROXY: sweep + tip-unloading (elliptic deviation) — replaced
                by the post-peak lift gradient once URANS points exist
   forgiveness  degrees of margin from the working angle to the [BW04] break
+  stability    lift-based roll damping |L_p| (fingen.roll, KAPPA_FS-corrected,
+               at the rider speed) — high = damped/planted, low = agile
 
-EXTENSIVE vs INTENSIVE axes (docs/PHYSICS.md §9b). Five of the six axes are
+EXTENSIVE vs INTENSIVE axes (docs/PHYSICS.md §9b). Five of the seven axes are
 INTENSIVE — ratios (L/D, 1/stiffness, degrees of margin, shape proxies) that a
 big or a small fin can score equally, so ranking them against the fixed adult
 reference fleet is meaningful. Hold was the exception: its raw metric is
@@ -24,8 +26,16 @@ maximum side force in NEWTONS, an EXTENSIVE quantity that scales with area.
 Ranking Newtons against an adult fleet makes a light rider's weight-capped fin
 structurally unable to reach a mid score no matter its shape. Hold is therefore
 scored REQUIREMENT-RELATIVE (`hold_score`): headroom over F_req, the same force
-the sizing capacity gate demands. The other five axes stay fleet-ranked; 50
-means "mid-fleet", not an absolute grade.
+the sizing capacity gate demands.
+
+`stability` (the roll axis, added last) is EXTENSIVE-ish too — roll damping
+|L_p| ∝ S·s² grows with size — but unlike hold it IS the felt quantity relative
+to fleet norms (planted vs agile is judged against the fins people actually
+ride), and its rider dependence enters through the TARGET, not the metric: a
+heavier/less-aggressive rider WANTS more damping, but the metric of any given
+blade is rider-independent, and rank invariance means the rider's target scale
+cancels in the ranking. So stability is fleet-ranked exactly like the other
+five non-hold axes; 50 means "mid-fleet", not an absolute grade.
 """
 
 from __future__ import annotations
@@ -36,9 +46,12 @@ from pathlib import Path
 from fingen.hydro import RHO_SEAWATER, estimate, lift_curve_slope, stall_alpha_deg
 from fingen.outline import metrics, planform
 from fingen.params import FinParams, FoilFamily, FoilParams, OutlineParams
+from fingen.roll import roll_report
 from fingen.sizing import anchor, required_side_force_n
 
-AXES = ("speed", "drive", "hold", "pivot", "release", "forgiveness")
+# Order matters: "stability" is APPENDED LAST so the radar/sheet layouts of the
+# original six axes stay put and only gain a seventh vertex.
+AXES = ("speed", "drive", "hold", "pivot", "release", "forgiveness", "stability")
 REF_SPEED = 7.0
 # The DRIVE/FORGIVENESS working point is a fixed side FORCE, not a fixed CL: a
 # surfer loads the fin with the turn's force budget [Knies25], and a big keel
@@ -141,6 +154,11 @@ def raw_scores(fin: FinParams, speed: float = REF_SPEED,
     # forgiveness: margin from the working angle to the break
     alpha_work = math.degrees(cl_work / slope)
     margin = a_break - alpha_work
+    # stability: the blade's own lift-based roll damping |L_p| (fingen.roll at
+    # the rider speed), the KAPPA_FS-CORRECTED value the module reports — the
+    # felt "planted vs agile" quantity. Rider-independent metric (weight enters
+    # only the target); fleet-ranked with the other non-hold axes.
+    stability = roll_report(fin, speed).roll_damping_nm_s
 
     return {
         "speed": 1.0 / max(drag_trim, 1e-9),
@@ -149,6 +167,7 @@ def raw_scores(fin: FinParams, speed: float = REF_SPEED,
         "pivot": 1.0 / max(yaw_stiffness, 1e-9),
         "release": release,
         "forgiveness": margin,
+        "stability": stability,
     }
 
 
