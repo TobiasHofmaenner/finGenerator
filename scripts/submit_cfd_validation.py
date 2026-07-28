@@ -45,27 +45,28 @@ def main() -> None:
 
     speed = result["rider"]["speed_ms"]
     config = result["rider"]["config"]
-    # Each DESIGNED blade of the set gets its own single-fin polar. (Multi-fin
-    # setcase CFD exists but is not a worker job type yet — documented gap, so
-    # interference is not resolved here; this validates each blade's own polar
-    # against the tier-0 prediction.)
-    blades = [("side", result["fin"])]
-    if result.get("center_fin"):
-        blades.append(("center", result["center_fin"]))
+    common = {"speed": speed, "config": config, "angles": PROD_ANGLES,
+              "mesh_level": 0 if smoke else 2, "smoke": False}
+    if smoke:
+        common["end_time"] = 200
 
-    for slot, fin in blades:
-        job = {
-            "fin": fin,
-            "speed": speed,
-            "config": config,
-            "angles": PROD_ANGLES,
-            "mesh_level": 0 if smoke else 2,
-            "smoke": False,
-        }
-        if smoke:
-            job["end_time"] = 200
+    jobs: list[tuple[str, dict]] = []
+    # 1. Each DESIGNED blade on its own — validates that blade's polar against
+    #    the tier-0 prediction. Placement-independent, so always meaningful.
+    jobs.append(("side", {**common, "fin": result["fin"]}))
+    if result.get("center_fin"):
+        jobs.append(("center", {**common, "fin": result["center_fin"]}))
+    # 2. The whole placed SET — the only run that RESOLVES interference
+    #    (per-slot forces from one coupled solution). Conditioned on the
+    #    cluster geometry in fin_set: with production-default placements this
+    #    speaks about a generic thruster, not a specific board.
+    fin_set = (result.get("set") or {}).get("fin_set")
+    if fin_set and "--no-set" not in sys.argv:
+        jobs.append(("set", {**common, "fin_set": fin_set}))
+
+    for label, job in jobs:
         out = post("/jobs", job)
-        print(f"{slot:7} -> job {out['job_id']} ({out['status']})")
+        print(f"{label:7} -> job {out['job_id']} ({out['status']})")
 
 
 if __name__ == "__main__":

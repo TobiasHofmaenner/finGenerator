@@ -14,7 +14,7 @@ from pathlib import Path
 
 from fingen.optimize import RiderSpec, optimize, result_to_dict, write_result_json
 from fingen.outline import metrics
-from fingen.params import FinConfig
+from fingen.params import FinConfig, TabSystem
 from fingen.sizing import Skill
 
 BUDGET = int(sys.argv[1]) if len(sys.argv) > 1 else 60_000
@@ -26,6 +26,7 @@ RIDER = RiderSpec(
     skill=Skill.ADVANCED,
     config=FinConfig.THRUSTER,
     material="paht-cf",
+    tabs=TabSystem.CLICK_TAB,   # her board is FCS II: base >= 104 mm to mount
     spider_targets={
         "speed": 0.85,        # her explicit ask: more speed than the Palmbay S
         "drive": 0.85,        # "locked-in and drivey"
@@ -65,14 +66,18 @@ def main() -> None:
               f"{row['wall_s']:.0f}s", flush=True)
         if row["feasible"] and (best is None or set_obj < best[0]):
             best = (set_obj, r)
+            # CHECKPOINT the best-so-far after every seed. Writing only at the
+            # end means an interrupted run loses everything — which it did.
+            write_result_json(r, OUT / "fin-martina-46kg-advanced-thruster.json")
+            print(f"          ^ new best, checkpointed (seed {seed})", flush=True)
+        (OUT / "martina-multistart-ledger.json").write_text(
+            json.dumps({"budget": BUDGET, "seeds": SEEDS,
+                        "complete": len(ledger) == len(SEEDS),
+                        "runs": ledger}, indent=2) + "\n")
 
     if best is None:
         raise SystemExit("no feasible set found")
-    _, r = best
-    write_result_json(r, OUT / "fin-martina-46kg-advanced-thruster.json")
-    (OUT / "martina-multistart-ledger.json").write_text(
-        json.dumps({"budget": BUDGET, "seeds": SEEDS, "runs": ledger}, indent=2) + "\n")
-    print(f"\nBEST set_objective {best[0]:.5f} (seed {r.seed}) "
+    print(f"\nBEST set_objective {best[0]:.5f} (seed {best[1].seed}) "
           f"in {time.time() - t0:.0f}s total")
 
 

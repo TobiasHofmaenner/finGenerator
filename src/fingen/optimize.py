@@ -37,10 +37,11 @@ front fin. See `falk_rear_deficit`/`interference_factor` for the mapping.
 
 from __future__ import annotations
 
+import contextlib
 import functools
 import json
 import math
-from collections.abc import Callable
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -59,6 +60,8 @@ from fingen.params import (
     GrooveParams,
     GrooveSurface,
     OutlineParams,
+    TabParams,
+    TabSystem,
 )
 from fingen.roll import roll_report, roll_set_report
 from fingen.sizing import (
@@ -213,6 +216,12 @@ class RiderSpec:
     speed_ms: float | None = None
     config: FinConfig = FinConfig.THRUSTER
     material: str = "pet-cf"
+    # The rider's BOARD mounting system. Not cosmetic: it sets the base-chord
+    # minimum (the tab set has to fit — FCS II spans 98 mm) and activates the
+    # tab-neck stress gate. Left at NONE (glass-on) the optimizer is free to
+    # design a blade too short-based to mount, which is exactly what happened
+    # before this was threaded through.
+    tabs: TabSystem = TabSystem.NONE
     spider_targets: dict[str, float] | None = None
     practical_corridor: bool = True
 
@@ -392,6 +401,7 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     # through the same downwash (systematic oversizing).
     sheet: AnchorSheet = anchor(rider.weight_kg, rider.skill, design_speed=speed,
                                 config=rider.config, material=rider.material,
+                                tabs=rider.tabs,
                                 member="center" if rear_member else "dominant")
 
     penalties: dict[str, float] = {}
@@ -613,7 +623,8 @@ def _clip01(v: float) -> float:
 
 
 def _decode(x: np.ndarray, config: FinConfig, *, use_offsets: bool,
-            use_grooves: bool, family: FoilFamily | None = None) -> FinParams:
+            use_grooves: bool, family: FoilFamily | None = None,
+            tabs: TabSystem = TabSystem.NONE) -> FinParams:
     """Normalized vector → FinParams. Raises ValueError for combinations the
     params/planform checks reject (the search treats that as a penalty).
 
@@ -654,7 +665,8 @@ def _decode(x: np.ndarray, config: FinConfig, *, use_offsets: bool,
     foil = FoilParams(family=family or family_for_config(config),
                       thickness_ratio=vals["thickness_ratio"])
     return FinParams(outline=outline, foil=foil,
-                     thickness_tip_factor=vals["thickness_tip_factor"], grooves=grooves)
+                     thickness_tip_factor=vals["thickness_tip_factor"], grooves=grooves,
+                     tabs=TabParams(system=tabs))
 
 
 def _x0_sliders(config: FinConfig) -> list[float]:
@@ -723,31 +735,95 @@ _SIGMA_A = 0.25  # broad in the normalized box: level-1 sliders explore widely
 _SIGMA_B = 0.08  # tight: refine near the stage-A optimum, gently open offsets
 
 
+def _score_candidate(payload: tuple) -> float:
+    """Decode + score ONE candidate. Module-level (hence picklable) so a whole
+    CMA generation can be farmed out to a process pool — every candidate in a
+    generation is independent, which is the only parallelism this search needs."""
+    x, rider, use_offsets, use_grooves, family, rear_member = payload
+    try:
+        fin = _decode(np.asarray(x), rider.config, use_offsets=use_offsets,
+                      use_grooves=use_grooves, family=family, tabs=rider.tabs)
+        return evaluate(fin, rider, rear_member=rear_member).objective
+    except ValueError:
+        # Production contract: rejection paths live beyond _decode too
+        # (chord_schedule's needle-tip/waist guards fire inside flex_report
+        # for outlines planform() accepts).
+        return DECODE_PENALTY
+
+
+def resolve_workers(workers: int | None, popsize: int) -> int:
+    """How many processes to score a generation with. More than `popsize` is
+    useless (that is all the work there is), and one core is left for the rest
+    of the machine. FINGEN_WORKERS overrides; 1 forces the serial path."""
+    if workers is None:
+        env = os.environ.get("FINGEN_WORKERS")
+        workers = int(env) if env else (os.cpu_count() or 1) - 1
+    return max(1, min(int(workers), popsize))
+
+
+def _probe() -> int:
+    """Trivial task proving a start method actually round-trips."""
+    return 1
+
+
+@functools.lru_cache(maxsize=1)
+def _mp_context():
+    """The multiprocessing context to score generations with, probed once.
+
+    Prefer `forkserver`: numpy/OpenBLAS keep worker threads, and forking a
+    multi-threaded parent can deadlock the child (CPython warns about exactly
+    this). But forkserver re-imports `__main__` in the child, which fails when
+    the entry point is not importable (a REPL, `python -`, a heredoc). So probe
+    it with one cheap round-trip and fall back to plain `fork`, then to serial.
+    """
+    import multiprocessing as mp
+    from concurrent.futures import ProcessPoolExecutor
+
+    for method in ("forkserver", "fork"):
+        try:
+            ctx = mp.get_context(method)
+        except ValueError:  # pragma: no cover - method missing on this platform
+            continue
+        try:
+            with ProcessPoolExecutor(max_workers=1, mp_context=ctx) as ex:
+                if ex.submit(_probe).result(timeout=60) == 1:
+                    return ctx
+        except Exception:  # noqa: BLE001 — any breakage means "try the next one"
+            continue
+    return None
+
+
+@contextlib.contextmanager
+def _generation_mapper(n_workers: int):
+    """Yield a `map(fn, items) -> list` for one CMA stage. Order is preserved
+    (Executor.map does), so the values handed to `es.tell` are identical to the
+    serial path and the search stays deterministic under seed."""
+    if n_workers <= 1:
+        yield lambda fn, items: [fn(i) for i in items]
+        return
+    from concurrent.futures import ProcessPoolExecutor
+
+    ctx = _mp_context()
+    if ctx is None:  # no usable start method — correctness over speed
+        yield lambda fn, items: [fn(i) for i in items]
+        return
+    with ProcessPoolExecutor(max_workers=n_workers, mp_context=ctx) as ex:
+        yield lambda fn, items: list(ex.map(fn, items))
+
+
 def _run_cma(rider: RiderSpec, x0: list[float], sigma0: float, *, use_offsets: bool,
              use_grooves: bool, budget: int, seed: int,
-             score_fn: Callable[[np.ndarray], float] | None = None
+             family: FoilFamily | None = None, rear_member: bool = False,
+             workers: int | None = None
              ) -> tuple[np.ndarray, float, list[float], int]:
     """One CMA-ES stage in the [0,1]^n box. Returns (best_x, best_f, best-so-far
     history per generation, evals spent).
 
-    `score_fn` overrides the default (decode → evaluate the dominant blade),
-    letting the same machinery drive the center search with its own objective."""
+    `family`/`rear_member` select what is being designed: the default is the
+    dominant blade; the center search passes SYMMETRIC + rear_member=True. They
+    are plain values rather than a closure so the work is picklable and a
+    generation can be scored in parallel (see `_score_candidate`)."""
     import cma
-
-    config = rider.config
-
-    def objective(x: np.ndarray) -> float:
-        try:
-            fin = _decode(np.asarray(x), config, use_offsets=use_offsets,
-                          use_grooves=use_grooves)
-            return evaluate(fin, rider).objective
-        except ValueError:
-            # Production contract: rejection paths live beyond _decode too
-            # (chord_schedule's needle-tip/waist guards fire inside
-            # flex_report for outlines planform() accepts).
-            return DECODE_PENALTY
-
-    score = score_fn if score_fn is not None else objective
 
     es = cma.CMAEvolutionStrategy(list(x0), sigma0, {
         "bounds": [0.0, 1.0],
@@ -759,21 +835,25 @@ def _run_cma(rider: RiderSpec, x0: list[float], sigma0: float, *, use_offsets: b
     best_f = float("inf")
     history: list[float] = []
     n_evals = 0
-    while not es.stop() and n_evals < budget:
-        xs = es.ask()
-        fs = [score(x) for x in xs]
-        es.tell(xs, fs)
-        n_evals += len(xs)
-        i = int(np.argmin(fs))
-        if fs[i] < best_f:
-            best_f = float(fs[i])
-            best_x = np.asarray(xs[i], dtype=float)
-        history.append(best_f)
+    with _generation_mapper(resolve_workers(workers, es.popsize)) as run_generation:
+        while not es.stop() and n_evals < budget:
+            xs = es.ask()
+            fs = run_generation(_score_candidate,
+                                [(x, rider, use_offsets, use_grooves, family,
+                                  rear_member) for x in xs])
+            es.tell(xs, fs)
+            n_evals += len(xs)
+            i = int(np.argmin(fs))
+            if fs[i] < best_f:
+                best_f = float(fs[i])
+                best_x = np.asarray(xs[i], dtype=float)
+            history.append(best_f)
     return best_x, best_f, history, n_evals
 
 
 def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
-             x0: list[float] | None = None) -> OptimizationResult:
+             x0: list[float] | None = None,
+             workers: int | None = None) -> OptimizationResult:
     """Search the design space for the fin closest to the rider's targets.
 
     Stage A optimizes the eight level-1 sliders (CMA-ES, broad sigma). Stage B
@@ -806,8 +886,9 @@ def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
 
     xa, fa, hist_a, na = _run_cma(rider, x0_a, _SIGMA_A,
                                   use_offsets=False, use_grooves=False,
-                                  budget=budget_a, seed=seed)
-    fin_a = _decode(xa, rider.config, use_offsets=False, use_grooves=False)
+                                  budget=budget_a, seed=seed, workers=workers)
+    fin_a = _decode(xa, rider.config, use_offsets=False, use_grooves=False,
+                    tabs=rider.tabs)
 
     best_fin = fin_a
     hist_b: list[float] = []
@@ -815,11 +896,12 @@ def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
     if budget_b > 0:
         x0_b = list(xa) + [0.5] * _N_OFFSETS + ([0.5] * _N_GROOVES if use_grooves else [])
         xb, fb, hist_b, nb = _run_cma(rider, x0_b, _SIGMA_B, use_offsets=True,
-                                      use_grooves=use_grooves, budget=budget_b, seed=seed)
+                                      use_grooves=use_grooves, budget=budget_b,
+                                      seed=seed, workers=workers)
         if fb <= fa:
             try:
                 best_fin = _decode(xb, rider.config, use_offsets=True,
-                                   use_grooves=use_grooves)
+                                   use_grooves=use_grooves, tabs=rider.tabs)
             except ValueError:
                 best_fin = fin_a
 
@@ -845,25 +927,18 @@ def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
     fin_set: FinSetParams | None = None
     nc = 0
     if designs_center:
-        def _center_score(x: np.ndarray) -> float:
-            try:
-                fin_c = _decode(np.asarray(x), rider.config, use_offsets=False,
-                                use_grooves=False, family=FoilFamily.SYMMETRIC)
-                return evaluate(fin_c, rider, rear_member=True).objective
-            except ValueError:
-                return DECODE_PENALTY
-
         xc, _fc, _hc, nc = _run_cma(
             rider, _fin_to_sliders(best_fin), _SIGMA_A, use_offsets=False,
             use_grooves=False, budget=budget_c, seed=seed + 7,
-            score_fn=_center_score)
+            family=FoilFamily.SYMMETRIC, rear_member=True, workers=workers)
         # Guarded like the side stage-B decode: the in-search closure swallows
         # ValueError, so a run whose every candidate rejected leaves best_x on a
         # rejecting vector. Re-raising here would abort optimize() and discard
         # the already-computed, valid SIDE result — so fall back to no center.
         try:
             center = _decode(xc, rider.config, use_offsets=False,
-                             use_grooves=False, family=FoilFamily.SYMMETRIC)
+                             use_grooves=False, family=FoilFamily.SYMMETRIC,
+                             tabs=rider.tabs)
             center_result = evaluate(center, rider, rear_member=True)
             fin_set = FinSetParams(config=rider.config, side=best_fin,
                                    center=center)
@@ -979,6 +1054,7 @@ def result_to_dict(result: OptimizationResult) -> dict:
             "weight_kg": rider.weight_kg, "skill": rider.skill.name,
             "speed_ms": rider.speed, "config": rider.config.value,
             "material": rider.material,
+            "tabs": rider.tabs.value,
             "spider_targets": rider.resolved_targets(),
             "practical_corridor": rider.practical_corridor,
         },

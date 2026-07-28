@@ -304,7 +304,10 @@ def preview_set(set_params: FinSetParams, path: str | Path,
     ax.autoscale_view()
     ax.margins(0.15)
     ax.invert_xaxis()  # +x aft → tail to the left, nose to the right
-    ax.set_xlabel("x aft →  [mm]", color=_MUTED)
+    # Label the DRAWN direction, not the frame's sign: the axis is inverted, so
+    # increasing x (aft) runs LEFT here. "x aft →" read the arrow the wrong way
+    # and put the board backwards for anyone eyeballing the layout.
+    ax.set_xlabel("←  tail        x [mm]        nose  →", color=_MUTED)
     ax.set_ylabel("y outboard (right rail +) [mm]", color=_MUTED)
     ax.set_title(f"{set_params.config.value} set — top view "
                  f"(section z={z:.0f} mm)", color=_INK)

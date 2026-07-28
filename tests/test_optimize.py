@@ -129,6 +129,32 @@ def test_micro_optimization_improves_and_builds():
     assert report.ok, f"winner failed check_solid: {report.issues}"
 
 
+def test_rider_tab_system_gates_the_base_chord():
+    """The rider's BOARD mounting system must reach the gates: FCS II tabs span
+    98 mm, so a blade with too short a base cannot mount. Without this the
+    optimizer happily ships an unmountable fin (it did)."""
+    from fingen.params import TabSystem
+
+    short_base = FinParams(
+        outline=OutlineParams(depth=124.0, base=99.0, sweep=29.0),
+        foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
+
+    glass = RiderSpec(weight_kg=46.0, skill=Skill.ADVANCED, config=FinConfig.THRUSTER)
+    fcs2 = RiderSpec(weight_kg=46.0, skill=Skill.ADVANCED, config=FinConfig.THRUSTER,
+                     tabs=TabSystem.CLICK_TAB)
+
+    assert "base_min" not in evaluate(short_base, glass).penalties
+    res = evaluate(short_base, fcs2).penalties
+    assert res["base_min"] > 0.0  # graded fractional margin, not a cliff
+
+    # And the search must then DESIGN a mountable blade.
+    result = optimize(fcs2, budget_evals=400, seed=0)
+    assert result.fin.tabs.system is TabSystem.CLICK_TAB
+    assert result.fin.outline.base >= 104.0, result.fin.outline.base
+    assert result.center is not None and result.center.tabs.system is TabSystem.CLICK_TAB
+    assert result.center.outline.base >= 104.0, result.center.outline.base
+
+
 def test_thruster_center_is_designed_not_the_template_default():
     """A thruster rider gets a CO-DESIGNED symmetric center, not the stock
     _default_center() (an adult 115x110 blade) — the whole point of the set
