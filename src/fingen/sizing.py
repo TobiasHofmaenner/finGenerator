@@ -46,6 +46,17 @@ CONFIG_DOMINANT_SHARE = {
     FinConfig.QUAD: 0.45,
     FinConfig.TWO_PLUS_ONE: 0.65,
 }
+# The aft/CENTER member's share, for the configs whose center is co-designed.
+# The rear fin carries LESS than the dominant front: the measured Falk split
+# puts it at (1 − rear deficit) of the loaded front at working leeway, so
+# 0.6 · (1 − 0.26) ≈ 0.45. Sizing the center against the DOMINANT share would
+# demand it out-produce the front through the same downwash — systematically
+# oversizing it. Load allocation (this share) and in-situ capability (the
+# interference derate on produced force, optimize.evaluate) are DIFFERENT
+# terms and both apply: capacity_isolated · env ≥ share_center · F_total.
+CONFIG_CENTER_SHARE = {
+    FinConfig.THRUSTER: 0.45,
+}
 # Sustained per-fin working force as a fraction of system weight, calibrated
 # so a 75 kg intermediate lands on the known-good ~8000 mm² fleet medium
 # (cross-check: peak/sustained ≈ 3, consistent with peaks near a third of
@@ -192,14 +203,23 @@ class AnchorSheet:
 def anchor(rider_mass_kg: float, skill: Skill = Skill.INTERMEDIATE,
            design_speed: float = 6.4, config: FinConfig = FinConfig.THRUSTER,
            material: str = "pet-cf",
-           tabs: TabSystem = TabSystem.NONE) -> AnchorSheet:
+           tabs: TabSystem = TabSystem.NONE,
+           member: str = "dominant") -> AnchorSheet:
     """Answer the absolute questions first (design_speed default: measured
-    mean riding speed [Forsyth24])."""
+    mean riding speed [Forsyth24]).
+
+    `member` selects whose load share sizes the sheet: "dominant" (the default,
+    the side/front blade the optimizer designs) or "center" (the aft member of a
+    co-designed set — a smaller share, see CONFIG_CENTER_SHARE). Configs with no
+    center share fall back to the dominant share."""
     if material not in _MATERIAL_ALLOW_MPA:
         raise ValueError(f"material {material!r} not in {sorted(_MATERIAL_ALLOW_MPA)}")
+    if member not in ("dominant", "center"):
+        raise ValueError(f"member {member!r} not in ('dominant', 'center')")
     m_total = rider_mass_kg + BOARD_MASS_KG
     f_lateral = m_total * G * math.tan(math.radians(skill.value))
-    share = CONFIG_DOMINANT_SHARE[config]
+    share = (CONFIG_CENTER_SHARE.get(config, CONFIG_DOMINANT_SHARE[config])
+             if member == "center" else CONFIG_DOMINANT_SHARE[config])
     # Transient peak (structure sizing): coordinated-turn closure, physical.
     f_peak = f_lateral * FIN_FORCE_SHARE * share
     # Sustained working load (hydrodynamic sizing): weight-anchored; the

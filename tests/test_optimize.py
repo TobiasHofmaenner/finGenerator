@@ -22,6 +22,7 @@ from fingen.optimize import (
     interference_factor,
     optimize,
     render_result_card,
+    result_to_dict,
     write_result_json,
 )
 from fingen.params import (
@@ -126,6 +127,67 @@ def test_micro_optimization_improves_and_builds():
     part = fin_solid(result.fin, COARSE)
     report = check_solid(part, result.fin, COARSE)
     assert report.ok, f"winner failed check_solid: {report.issues}"
+
+
+def test_thruster_center_is_designed_not_the_template_default():
+    """A thruster rider gets a CO-DESIGNED symmetric center, not the stock
+    _default_center() (an adult 115x110 blade) — the whole point of the set
+    stage. The center is scored as the aft member (Falk downwash), so its
+    reported env_factor must be below 1."""
+    rider = RiderSpec(weight_kg=46.0, skill=Skill.ADVANCED, config=FinConfig.THRUSTER)
+    result = optimize(rider, budget_evals=400, seed=0)
+
+    assert result.center is not None and result.center_result is not None
+    # Symmetric 50/50 section: a center fin works both ways off the stringer.
+    assert result.center.foil.family is FoilFamily.SYMMETRIC
+    # Not the template default blade.
+    default_center = FinParams(foil=FoilParams(family=FoilFamily.SYMMETRIC))
+    assert result.center.outline != default_center.outline
+    # Scored in the set's downwash, not as an isolated fin.
+    assert 0.5 < result.center_result.margins["env_factor"] < 1.0
+    # The set is assembled and ready for placement/export.
+    assert result.fin_set is not None
+    assert result.fin_set.center is result.center
+    assert result.fin_set.side is result.fin
+
+    # Deterministic under seed, like the side path.
+    again = optimize(rider, budget_evals=400, seed=0)
+    assert again.center == result.center
+
+
+def test_center_design_respects_the_eval_budget():
+    """The center search is carved OUT of budget_evals, not spent on top of it:
+    a co-designed thruster must not silently cost 1.5x the requested budget.
+    (CMA spends whole generations, so allow one population of slack.)"""
+    rider = RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE, config=FinConfig.THRUSTER)
+    result = optimize(rider, budget_evals=300, seed=0)
+    assert result.n_evals <= 300 * 1.15, f"budget blown: {result.n_evals} for 300"
+
+
+def test_non_center_configs_are_unchanged():
+    """Only center-design configs (thruster) grow a center; single/twin/quad
+    keep the single-blade contract exactly as before."""
+    for config in (FinConfig.SINGLE, FinConfig.TWIN, FinConfig.QUAD):
+        rider = RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE, config=config)
+        result = optimize(rider, budget_evals=150, seed=0)
+        assert result.center is None
+        assert result.center_result is None
+        assert result.fin_set is None
+        assert "center_fin" not in result_to_dict(result)
+
+
+def test_set_report_carries_penalties_and_feasibility():
+    """The reported set objective must be penalty-INCLUSIVE (like every other
+    reported objective) so an infeasible member can never read as a healthy
+    set, and feasibility must be surfaced explicitly."""
+    rider = RiderSpec(weight_kg=46.0, skill=Skill.ADVANCED, config=FinConfig.THRUSTER)
+    d = result_to_dict(optimize(rider, budget_evals=300, seed=0))
+
+    assert {"objective", "distance", "feasible"} <= set(d["set"])
+    # Penalty-inclusive: never below the pure spider blend.
+    assert d["set"]["objective"] >= d["set"]["distance"] - 1e-9
+    assert d["set"]["feasible"] == (d["feasible"] and d["center"]["feasible"])
+    assert "center_fin" in d
 
 
 def test_cli_optimize_parse_round_trip():
@@ -373,11 +435,11 @@ def test_objective_guard_covers_evaluate(monkeypatch):
     real_evaluate = opt.evaluate
     calls = {"n": 0}
 
-    def sometimes_raises(fin, rider):
+    def sometimes_raises(fin, rider, **kwargs):
         calls["n"] += 1
         if calls["n"] % 3 == 0:
             raise ValueError("synthetic deep-rejection")
-        return real_evaluate(fin, rider)
+        return real_evaluate(fin, rider, **kwargs)
 
     monkeypatch.setattr(opt, "evaluate", sometimes_raises)
     rider = RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE,

@@ -22,6 +22,34 @@ from fingen.sizing import (
 )
 
 
+def test_center_member_carries_a_smaller_share_than_the_dominant():
+    """The aft/center fin of a thruster carries LESS load than the dominant
+    front (measured Falk split: ~(1 - rear deficit) of it), so sizing it must
+    ask for less force. Sizing it against the dominant share while its produced
+    force is ALSO downwash-derated would systematically oversize it."""
+    from fingen.params import FinConfig
+    from fingen.sizing import CONFIG_CENTER_SHARE, CONFIG_DOMINANT_SHARE
+
+    dom = anchor(46.0, Skill.ADVANCED, config=FinConfig.THRUSTER)
+    cen = anchor(46.0, Skill.ADVANCED, config=FinConfig.THRUSTER, member="center")
+
+    assert required_side_force_n(cen) < required_side_force_n(dom)
+    expected = (CONFIG_CENTER_SHARE[FinConfig.THRUSTER]
+                / CONFIG_DOMINANT_SHARE[FinConfig.THRUSTER])
+    assert required_side_force_n(cen) / required_side_force_n(dom) == pytest.approx(expected)
+    # The smaller share sizes a smaller blade, and the peak load follows too.
+    assert cen.area_min_mm2 < dom.area_min_mm2
+    assert cen.force_peak_n < dom.force_peak_n
+
+    # Configs with no co-designed center fall back to the dominant share.
+    quad_dom = anchor(46.0, Skill.ADVANCED, config=FinConfig.QUAD)
+    quad_cen = anchor(46.0, Skill.ADVANCED, config=FinConfig.QUAD, member="center")
+    assert quad_cen.force_peak_n == quad_dom.force_peak_n
+
+    with pytest.raises(ValueError):
+        anchor(46.0, Skill.ADVANCED, member="nonsense")
+
+
 def test_anchor_matches_measured_loads():
     # ~85 kg rider system in a hard turn should land near the measured
     # ~300 N per-fin peak [Knies25] (calibration target of the share model).

@@ -40,6 +40,7 @@ from __future__ import annotations
 import functools
 import json
 import math
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -274,6 +275,20 @@ _FALK_REAR_DEFICIT = np.array([0.00, 0.296, 0.239, 0.223, 0.262, 0.276, 0.416])
 _INTERFERENCE_CONFIGS = frozenset(
     {FinConfig.THRUSTER, FinConfig.TWO_PLUS_ONE, FinConfig.QUAD})
 
+# Configs whose CENTER fin is co-designed (a symmetric rear member on the
+# stringer) rather than left at the template default. THRUSTER only for now: its
+# center is unambiguously the aft-shadowed symmetric member the Falk deficit
+# describes. QUAD (front==rear side blade, no true center) and 2+1 (its
+# physically dominant blade IS the center — family_for_config/anchor currently
+# treat the side as dominant, a separate fix) are deferred, documented gaps.
+_CENTER_DESIGN_CONFIGS = frozenset({FinConfig.THRUSTER})
+# The center's weight in the REPORTED set objective (the search is separable —
+# the side is scored unchanged and the center independently — so this only sets
+# how the two sub-distances combine for display). Anchored to the Falk load
+# split: two front fins + one rear making (1−deficit) of a front → the center is
+# ~0.27–0.35 of the fin-force at working leeway. A share, not new physics.
+CENTER_OBJECTIVE_WEIGHT = 0.35
+
 
 def falk_rear_deficit(alpha_deg: float) -> float:
     """Measured rear-fin side-force deficit fraction at working leeway α."""
@@ -352,8 +367,14 @@ class EvalResult:
     issues: list[str]
 
 
-def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
+def evaluate(fin: FinParams, rider: RiderSpec, *,
+             rear_member: bool = False) -> EvalResult:
     """Score `fin` for `rider`. <= 50 ms: all tier-0 analytic, no OCCT.
+
+    `rear_member` scores the fin as the aft/center member of a set (thruster/2+1
+    center), which sits in the forward pair's downwash: its produced side force
+    is derated by the measured Falk interference factor on the capacity gate and
+    the hold axis. Default False = the dominant/side blade, unchanged (env 1.0).
 
     Gates, cheap-to-expensive, each a graded (fractional-margin) penalty:
       * sizing area corridor, steady side-force capacity, mounting base min;
@@ -365,8 +386,13 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
     to the rider's targets.
     """
     speed = rider.speed
+    # The rear/center member carries its OWN (smaller) share of the load — see
+    # sizing.CONFIG_CENTER_SHARE. Sizing it against the dominant share while
+    # also derating its produced force would demand it out-produce the front
+    # through the same downwash (systematic oversizing).
     sheet: AnchorSheet = anchor(rider.weight_kg, rider.skill, design_speed=speed,
-                                config=rider.config, material=rider.material)
+                                config=rider.config, material=rider.material,
+                                member="center" if rear_member else "dominant")
 
     penalties: dict[str, float] = {}
     m = metrics(fin.outline)
@@ -380,6 +406,12 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
     a_break = stall_alpha_deg(ar_eff)
     q = 0.5 * RHO_SEAWATER * speed**2
     f_capacity = q * area * 1e-6 * slope * math.radians(a_break)
+    # A designed REAR/center member (thruster/2+1) sits in the forward pair's
+    # downwash: derate its produced side force by the measured Falk factor
+    # (interference_factor) — at the break angle for the capacity gate here, at
+    # the working angle for the hold axis below. The dominant/side blade keeps 1.
+    env_cap = interference_factor(rider.config, a_break) if rear_member else 1.0
+    f_capacity *= env_cap
     req = required_side_force_n(sheet)  # F_req: also the hold axis reference
     if f_capacity < req:
         penalties["capacity"] = (req - f_capacity) / req
@@ -473,8 +505,13 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
     # so it becomes requirement-relative (spider.hold_score) against F_req — the
     # same threshold the capacity gate uses. Washout still knocks the effective
     # f_max down (a floppy blade makes less side force).
+    # Rear/center member: the Falk downwash derates the side force it can hold
+    # (at the working angle). The dominant/side blade stays at env 1.0. DRIVE
+    # (an intensive L/D) is left un-derated for now — the in-set L/D change is
+    # second-order and unmeasured; documented, revisited with the set solve.
+    env_work = interference_factor(rider.config, alpha_work) if rear_member else 1.0
     raw["drive"] *= washout
-    f_max_eff = raw["hold"] * washout
+    f_max_eff = raw["hold"] * washout * env_work
 
     predicted = _normalize(raw, _fleet_raw(round(speed, 2),
                                            round(rider.weight_kg, 2)))
@@ -500,7 +537,7 @@ def evaluate(fin: FinParams, rider: RiderSpec) -> EvalResult:
         "capacity_req_n": req,
         "alpha_work_deg": alpha_work,
         "washout_pct": 100.0 * flex.lift_knockdown,
-        "env_factor": 1.0,  # dominant blade: no measured in-set knockdown
+        "env_factor": env_work,  # rear member: Falk downwash; dominant blade 1.0
         "tip_deflection_mm": flex.tip_deflection_mm,
         # Roll dynamics (report-only margins — the scoring |L_p| rides the
         # stability axis via spider.raw_scores): blade damping |L_p| and added
@@ -576,9 +613,12 @@ def _clip01(v: float) -> float:
 
 
 def _decode(x: np.ndarray, config: FinConfig, *, use_offsets: bool,
-            use_grooves: bool) -> FinParams:
+            use_grooves: bool, family: FoilFamily | None = None) -> FinParams:
     """Normalized vector → FinParams. Raises ValueError for combinations the
-    params/planform checks reject (the search treats that as a penalty)."""
+    params/planform checks reject (the search treats that as a penalty).
+
+    `family` overrides the config's default foil family — used to decode the
+    SYMMETRIC center of a set while `config` still selects its corridor/anchor."""
     vals = {name: lo + _clip01(x[i]) * (hi - lo)
             for i, (name, lo, hi) in enumerate(_SLIDER_BOUNDS)}
     base = vals["base"]
@@ -611,7 +651,7 @@ def _decode(x: np.ndarray, config: FinConfig, *, use_offsets: bool,
     # Force the planform check now (edge crossing from level-2 offsets) so the
     # caller's ValueError→penalty contract catches it before any scoring.
     planform(outline)
-    foil = FoilParams(family=family_for_config(config),
+    foil = FoilParams(family=family or family_for_config(config),
                       thickness_ratio=vals["thickness_ratio"])
     return FinParams(outline=outline, foil=foil,
                      thickness_tip_factor=vals["thickness_tip_factor"], grooves=grooves)
@@ -631,6 +671,19 @@ def _x0_sliders(config: FinConfig) -> list[float]:
         "thickness_tip_factor": template.thickness_tip_factor,
     }
     return [(src[name] - lo) / (hi - lo) for name, lo, hi in _SLIDER_BOUNDS]
+
+
+def _fin_to_sliders(fin: FinParams) -> list[float]:
+    """Back-project any fin's level-1 params to the [0,1] gene box (clamped) —
+    a warm start for the center search from the rider-sized side blade."""
+    src = {
+        "depth": fin.outline.depth, "base": fin.outline.base,
+        "sweep": fin.outline.sweep, "tip_width_ratio": fin.outline.tip_width_ratio,
+        "le_fullness": fin.outline.le_fullness, "te_shape": fin.outline.te_shape,
+        "thickness_ratio": fin.foil.thickness_ratio,
+        "thickness_tip_factor": fin.thickness_tip_factor,
+    }
+    return [_clip01((src[name] - lo) / (hi - lo)) for name, lo, hi in _SLIDER_BOUNDS]
 
 
 def groove_trigger(rider: RiderSpec) -> bool:
@@ -658,6 +711,12 @@ class OptimizationResult:
     n_evals: int
     seed: int
     grooves_enabled: bool
+    # Co-designed set members (center-design configs only; None otherwise). `fin`
+    # stays the dominant/side blade; `center` is the symmetric rear member and
+    # `fin_set` the assembled set ready for placement/export.
+    center: FinParams | None = None
+    center_result: EvalResult | None = None
+    fin_set: FinSetParams | None = None
 
 
 _SIGMA_A = 0.25  # broad in the normalized box: level-1 sliders explore widely
@@ -665,10 +724,14 @@ _SIGMA_B = 0.08  # tight: refine near the stage-A optimum, gently open offsets
 
 
 def _run_cma(rider: RiderSpec, x0: list[float], sigma0: float, *, use_offsets: bool,
-             use_grooves: bool, budget: int, seed: int
+             use_grooves: bool, budget: int, seed: int,
+             score_fn: Callable[[np.ndarray], float] | None = None
              ) -> tuple[np.ndarray, float, list[float], int]:
     """One CMA-ES stage in the [0,1]^n box. Returns (best_x, best_f, best-so-far
-    history per generation, evals spent)."""
+    history per generation, evals spent).
+
+    `score_fn` overrides the default (decode → evaluate the dominant blade),
+    letting the same machinery drive the center search with its own objective."""
     import cma
 
     config = rider.config
@@ -684,6 +747,8 @@ def _run_cma(rider: RiderSpec, x0: list[float], sigma0: float, *, use_offsets: b
             # flex_report for outlines planform() accepts).
             return DECODE_PENALTY
 
+    score = score_fn if score_fn is not None else objective
+
     es = cma.CMAEvolutionStrategy(list(x0), sigma0, {
         "bounds": [0.0, 1.0],
         "seed": seed + 1,  # cma treats 0/None as time-randomized
@@ -696,7 +761,7 @@ def _run_cma(rider: RiderSpec, x0: list[float], sigma0: float, *, use_offsets: b
     n_evals = 0
     while not es.stop() and n_evals < budget:
         xs = es.ask()
-        fs = [objective(x) for x in xs]
+        fs = [score(x) for x in xs]
         es.tell(xs, fs)
         n_evals += len(xs)
         i = int(np.argmin(fs))
@@ -729,8 +794,14 @@ def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
     else:
         x0_a = [float(v) for v in x0]
 
-    budget_a = max(int(budget_evals * 0.6), 1)
-    budget_b = max(budget_evals - budget_a, 0)
+    # Center-design configs carve the center's search OUT of budget_evals (a
+    # third of it) rather than spending extra on top, so `budget_evals` stays
+    # the honest total cost and n_evals never exceeds it.
+    designs_center = rider.config in _CENTER_DESIGN_CONFIGS
+    budget_c = max(int(budget_evals / 3.0), 1) if designs_center else 0
+    budget_side = max(budget_evals - budget_c, 1)
+    budget_a = max(int(budget_side * 0.6), 1)
+    budget_b = max(budget_side - budget_a, 0)
     use_grooves = groove_trigger(rider)
 
     xa, fa, hist_a, na = _run_cma(rider, x0_a, _SIGMA_A,
@@ -760,15 +831,57 @@ def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
         combined.append(run)
 
     result = evaluate(best_fin, rider)
+
+    # Co-design the SYMMETRIC center for center-design configs (thruster): its
+    # own CMA over the level-1 genes, scored as the aft/rear member (Falk
+    # downwash via evaluate(rear_member=True)), warm-started from the rider-sized
+    # side blade. The objective is separable — the side score does not depend on
+    # the center — so this independent search IS the co-optimum, and it leaves
+    # the validated side path untouched (full budget, unchanged winner). The
+    # side/center coupling (cant/toe on the side, a real force balance) is the
+    # documented next stage.
+    center: FinParams | None = None
+    center_result: EvalResult | None = None
+    fin_set: FinSetParams | None = None
+    nc = 0
+    if designs_center:
+        def _center_score(x: np.ndarray) -> float:
+            try:
+                fin_c = _decode(np.asarray(x), rider.config, use_offsets=False,
+                                use_grooves=False, family=FoilFamily.SYMMETRIC)
+                return evaluate(fin_c, rider, rear_member=True).objective
+            except ValueError:
+                return DECODE_PENALTY
+
+        xc, _fc, _hc, nc = _run_cma(
+            rider, _fin_to_sliders(best_fin), _SIGMA_A, use_offsets=False,
+            use_grooves=False, budget=budget_c, seed=seed + 7,
+            score_fn=_center_score)
+        # Guarded like the side stage-B decode: the in-search closure swallows
+        # ValueError, so a run whose every candidate rejected leaves best_x on a
+        # rejecting vector. Re-raising here would abort optimize() and discard
+        # the already-computed, valid SIDE result — so fall back to no center.
+        try:
+            center = _decode(xc, rider.config, use_offsets=False,
+                             use_grooves=False, family=FoilFamily.SYMMETRIC)
+            center_result = evaluate(center, rider, rear_member=True)
+            fin_set = FinSetParams(config=rider.config, side=best_fin,
+                                   center=center)
+        except ValueError:
+            center = center_result = fin_set = None
+
     return OptimizationResult(
         fin=best_fin,
         result=result,
         rider=rider,
         history=combined,
         stage_boundary=len(hist_a),
-        n_evals=na + nb,
+        n_evals=na + nb + nc,
         seed=seed,
         grooves_enabled=use_grooves and best_fin.grooves.count > 0,
+        center=center,
+        center_result=center_result,
+        fin_set=fin_set,
     )
 
 
@@ -826,7 +939,7 @@ def result_to_dict(result: OptimizationResult) -> dict:
     """
     r = result.result
     rider = result.rider
-    return {
+    out = {
         "rider": {
             "weight_kg": rider.weight_kg, "skill": rider.skill.name,
             "speed_ms": rider.speed, "config": rider.config.value,
@@ -855,6 +968,37 @@ def result_to_dict(result: OptimizationResult) -> dict:
             "history": result.history,
         },
     }
+    # Co-designed set: the symmetric center and the assembled set (center-design
+    # configs only). `fin` above stays the dominant/side blade for back-compat.
+    if result.center is not None and result.center_result is not None:
+        cr = result.center_result
+        out["center_fin"] = fin_to_dict(result.center)
+        out["center"] = {
+            "objective": cr.objective,
+            "distance": cr.distance,
+            "penalty": cr.penalty,
+            "feasible": cr.feasible,
+            "spider_predicted": cr.spider_predicted,
+            "margins": cr.margins,
+            "planform": {
+                "area_mm2": metrics(result.center.outline).area,
+                "aspect_ratio": metrics(result.center.outline).aspect_ratio,
+            },
+        }
+        # Blend the members' full OBJECTIVES (distance + penalty), not bare
+        # distances: a penalized center must not read as a healthy set. Both
+        # `distance` (the pure spider blend) and `feasible` are surfaced too, so
+        # a consumer can never mistake an infeasible member for a good set.
+        out["set"] = {
+            "config": result.rider.config.value,
+            "objective_weight_center": CENTER_OBJECTIVE_WEIGHT,
+            "objective": ((1.0 - CENTER_OBJECTIVE_WEIGHT) * r.objective
+                          + CENTER_OBJECTIVE_WEIGHT * cr.objective),
+            "distance": ((1.0 - CENTER_OBJECTIVE_WEIGHT) * r.distance
+                         + CENTER_OBJECTIVE_WEIGHT * cr.distance),
+            "feasible": bool(r.feasible and cr.feasible),
+        }
+    return out
 
 
 def write_result_json(result: OptimizationResult, path: str | Path) -> Path:
