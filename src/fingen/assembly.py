@@ -139,6 +139,21 @@ def _validate_no_overlap(placed: list[tuple[str, Part]]) -> None:
                     "spacing (or reduce toe/cant)")
 
 
+def set_slots(config: FinConfig) -> list[str]:
+    """The placed slot names for a config, in `fin_set` order — WITHOUT lofting
+    any geometry. Callers that need to name per-slot results (the multi-fin CFD
+    writer's force-coefficient function objects, a set polar's result rows) can
+    ask for the slots up front instead of building solids. Kept adjacent to
+    `fin_set` because the two must agree."""
+    if config is FinConfig.SINGLE:
+        return ["center"]
+    if config is FinConfig.TWIN:
+        return ["right", "left"]
+    if config is FinConfig.QUAD:
+        return ["front_right", "front_left", "rear_right", "rear_left"]
+    return ["center", "right", "left"]  # THRUSTER / TWO_PLUS_ONE
+
+
 def fin_set(set_params: FinSetParams,
             settings: GenSettings = DEFAULT_SETTINGS) -> list[tuple[str, Part]]:
     """Build and place every blade of the set. Returns [(slot_name, Part), …].

@@ -1,12 +1,13 @@
 """Fin-set assembly: placement transforms + multi-blade scene (docs/PHYSICS.md §2b)."""
 
+import json
 import struct
 
 import numpy as np
 import pytest
 from build123d import Axis
 
-from fingen.assembly import assembly_stl, fin_set, place_fin, preview_set
+from fingen.assembly import assembly_stl, fin_set, place_fin, preview_set, set_slots
 from fingen.loft import fin_solid
 from fingen.params import (
     FinConfig,
@@ -165,3 +166,33 @@ def test_tabbed_fin_pivot_is_base_plane():
     bp = pp.bounding_box()
     assert abs(bt.min.X - bp.min.X) < 0.5
     assert abs(bt.max.X - bp.max.X) < 0.5
+
+
+def test_set_slots_matches_fin_set_placement():
+    """set_slots must name exactly what fin_set places, in order — the multi-fin
+    CFD writer and the set-polar result rows key on these names."""
+    from fingen.params import FinConfig, FinSetParams
+
+    for config in FinConfig:
+        placed = [name for name, _ in fin_set(FinSetParams(config=config), COARSE)]
+        assert placed == set_slots(config), config
+
+
+def test_fin_set_dict_round_trip():
+    """A designed set must survive the trip to the CFD service intact — blades
+    AND placements (interference depends on the placement)."""
+    from fingen.optimize import fin_set_from_dict, fin_set_to_dict
+    from fingen.params import FinConfig, FinParams, FinSetParams, FoilFamily, FoilParams
+
+    s = FinSetParams(
+        config=FinConfig.THRUSTER,
+        side=FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE)),
+        center=FinParams(foil=FoilParams(family=FoilFamily.SYMMETRIC)),
+        toe=4.0, cant=7.0, side_x=-180.0, side_y=110.0)
+    d = fin_set_to_dict(s)
+    assert fin_set_from_dict(d) == s
+    # JSON-able (it crosses the wire as a job request).
+    assert json.loads(json.dumps(d))["toe"] == 4.0
+    # Placements are optional on the way back in — defaults fill the gaps.
+    minimal = {"config": "thruster", "side": d["side"], "center": d["center"]}
+    assert fin_set_from_dict(minimal).toe == FinSetParams().toe

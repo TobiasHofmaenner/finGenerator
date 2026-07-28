@@ -931,6 +931,41 @@ def fin_from_dict(data: dict) -> FinParams:
     )
 
 
+def fin_set_to_dict(fin_set: FinSetParams) -> dict:
+    """FinSetParams → plain JSON-able dict (round-trips through
+    `fin_set_from_dict`). Carries the per-slot blades AND the placement
+    transforms, so a consumer — the multi-fin CFD writer above all — can
+    reconstruct the exact set that was designed."""
+    return {
+        "config": fin_set.config.value,
+        "center": fin_to_dict(fin_set.center) if fin_set.center else None,
+        "side": fin_to_dict(fin_set.side) if fin_set.side else None,
+        "toe": fin_set.toe, "cant": fin_set.cant,
+        "side_x": fin_set.side_x, "side_y": fin_set.side_y,
+        "rear_x": fin_set.rear_x, "rear_y": fin_set.rear_y,
+        "rear_toe": fin_set.rear_toe, "rear_cant": fin_set.rear_cant,
+    }
+
+
+def fin_set_from_dict(data: dict) -> FinSetParams:
+    """Inverse of `fin_set_to_dict`. Placement keys are optional — omitted ones
+    fall back to the production-convention defaults on FinSetParams."""
+    defaults = FinSetParams()
+    return FinSetParams(
+        config=FinConfig(data["config"]),
+        center=fin_from_dict(data["center"]) if data.get("center") else None,
+        side=fin_from_dict(data["side"]) if data.get("side") else None,
+        toe=float(data.get("toe", defaults.toe)),
+        cant=float(data.get("cant", defaults.cant)),
+        side_x=float(data.get("side_x", defaults.side_x)),
+        side_y=float(data.get("side_y", defaults.side_y)),
+        rear_x=float(data.get("rear_x", defaults.rear_x)),
+        rear_y=float(data.get("rear_y", defaults.rear_y)),
+        rear_toe=float(data.get("rear_toe", defaults.rear_toe)),
+        rear_cant=float(data.get("rear_cant", defaults.rear_cant)),
+    )
+
+
 def result_to_dict(result: OptimizationResult) -> dict:
     """Full result → JSON dict for the web tier and the CFD verification stage.
 
@@ -991,6 +1026,10 @@ def result_to_dict(result: OptimizationResult) -> dict:
         # a consumer can never mistake an infeasible member for a good set.
         out["set"] = {
             "config": result.rider.config.value,
+            # The assembled set, placements included — what the multi-fin CFD
+            # (fincfd.setcase) meshes to resolve the real inter-fin interference.
+            "fin_set": (fin_set_to_dict(result.fin_set)
+                        if result.fin_set is not None else None),
             "objective_weight_center": CENTER_OBJECTIVE_WEIGHT,
             "objective": ((1.0 - CENTER_OBJECTIVE_WEIGHT) * r.objective
                           + CENTER_OBJECTIVE_WEIGHT * cr.objective),
