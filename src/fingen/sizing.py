@@ -294,10 +294,66 @@ def required_side_force_n(sheet: AnchorSheet) -> float:
     return sheet.force_work_n * FORCE_SF
 
 
+def peak_bending_stress_mpa(fin: FinParams, sheet: AnchorSheet,
+                            span_stress_mpa: float | None = None) -> float:
+    """The stress the gate should use: the ENVELOPE of the root-plane estimate
+    and the spanwise station sweep. MPa.
+
+    WHY AN ENVELOPE AND NOT EITHER ONE ALONE. The two models fail in opposite
+    halves of the design space, and picking either one is non-conservative on
+    the other half:
+
+      * base_bending_stress_mpa reads ONE section (z = 0) with the whole load at
+        CP_SPAN_FRACTION = 0.45. Tier-1 FEM (docs/FEM-BENCH.md) shows a tapered
+        blade's section modulus falls faster than its moment, so the critical
+        station is MID-SPAN — 53 % of span on the anchor fin, 1.44x the root
+        band. On those shapes the root-only read misses the peak entirely.
+      * flex_report sweeps stations and finds that peak, but distributes the
+        load as w ∝ c(z), whose centroid is 0.372 of depth against this
+        function's 0.45 arm. On ROOT-CRITICAL fins — where flex's own peak is
+        already at z = 0 — that shorter arm makes it read up to 24 % LOWER than
+        the root estimate. Measured: flex is the smaller of the two in 227 of
+        432 swept geometries.
+
+    Neither dominates: the base IS the peak for ~45 % of the archived corpus,
+    and mid-span for the rest. max() of the two keeps the root-plane pad where
+    the root governs and catches the mid-span peak where it does not. This is
+    the only combination that is conservative across the whole space.
+
+    `span_stress_mpa` lets a caller that has ALREADY solved the flex report pass
+    its stress_max_mpa in rather than paying for a second solve —
+    optimize.evaluate does exactly that, and it is the hot path.
+    """
+    root = base_bending_stress_mpa(fin, sheet.force_peak_n)
+    if span_stress_mpa is not None:
+        return max(root, span_stress_mpa)
+    # Deferred: fingen.flex imports _MATERIAL_ALLOW_MPA from this module, so a
+    # module-level import here is circular.
+    from fingen.flex import flex_report
+
+    try:
+        span = flex_report(fin, sheet.force_peak_n, sheet.design_speed,
+                           material=sheet.material).stress_max_mpa
+    except (ValueError, ZeroDivisionError):
+        # chord_schedule's needle-tip / waist guards reject degenerate outlines.
+        # A candidate flex cannot section is not thereby SAFE, so fall back to
+        # the root estimate rather than silently scoring it as feasible.
+        return root
+    return max(root, span)
+
+
 def base_bending_stress_mpa(fin: FinParams, force_n: float) -> float:
-    """Bending stress at the base section under the peak load applied at the
+    """Bending stress at the BASE SECTION under the peak load applied at the
     spanwise CP — Euler-Bernoulli with the section modulus integrated
-    numerically from the true foil section [GT97]."""
+    numerically from the true foil section [GT97].
+
+    ROOT-PLANE ONLY. This is one half of the gate; see peak_bending_stress_mpa
+    for why it is enveloped with the station sweep rather than used alone. Its
+    0.45 arm overstates the distributed load's true 0.372 centroid by ~1.2x,
+    which is retained deliberately: it is the pad that keeps a single-section
+    estimate from under-reading, and tier-1 measures this function at +12 %
+    against the FEM root band (19.40 vs 17.30 MPa).
+    """
     arm_m = CP_SPAN_FRACTION * fin.outline.depth * 1e-3
     moment = force_n * arm_m  # N·m
     upper, lower = section_points(fin.foil, fin.outline.base, n_points=160)
@@ -313,7 +369,8 @@ def base_bending_stress_mpa(fin: FinParams, force_n: float) -> float:
     return moment * y_max / max(i_zz, 1e-15) / 1e6
 
 
-def check_anchor(fin: FinParams, sheet: AnchorSheet) -> list[str]:
+def check_anchor(fin: FinParams, sheet: AnchorSheet,
+                 span_stress_mpa: float | None = None) -> list[str]:
     """Constraint violations for a candidate fin (empty list = feasible).
     This is the optimizer's hard gate; the spiderweb is its objective."""
     issues = []
@@ -333,9 +390,9 @@ def check_anchor(fin: FinParams, sheet: AnchorSheet) -> list[str]:
     if f_capacity < f_req:
         issues.append(f"steady side-force capacity {f_capacity:.0f} N below "
                       f"the sustained requirement {f_req:.0f} N")
-    stress = base_bending_stress_mpa(fin, sheet.force_peak_n)
+    stress = peak_bending_stress_mpa(fin, sheet, span_stress_mpa)
     if stress > sheet.allow_mpa:
-        issues.append(f"base bending stress {stress:.0f} MPa exceeds "
+        issues.append(f"peak bending stress {stress:.0f} MPa exceeds "
                       f"{sheet.material} allowable {sheet.allow_mpa:.0f} MPa "
                       "(thicken the section or widen the base)")
     if fin.outline.base < sheet.base_min_mm:

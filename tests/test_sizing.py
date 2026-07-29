@@ -79,6 +79,57 @@ def test_gate_catches_weak_section():
     assert any("stress" in i for i in check_anchor(thin, sheet))
 
 
+def test_peak_stress_envelope_never_loosens_the_root_gate():
+    """The gate takes max(root-plane, station-sweep). Neither term dominates —
+    the base IS the critical section for roughly half the design space, and
+    mid-span for the rest (docs/FEM-BENCH.md) — so the envelope must never read
+    BELOW the root-only value it replaced. A regression here would silently pass
+    fins the old gate rejected."""
+    from fingen.sizing import base_bending_stress_mpa, peak_bending_stress_mpa
+
+    sheet = anchor(82.0, Skill.ADVANCED, tabs=TabSystem.CLICK_TAB)
+    shapes = [
+        FinParams(),
+        FinParams(outline=OutlineParams(depth=140.0, base=110.0)),
+        FinParams(outline=OutlineParams(depth=80.0, base=130.0)),   # squat keel
+        FinParams(outline=OutlineParams(depth=160.0, base=90.0)),   # upright
+        FinParams(foil=FoilParams(thickness_ratio=0.05, te_thickness=0.5)),
+        FinParams(foil=FoilParams(thickness_ratio=0.11)),
+    ]
+    for fin in shapes:
+        root = base_bending_stress_mpa(fin, sheet.force_peak_n)
+        env = peak_bending_stress_mpa(fin, sheet)
+        assert env >= root - 1e-9, f"envelope {env} below root {root} for {fin.outline}"
+
+
+def test_peak_stress_envelope_catches_the_mid_span_peak():
+    """A strongly tapered blade thins faster than its moment falls, so the
+    critical station moves inboard. Tier-1 FEM measured this on the anchor fin:
+    peak at 53 % of span, 1.44x the root band. The envelope must see it."""
+    from fingen.sizing import base_bending_stress_mpa, peak_bending_stress_mpa
+
+    sheet = anchor(82.0, Skill.ADVANCED, tabs=TabSystem.CLICK_TAB)
+    tapered = FinParams(outline=OutlineParams(depth=130.0, base=115.0,
+                                              tip_width_ratio=0.42,
+                                              le_fullness=0.0))
+    assert (peak_bending_stress_mpa(tapered, sheet)
+            > 1.2 * base_bending_stress_mpa(tapered, sheet.force_peak_n))
+
+
+def test_peak_stress_envelope_accepts_a_precomputed_span_stress():
+    """optimize.evaluate already solves flex; passing its number in must give
+    the same answer as letting the envelope solve it again (and skip the cost)."""
+    from fingen.flex import flex_report
+    from fingen.sizing import peak_bending_stress_mpa
+
+    sheet = anchor(75.0, Skill.INTERMEDIATE, tabs=TabSystem.CLICK_TAB)
+    fin = FinParams()
+    span = flex_report(fin, sheet.force_peak_n, sheet.design_speed,
+                       material=sheet.material).stress_max_mpa
+    assert peak_bending_stress_mpa(fin, sheet, span) == pytest.approx(
+        peak_bending_stress_mpa(fin, sheet), rel=1e-9)
+
+
 def test_heavier_rider_needs_more_fin():
     light = anchor(55.0, Skill.INTERMEDIATE)
     heavy = anchor(100.0, Skill.INTERMEDIATE)

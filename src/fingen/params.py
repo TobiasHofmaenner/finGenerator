@@ -159,7 +159,8 @@ class TabParams:
         boolean section probe — volume and topology stay correct but the slab
         intersection comes back empty, so the checker cannot verify the body.
         Until that is resolved the blend is requested explicitly (the FEM
-        ladder does), never applied silently to a fin someone will print. This is the SHARP RE-ENTRANT CORNER at z = 0 — the
+        ladder does), never applied silently to a fin someone will print.
+        This blends the SHARP RE-ENTRANT CORNER at z = 0 — the
         max-moment station in the tab and the classic crack starter for a
         printed fin. sizing.KT_TAB is documented as a FILLETED-shoulder value,
         so without this the geometry does not match the stress model it is

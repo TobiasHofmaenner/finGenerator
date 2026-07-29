@@ -80,23 +80,33 @@ def _tab_step_mm(fin: FinParams) -> float:
 
 
 def _junction_edges(part: Part, fin: FinParams) -> list:
-    """The tab-to-blade edges at z = 0 — NOT the blade's own base outline.
+    """The tab-to-blade step at z = 0 — NOT the blade's own base outline.
 
-    Both sit in the z = 0 plane, but only the junction is a re-entrant step.
-    Rounding the base outline would round the face that seats on the board, so
-    select by the tab's chordwise footprint: the junction lives inside it.
+    Both lie in the z = 0 plane, and an earlier version told them apart by the
+    edge's x-midpoint, which fails: the base outline spans the whole chord, so
+    its midpoint sits inside the tab span and it got blended too — rounding the
+    face that seats on the board while leaving the real step sharp.
+
+    They separate cleanly on TYPE and HEIGHT instead. The tabs are boxes, so
+    every junction edge is a straight LINE lying at or below the tab's own
+    thickness; the blade's outline is a BSPLINE tracing the foil and reaches
+    past it (7.93 vs 6.15 mm on the reference fin). The flush y = 0 boundary is
+    a spline too and is excluded for free — correctly, since a flush face has
+    no step to blend.
     """
-    from fingen.tabs import tab_span_x
+    from fingen.tabs import system_thickness
 
-    span = tab_span_x(fin)
-    if span is None:
+    t_tab = system_thickness(fin.tabs)
+    if t_tab <= 0.0:
         return []
-    x_lo, x_hi = span
     out = []
     for e in _edges_near_z(part, -0.01, 0.01):
-        bb = e.bounding_box()
-        mid_x = 0.5 * (bb.min.X + bb.max.X)
-        if x_lo - 0.5 <= mid_x <= x_hi + 0.5:
+        # EXACT match: "BSPLINE" contains "LINE", so a substring test lets the
+        # blade's own spline outline through — which is precisely the edge this
+        # function exists to exclude.
+        if str(e.geom_type).rsplit(".", 1)[-1].upper() != "LINE":
+            continue
+        if t_tab + 0.05 >= e.bounding_box().max.Y:
             out.append(e)
     return out
 

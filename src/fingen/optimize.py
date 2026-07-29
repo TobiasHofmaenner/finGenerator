@@ -625,7 +625,7 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
         "roll_agility": roll.agility_proxy,
         "roll_set_damping_nm_s": roll_set.roll_damping_nm_s,
     }
-    issues = check_anchor(fin, sheet)
+    issues = check_anchor(fin, sheet, flex.stress_max_mpa)
     if stress_sf < rider.stress_sf_min:
         issues.append(f"flex bending SF {stress_sf:.2f} < {rider.stress_sf_min:.2f} "
                       "at the peak load")

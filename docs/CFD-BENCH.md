@@ -8,6 +8,11 @@
 > and the benchmark data under `bench/`; the script paths named below are
 > historical pointers into that private repo, not files in this tree.
 
+> **Structural results live in FEM-BENCH.md.** This document validates the
+> *loads*; that one validates what the fin does with them — mesh ladders,
+> support-condition studies, and the stress-singularity analysis that
+> determines which FEM numbers may be quoted at all.
+
 Status 2026-07-25. The bench measures single blades in deep-submergence
 steady RANS (simpleFoam, k-ω SST, wall functions) with the board idealized
 as a symmetry plane at the fin base — mirroring the [BW04] tunnel-wall
