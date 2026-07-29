@@ -598,29 +598,41 @@ def test_roll_augmented_stress_gate_uses_worse_case():
 
 
 def test_tab_sf_gate_active_inactive_and_grades():
-    # (C) Glass-on blade (TabSystem.NONE, what the optimizer decodes today):
-    # gate inactive, tab_sf = inf, no penalty.
+    # (a) Glass-on blade: no tabs, no stress to compute, gate inactive.
     import math as _m
     rider = RiderSpec(weight_kg=80.0, skill=Skill.ADVANCED, config=FinConfig.THRUSTER)
     glass = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
     r = evaluate(glass, rider)
     assert r.margins["tab_sf"] == _m.inf
     assert "tab_sf" not in r.penalties
-    # The SAME blade with tabs activates the gate (finite, positive SF).
+
+    # (b) The SAME blade with tabs computes a finite SF. Under the corrected
+    # BENDING model this is a demanding number — the tabs are the smallest
+    # section in the load path and carry the whole root moment — so a printed
+    # blade that passes the blade gate can still fail here. That ordering is the
+    # physics; it is not a bug to be tuned away.
     tabbed = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
                        tabs=TabParams(system=TabSystem.DUAL_TAB))
     rt = evaluate(tabbed, rider)
     assert _m.isfinite(rt.margins["tab_sf"]) and rt.margins["tab_sf"] > 0.0
-    assert "tab_sf" not in rt.penalties  # a normal side fin's tabs are fine
-    # A small-base thin dual-tab under a heavy pro trips the gate -> graded penalty.
-    trip = FinParams(outline=OutlineParams(depth=135, base=70, sweep=33,
-                                           tip_width_ratio=0.35),
-                     foil=FoilParams(family=FoilFamily.FLAT_INSIDE, thickness_ratio=0.05),
-                     tabs=TabParams(system=TabSystem.DUAL_TAB))
-    rp = evaluate(trip, RiderSpec(weight_kg=105.0, skill=Skill.PRO,
-                                  config=FinConfig.THRUSTER))
-    assert rp.margins["tab_sf"] < 1.0
-    assert rp.penalties["tab_sf"] == pytest.approx(1.0 - rp.margins["tab_sf"])
+    assert rt.margins["tab_sf"] < rt.margins["stress_sf_roll"]  # tab governs
+
+    # (c) The gate GRADES when active (fractional margin, not a cliff)...
+    assert rt.penalties["tab_sf"] == pytest.approx(
+        (rider.tab_sf_min - rt.margins["tab_sf"]) / rider.tab_sf_min)
+
+    # (d) ...and tab_sf_min=None makes it REPORT-ONLY: the number is still
+    # computed and surfaced, but it stops steering the search. That is the
+    # deliberate handover to tier-1 (CFD pressure -> FEM fixed at the box
+    # interface), because the analytic model cannot see the junction geometry
+    # and S_tab is fixed by the box — so gating on it degrades the blade
+    # instead of improving the mount.
+    ungated = RiderSpec(weight_kg=80.0, skill=Skill.ADVANCED,
+                        config=FinConfig.THRUSTER, tab_sf_min=None)
+    ru = evaluate(tabbed, ungated)
+    assert ru.margins["tab_sf"] == pytest.approx(rt.margins["tab_sf"])  # still reported
+    assert "tab_sf" not in ru.penalties                                 # but not gated
+    assert not any("tab SF" in i for i in ru.issues)
 
 
 def test_normalize_stable_at_tied_fleet_values():

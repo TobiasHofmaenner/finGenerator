@@ -31,6 +31,7 @@ import json
 import sys
 from pathlib import Path
 
+from fingen.check import check_solid
 from fingen.export import mirror_hand, split_halves, to_stl
 from fingen.loft import fin_solid
 from fingen.optimize import fin_from_dict
@@ -49,12 +50,19 @@ RESULT = Path(sys.argv[1] if len(sys.argv) > 1
 OUT = Path("out/martina/stl")
 TABS = TabSystem.CLICK_TAB          # FCS II
 FIT_OFFSET = -0.2                   # mm on tab thickness: undersize, sand to fit
+# The FLAT_INSIDE anchor puts the inner tab face ON the print-bed plane, so the
+# inner retention indent becomes a pocket with an unsupported bridge — the ONLY
+# overhang in an otherwise support-free part. docs/TAB-SYSTEMS.md says printed
+# indents deform after a few insert cycles anyway and the cam screw is the real
+# retention, so delete them and print with zero supports.
+INDENT_DEPTH = 0.0
 
 
 def main() -> None:
     result = json.loads(RESULT.read_text())
     rider = result["rider"]
-    tabs = TabParams(system=TABS, fit_offset=FIT_OFFSET)
+    tabs = TabParams(system=TABS, fit_offset=FIT_OFFSET,
+                     click_indent_depth=INDENT_DEPTH)
 
     sheet = anchor(rider["weight_kg"], Skill[rider["skill"]],
                    design_speed=rider["speed_ms"],
@@ -78,6 +86,13 @@ def main() -> None:
         print("  anchor: OK (mountable)")
 
         part = fin_solid(fin, DEFAULT_SETTINGS)
+        # Validate the WHOLE solid before any splitting: check_solid's volume and
+        # bbox invariants are defined against the complete blade, so running it
+        # on a half reports false failures.
+        report = check_solid(part, fin, DEFAULT_SETTINGS)
+        if not report.ok:
+            raise SystemExit(f"  REFUSING to export {slot}: check_solid {report.issues}")
+        print("  check_solid: OK")
         bb = part.bounding_box()
         print(f"  solid: z {bb.min.Z:.1f}..{bb.max.Z:.1f} mm "
               f"(tabs {abs(bb.min.Z):.1f} mm below the base plane)")

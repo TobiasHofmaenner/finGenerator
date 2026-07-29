@@ -68,23 +68,58 @@ SUSTAINED_WEIGHT_FRACTION = 0.103
 CL_USABLE = 0.65
 FORCE_SF = 1.3
 
-# Material design allowables: ISO-178 XY bending strength times a 0.5
-# print/layup knockdown [Fis23], over a structural SF of 2. The strength
-# literals ARE the datasheet XY bending strengths carried as
-# MaterialCard.strength_xy_mpa in fingen.materials (kept in sync there).
-#   pet-cf = Polymaker Fiberon PET-CF17 [FibPET26], XY bending strength
-#     109.3 MPa (annealed coupon; the 0.5 knockdown covers the as-printed
-#     reality). 109.3·0.5/2 = 27.325 MPa — this REPLACES the former Bambu-PET
-#     value 32.75 (from 131 MPa): a −16.6% move on switching to the user's
-#     actual filament, past the 10% threshold, so re-derived here in step.
-#   paht-cf = Elegoo PAHT-CF (PA12-CF, approximated card [ELPAHT26]). The user's
-#     filament: Elegoo dry XY flexural strength 138 MPa, wet-derated ~0.85 for
-#     PA12 conditioning [3DXPA] -> ~117 MPa; 117·0.5/2 = 29.3 MPa — within ~6%
-#     of the retained 31.25 (the Bambu-analog 125·0.5/2), inside the 10% band
-#     and well inside the approximation's own ±20-30%, so KEPT as-is (literal
-#     stays 125·0.5/2). Test E/G on the real filament is decision-grade.
-#     (Default fin sits far under both: base stress ~13 MPa at peak.)
-_MATERIAL_ALLOW_MPA = {"pet-cf": 109.3 * 0.5 / 2.0, "paht-cf": 125.0 * 0.5 / 2.0}
+# Material design allowables: datasheet strength, moisture-conditioned, times an
+# ORIENTATION-DEPENDENT as-printed knockdown, over a structural SF of 2.
+#
+# WHY ORIENTATION-DEPENDENT. The old blanket 0.5 was, in effect, the material's
+# own Z/XY anisotropy ratio (the card's 67/138 = 0.49) — so applying it to an
+# X-Y strength double-counted anisotropy on a part deliberately printed FLAT so
+# that its bending tension runs IN-PLANE (see scripts/export_martina_set.py:
+# layer planes parallel to the blade faces). Measured 4x4 mm as-printed Elegoo
+# PAHT-CF coupons [ELPAHT-COUPON]: 121.8 kgf X-Y and 19.0 kgf Z, i.e.
+#   X-Y 74.7 MPa tensile = 0.86 of Elegoo's published 87 MPa tensile
+#   Z    11.7 MPa tensile -> Z/XY = 0.156, THREE TIMES worse than the card's
+#                            analogy-derived 0.49 assumption
+# So in-plane loading loses ~15% to as-printed reality, not 50%; through-layer
+# loading loses ~84%. Both directions of that correction matter: the first
+# unblocks the mounting gate, the second says printing a fin UPRIGHT would be
+# far more dangerous than the model previously believed.
+#
+# These are single-source coupon numbers, not yet a controlled series — Test E/G
+# (docs/BENCH-PROTOCOL.md), printed in the fin's own orientation, is what makes
+# them decision-grade. Rounded DOWN from the measurement for that reason.
+PRINT_KNOCKDOWN_INPLANE = 0.85       # X-Y: load within the layer plane
+PRINT_KNOCKDOWN_INTERLAMINAR = 0.16  # Z: load across layer boundaries
+STRUCTURAL_SF = 2.0
+#   pet-cf = Polymaker Fiberon PET-CF17 [FibPET26], X-Y bending strength 109.3
+#     MPa (annealed coupon).
+#   paht-cf = Elegoo PAHT-CF (PA12-CF) [ELPAHT26]: X-Y flexural 138 MPa, times
+#     the 0.85 PA12 wet retention [3DXPA] -> 117 MPa conditioned. (The former
+#     125 MPa was the Bambu analog's ANNEALED coupon — a strength this filament
+#     does not have as printed.)
+# NOTE the allowable below assumes the FLAT print orientation the exporter
+# enforces. A blade printed upright carries its root tension ACROSS layers and
+# must use PRINT_KNOCKDOWN_INTERLAMINAR instead — a ~5x lower allowable.
+# In-service moisture factor on STRENGTH, per material. PA12 absorbs water and
+# softens (0.85 retention [3DXPA]); PET-CF's equilibrium uptake is ~0.53% so it
+# is carried dry. Derived from the CARD rather than re-typed here: a literal
+# would silently drift the day a measured card is registered.
+_MOISTURE_RETENTION = {"pet-cf": 1.0, "paht-cf": 0.85}
+
+
+def _design_allowable_mpa(material: str) -> float:
+    """Design allowable = card X-Y strength · moisture · in-plane as-printed
+    knockdown / structural SF. See the block comment above for why the knockdown
+    is orientation-specific."""
+    from fingen.materials import get_card
+
+    card = get_card(material)
+    return (card.strength_xy_mpa * _MOISTURE_RETENTION.get(material, 1.0)
+            * PRINT_KNOCKDOWN_INPLANE / STRUCTURAL_SF)
+
+
+_MATERIAL_ALLOW_MPA = {m: _design_allowable_mpa(m)
+                       for m in ("pet-cf", "paht-cf")}
 
 # Spanwise center of pressure for the bending arm (fraction of depth) —
 # consistent with the measured tip-first loading fin [BW04].
@@ -97,17 +132,13 @@ CP_SPAN_FRACTION = 0.45
 # or the unity of a generous radius. Calibration target for the load-cell rig.
 KT_TAB = 2.5
 # Structural tab geometry (mm), transcribed from docs/TAB-SYSTEMS.md and the
-# nominal constants fingen.tabs lofts (_DUAL_DEPTH / _CLICK_DEPTH = 14 mm,
-# _SINGLE_DEPTH_SIDE = 17.5 mm). Each entry: (insertion depth below the base
-# plane, per-tab fused neck lengths). The blade root SIDE-BENDING moment is
-# reacted PER TAB as a bearing couple over the insertion DEPTH (see
-# tab_neck_stress_mpa for the free-body); the root shear splits over the tabs;
-# the shortest-neck tab sets the stress. Tier-0 — the exact box-engagement
-# reaction (clamp screw preload, sidewall friction, base bearing) is a
-# bench/tier-1 refinement. The fin's TabParams do NOT parameterize these
-# (x_offset only slides the set; fit_offset/tab_depth change thickness/insertion,
-# not the neck couple), so the nominal geometry is used; the blade thickness at
-# the base IS fin-specific.
+# nominal constants fingen.tabs lofts. Each entry: (insertion depth below the
+# base plane, per-tab CHORDWISE lengths). The lengths set the tabs' combined
+# section modulus at the base plane, which is what carries the root moment (see
+# tab_neck_stress_mpa). The depth is retained for reference — it does NOT enter
+# the base-plane section; the retired bearing-couple model used it as a lever
+# and that was the bug. Tier-0: the box's own reaction distribution (cam-screw
+# preload, sidewall friction, base bearing) is a bench/tier-1 refinement.
 #   DUAL_TAB : two 20 mm tabs, 14 mm insertion depth [FCS-compatible].
 #   CLICK_TAB: 45 + 33 mm tabs, 14 mm insertion depth [FCS II].
 # SINGLE_TAB is handled in the function (its length tracks the base; the Futures
@@ -117,63 +148,72 @@ _TAB_NECK_GEOM = {
     TabSystem.CLICK_TAB: (14.0, (45.0, 33.0)),
 }
 _SINGLE_TAB_DEPTH = 17.5
+# Tab THICKNESSES as lofted by fingen.tabs (kept in sync with the literals
+# there: _DUAL_THICK / _CLICK_THICK / _SINGLE_THICK). The tab section — not the
+# blade's t/c·base — is what carries the root moment at the base plane.
+_DUAL_TAB_THICK = 6.35
+_CLICK_TAB_THICK = 6.35
+_SINGLE_TAB_THICK = 7.19
 
 
 def tab_neck_stress_mpa(fin: FinParams, moment_nm: float, shear_n: float
                         ) -> float | None:
-    """Peak tab-neck stress (MPa) under a root bending `moment_nm` and root
-    `shear_n`, or None when the fin carries no tabs (TabSystem.NONE / glass-on
-    — the gate is then inactive). The worst (highest-stress) tab is returned
-    (docs/TAB-SYSTEMS.md; [Roa01]).
+    """Peak tab stress (MPa) at the base plane under a root bending `moment_nm`
+    and root `shear_n`, or None when the fin carries no tabs (TabSystem.NONE /
+    glass-on — the gate is then inactive). docs/TAB-SYSTEMS.md; [Roa01].
 
-    REACTION MODEL (corrected in the bundle-2 physics pass). The root load is a
-    SIDE-BENDING moment about the CHORDWISE (fore-aft) axis plus a lateral shear.
-    A moment about the fore-aft axis is reacted by forces separated in the
-    SPANWISE direction — i.e. over the tab's INSERTION DEPTH into the box — NOT
-    by the tabs' chordwise spacing. (A lateral-force couple separated chordwise
-    reacts YAW/torsion about the spanwise axis, a different load; flex.py exports
-    no torsion moment to this gate — FlexReport carries only the bending moment
-    and shear — so the chordwise spacing lever is dropped entirely here.)
+    THE SECTION THAT CARRIES IT. Cut the fin at the base plane (z = 0). Every
+    box reaction — bearing on the slot walls, the cam screw, the retention
+    indents — acts BELOW that cut, so by statics the material crossing z = 0
+    transmits the ENTIRE root moment. Below z = 0 the only material is the tabs.
+    So the tabs are loaded in BENDING about their own weak axis, through their
+    own section modulus, at the fused step where the blade ends:
 
-    Bearing-couple lever = (2/3)·depth. Free-body: treat each rigid tab as
-    rotating with the base about the base plane; the tab tip interferes with the
-    slot wall by an amount growing linearly with depth, so the bearing pressure
-    is TRIANGULAR — zero at the base plane, peak at the tab tip. Its resultant
-    R acts at the centroid of that triangle, 2/3 of the depth below the base
-    plane, and forms a couple with the counter-bearing at the base-plane edge:
-        M_tab = R · (2/3)·d   =>   R = M_tab / ((2/3)·d).
-    The side-bending moment is shared EQUALLY across the (equal-depth) tabs, so
-    M_tab = moment_nm / n_tabs (a conservative tier-0 split for the shortest
-    tab: a stiffness-proportional split would give the shorter neck a smaller
-    share — a tier-1 refinement). The shear splits equally too. Each tab's fused
-    neck (chordwise length × blade thickness at the base) carries R_couple +
-    R_shear, and the fillet factor KT_TAB amplifies it.
+        S_tab = Σ L_eff · t_tab² / 6        (coplanar bars, common neutral axis)
+        σ     = KT_TAB · M_root / S_tab  +  V / A_tab
+
+    t_tab is the TAB's thickness (`fingen.tabs` lofts _CLICK_THICK/_DUAL_THICK/
+    _SINGLE_THICK + fit_offset), NOT the blade's t/c·base — the two differ by
+    2-3x and the tab is the thinner. For an FCS II side blade S_tab ≈ 492 mm³,
+    BELOW the blade root's own ≈ 533 mm³: the tab is the smallest section in the
+    load path and carries the largest moment. That is why printed fins snap
+    flush at the deck.
+
+    (The previous model divided a bearing-couple FORCE by the blade's fused
+    footprint — a bearing/shear stress compared against a BENDING allowable. Its
+    implied section modulus was ~8x the real one, reporting SF 4.7 where the
+    bending number is 1.4, so the optimizer never felt this constraint.)
+
+    The moment is split between tabs by their bending stiffness, which for
+    equal-thickness coplanar bars is their length share — so both tabs reach the
+    same σ and the section-modulus sum above is exact. `shear_n` is carried on
+    the FUSED footprint (blade-to-tab overlap), which is where it is actually
+    transferred; that term is small but reported honestly rather than dropped.
     """
     system = fin.tabs.system
     if system is TabSystem.NONE:
         return None
-    # Blade thickness at the base station = t/c · base (the tab's actual fused
-    # thickness envelope; foil truncation is a sub-mm second order here).
-    t_base_m = fin.foil.thickness_ratio * fin.outline.base * 1e-3
+    # Tab thickness as lofted (mm -> m). fit_offset is the printed undersize.
+    t_tab_mm = {
+        TabSystem.DUAL_TAB: _DUAL_TAB_THICK,
+        TabSystem.CLICK_TAB: _CLICK_TAB_THICK,
+        TabSystem.SINGLE_TAB: _SINGLE_TAB_THICK,
+    }[system] + fin.tabs.fit_offset
     if system is TabSystem.SINGLE_TAB:
-        # Futures-style full-base tab: one neck whose chordwise length tracks the
-        # base; the side-bending moment is reacted over the box channel depth.
-        length_mm = min(fin.outline.base - 12.0, 110.0)
-        depth_mm = _SINGLE_TAB_DEPTH
-        necks_m = (length_mm * 1e-3,)
+        lengths_mm = (min(fin.outline.base - 12.0, 110.0),)
     else:
-        depth_mm, necks_mm = _TAB_NECK_GEOM[system]
-        necks_m = tuple(n * 1e-3 for n in necks_mm)
-    n_tabs = len(necks_m)
-    lever_m = (2.0 / 3.0) * depth_mm * 1e-3  # triangular-bearing effective lever
-    r_couple = (moment_nm / n_tabs) / max(lever_m, 1e-6)  # per-tab couple (N)
-    r_shear = shear_n / n_tabs  # shear share per tab (N)
-    peak = 0.0
-    for neck_m in necks_m:
-        area = neck_m * t_base_m  # fused neck footprint (m²)
-        sigma = KT_TAB * (r_couple + r_shear) / max(area, 1e-12) / 1e6
-        peak = max(peak, sigma)
-    return peak
+        _depth_mm, lengths_mm = _TAB_NECK_GEOM[system]
+    # Bending through the tabs' own section at z = 0.
+    s_tab_m3 = sum(length * t_tab_mm**2 / 6.0 for length in lengths_mm) * 1e-9
+    sigma_bend = KT_TAB * moment_nm / max(s_tab_m3, 1e-15) / 1e6
+    # Direct shear over the fused footprint, capped by the tab's own thickness:
+    # the blade can be thinner than the tab under part of the tab (then the weld
+    # is only as thick as the blade), never effectively thicker than the tab.
+    t_blade_mm = fin.foil.thickness_ratio * fin.outline.base
+    t_weld_mm = min(t_blade_mm, t_tab_mm)
+    a_tab_m2 = sum(lengths_mm) * t_weld_mm * 1e-6
+    sigma_shear = shear_n / max(a_tab_m2, 1e-12) / 1e6
+    return sigma_bend + sigma_shear
 
 
 class Skill(Enum):

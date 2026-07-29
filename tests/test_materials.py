@@ -104,16 +104,23 @@ def test_approximated_paht_card():
 # sizing / materials cross-check
 # --------------------------------------------------------------------------- #
 def test_sizing_allowable_derives_from_card_strength():
-    from fingen.sizing import _MATERIAL_ALLOW_MPA
+    from fingen.sizing import _MATERIAL_ALLOW_MPA, PRINT_KNOCKDOWN_INPLANE, STRUCTURAL_SF
 
-    # pet-cf: allowable is exactly the card's dry XY bending strength * 0.5 / SF2.
+    # The allowable is the card's XY bending strength times the IN-PLANE
+    # as-printed knockdown, over the structural SF. In-plane — not the old
+    # blanket 0.5 — because the exporter prints the blade FLAT, so its bending
+    # tension runs within the layer planes; 0.5 was effectively the material's
+    # own Z/XY ratio and double-counted anisotropy on a part oriented to avoid it.
     assert _MATERIAL_ALLOW_MPA["pet-cf"] == pytest.approx(
-        get_card("pet-cf").strength_xy_mpa * 0.5 / 2.0)
-    # paht-cf: Elegoo dry strength wet-derated (×0.85) through the same chain
-    # lands within 10% of the retained literal, so it is kept as-is (sizing.py).
-    conditioned = get_card("paht-cf").strength_xy_mpa * 0.85 * 0.5 / 2.0
-    allow = _MATERIAL_ALLOW_MPA["paht-cf"]
-    assert abs(allow - conditioned) / allow < 0.10
+        get_card("pet-cf").strength_xy_mpa * PRINT_KNOCKDOWN_INPLANE / STRUCTURAL_SF)
+    # paht-cf runs on the Elegoo strength wet-derated (x0.85) through that chain.
+    conditioned = (get_card("paht-cf").strength_xy_mpa * 0.85
+                   * PRINT_KNOCKDOWN_INPLANE / STRUCTURAL_SF)
+    assert _MATERIAL_ALLOW_MPA["paht-cf"] == pytest.approx(conditioned, rel=1e-3)
+    # The in-plane knockdown must stay well ABOVE the through-layer one, or the
+    # flat-print decision has been silently thrown away.
+    from fingen.sizing import PRINT_KNOCKDOWN_INTERLAMINAR
+    assert PRINT_KNOCKDOWN_INPLANE > 4 * PRINT_KNOCKDOWN_INTERLAMINAR
 
 
 # --------------------------------------------------------------------------- #

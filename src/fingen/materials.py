@@ -167,7 +167,7 @@ _ELEGOO_PAHT_CF = MaterialCard(
     e_mpa=round(5089.0 * _PA12_WET_RETENTION, 1),  # ≈4325.7 MPa, conditioned/wet
     e_z_mpa=2190.0,          # DRY, analog: Elegoo X-Y 5089 × Bambu Z/XY (1820/4230)
     strength_xy_mpa=138.0,   # Elegoo flexural strength X-Y (dry)
-    strength_z_mpa=67.0,     # DRY, analog: Elegoo 138 × Bambu Z/XY strength (61/125)
+    strength_z_mpa=22.0,     # MEASURED ratio: 138 × 0.156 (4x4 coupon, see below)
     density_kg_m3=1060.0,    # analog: PA12+CF, Bambu PAHT-CF 1.06 g/cm³ (Elegoo unstated)
     source=("Elegoo PAHT-CF (PA12-CF) [ELPAHT26], structural gaps from the Bambu "
             f"PAHT-CF analog [PAHTCF]; {_ELEGOO_PAHTCF_URL}"),
@@ -180,7 +180,13 @@ _ELEGOO_PAHT_CF = MaterialCard(
         "flexural strength 138 MPa (-> strength_xy_mpa), tensile strength 87 "
         "MPa, elongation 14.2%, base PA12-CF [ELPAHT26]. ANALOG-DERIVED from "
         "Bambu PAHT-CF [PAHTCF] (same PA12+CF class): e_z_mpa via the Z/XY "
-        "modulus ratio 1820/4230, strength_z via 61/125, density 1.06 g/cm3. "
+        "modulus ratio 1820/4230, density 1.06 g/cm3. strength_z is NO LONGER "
+        "that analogy: as-printed 4x4 mm coupons broke at 121.8 kgf X-Y vs "
+        "19.0 kgf Z = 74.7 / 11.7 MPa tensile, a Z/XY of 0.156 against the "
+        "analogy's 0.49 — the cross-brand guess was 3x optimistic, so "
+        "strength_z = 138 x 0.156 = 22 MPa. The same coupons put as-printed "
+        "X-Y at 0.86 of the published tensile, which is why the design "
+        "knockdown is now orientation-split (sizing.PRINT_KNOCKDOWN_*). "
         "CONDITIONED: e_mpa = 5089 x 0.85 (PA12-CF wet retention [3DXPA]) = "
         "4326 MPa, the in-service default. UNCERTAINTY: cross-brand analogy is "
         "good to about +-20-30% on modulus and the wet retention to about +-10 "

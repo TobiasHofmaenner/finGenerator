@@ -228,6 +228,30 @@ class RiderSpec:
     # PAHT-CF card is an APPROXIMATION good to ~+-20-30% on modulus, so a fin
     # meant to be surfed wants real headroom above the gate, not none.
     stress_sf_min: float = 1.0
+    # Maximum tolerable flex lift-knockdown (washout), as a FRACTION. None = no
+    # gate (the original behaviour). This is a HANDLING requirement, not a
+    # structural one: nothing else in the objective bounds deflection, and
+    # washout is applied as a MULTIPLIER on drive/hold — a floppier blade sheds
+    # tip load, which the fleet ranking can read as a better L/D. So the search
+    # can buy score with floppiness right up to the strength wall. A rider who
+    # asks for "locked-in" wants the opposite.
+    washout_max: float | None = None
+    # Required tab safety factor, or None to REPORT ONLY (no penalty).
+    #
+    # The analytic tab model (sizing.tab_neck_stress_mpa) is beam theory across
+    # a stepped section with a GUESSED stress-concentration factor for a fillet
+    # the generator does not build. It is the right order of magnitude and the
+    # wrong tool for a gate: it cannot see the actual junction geometry, and
+    # S_tab is fixed by the box standard, so the search cannot satisfy it by
+    # designing a better tab — only by degrading the blade until the moment
+    # drops (observed: it widens the base to drag the load centroid inboard,
+    # exploiting flex.py's unvalidated w ∝ c(z) load shape, and stability
+    # collapses). Gating on a model that crude buys a worse fin, not a safer one.
+    #
+    # None = let tier-1 adjudicate: CFD surface pressure -> FEM with the mesh
+    # fixed at the BOX interface, which resolves the tab junction directly
+    # instead of guessing K_t. That is task #24's stated plan.
+    tab_sf_min: float | None = 1.0
     spider_targets: dict[str, float] | None = None
     practical_corridor: bool = True
 
@@ -244,11 +268,24 @@ class RiderSpec:
         """Resolved design riding speed (m/s)."""
         return self.speed_ms if self.speed_ms is not None else _SKILL_SPEED_MS[self.skill]
 
-    def resolved_targets(self) -> dict[str, float]:
-        """Derived defaults with any explicit override merged over them."""
+    def resolved_targets(self, *, rear_member: bool = False) -> dict[str, float]:
+        """Derived defaults with any explicit override merged over them.
+
+        `rear_member` returns the target vector for the aft/CENTER blade of a
+        set. It is a DIFFERENT machine from the side fin and must not be scored
+        against the side's wishes: a symmetric 50/50 blade on the stringer
+        cannot reach a side fin's forgiveness or stability numbers at all, so
+        holding it to them drives it into the corner of the feasible box
+        (base-min, area-max, AR-max, t/c-max simultaneously) chasing points it
+        can never score. Its job is to anchor the tail — hold and pivot — while
+        the fronts drive; forgiveness and stability belong to the side blade.
+        """
         targets = default_spider_targets(self.weight_kg, self.skill)
         if self.spider_targets:
             targets.update({a: float(v) for a, v in self.spider_targets.items()})
+        if rear_member:
+            targets = dict(targets)
+            targets.update(_CENTER_TARGET_OVERRIDES)
         return targets
 
 
@@ -303,6 +340,17 @@ _CENTER_DESIGN_CONFIGS = frozenset({FinConfig.THRUSTER})
 # split: two front fins + one rear making (1−deficit) of a front → the center is
 # ~0.27–0.35 of the fin-force at working leeway. A share, not new physics.
 CENTER_OBJECTIVE_WEIGHT = 0.35
+# Target overrides for the aft/CENTER member (see RiderSpec.resolved_targets).
+# Reachability, not preference: a SYMMETRIC blade on the stringer tops out far
+# below a flat-inside side fin on forgiveness and stability, so those targets
+# are set where the member can actually live. Its role is to ANCHOR the tail —
+# hold and pivot — while the forward pair drives, hence pivot up and drive down.
+_CENTER_TARGET_OVERRIDES = {
+    "forgiveness": 0.10,
+    "stability": 0.30,
+    "pivot": 0.55,
+    "drive": 0.60,
+}
 
 
 def falk_rear_deficit(alpha_deg: float) -> float:
@@ -473,17 +521,28 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     div_req = DIVERGENCE_SF * speed
     if flex.divergence_speed_ms < div_req:
         penalties["divergence"] = (div_req - flex.divergence_speed_ms) / div_req
+    # Stiffness gate (handling): cap how much lift the blade sheds to flex.
+    if rider.washout_max is not None:
+        washout_frac = abs(flex.lift_knockdown)
+        if washout_frac > rider.washout_max:
+            penalties["washout"] = ((washout_frac - rider.washout_max)
+                                    / max(rider.washout_max, 1e-6))
 
-    # Tab-mounting gate (#24): resolve the combined-case root moment + shear into
-    # per-tab neck reactions (fingen.sizing.tab_neck_stress_mpa), against the SAME
-    # material allowable the blade gate uses. Inactive (tab_sf = ∞, no penalty)
-    # for glass-on / TabSystem.NONE fins — including every blade the optimizer
-    # decodes today, which carries no tab system.
+    # Tab-mounting gate (#24): the combined-case root moment + shear through the
+    # TABS' own section at the base plane (fingen.sizing.tab_neck_stress_mpa),
+    # against the SAME material allowable the blade gate uses. LIVE whenever the
+    # rider's board has boxes (RiderSpec.tabs); inactive (tab_sf = ∞) only for
+    # glass-on / TabSystem.NONE.
+    #
+    # Held to the SAME safety factor as the blade, not a laxer 1.0: the tab is a
+    # smaller, notched, stress-concentrated section carrying the full root
+    # moment — S_tab is BELOW the blade root's own S — so giving it less margin
+    # than the blade is backwards.
     tab_stress = tab_neck_stress_mpa(fin, flex.root_moment_roll_nm,
                                      flex.root_shear_roll_n)
     tab_sf = math.inf if tab_stress is None else sheet.allow_mpa / max(tab_stress, 1e-12)
-    if tab_sf < 1.0:
-        penalties["tab_sf"] = 1.0 - tab_sf
+    if rider.tab_sf_min is not None and tab_sf < rider.tab_sf_min:
+        penalties["tab_sf"] = (rider.tab_sf_min - tab_sf) / rider.tab_sf_min
 
     penalty_sum = float(sum(penalties.values()))
     feasible = penalty_sum <= 1e-9
@@ -533,7 +592,7 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     predicted = _normalize(raw, _fleet_raw(round(speed, 2),
                                            round(rider.weight_kg, 2)))
     predicted["hold"] = spider.hold_score(f_max_eff, req)
-    targets = rider.resolved_targets()
+    targets = rider.resolved_targets(rear_member=rear_member)
     distance = 0.0
     for axis in spider.AXES:
         tgt = targets[axis]
@@ -574,9 +633,9 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
         issues.append(f"roll-augmented bending SF {stress_sf_roll:.2f} < "
                       f"{rider.stress_sf_min:.2f} "
                       f"(p_design {_P_DESIGN_RAD_S[rider.skill]:.1f} rad/s)")
-    if tab_sf < 1.0:
-        issues.append(f"tab-neck SF {tab_sf:.2f} < 1.0 at the combined load "
-                      f"({fin.tabs.system.value})")
+    if rider.tab_sf_min is not None and tab_sf < rider.tab_sf_min:
+        issues.append(f"tab SF {tab_sf:.2f} < {rider.tab_sf_min:.2f} at the "
+                      f"combined load ({fin.tabs.system.value})")
     if flex.f_wet_hz < F_WET_MIN_HZ:
         issues.append(f"wet fundamental {flex.f_wet_hz:.1f} Hz < {F_WET_MIN_HZ:.0f} Hz")
     if flex.divergence_speed_ms < div_req:
@@ -1065,6 +1124,8 @@ def result_to_dict(result: OptimizationResult) -> dict:
             "material": rider.material,
             "tabs": rider.tabs.value,
             "stress_sf_min": rider.stress_sf_min,
+            "washout_max": rider.washout_max,
+            "tab_sf_min": rider.tab_sf_min,
             "spider_targets": rider.resolved_targets(),
             "practical_corridor": rider.practical_corridor,
         },

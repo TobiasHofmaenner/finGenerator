@@ -32,6 +32,15 @@ RIDER = RiderSpec(
     # PAHT-CF card is an approximation good to ~±20-30% on modulus, so "SF 1.0"
     # there is not really 1.0. This fin gets surfed; buy the margin.
     stress_sf_min=1.3,
+    # Cap the lift the blade sheds to flex. Without it the search buys spider
+    # points with floppiness (washout multiplies drive/hold) right up to the
+    # strength wall — the opposite of the "locked-in" she asked for.
+    washout_max=0.03,
+    # Tab REPORTED, not gated. The analytic model is too crude to design
+    # against (it cannot see the junction, and S_tab is fixed by the box, so
+    # the search can only satisfy it by wrecking the blade). Tier-1 adjudicates:
+    # CFD pressure -> FEM fixed at the box interface. Task #24.
+    tab_sf_min=None,
     spider_targets={
         "speed": 0.85,        # her explicit ask: more speed than the Palmbay S
         "drive": 0.85,        # "locked-in and drivey"
