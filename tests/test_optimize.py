@@ -591,10 +591,18 @@ def test_roll_augmented_stress_gate_uses_worse_case():
     assert r.margins["stress_sf_roll"] < r.margins["stress_sf"]  # roll adds tip load
     worst = min(r.margins["stress_sf"], r.margins["stress_sf_roll"])
     assert worst < 1.0  # this blade is overstressed
-    # Mutation guard "gate uses steady only": the penalty must come from the
-    # WORSE (roll) margin, not the steady one.
-    assert r.penalties["stress"] == pytest.approx(1.0 - worst)
+    # Mutation guard "gate uses steady only": the penalty must be driven by the
+    # WORSE (roll) case, not the steady one.
     assert r.penalties["stress"] != pytest.approx(1.0 - r.margins["stress_sf"])
+    # The penalty comes from the ENVELOPE that check_anchor also reads —
+    # max(root-plane estimate, worst span sweep) — not from flex's span sweep
+    # alone. That is what keeps the optimizer's wall and the exporter's wall
+    # from crossing (see test_soft_and_hard_stress_gates_never_cross). The
+    # envelope can only be the STRICTER of the two, never looser:
+    envelope_sf = 1.0 - r.penalties["stress"]
+    assert envelope_sf <= worst + 1e-9
+    # ...and on this blade the root term is what adds the extra bite.
+    assert r.penalties["stress"] >= 1.0 - worst
 
 
 def test_tab_sf_gate_active_inactive_and_grades():
@@ -653,3 +661,44 @@ def test_normalize_stable_at_tied_fleet_values():
         assert abs(a[ax] - 30.0) < 1.0     # mean rank of the 4-way tie
         assert abs(a[ax] - b[ax]) < 0.5
         assert abs(a[ax] - c[ax]) < 0.5
+
+
+def test_soft_and_hard_stress_gates_never_cross():
+    """evaluate() must never call a fin feasible that check_anchor refuses.
+
+    These are the OPTIMIZER's wall and the EXPORTER's wall, and they used to
+    read different numbers: the soft gate saw only flex's span sweep while the
+    hard gate took the envelope with the root-plane estimate, which governs
+    ~71 % of fins. An audit found 26 fins in a 17k-fin search that evaluate
+    called feasible and check_anchor refused — scripts/export_martina_set.py
+    turns exactly that into a SystemExit on a fin the optimizer just shipped.
+
+    Both now read peak_bending_stress_mpa over the worse of steady and roll:
+    one number, two thresholds (rider.stress_sf_min for the search, 1.0 for the
+    exporter). This test is the thing that keeps them that way.
+    """
+    import numpy as np
+
+    from fingen.optimize import _SLIDER_BOUNDS, _decode
+    from fingen.sizing import anchor, check_anchor
+
+    rider = RiderSpec(weight_kg=95.0, skill=Skill.PRO, config=FinConfig.THRUSTER,
+                      material="pet-cf", tabs=TabSystem.NONE)
+    sheet = anchor(rider.weight_kg, rider.skill, design_speed=rider.speed,
+                   config=rider.config, material=rider.material, tabs=rider.tabs)
+    rng = np.random.default_rng(7)
+    feasible = 0
+    for _ in range(1500):
+        x = rng.random(len(_SLIDER_BOUNDS))
+        try:
+            fin = _decode(x, rider.config, use_offsets=False, use_grooves=False,
+                          tabs=rider.tabs)
+            res = evaluate(fin, rider)
+        except Exception:  # noqa: BLE001 — decode rejects are not the subject
+            continue
+        if not res.feasible:
+            continue
+        feasible += 1
+        assert not check_anchor(fin, sheet), (
+            f"evaluate() passed a fin check_anchor refuses: {check_anchor(fin, sheet)}")
+    assert feasible > 20, f"probe found only {feasible} feasible fins — not a real test"

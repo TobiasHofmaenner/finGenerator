@@ -69,6 +69,7 @@ from fingen.sizing import (
     Skill,
     anchor,
     check_anchor,
+    peak_bending_stress_mpa,
     required_side_force_n,
     tab_neck_stress_mpa,
 )
@@ -515,9 +516,23 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     # the steady peak; the gate takes the WORSE of steady-only and combined.
     flex = flex_report(fin, sheet.force_peak_n, speed, material=rider.material,
                        p_design_rad_s=_P_DESIGN_RAD_S[rider.skill])
+    # ONE STRESS NUMBER, TWO THRESHOLDS. The soft gate here and the hard gate in
+    # sizing.check_anchor must read the SAME quantity or the two walls cross:
+    # they did, and an audit found 26 fins in a 17k-fin search that evaluate
+    # called feasible and check_anchor refused — which scripts/export_set.py
+    # turns into a SystemExit on a fin the optimizer just shipped. The soft gate
+    # saw only flex's SPAN sweep while the hard gate took the envelope with the
+    # root-plane estimate, and the root term governs ~71 % of fins.
+    #
+    # So both now read peak_bending_stress_mpa over the worst of steady and
+    # roll. The optimizer targets rider.stress_sf_min; the exporter refuses only
+    # at 1.0. Same wall, two heights, which is coherent — a margin the search
+    # aims for versus an overload the exporter will not write.
+    span_worst = max(flex.stress_max_mpa, flex.stress_max_roll_mpa)
+    stress_mpa = peak_bending_stress_mpa(fin, sheet, span_worst)
+    worst_stress_sf = sheet.allow_mpa / max(stress_mpa, 1e-12)
     stress_sf = flex.stress_margin
     stress_sf_roll = flex.stress_margin_roll
-    worst_stress_sf = min(stress_sf, stress_sf_roll)
     if worst_stress_sf < rider.stress_sf_min:
         penalties["stress"] = ((rider.stress_sf_min - worst_stress_sf)
                                / rider.stress_sf_min)
@@ -653,7 +668,7 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
         "roll_agility": roll.agility_proxy,
         "roll_set_damping_nm_s": roll_set.roll_damping_nm_s,
     }
-    issues = check_anchor(fin, sheet, flex.stress_max_mpa)
+    issues = check_anchor(fin, sheet, span_worst)   # SAME number as the soft gate
     if stress_sf < rider.stress_sf_min:
         issues.append(f"flex bending SF {stress_sf:.2f} < {rider.stress_sf_min:.2f} "
                       "at the peak load")
