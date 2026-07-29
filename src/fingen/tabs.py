@@ -61,6 +61,35 @@ def system_depth(tabs: TabParams) -> float:
             TabSystem.CLICK_TAB: _CLICK_DEPTH}[tabs.system]
 
 
+def tab_span_x(fin: FinParams) -> tuple[float, float] | None:
+    """(x_lo, x_hi) chordwise extent the tab set occupies, or None for NONE.
+
+    Used to tell the tab-to-blade junction edges apart from the blade's own
+    base outline — both lie in z = 0, only the first is a step."""
+    tabs = fin.tabs
+    if tabs.system is TabSystem.NONE:
+        return None
+    base = fin.outline.base
+    if tabs.system is TabSystem.SINGLE_TAB:
+        length = min(base - 12.0, _SINGLE_MAXLEN)
+        x0 = (base - length) / 2.0 + tabs.x_offset
+        return x0, x0 + length
+    span = (_DUAL_PITCH + _DUAL_LEN if tabs.system is TabSystem.DUAL_TAB
+            else _CLICK_SPAN)
+    x0 = (base - span) / 2.0 + tabs.x_offset
+    return x0, x0 + span
+
+
+def system_thickness(tabs: TabParams) -> float:
+    """Nominal tab thickness as lofted, including the printed fit_offset."""
+    if tabs.system is TabSystem.NONE:
+        return 0.0
+    nominal = {TabSystem.DUAL_TAB: _DUAL_THICK,
+               TabSystem.SINGLE_TAB: _SINGLE_THICK,
+               TabSystem.CLICK_TAB: _CLICK_THICK}[tabs.system]
+    return nominal + tabs.fit_offset
+
+
 def _base_mid_y(fin: FinParams, settings: GenSettings) -> float:
     """Mid-thickness of the base section — the non-flat-family tab centerline."""
     upper, lower = section_points(fin.foil, fin.outline.base,

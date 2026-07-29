@@ -196,4 +196,11 @@ def fin_solid(fin: FinParams, settings: GenSettings = DEFAULT_SETTINGS) -> Part:
     tabs = build_tabs(fin, settings)
     if tabs is not None:
         solid = solid + tabs
+        # Blend the fused junction. A plain union leaves a sharp re-entrant
+        # corner at z=0 — the max-moment station in the tab — while the stress
+        # model checks it against a FILLETED-shoulder K_t. Degrades to the
+        # sharp solid if OCCT declines the blend (see fingen.tabfillet).
+        from fingen.tabfillet import apply_tab_fillets
+
+        solid, _ = apply_tab_fillets(Part() + solid, fin, settings)
     return Part() + solid

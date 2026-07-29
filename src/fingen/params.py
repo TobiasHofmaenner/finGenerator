@@ -154,6 +154,21 @@ class TabParams:
         fins need overhang for the set to fit at all — but each tab must
         keep ≥ half its length (min 8 mm) engaged under the base (checked
         at build time with a per-tab message).
+    root_fillet: radius (mm) blending the tab into the blade at the base plane.
+        DEFAULT 0 (opt-in): a filleted solid currently defeats check_solid's
+        boolean section probe — volume and topology stay correct but the slab
+        intersection comes back empty, so the checker cannot verify the body.
+        Until that is resolved the blend is requested explicitly (the FEM
+        ladder does), never applied silently to a fin someone will print. This is the SHARP RE-ENTRANT CORNER at z = 0 — the
+        max-moment station in the tab and the classic crack starter for a
+        printed fin. sizing.KT_TAB is documented as a FILLETED-shoulder value,
+        so without this the geometry does not match the stress model it is
+        checked against. Bounded small because the box slot has to accept the
+        tab: the blend has to live inside the step between blade and tab
+        thickness, and is clamped to it at build time.
+    tip_fillet: radius (mm) on the tab's bottom edges. DEFAULT 0, see above. Deep in
+        the box there is clearance and nothing to interfere with, so this one
+        is free — it just removes a stress riser and eases insertion.
     y_offset: shifts the tabs across the section thickness, mm, applied on
         top of the family anchor: FLAT_INSIDE fins anchor the tab's inner
         face flush with the y = 0 flat plane (bed-flat printing, matching
@@ -167,6 +182,8 @@ class TabParams:
     fit_offset: float = -0.2
     tab_depth: float | None = None
     click_indent_depth: float = 0.9
+    root_fillet: float = 0.0
+    tip_fillet: float = 0.0
     x_offset: float = 0.0
     y_offset: float = 0.0
 
@@ -177,6 +194,10 @@ class TabParams:
                  f"tab_depth {self.tab_depth} mm outside 8–20 mm")
         _require(0.0 <= self.click_indent_depth <= 1.5,
                  f"click_indent_depth {self.click_indent_depth} mm outside 0–1.5 mm")
+        _require(0.0 <= self.root_fillet <= 2.0,
+                 f"root_fillet {self.root_fillet} mm outside 0–2 mm")
+        _require(0.0 <= self.tip_fillet <= 3.0,
+                 f"tip_fillet {self.tip_fillet} mm outside 0–3 mm")
         _require(-40.0 <= self.x_offset <= 40.0,
                  f"tab x_offset {self.x_offset} mm outside ±40 mm")
         _require(-3.0 <= self.y_offset <= 3.0,
