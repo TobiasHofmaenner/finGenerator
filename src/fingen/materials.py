@@ -106,7 +106,27 @@ class MaterialCard:
     provenance: str = "datasheet"  # "datasheet" | "measured" | "approximated"
     annealed: bool = True          # True = numbers are for annealed specimens
     e_mpa_dry: float | None = None  # dry-state X-Y flexural modulus when e_mpa is conditioned
+    # As-printed IN-PLANE strength retention: the fraction of the datasheet X-Y
+    # strength a real printed part reaches. NOT derivable from a datasheet — it
+    # is a property of the print (nozzle, layer height, temperature, bonding),
+    # not of the polymer — so it has to be measured per material AND per
+    # process. Defaults to the one value we have measured; a card that has not
+    # been coupon-tested inherits it, and the extra uncertainty is carried by
+    # the provenance-scaled structural SF rather than smeared in here (see
+    # fingen.sizing._design_allowable_mpa: uncertainty is booked ONCE).
+    as_printed_retention: float = 0.85
     derivation: str = ""            # note: which numbers are measured vs analog-derived
+
+    @property
+    def interlaminar_ratio(self) -> float:
+        """Z/XY strength ratio — the through-layer knockdown, DERIVED.
+
+        This used to be a module-level constant in fingen.sizing fitted to
+        paht-cf (22/138 = 0.159) and applied to every material. It is 2.3x to
+        4.9x too pessimistic for the others — PLA is 0.776, nearly isotropic —
+        and it duplicated data the card already carried. Read it from the card.
+        """
+        return self.strength_z_mpa / max(self.strength_xy_mpa, 1e-9)
 
 
 # Access date for the datasheet cards below (TDS PDFs re-pulled and

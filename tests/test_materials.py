@@ -104,23 +104,53 @@ def test_approximated_paht_card():
 # sizing / materials cross-check
 # --------------------------------------------------------------------------- #
 def test_sizing_allowable_derives_from_card_strength():
-    from fingen.sizing import _MATERIAL_ALLOW_MPA, PRINT_KNOCKDOWN_INPLANE, STRUCTURAL_SF
+    from fingen.sizing import _MATERIAL_ALLOW_MPA, STRUCTURAL_SF
 
-    # The allowable is the card's XY bending strength times the IN-PLANE
-    # as-printed knockdown, over the structural SF. In-plane — not the old
-    # blanket 0.5 — because the exporter prints the blade FLAT, so its bending
-    # tension runs within the layer planes; 0.5 was effectively the material's
-    # own Z/XY ratio and double-counted anisotropy on a part oriented to avoid it.
-    assert _MATERIAL_ALLOW_MPA["pet-cf"] == pytest.approx(
-        get_card("pet-cf").strength_xy_mpa * PRINT_KNOCKDOWN_INPLANE / STRUCTURAL_SF)
-    # paht-cf runs on the Elegoo strength wet-derated (x0.85) through that chain.
-    conditioned = (get_card("paht-cf").strength_xy_mpa * 0.85
-                   * PRINT_KNOCKDOWN_INPLANE / STRUCTURAL_SF)
-    assert _MATERIAL_ALLOW_MPA["paht-cf"] == pytest.approx(conditioned, rel=1e-3)
-    # The in-plane knockdown must stay well ABOVE the through-layer one, or the
-    # flat-print decision has been silently thrown away.
-    from fingen.sizing import PRINT_KNOCKDOWN_INTERLAMINAR
-    assert PRINT_KNOCKDOWN_INPLANE > 4 * PRINT_KNOCKDOWN_INTERLAMINAR
+    # The allowable is the card's XY bending strength times the CARD's own
+    # as-printed retention, over a PROVENANCE-SCALED structural SF. In-plane —
+    # not the old blanket 0.5 — because the exporter prints the blade FLAT, so
+    # its bending tension runs within the layer planes.
+    for mat, moisture in (("pet-cf", 1.0), ("paht-cf", 0.85)):
+        card = get_card(mat)
+        assert _MATERIAL_ALLOW_MPA[mat] == pytest.approx(
+            card.strength_xy_mpa * moisture * card.as_printed_retention
+            / STRUCTURAL_SF, rel=1e-3)
+
+
+def test_interlaminar_ratio_is_per_card_not_global():
+    """The through-layer knockdown used to be a module constant fitted to
+    paht-cf (22/138 = 0.159) and applied to every material. It is derived from
+    the card now, because the cards genuinely disagree: PLA is nearly isotropic
+    at 0.776, paht-cf is 0.159 — a 4.9x spread that one constant cannot carry."""
+    from fingen.materials import CARDS
+
+    ratios = {c.name: c.interlaminar_ratio for c in CARDS.values()}
+    assert ratios["paht-cf"] == pytest.approx(22.0 / 138.0, rel=1e-6)
+    assert ratios["pla"] > 0.7          # nearly isotropic
+    assert ratios["paht-cf"] < 0.2      # strongly anisotropic
+    # The spread is the whole point: a single global value is wrong for someone.
+    assert max(ratios.values()) / min(ratios.values()) > 4.0
+
+
+def test_upright_print_allowable_is_far_lower_for_anisotropic_cards():
+    """Printing a blade upright puts bending tension ACROSS layers. The penalty
+    must track the CARD, not a constant: severe for paht-cf, mild for PLA."""
+    from fingen.sizing import _design_allowable_mpa, interlaminar_allowable_mpa
+
+    flat = _design_allowable_mpa("paht-cf")
+    assert interlaminar_allowable_mpa("paht-cf") < 0.2 * flat
+
+
+def test_allowable_uses_only_fields_the_card_actually_measures():
+    """Guard against re-deriving the allowable from whole-card metadata.
+
+    Scaling the SF by MaterialCard.provenance was tried and reverted: the flag
+    describes the card as a whole, but this allowable reads exactly one field,
+    and for paht-cf ("approximated") that field is Elegoo's own published
+    flexural strength. Only e_z_mpa and density are analogised there."""
+    card = get_card("paht-cf")
+    assert card.provenance == "approximated"
+    assert "138 MPa" in card.derivation and "ELEGOO" in card.derivation.upper()
 
 
 # --------------------------------------------------------------------------- #

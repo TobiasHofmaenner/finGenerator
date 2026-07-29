@@ -252,6 +252,11 @@ class RiderSpec:
     # fixed at the BOX interface, which resolves the tab junction directly
     # instead of guessing K_t. That is task #24's stated plan.
     tab_sf_min: float | None = 1.0
+    # Tip deflection as a fraction of span, above which the LINEAR flex model
+    # that produced every structural number is out of validity. Not a comfort
+    # preference — see the gate in evaluate(). None disables it, which should be
+    # reserved for deliberately probing the nonlinear regime.
+    tip_deflection_max_frac: float | None = 0.15
     spider_targets: dict[str, float] | None = None
     practical_corridor: bool = True
 
@@ -521,6 +526,29 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     div_req = DIVERGENCE_SF * speed
     if flex.divergence_speed_ms < div_req:
         penalties["divergence"] = (div_req - flex.divergence_speed_ms) / div_req
+    # MODEL-VALIDITY gate, not a design preference. Everything above comes out
+    # of a LINEAR Euler-Bernoulli solve (fingen.flex), and linear beam theory
+    # stops describing a cantilever once the tip moves an appreciable fraction
+    # of its span: the moment arm shortens and the load rotates relative to the
+    # deforming surface. Tier-1 measured a 3.7 % stress shift at 10.3 % of span
+    # on the anchor blade (docs/FEM-BENCH.md), so ~15 % is where the linear
+    # numbers stop being worth quoting.
+    #
+    # WHY THIS EXISTS AT ALL. Without it the search finds the floppy corner and
+    # lives there: a 95 kg FCS1 run produced a centre blade deflecting 36.6 % of
+    # span while reporting washout 2.00 % — a fin bending that far cannot be
+    # shedding 2 % of its lift, so the two outputs contradicted each other and
+    # nothing caught it. Both blades sat pinned at the t/c floor AND the washout
+    # cap, the signature of an optimizer exploiting a region where the model
+    # under-reports the penalty. A stress or washout number computed outside the
+    # model's validity is not a conservative estimate; it is not an estimate.
+    if rider.tip_deflection_max_frac is not None:
+        defl_frac = abs(flex.tip_deflection_mm) / max(fin.outline.depth, 1e-9)
+        if defl_frac > rider.tip_deflection_max_frac:
+            penalties["tip_deflection"] = (
+                (defl_frac - rider.tip_deflection_max_frac)
+                / rider.tip_deflection_max_frac)
+
     # Stiffness gate (handling): cap how much lift the blade sheds to flex.
     if rider.washout_max is not None:
         washout_frac = abs(flex.lift_knockdown)

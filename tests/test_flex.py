@@ -213,10 +213,10 @@ def test_wrapper_material_and_modulus_paths():
     # SF. In-plane because the blade is printed FLAT (bending tension within the
     # layer planes) — the old blanket 0.5 was the material's own Z/XY ratio and
     # double-counted anisotropy on a part oriented to avoid it.
-    from fingen.sizing import PRINT_KNOCKDOWN_INPLANE, STRUCTURAL_SF
+    from fingen.sizing import STRUCTURAL_SF
+    card = get_card("paht-cf")
     assert paht.allow_mpa == pytest.approx(
-        get_card("paht-cf").strength_xy_mpa * 0.85
-        * PRINT_KNOCKDOWN_INPLANE / STRUCTURAL_SF)
+        card.strength_xy_mpa * 0.85 * card.as_printed_retention / STRUCTURAL_SF)
     with pytest.raises(ValueError):
         flex_report(fin, 74.0, 6.4, material="unobtainium")
     with pytest.raises(ValueError):

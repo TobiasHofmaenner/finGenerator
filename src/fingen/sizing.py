@@ -68,54 +68,68 @@ SUSTAINED_WEIGHT_FRACTION = 0.103
 CL_USABLE = 0.65
 FORCE_SF = 1.3
 
-# Material design allowables: datasheet strength, moisture-conditioned, times an
-# ORIENTATION-DEPENDENT as-printed knockdown, over a structural SF of 2.
+# Material design allowables: datasheet strength, moisture-conditioned, times
+# the card's AS-PRINTED retention, over a provenance-scaled structural SF.
 #
-# WHY ORIENTATION-DEPENDENT. The old blanket 0.5 was, in effect, the material's
-# own Z/XY anisotropy ratio (the card's 67/138 = 0.49) — so applying it to an
-# X-Y strength double-counted anisotropy on a part deliberately printed FLAT so
-# that its bending tension runs IN-PLANE (see scripts/export_martina_set.py:
-# layer planes parallel to the blade faces). Measured 4x4 mm as-printed Elegoo
-# PAHT-CF coupons [ELPAHT-COUPON]: 121.8 kgf X-Y and 19.0 kgf Z, i.e.
-#   X-Y 74.7 MPa tensile = 0.86 of Elegoo's published 87 MPa tensile
-#   Z    11.7 MPa tensile -> Z/XY = 0.156, THREE TIMES worse than the card's
-#                            analogy-derived 0.49 assumption
-# So in-plane loading loses ~15% to as-printed reality, not 50%; through-layer
-# loading loses ~84%. Both directions of that correction matter: the first
-# unblocks the mounting gate, the second says printing a fin UPRIGHT would be
-# far more dangerous than the model previously believed.
+# EVERY FACTOR THAT IS A PROPERTY OF THE MATERIAL NOW LIVES ON THE CARD. Three
+# used to be module-level constants applied to every material alike:
 #
-# These are single-source coupon numbers, not yet a controlled series — Test E/G
-# (docs/BENCH-PROTOCOL.md), printed in the fin's own orientation, is what makes
-# them decision-grade. Rounded DOWN from the measurement for that reason.
-PRINT_KNOCKDOWN_INPLANE = 0.85       # X-Y: load within the layer plane
-PRINT_KNOCKDOWN_INTERLAMINAR = 0.16  # Z: load across layer boundaries
+#   * INTERLAMINAR (Z/XY) knockdown — was 0.16, fitted to paht-cf (22/138) and
+#     applied to all. Every card already carries strength_z_mpa, so the constant
+#     duplicated card data AND disagreed with it: 2.3x-4.9x too pessimistic for
+#     the others (PLA is 0.776, nearly isotropic). Now MaterialCard
+#     .interlaminar_ratio, derived.
+#   * IN-PLANE as-printed retention — was 0.85 globally, but sourced to Elegoo
+#     PAHT-CF coupons specifically [ELPAHT-COUPON]: 121.8 kgf X-Y and 19.0 kgf Z
+#     on 4x4 mm bars, i.e. X-Y 74.7 MPa = 0.86 of Elegoo's published 87 MPa
+#     tensile. It is NOT derivable from a datasheet — it is a property of the
+#     PRINT (nozzle, layer height, temperature), not the polymer — so it is a
+#     per-card field, MaterialCard.as_printed_retention, measured where we have
+#     coupons and inherited where we do not.
+# STRUCTURAL_SF STAYS FLAT AT 2.0, and that is a considered decision rather than
+# an omission. Scaling it by the card's `provenance` was tried and REVERTED: the
+# flag describes the card AS A WHOLE, but this allowable depends on exactly one
+# field, strength_xy_mpa, and for the card that flag would have penalised
+# (paht-cf, "approximated") that field is Elegoo's OWN published flexural
+# strength — datasheet quality. Only e_z_mpa and density are analogised, and
+# neither enters here. Derating a measured strength because an unrelated field
+# on the same card was estimated is a category error, and it cost 23 % of the
+# allowable for nothing. Doing this properly needs per-FIELD provenance, which
+# is not worth the machinery until a second card actually needs it.
+#
+# WHY THE UNCERTAINTY IS BOOKED ONCE. A card we have not coupon-tested inherits
+# the measured retention rather than getting an invented lower one: guessing a
+# second knockdown for the same unknown would double-count it. The uncertainty
+# of an unvalidated card is carried in ONE place, _PROVENANCE_SF, so it is
+# visible and adjustable instead of smeared across three factors.
+#
+# NOTE the allowable assumes the FLAT print orientation the exporter enforces. A
+# blade printed upright carries its root tension ACROSS layers and must use the
+# card's interlaminar_ratio instead — for paht-cf a ~5x lower allowable, but for
+# PLA only ~1.1x, which is exactly the material-specificity the old global
+# constant destroyed.
 STRUCTURAL_SF = 2.0
-#   pet-cf = Polymaker Fiberon PET-CF17 [FibPET26], X-Y bending strength 109.3
-#     MPa (annealed coupon).
-#   paht-cf = Elegoo PAHT-CF (PA12-CF) [ELPAHT26]: X-Y flexural 138 MPa, times
-#     the 0.85 PA12 wet retention [3DXPA] -> 117 MPa conditioned. (The former
-#     125 MPa was the Bambu analog's ANNEALED coupon — a strength this filament
-#     does not have as printed.)
-# NOTE the allowable below assumes the FLAT print orientation the exporter
-# enforces. A blade printed upright carries its root tension ACROSS layers and
-# must use PRINT_KNOCKDOWN_INTERLAMINAR instead — a ~5x lower allowable.
-# In-service moisture factor on STRENGTH, per material. PA12 absorbs water and
-# softens (0.85 retention [3DXPA]); PET-CF's equilibrium uptake is ~0.53% so it
-# is carried dry. Derived from the CARD rather than re-typed here: a literal
-# would silently drift the day a measured card is registered.
 _MOISTURE_RETENTION = {"pet-cf": 1.0, "paht-cf": 0.85}
 
 
 def _design_allowable_mpa(material: str) -> float:
-    """Design allowable = card X-Y strength · moisture · in-plane as-printed
-    knockdown / structural SF. See the block comment above for why the knockdown
-    is orientation-specific."""
+    """Design allowable = card X-Y strength · moisture · the card's as-printed
+    retention / the structural SF. Every material-DEPENDENT factor now comes
+    from the CARD; only the SF is module policy. See the block comment above."""
     from fingen.materials import get_card
 
     card = get_card(material)
     return (card.strength_xy_mpa * _MOISTURE_RETENTION.get(material, 1.0)
-            * PRINT_KNOCKDOWN_INPLANE / STRUCTURAL_SF)
+            * card.as_printed_retention / STRUCTURAL_SF)
+
+
+def interlaminar_allowable_mpa(material: str) -> float:
+    """Allowable for a blade printed UPRIGHT, where bending tension crosses
+    layer boundaries. Uses the card's own Z/XY ratio rather than a global
+    constant — the anisotropy of PLA (0.78) and paht-cf (0.16) differ by 5x."""
+    from fingen.materials import get_card
+
+    return _design_allowable_mpa(material) * get_card(material).interlaminar_ratio
 
 
 _MATERIAL_ALLOW_MPA = {m: _design_allowable_mpa(m)
