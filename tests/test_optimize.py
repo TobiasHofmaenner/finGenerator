@@ -49,12 +49,17 @@ def test_evaluate_is_fast_and_deterministic():
     rider = RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE, config=FinConfig.THRUSTER)
     fin = _side_default()
     r1 = evaluate(fin, rider)  # warm the fleet-normalization cache
+    # CPU time, not wall clock: the budget guards how much WORK evaluate does
+    # (a few-thousand-evaluation search has to stay seconds), and wall clock on
+    # a shared CI runner under `pytest -n auto` also counts the time this
+    # process sits descheduled while sibling workers run. That noise failed the
+    # gate at 51.3 ms for a call that costs ~15 ms of actual CPU.
     best_ms = float("inf")
     for _ in range(5):
-        t0 = time.perf_counter()
+        t0 = time.process_time()
         evaluate(fin, rider)
-        best_ms = min(best_ms, (time.perf_counter() - t0) * 1000.0)
-    assert best_ms < 50.0, f"evaluate took {best_ms:.1f} ms (budget 50 ms)"
+        best_ms = min(best_ms, (time.process_time() - t0) * 1000.0)
+    assert best_ms < 50.0, f"evaluate took {best_ms:.1f} ms CPU (budget 50 ms)"
     r2 = evaluate(fin, rider)
     assert r1.objective == r2.objective
     assert r1.spider_predicted == r2.spider_predicted
