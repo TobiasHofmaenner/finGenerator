@@ -27,6 +27,11 @@ RIDER = RiderSpec(
     config=FinConfig.THRUSTER,
     material="paht-cf",
     tabs=TabSystem.CLICK_TAB,   # her board is FCS II: base >= 104 mm to mount
+    # Real structural headroom. At the default 1.0 the optimizer thins the blade
+    # until the roll-augmented gate binds EXACTLY — zero margin — and the
+    # PAHT-CF card is an approximation good to ~±20-30% on modulus, so "SF 1.0"
+    # there is not really 1.0. This fin gets surfed; buy the margin.
+    stress_sf_min=1.3,
     spider_targets={
         "speed": 0.85,        # her explicit ask: more speed than the Palmbay S
         "drive": 0.85,        # "locked-in and drivey"

@@ -222,6 +222,12 @@ class RiderSpec:
     # design a blade too short-based to mount, which is exactly what happened
     # before this was threaded through.
     tabs: TabSystem = TabSystem.NONE
+    # Required structural safety factor on the bending gate (the WORSE of the
+    # steady and roll-augmented cases). 1.0 means "design right up to the
+    # allowable", which is only honest when the material card is measured — the
+    # PAHT-CF card is an APPROXIMATION good to ~+-20-30% on modulus, so a fin
+    # meant to be surfed wants real headroom above the gate, not none.
+    stress_sf_min: float = 1.0
     spider_targets: dict[str, float] | None = None
     practical_corridor: bool = True
 
@@ -459,8 +465,9 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     stress_sf = flex.stress_margin
     stress_sf_roll = flex.stress_margin_roll
     worst_stress_sf = min(stress_sf, stress_sf_roll)
-    if worst_stress_sf < 1.0:
-        penalties["stress"] = 1.0 - worst_stress_sf
+    if worst_stress_sf < rider.stress_sf_min:
+        penalties["stress"] = ((rider.stress_sf_min - worst_stress_sf)
+                               / rider.stress_sf_min)
     if flex.f_wet_hz < F_WET_MIN_HZ:
         penalties["f_wet"] = (F_WET_MIN_HZ - flex.f_wet_hz) / F_WET_MIN_HZ
     div_req = DIVERGENCE_SF * speed
@@ -560,10 +567,12 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
         "roll_set_damping_nm_s": roll_set.roll_damping_nm_s,
     }
     issues = check_anchor(fin, sheet)
-    if stress_sf < 1.0:
-        issues.append(f"flex bending SF {stress_sf:.2f} < 1.0 at the peak load")
-    if stress_sf_roll < 1.0:
-        issues.append(f"roll-augmented bending SF {stress_sf_roll:.2f} < 1.0 "
+    if stress_sf < rider.stress_sf_min:
+        issues.append(f"flex bending SF {stress_sf:.2f} < {rider.stress_sf_min:.2f} "
+                      "at the peak load")
+    if stress_sf_roll < rider.stress_sf_min:
+        issues.append(f"roll-augmented bending SF {stress_sf_roll:.2f} < "
+                      f"{rider.stress_sf_min:.2f} "
                       f"(p_design {_P_DESIGN_RAD_S[rider.skill]:.1f} rad/s)")
     if tab_sf < 1.0:
         issues.append(f"tab-neck SF {tab_sf:.2f} < 1.0 at the combined load "
@@ -1055,6 +1064,7 @@ def result_to_dict(result: OptimizationResult) -> dict:
             "speed_ms": rider.speed, "config": rider.config.value,
             "material": rider.material,
             "tabs": rider.tabs.value,
+            "stress_sf_min": rider.stress_sf_min,
             "spider_targets": rider.resolved_targets(),
             "practical_corridor": rider.practical_corridor,
         },
