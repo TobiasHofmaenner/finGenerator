@@ -128,25 +128,42 @@ def draw_numbers(ax, d: dict) -> None:
         f"{cm.get('tab_sf', float('nan')):>10.2f}   "
         f"gate {r.get('tab_sf_min') if r.get('tab_sf_min') else 'OFF'}",
     ]
-    # Call the binding constraint out. A set that reads well on character while
-    # a structural margin sits under 1 is not a set anyone should print.
-    worst = min([sm["stress_sf_roll"], sm["tab_sf"]]
-                + ([cm["stress_sf_roll"], cm["tab_sf"]] if cm else []))
-    if worst < 1.0:
-        lines += ["", f"!! BINDING: a margin is {worst:.2f} — below unity.",
-                  "   Not printable as-is; tier-1 adjudicates."]
+    # GATED vs REPORTED. A margin below 1.0 on an axis the rider deliberately
+    # left ungated (tab_sf_min=None) is an OPEN QUESTION for tier-1, not a
+    # verdict — an earlier version printed "not printable as-is" and "all gated
+    # margins satisfied" in the same panel, which is both contradictory and
+    # overclaims what tier-0 knows.
+    gated = [("blade SF", sm["stress_sf_roll"])]
+    if cm:
+        gated.append(("centre blade SF", cm["stress_sf_roll"]))
+    reported = []
+    if r.get("tab_sf_min") is None:
+        reported.append(("tab SF", min([sm["tab_sf"]] + ([cm["tab_sf"]] if cm else []))))
+    else:
+        gated.append(("tab SF", min([sm["tab_sf"]] + ([cm["tab_sf"]] if cm else []))))
+
+    failed = [(n, v) for n, v in gated if v < 1.0]
+    if failed:
+        n, v = min(failed, key=lambda t: t[1])
+        lines += ["", f"!! GATE FAILED: {n} {v:.2f} — below unity.",
+                  "   Not printable as-is."]
+    elif d["set"].get("feasible"):
+        lines += ["", "all GATED margins satisfied"]
+    for n, v in reported:
+        if v < 1.0:
+            lines += ["", f"?  {n} {v:.2f} (REPORTED, gate off) — tier-0's tab",
+                      "   model is crude here; tier-1 adjudicates. On the 95 kg",
+                      "   FCS1 blade it read 2.5-4.8x pessimistic."]
     # A linear Euler-Bernoulli solve produced every row above. Past ~10% of span
-    # (where tier-1 already measured a 3.7% stress shift) it is out of validity,
-    # and nothing in the gate chain checks this.
+    # (where tier-1 measured a 3.7% stress shift) it is out of validity, and
+    # nothing in the gate chain checked this until tip_deflection_max_frac.
     if max(sd, 0.0 if cd != cd else cd) > 15.0:
         lines += ["", f"!! tip deflection {max(sd, cd):.0f}% of span — the flex",
                   "   model is LINEAR and is outside its validity here.",
                   "   Treat washout/stress above as unreliable."]
-    elif d["set"].get("feasible"):
-        lines += ["", "all gated margins satisfied"]
     ax.text(0.0, 1.0, "\n".join(lines), transform=ax.transAxes, va="top",
             family="monospace", fontsize=8.5,
-            color="#fca5a5" if worst < 1.0 else _FG)
+            color="#fca5a5" if failed else _FG)
 
 
 def main() -> int:

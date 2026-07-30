@@ -1,4 +1,7 @@
-"""Multistart search for a 95 kg beginner's thruster set — FCS1 (DUAL_TAB).
+"""Multistart search for a CRUISER/beginner thruster set, any rider weight.
+
+Usage: cruiser_search.py <weight_kg> [budget] [seeds] [tabs]
+       tabs: dual (FCS1, default) | click (FCS II) | single | none
 
 WHAT MAKES THIS RIDER DIFFERENT. Every previous search here has been blade-
 limited: the optimizer thins the section until the bending gate binds. At 95 kg
@@ -48,13 +51,19 @@ from fingen.outline import metrics
 from fingen.params import FinConfig, TabSystem
 from fingen.sizing import Skill
 
-BUDGET = int(sys.argv[1]) if len(sys.argv) > 1 else 25_000
-SEEDS = list(range(int(sys.argv[2]) if len(sys.argv) > 2 else 8))
-OUT = Path("out/toby")
-NAME = "fin-toby-95kg-beginner-thruster-fcs1"
+WEIGHT = float(sys.argv[1]) if len(sys.argv) > 1 else 95.0
+BUDGET = int(sys.argv[2]) if len(sys.argv) > 2 else 25_000
+SEEDS = list(range(int(sys.argv[3]) if len(sys.argv) > 3 else 8))
+_TABS = {"dual": TabSystem.DUAL_TAB, "click": TabSystem.CLICK_TAB,
+         "single": TabSystem.SINGLE_TAB, "none": TabSystem.NONE}
+TABS = _TABS[sys.argv[4]] if len(sys.argv) > 4 else TabSystem.DUAL_TAB
+_SUFFIX = {"dual_tab": "fcs1", "click_tab": "fcs2",
+           "single_tab": "single", "none": "glasson"}[TABS.value]
+OUT = Path(f"out/toby/{WEIGHT:.0f}kg")
+NAME = f"fin-toby-{WEIGHT:.0f}kg-beginner-thruster-{_SUFFIX}"
 
 RIDER = RiderSpec(
-    weight_kg=95.0,
+    weight_kg=WEIGHT,
     # No BEGINNER level exists; CRUISER (30 deg design bank, relaxed arcs) is the
     # honest mapping. It also matters structurally: INTERMEDIATE's 40 deg raises
     # the peak load from 200 N to 290 N and takes the tab to SF 0.70 - i.e. this
@@ -62,7 +71,7 @@ RIDER = RiderSpec(
     skill=Skill.CRUISER,
     config=FinConfig.THRUSTER,
     material="paht-cf",
-    tabs=TabSystem.DUAL_TAB,   # FCS1
+    tabs=TABS,
     # Blade margin. Cheap here - the blade is nowhere near binding - so take it.
     stress_sf_min=1.3,
     # A beginner should not be riding a blade that sheds its lift to flex: the
