@@ -702,3 +702,47 @@ def test_soft_and_hard_stress_gates_never_cross():
         assert not check_anchor(fin, sheet), (
             f"evaluate() passed a fin check_anchor refuses: {check_anchor(fin, sheet)}")
     assert feasible > 20, f"probe found only {feasible} feasible fins — not a real test"
+
+
+def test_wash_in_earns_no_hold_credit():
+    """Elastic WASH-IN (positive lift_knockdown — the blade twisting to load
+    itself up) must not be credited as extra hold/drive. The twist model has no
+    validation anchor (flex.py: "torsion is left uncorrected"), and before the
+    clip both cruiser searches converged with wash-in pinned at +washout_max,
+    buying 2% free performance from an unmeasured mechanism. Tier-0 flex may
+    COST performance; it may not EARN it.
+
+    The fin is a real search winner that exhibits wash-in (85 kg cruiser,
+    FCS1): wide-based, thin, tip-heavy — the planform that twists nose-up.
+    """
+
+    from fingen import spider
+    from fingen.flex import flex_report
+    from fingen.sizing import anchor
+
+    fin = FinParams(
+        outline=OutlineParams(depth=140.0, base=153.64, sweep=32.4,
+                              tip_width_ratio=0.513, le_fullness=0.011,
+                              te_shape=1.0),
+        foil=FoilParams(family=FoilFamily.FLAT_INSIDE, thickness_ratio=0.04,
+                        te_thickness=0.7),
+        thickness_tip_factor=1.2,
+        tabs=TabParams(system=TabSystem.DUAL_TAB, fit_offset=-0.2),
+    )
+    rider = RiderSpec(weight_kg=85.0, skill=Skill.CRUISER,
+                      config=FinConfig.THRUSTER, material="paht-cf",
+                      tabs=TabSystem.DUAL_TAB, tab_sf_min=None)
+    sheet = anchor(rider.weight_kg, rider.skill, design_speed=rider.speed,
+                   config=rider.config, material=rider.material, tabs=rider.tabs)
+    flex = flex_report(fin, sheet.force_peak_n, rider.speed, material=rider.material)
+    assert flex.lift_knockdown > 0.005, (
+        "fixture no longer exhibits wash-in — pick a fin that does, the test "
+        "is about the crediting path, not this geometry")
+
+    res = evaluate(fin, rider)
+    # The ceiling on predicted hold is the UNAMPLIFIED capacity: raw hold at
+    # washout factor exactly 1.0. Before the clip this assertion fails, because
+    # f_max_eff = raw_hold * (1 + knockdown) > raw_hold.
+    raw_hold = spider.raw_scores(fin, rider.speed, rider.weight_kg)["hold"]
+    req = sheet.force_work_n * 1.3  # required_side_force_n = f_work * FORCE_SF
+    assert res.spider_predicted["hold"] <= spider.hold_score(raw_hold, req) + 1e-9

@@ -616,7 +616,15 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     cl_work = min(spider.work_force_n(rider.weight_kg) / (q * area * 1e-6),
                   0.95 * slope * math.radians(a_break))
     alpha_work = math.degrees(cl_work / slope)
-    washout = max(0.0, 1.0 + flex.lift_knockdown)  # knockdown < 0 = lift lost
+    # knockdown < 0 = lift lost (washout). CLIPPED AT 1.0: a positive knockdown
+    # is elastic WASH-IN — the blade twisting to load itself up — and crediting
+    # it pays the optimizer for flexibility out of a torsion model that has no
+    # validation anchor (flex.py: "torsion is left uncorrected"). It did exactly
+    # that: both cruiser sets converged with wash-in pinned at +washout_max,
+    # buying 2% free drive/hold from an unmeasured mechanism. Tier-0 flex may
+    # COST performance; it may not EARN it until the twist model is calibrated.
+    # The abs() gate below still bounds the magnitude in either direction.
+    washout = max(0.0, min(1.0, 1.0 + flex.lift_knockdown))
     # Interference: the measured Falk deficit belongs to the REAR/center
     # member relative to the dominant front — and the MVP designs the
     # dominant blade, so it does NOT carry that knockdown (front-in-set vs
