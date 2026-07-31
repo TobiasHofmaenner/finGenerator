@@ -46,9 +46,12 @@ from fingen.params import (
 from fingen.sizing import Skill, anchor, check_anchor
 
 RESULT = Path(sys.argv[1] if len(sys.argv) > 1
-              else "out/fin-martina-46kg-advanced-thruster.json")
-OUT = Path("out/martina/stl")
-TABS = TabSystem.CLICK_TAB          # FCS II
+              else "out/martina/46kg-paht-cf/"
+                   "fin-martina-46kg-advanced-thruster-paht-cf.json")
+# Both derived from the result rather than hardcoded: the STLs belong beside the
+# design they came from, and the tab system is the RIDER's board, not a constant.
+OUT = RESULT.parent / "stl"
+TABS = TabSystem(json.loads(RESULT.read_text())["rider"]["tabs"])
 FIT_OFFSET = -0.2                   # mm on tab thickness: undersize, sand to fit
 # The FLAT_INSIDE anchor puts the inner tab face ON the print-bed plane, so the
 # inner retention indent becomes a pocket with an unsupported bridge — the ONLY
@@ -64,17 +67,29 @@ def main() -> None:
     tabs = TabParams(system=TABS, fit_offset=FIT_OFFSET,
                      click_indent_depth=INDENT_DEPTH)
 
-    sheet = anchor(rider["weight_kg"], Skill[rider["skill"]],
-                   design_speed=rider["speed_ms"],
-                   config=FinConfig(rider["config"]), material=rider["material"],
-                   tabs=TABS)
+    # REBUILD THE SHEET THE SEARCH ACTUALLY USED. Constructing a default one
+    # here refuses designs the optimizer legitimately produced: a run with the
+    # over-finned ceiling lifted (rider.area_max_factor) was rejected by this
+    # gate at 7146 mm2 against a 6870 mm2 ceiling the search had been told to
+    # ignore. Older result files predate the field, so absent means default.
+    sheet_kw = {}
+    if rider.get("area_max_factor") is not None:
+        sheet_kw["area_max_factor"] = float(rider["area_max_factor"])
 
-    blades = [("side", result["fin"])]
+    blades = [("side", result["fin"], "dominant")]
     if result.get("center_fin"):
-        blades.append(("center", result["center_fin"]))
+        # The CENTRE is sized against its own, smaller share — building one
+        # dominant sheet for both blades over-states the centre's corridor and
+        # its design load by ~33 %.
+        blades.append(("center", result["center_fin"], "center"))
 
     OUT.mkdir(parents=True, exist_ok=True)
-    for slot, fin_dict in blades:
+    for slot, fin_dict, member in blades:
+        sheet = anchor(rider["weight_kg"], Skill[rider["skill"]],
+                       design_speed=rider["speed_ms"],
+                       config=FinConfig(rider["config"]),
+                       material=rider["material"], tabs=TABS,
+                       member=member, **sheet_kw)
         fin = dataclasses.replace(fin_from_dict(fin_dict), tabs=tabs)
         issues = check_anchor(fin, sheet)
         m = metrics(fin.outline)

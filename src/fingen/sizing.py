@@ -68,6 +68,24 @@ SUSTAINED_WEIGHT_FRACTION = 0.103
 CL_USABLE = 0.65
 FORCE_SF = 1.3
 
+# Over-finned ceiling, as a multiple of the area MINIMUM. This is a heuristic
+# with no measurement behind it — a round number chosen to stop the optimizer
+# running away, pending CFD calibration that has not happened.
+#
+# IT IS NOT INERT. A 32-seed pet-cf multistart for the 46 kg anchor rider put
+# 11 of 11 independent starts EXACTLY on it — side 6869.8 of 6869.8 mm2, centre
+# 5152.4 of 5152.4, gaps under 0.02 mm2 — on both blades, including the seeds
+# that found much better objectives. So for that rider this constant, not the
+# physics, is what sets fin size, and every "design variation" the search
+# reports is a rearrangement of one fixed area.
+#
+# Whether a ceiling SHOULD exist is a separate question from whether 2.0 is
+# right: over-finning is a real failure mode (draggy, stiff, slow to release),
+# and if the spider's speed/release axes priced it properly the optimizer would
+# stop on its own. Running to the ceiling is therefore also evidence about the
+# OBJECTIVE. Pass area_max_factor=math.inf to anchor() to test which.
+AREA_MAX_FACTOR = 2.0
+
 # Material design allowables: datasheet strength, moisture-conditioned, times
 # the card's AS-PRINTED retention, over a provenance-scaled structural SF.
 #
@@ -99,9 +117,9 @@ FORCE_SF = 1.3
 #
 # WHY THE UNCERTAINTY IS BOOKED ONCE. A card we have not coupon-tested inherits
 # the measured retention rather than getting an invented lower one: guessing a
-# second knockdown for the same unknown would double-count it. The uncertainty
-# of an unvalidated card is carried in ONE place, _PROVENANCE_SF, so it is
-# visible and adjustable instead of smeared across three factors.
+# second knockdown for the same unknown would double-count it. Until a card is
+# coupon-tested, that unknown rides in STRUCTURAL_SF rather than being smeared
+# across the individual factors.
 #
 # NOTE the allowable assumes the FLAT print orientation the exporter enforces. A
 # blade printed upright carries its root tension ACROSS layers and must use the
@@ -258,14 +276,19 @@ def anchor(rider_mass_kg: float, skill: Skill = Skill.INTERMEDIATE,
            design_speed: float = 6.4, config: FinConfig = FinConfig.THRUSTER,
            material: str = "pet-cf",
            tabs: TabSystem = TabSystem.NONE,
-           member: str = "dominant") -> AnchorSheet:
+           member: str = "dominant",
+           area_max_factor: float | None = None) -> AnchorSheet:
     """Answer the absolute questions first (design_speed default: measured
     mean riding speed [Forsyth24]).
 
     `member` selects whose load share sizes the sheet: "dominant" (the default,
     the side/front blade the optimizer designs) or "center" (the aft member of a
     co-designed set — a smaller share, see CONFIG_CENTER_SHARE). Configs with no
-    center share fall back to the dominant share."""
+    center share fall back to the dominant share.
+
+    `area_max_factor` overrides AREA_MAX_FACTOR for this sheet; pass math.inf to
+    remove the over-finned ceiling entirely. See that constant for why you might
+    want to — it is currently the binding constraint for at least one rider."""
     if material not in _MATERIAL_ALLOW_MPA:
         raise ValueError(f"material {material!r} not in {sorted(_MATERIAL_ALLOW_MPA)}")
     if member not in ("dominant", "center"):
@@ -282,7 +305,8 @@ def anchor(rider_mass_kg: float, skill: Skill = Skill.INTERMEDIATE,
 
     q = 0.5 * RHO_SEAWATER * design_speed**2
     area_min = f_work * FORCE_SF / (q * CL_USABLE) * 1e6  # mm²
-    area_max = 2.0 * area_min  # over-finned ceiling — heuristic, CFD-calibrated later
+    factor = AREA_MAX_FACTOR if area_max_factor is None else area_max_factor
+    area_max = factor * area_min
 
     base_min = {TabSystem.NONE: 0.0, TabSystem.DUAL_TAB: 80.0,
                 TabSystem.SINGLE_TAB: 62.0, TabSystem.CLICK_TAB: 104.0}[tabs]

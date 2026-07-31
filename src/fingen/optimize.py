@@ -258,6 +258,11 @@ class RiderSpec:
     # preference — see the gate in evaluate(). None disables it, which should be
     # reserved for deliberately probing the nonlinear regime.
     tip_deflection_max_frac: float | None = 0.15
+    # Override sizing.AREA_MAX_FACTOR for this rider; math.inf removes the
+    # over-finned ceiling. Exposed because that ceiling was measured to be the
+    # binding constraint on every seed of a 46 kg pet-cf multistart, so whether
+    # it is doing real work needs to be testable rather than argued.
+    area_max_factor: float | None = None
     spider_targets: dict[str, float] | None = None
     practical_corridor: bool = True
 
@@ -462,7 +467,8 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     sheet: AnchorSheet = anchor(rider.weight_kg, rider.skill, design_speed=speed,
                                 config=rider.config, material=rider.material,
                                 tabs=rider.tabs,
-                                member="center" if rear_member else "dominant")
+                                member="center" if rear_member else "dominant",
+                                area_max_factor=rider.area_max_factor)
 
     penalties: dict[str, float] = {}
     m = metrics(fin.outline)
@@ -1152,6 +1158,36 @@ def fin_set_from_dict(data: dict) -> FinSetParams:
     )
 
 
+def _rider_to_dict(rider: RiderSpec) -> dict:
+    """Serialize EVERY RiderSpec field, derived from the dataclass.
+
+    This used to be a hand-written literal, and it silently dropped whatever was
+    added to RiderSpec afterwards — both `tip_deflection_max_frac` and
+    `area_max_factor` went missing that way. The failure is quiet and nasty: a
+    consumer rebuilding the rider from JSON gets the DEFAULTS, so the exporter
+    re-derived an anchor sheet with the standard area ceiling and refused a
+    design the search had legitimately produced without one. Deriving the dict
+    means a new field cannot be forgotten.
+
+    `speed_ms` keeps its published name (the CFD service reads it) even though
+    the field is `speed_ms` resolved through the `speed` property, and
+    spider_targets is written RESOLVED rather than raw so the file records what
+    was actually optimized against.
+    """
+    import dataclasses as _dc
+
+    special = {"skill": lambda v: v.name,
+               "config": lambda v: v.value,
+               "tabs": lambda v: v.value,
+               "spider_targets": lambda _v: rider.resolved_targets()}
+    out: dict = {}
+    for f in _dc.fields(rider):
+        v = getattr(rider, f.name)
+        out[f.name] = special[f.name](v) if f.name in special else v
+    out["speed_ms"] = rider.speed          # resolved, not the raw override
+    return out
+
+
 def result_to_dict(result: OptimizationResult) -> dict:
     """Full result → JSON dict for the web tier and the CFD verification stage.
 
@@ -1161,17 +1197,7 @@ def result_to_dict(result: OptimizationResult) -> dict:
     r = result.result
     rider = result.rider
     out = {
-        "rider": {
-            "weight_kg": rider.weight_kg, "skill": rider.skill.name,
-            "speed_ms": rider.speed, "config": rider.config.value,
-            "material": rider.material,
-            "tabs": rider.tabs.value,
-            "stress_sf_min": rider.stress_sf_min,
-            "washout_max": rider.washout_max,
-            "tab_sf_min": rider.tab_sf_min,
-            "spider_targets": rider.resolved_targets(),
-            "practical_corridor": rider.practical_corridor,
-        },
+        "rider": _rider_to_dict(rider),
         "fin": fin_to_dict(result.fin),
         "objective": r.objective,
         "distance": r.distance,

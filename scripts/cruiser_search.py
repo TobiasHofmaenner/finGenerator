@@ -59,7 +59,8 @@ _TABS = {"dual": TabSystem.DUAL_TAB, "click": TabSystem.CLICK_TAB,
 TABS = _TABS[sys.argv[4]] if len(sys.argv) > 4 else TabSystem.DUAL_TAB
 _SUFFIX = {"dual_tab": "fcs1", "click_tab": "fcs2",
            "single_tab": "single", "none": "glasson"}[TABS.value]
-OUT = Path(f"out/toby/{WEIGHT:.0f}kg")
+MATERIAL = "paht-cf"
+OUT = Path(f"out/toby/{WEIGHT:.0f}kg-{MATERIAL}")
 NAME = f"fin-toby-{WEIGHT:.0f}kg-beginner-thruster-{_SUFFIX}"
 
 RIDER = RiderSpec(
@@ -70,7 +71,7 @@ RIDER = RiderSpec(
     # rider outgrows a printed FCS II tab before they outgrow the blade.
     skill=Skill.CRUISER,
     config=FinConfig.THRUSTER,
-    material="paht-cf",
+    material=MATERIAL,
     tabs=TABS,
     # Blade margin. Cheap here - the blade is nowhere near binding - so take it.
     stress_sf_min=1.3,
