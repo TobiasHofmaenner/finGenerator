@@ -746,3 +746,33 @@ def test_wash_in_earns_no_hold_credit():
     raw_hold = spider.raw_scores(fin, rider.speed, rider.weight_kg)["hold"]
     req = sheet.force_work_n * 1.3  # required_side_force_n = f_work * FORCE_SF
     assert res.spider_predicted["hold"] <= spider.hold_score(raw_hold, req) + 1e-9
+
+
+def test_optimize_progress_stream():
+    """optimize(progress=...) emits one snapshot per CMA generation, across all
+    three stages, with whole-call eval accounting. This is the live-feedback
+    contract the web worker forwards to the browser — if it breaks, the UI goes
+    dark silently, so it is pinned here.
+
+    Note evals_done may OVERSHOOT evals_budget by up to one population (CMA
+    finishes the generation in flight); consumers clamp the fraction at 1.
+    """
+    seen = []
+    rider = RiderSpec(weight_kg=60.0, skill=Skill.INTERMEDIATE,
+                      config=FinConfig.THRUSTER, material="pet-cf",
+                      tabs=TabSystem.CLICK_TAB, tab_sf_min=None)
+    optimize(rider, budget_evals=300, seed=0, progress=seen.append)
+
+    assert seen, "no progress snapshots emitted"
+    stages = {p.stage for p in seen}
+    assert stages == {"outline", "refine", "center"}
+    assert all(a.evals_done <= b.evals_done for a, b in zip(seen, seen[1:], strict=False))
+    assert all(p.evals_budget == 300 for p in seen)
+    # The stream must end with a decodable best — the UI draws it live.
+    assert seen[-1].best_fin is not None
+    # A crashing observer must not kill the search (contextlib.suppress in the
+    # generation loop): same run, exploding callback, still completes.
+    def boom(_):
+        raise RuntimeError("observer bug")
+    res = optimize(rider, budget_evals=120, seed=1, progress=boom)
+    assert res.fin is not None

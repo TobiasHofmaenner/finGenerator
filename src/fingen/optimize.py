@@ -42,6 +42,7 @@ import functools
 import json
 import math
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -936,10 +937,32 @@ def _generation_mapper(n_workers: int):
         yield lambda fn, items: list(ex.map(fn, items))
 
 
+@dataclass(frozen=True)
+class OptimizeProgress:
+    """One generation's snapshot, handed to optimize(progress=...).
+
+    Built for LIVE FEEDBACK on a slow search: a web worker forwards these to a
+    job queue so a browser can watch the fin converge. `best_fin` is the decoded
+    current best (None while every candidate still rejects) — cheap to build (no
+    loft, no evaluate), so the callback fires every generation and the CONSUMER
+    decides how much to compute from it (spider scores, outlines) and how often.
+    evals_done/evals_budget span the WHOLE optimize() call, all stages, so
+    evals_done/evals_budget is a honest progress fraction; `stage` names what is
+    being searched right now ("outline", "refine", "center").
+    """
+
+    stage: str
+    evals_done: int
+    evals_budget: int
+    best_objective: float
+    best_fin: FinParams | None
+
+
 def _run_cma(rider: RiderSpec, x0: list[float], sigma0: float, *, use_offsets: bool,
              use_grooves: bool, budget: int, seed: int,
              family: FoilFamily | None = None, rear_member: bool = False,
-             workers: int | None = None
+             workers: int | None = None,
+             progress: Callable[[int, float, np.ndarray], None] | None = None,
              ) -> tuple[np.ndarray, float, list[float], int]:
     """One CMA-ES stage in the [0,1]^n box. Returns (best_x, best_f, best-so-far
     history per generation, evals spent).
@@ -973,12 +996,18 @@ def _run_cma(rider: RiderSpec, x0: list[float], sigma0: float, *, use_offsets: b
                 best_f = float(fs[i])
                 best_x = np.asarray(xs[i], dtype=float)
             history.append(best_f)
+            if progress is not None:
+                # A broken observer must never kill a half-spent search.
+                with contextlib.suppress(Exception):
+                    progress(n_evals, best_f, best_x)
     return best_x, best_f, history, n_evals
 
 
 def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
              x0: list[float] | None = None,
-             workers: int | None = None) -> OptimizationResult:
+             workers: int | None = None,
+             progress: Callable[[OptimizeProgress], None] | None = None,
+             ) -> OptimizationResult:
     """Search the design space for the fin closest to the rider's targets.
 
     Stage A optimizes the eight level-1 sliders (CMA-ES, broad sigma). Stage B
@@ -1009,9 +1038,28 @@ def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
     budget_b = max(budget_side - budget_a, 0)
     use_grooves = groove_trigger(rider)
 
+    def _stage_cb(stage: str, evals_before: int, **decode_kw):
+        """Adapt _run_cma's (n_evals, best_f, best_x) to OptimizeProgress with
+        WHOLE-CALL eval counts, decoding the current best (None while every
+        candidate still rejects — early generations of a hard corridor)."""
+        if progress is None:
+            return None
+
+        def cb(n_stage: int, best_f: float, best_x) -> None:
+            fin = None
+            with contextlib.suppress(ValueError):
+                fin = _decode(best_x, rider.config, tabs=rider.tabs, **decode_kw)
+            progress(OptimizeProgress(
+                stage=stage, evals_done=evals_before + n_stage,
+                evals_budget=budget_evals, best_objective=best_f, best_fin=fin))
+        return cb
+
     xa, fa, hist_a, na = _run_cma(rider, x0_a, _SIGMA_A,
                                   use_offsets=False, use_grooves=False,
-                                  budget=budget_a, seed=seed, workers=workers)
+                                  budget=budget_a, seed=seed, workers=workers,
+                                  progress=_stage_cb("outline", 0,
+                                                     use_offsets=False,
+                                                     use_grooves=False))
     fin_a = _decode(xa, rider.config, use_offsets=False, use_grooves=False,
                     tabs=rider.tabs)
 
@@ -1022,7 +1070,10 @@ def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
         x0_b = list(xa) + [0.5] * _N_OFFSETS + ([0.5] * _N_GROOVES if use_grooves else [])
         xb, fb, hist_b, nb = _run_cma(rider, x0_b, _SIGMA_B, use_offsets=True,
                                       use_grooves=use_grooves, budget=budget_b,
-                                      seed=seed, workers=workers)
+                                      seed=seed, workers=workers,
+                                      progress=_stage_cb("refine", na,
+                                                         use_offsets=True,
+                                                         use_grooves=use_grooves))
         if fb <= fa:
             try:
                 best_fin = _decode(xb, rider.config, use_offsets=True,
@@ -1055,7 +1106,10 @@ def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
         xc, _fc, _hc, nc = _run_cma(
             rider, _fin_to_sliders(best_fin), _SIGMA_A, use_offsets=False,
             use_grooves=False, budget=budget_c, seed=seed + 7,
-            family=FoilFamily.SYMMETRIC, rear_member=True, workers=workers)
+            family=FoilFamily.SYMMETRIC, rear_member=True, workers=workers,
+            progress=_stage_cb("center", na + nb, use_offsets=False,
+                               use_grooves=False,
+                               family=FoilFamily.SYMMETRIC))
         # Guarded like the side stage-B decode: the in-search closure swallows
         # ValueError, so a run whose every candidate rejected leaves best_x on a
         # rejecting vector. Re-raising here would abort optimize() and discard
