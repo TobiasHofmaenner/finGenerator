@@ -776,3 +776,23 @@ def test_optimize_progress_stream():
         raise RuntimeError("observer bug")
     res = optimize(rider, budget_evals=120, seed=1, progress=boom)
     assert res.fin is not None
+
+
+def test_rider_serialization_is_strict_json_safe():
+    """No non-finite floats in the serialized rider: JSON has no inf, and
+    strict encoders (httpx) raise on it. The failure mode this pins: a worker
+    completed a full search, then crashed POSTing the result because
+    area_max_factor=inf reached json.dumps — 221 requeues of one job."""
+    import json as _json
+    import math
+
+    from fingen.optimize import _rider_to_dict
+
+    rider = RiderSpec(weight_kg=60.0, skill=Skill.INTERMEDIATE,
+                      config=FinConfig.THRUSTER, material="pet-cf",
+                      tabs=TabSystem.CLICK_TAB,
+                      area_max_factor=float("inf"))
+    d = _rider_to_dict(rider)
+    _json.dumps(d, allow_nan=False)                 # the strict-encoder test
+    assert d["area_max_factor"] == "inf"
+    assert math.isinf(float(d["area_max_factor"]))  # and it round-trips

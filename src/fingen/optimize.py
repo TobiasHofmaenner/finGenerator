@@ -1245,7 +1245,15 @@ def _rider_to_dict(rider: RiderSpec) -> dict:
     out: dict = {}
     for f in _dc.fields(rider):
         v = getattr(rider, f.name)
-        out[f.name] = special[f.name](v) if f.name in special else v
+        v = special[f.name](v) if f.name in special else v
+        # NON-FINITE floats become strings: JSON has no inf, and strict
+        # encoders (httpx among them) raise on it — a worker completed a
+        # 30-minute search and then CRASHED delivering the result because
+        # area_max_factor=inf reached json.dumps. float("inf") round-trips,
+        # so consumers just call float() on the field.
+        if isinstance(v, float) and not math.isfinite(v):
+            v = str(v)
+        out[f.name] = v
     out["speed_ms"] = rider.speed          # resolved, not the raw override
     return out
 
