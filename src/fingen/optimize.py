@@ -1220,6 +1220,23 @@ def fin_set_from_dict(data: dict) -> FinSetParams:
     )
 
 
+def _json_finite(v):
+    """Recursively replace non-finite floats with strings ('inf', '-inf',
+    'nan' — all round-trip through float()). JSON has no representation for
+    them and strict encoders raise; this is applied to the WHOLE serialized
+    result, not to individually remembered fields, because the second inf
+    (margins.area_max_mm2 under an uncapped rider) hid behind the first
+    (rider.area_max_factor) and cost four more doomed production runs after
+    the "fix" for the first one shipped."""
+    if isinstance(v, float) and not math.isfinite(v):
+        return str(v)
+    if isinstance(v, dict):
+        return {k: _json_finite(x) for k, x in v.items()}
+    if isinstance(v, (list, tuple)):
+        return [_json_finite(x) for x in v]
+    return v
+
+
 def _rider_to_dict(rider: RiderSpec) -> dict:
     """Serialize EVERY RiderSpec field, derived from the dataclass.
 
@@ -1256,6 +1273,9 @@ def _rider_to_dict(rider: RiderSpec) -> dict:
         out[f.name] = v
     out["speed_ms"] = rider.speed          # resolved, not the raw override
     return out
+
+
+
 
 
 def result_to_dict(result: OptimizationResult) -> dict:
@@ -1323,7 +1343,9 @@ def result_to_dict(result: OptimizationResult) -> dict:
                          + CENTER_OBJECTIVE_WEIGHT * cr.distance),
             "feasible": bool(r.feasible and cr.feasible),
         }
-    return out
+    # The ENTIRE payload goes through the finite-JSON sanitizer at the boundary
+    # — see _json_finite for why field-by-field fixing is the wrong altitude.
+    return _json_finite(out)
 
 
 def write_result_json(result: OptimizationResult, path: str | Path) -> Path:

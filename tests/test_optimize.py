@@ -796,3 +796,12 @@ def test_rider_serialization_is_strict_json_safe():
     _json.dumps(d, allow_nan=False)                 # the strict-encoder test
     assert d["area_max_factor"] == "inf"
     assert math.isinf(float(d["area_max_factor"]))  # and it round-trips
+
+    # And the WHOLE result, not just the rider: margins.area_max_mm2 is inf
+    # for an uncapped rider (and tab_sf for a glass-on fin) — the second inf
+    # hid behind the first and cost four more doomed production runs. The
+    # boundary, not the field, is what must be safe.
+    from fingen.optimize import optimize, result_to_dict
+
+    res = optimize(rider, budget_evals=60, seed=0)
+    _json.dumps(result_to_dict(res), allow_nan=False)
