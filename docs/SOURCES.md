@@ -455,6 +455,28 @@ No Z-direction data, no density, no test standard stated.
 wet-conditioning derate [3DXPA]; see that card's `derivation` field for the exact split and
 uncertainty. Test G (docs/BENCH-PROTOCOL.md) is decision-grade for this card.
 
+### [SirPPA26] Siraya Tech — Fibreheart PPA-CF Technical Data Sheet
+[Product TDS page](https://sirayatech.myshopify.com/pages/siraya-tech-fibreheart-paht-cf-ppa-based-tds),
+accessed 2026-08-07. PPA-based filament with 15% carbon fibre, sold under the "PAHT-CF" trade
+name but NOT the PA12-CF that name denotes elsewhere. Values are given in two columns,
+unannealed and annealed; the sheet publishes no anneal schedule (neither temperature nor time).
+Unannealed / annealed: bending strength 145 / 145 MPa (ISO 178), bending modulus 6800 / 7350 MPa
+(ISO 178), Charpy impact 11 / 6.3 kJ/m² (ISO 179), HDT 82.5 / 119 °C at 1.80 MPa (Method A) and
+84.5 / 192 °C at 0.45 MPa (Method B). State-independent: tensile stress at break 95 MPa
+(ISO 527), Young's modulus 7800 MPa (ASTM D638), elongation at break 2% (ASTM D638), density
+1.2 g/cm³ (ISO 1183), water absorption 1.37% (ISO 62), Tg 80 °C and Tm 232 °C (ASTM D3418),
+Vicat 230 °C (ISO 306). Process: nozzle 280-320 °C, bed 70-90 °C, 30-120 mm/s, dry 100 °C/4-6 h.
+**No Z-direction, interlayer or layer-adhesion property is reported at all.**
+**Cited for:** the `ppa-cf` / `siraya-ppa-cf` material card in `fingen.materials`, an
+`"approximated"` card built on the UNANNEALED column (the annealed one is not reproducible
+without a schedule, and trades 43% of the impact toughness for 8% modulus and no strength).
+Both through-layer fields are derived — modulus by the [PAHTCF] Z/XY analogy, strength by the
+measured process ratio [ELPAHT-COUPON] — and the wet conditioning is estimated at 0.80; see the
+card's `derivation` field. Note the thermal numbers (Tm 232 °C, Tg 80 °C) are NOT those of a
+classic polyphthalamide (Tm ~310-325 °C, Tg 90-125 °C), which is why the card reads its
+moisture behaviour as PA-like rather than trusting the "PPA" label. Tests E and G
+(docs/BENCH-PROTOCOL.md) are decision-grade for this card.
+
 ### [3DXPA] 3DXTech — PA6-CF vs. PA12-CF Carbon Fiber Nylon comparison *(grey literature)*
 [3dxtech.com/blogs/featured/pa6-cf-vs-pa12-cf-carbon-fiber-nylon-comparison](https://www.3dxtech.com/blogs/featured/pa6-cf-vs-pa12-cf-carbon-fiber-nylon-comparison),
 accessed 2026-07-26. Compares moisture behaviour: PA6 absorbs 3-9% water and its stiffness drops

@@ -126,18 +126,25 @@ AREA_MAX_FACTOR = 2.0
 # card's interlaminar_ratio instead — for paht-cf a ~5x lower allowable, but for
 # PLA only ~1.1x, which is exactly the material-specificity the old global
 # constant destroyed.
+#   * MOISTURE (wet/conditioned) retention — was a module-level dict here keyed
+#     by material NAME, `{"pet-cf": 1.0, "paht-cf": 0.85}`, read with .get(name,
+#     1.0). Any name not spelled in it — a new polyamide card, or a registry
+#     ALIAS of one already listed — silently got 1.0, i.e. designed as if water
+#     did not exist, in the UNSAFE direction and with nothing to notice it by.
+#     It is a property of the polymer, so it is now MaterialCard.wet_retention
+#     like every other material-dependent factor here.
 STRUCTURAL_SF = 2.0
-_MOISTURE_RETENTION = {"pet-cf": 1.0, "paht-cf": 0.85}
 
 
 def _design_allowable_mpa(material: str) -> float:
-    """Design allowable = card X-Y strength · moisture · the card's as-printed
-    retention / the structural SF. Every material-DEPENDENT factor now comes
-    from the CARD; only the SF is module policy. See the block comment above."""
+    """Design allowable = card X-Y strength · the card's wet retention · the
+    card's as-printed retention / the structural SF. Every material-DEPENDENT
+    factor now comes from the CARD; only the SF is module policy. See the block
+    comment above."""
     from fingen.materials import get_card
 
     card = get_card(material)
-    return (card.strength_xy_mpa * _MOISTURE_RETENTION.get(material, 1.0)
+    return (card.strength_xy_mpa * card.wet_retention
             * card.as_printed_retention / STRUCTURAL_SF)
 
 
@@ -151,7 +158,7 @@ def interlaminar_allowable_mpa(material: str) -> float:
 
 
 _MATERIAL_ALLOW_MPA = {m: _design_allowable_mpa(m)
-                       for m in ("pet-cf", "paht-cf")}
+                       for m in ("pet-cf", "paht-cf", "ppa-cf")}
 
 # Spanwise center of pressure for the bending arm (fraction of depth) —
 # consistent with the measured tip-first loading fin [BW04].

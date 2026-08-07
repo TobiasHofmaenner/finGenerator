@@ -115,6 +115,16 @@ class MaterialCard:
     # the provenance-scaled structural SF rather than smeared in here (see
     # fingen.sizing._design_allowable_mpa: uncertainty is booked ONCE).
     as_printed_retention: float = 0.85
+    # Conditioned (wet, in-service) retention of the DRY datasheet strength for a
+    # submerged part. 1.0 = the resin is indifferent to water. This was a
+    # module-level dict in fingen.sizing keyed by material NAME, which silently
+    # returned 1.0 — no derate at all — for any name not spelled in it, so a new
+    # polyamide card or a registry ALIAS of an existing one was designed as if
+    # water did not exist. It is a property of the polymer; it belongs here with
+    # the other per-material factors. Applied to strength by
+    # sizing._design_allowable_mpa; the matching stiffness conditioning is baked
+    # into e_mpa (with the dry value kept in e_mpa_dry).
+    wet_retention: float = 1.0
     derivation: str = ""            # note: which numbers are measured vs analog-derived
 
     @property
@@ -147,6 +157,20 @@ _ELEGOO_PAHTCF_URL = "https://us.elegoo.com/products/paht-cf-filament-1-75mm-col
 _PA12_WET_RETENTION = 0.85
 _PLA_URL = ("https://store.bblcdn.com/s1/default/"
             "58b85d0f3db94878854a28fdb8a0006e/Bambu_PLA_Basic_Technical_Data_Sheet.pdf")
+_SIRAYA_PPACF_URL = ("https://sirayatech.myshopify.com/pages/"
+                     "siraya-tech-fibreheart-paht-cf-ppa-based-tds")
+# PPA-CF conditioned/wet retention. The TDS reports 1.37% water absorption
+# (ISO 62) — 2.6x the Fiberon PET-CF (0.53%, treated as water-indifferent) and
+# above PA12's <1% (retention 0.85 [3DXPA]). The trend puts this resin BELOW
+# PA12, so 0.80 is the central estimate, honest band 0.70-0.90. The name "PPA"
+# would argue the other way — a true polyphthalamide is semi-aromatic and takes
+# up less water than an aliphatic PA — but this TDS's own thermal numbers do not
+# describe one: Tm 232 °C and Tg 80 °C against a classic PPA's Tm ~310-325 °C
+# and Tg 90-125 °C. The melt point sits between PA6 (220 °C) and PA66 (260 °C),
+# so the aliphatic content is high and the plasticization behaviour should be
+# read as PA-like, which is what the 1.37% uptake already says. Test G (seawater
+# soak, docs/BENCH-PROTOCOL.md) replaces this estimate with a measurement.
+_PPA_WET_RETENTION = 0.80
 
 # PRIMARY pet-cf: the user's actual filament. Polymaker Fiberon PET-CF17 TDS
 # V1.0 (ISO 178 bending, ISO 527 tensile, ISO 1183 density). ALL mechanical
@@ -195,6 +219,7 @@ _ELEGOO_PAHT_CF = MaterialCard(
     provenance="approximated",
     annealed=False,          # Elegoo states no anneal schedule
     e_mpa_dry=5089.0,        # Elegoo published X-Y flexural modulus (dry)
+    wet_retention=_PA12_WET_RETENTION,   # was sizing._MOISTURE_RETENTION["paht-cf"]
     derivation=(
         "ELEGOO's own (X-Y, dry): flexural modulus 5089 MPa (-> e_mpa_dry), "
         "flexural strength 138 MPa (-> strength_xy_mpa), tensile strength 87 "
@@ -224,6 +249,65 @@ _BAMBU_PAHT_CF = MaterialCard(
     source=("Bambu Lab PAHT-CF TDS V3.0 [PAHTCF], specimens annealed 80 °C/12 h; "
             f"{_BAMBU_PAHTCF_URL}"),
     accessed=_ACCESSED,
+    wet_retention=_PA12_WET_RETENTION,   # PA12-CF, same as the Elegoo card
+)
+
+# PRIMARY ppa-cf: Siraya Tech Fibreheart PPA-CF, 15% carbon fibre. Sold as
+# "PAHT-CF" but it is NOT the PA12-CF the other paht-cf cards describe, so it
+# gets its own slot rather than shadowing one — its X-Y bending modulus is 6800
+# MPa against Elegoo's 5089, a different material with a colliding trade name.
+#
+# UNANNEALED numbers are the card. The TDS reports both states but publishes no
+# anneal schedule (no temperature, no time), so the annealed column is not
+# reproducible. It is also the worse trade for a fin: annealing buys +8% bending
+# modulus (6800 -> 7350) and NOTHING on bending strength (145 both ways), while
+# costing 43% of the Charpy impact toughness (11 -> 6.3 kJ/m^2). A fin takes
+# impact loads — reef, sand, the other board — and toughness is the property you
+# want there. The HDT gain (82.5 -> 119 °C at 1.8 MPa) is irrelevant in water.
+_SIRAYA_PPA_CF = MaterialCard(
+    name="siraya-ppa-cf",
+    e_mpa=round(6800.0 * _PPA_WET_RETENTION, 1),  # =5440.0 MPa, conditioned/wet
+    e_z_mpa=2926.0,          # analog: 6800 x Bambu PAHT-CF Z/XY modulus (1820/4230)
+    strength_xy_mpa=145.0,   # ISO 178 bending strength X-Y, unannealed (dry)
+    strength_z_mpa=22.6,     # 145 x 0.156, the MEASURED process ratio (see below)
+    density_kg_m3=1200.0,    # ISO 1183, 1.2 g/cm³
+    source=("Siraya Tech Fibreheart PPA-CF TDS [SirPPA26] (ISO 178 bending, "
+            "ISO 527 tensile, ISO 1183 density, ISO 62 water uptake), UNANNEALED "
+            f"column; Z data and wet conditioning derived; {_SIRAYA_PPACF_URL}"),
+    accessed="2026-08-07",
+    provenance="approximated",
+    annealed=False,          # TDS publishes no anneal schedule; see above
+    e_mpa_dry=6800.0,        # ISO 178 X-Y bending modulus, unannealed (dry)
+    wet_retention=_PPA_WET_RETENTION,
+    derivation=(
+        "SIRAYA's own (X-Y, unannealed, dry): bending modulus 6800 MPa (-> "
+        "e_mpa_dry), bending strength 145 MPa (-> strength_xy_mpa), tensile "
+        "95 MPa, Young's 7800 MPa, elongation 2%, Charpy 11 kJ/m2, density 1.2 "
+        "g/cm3, water absorption 1.37%, Tg 80 C, Tm 232 C, HDT/A 82.5 C, 15% "
+        "CF, nozzle 280-320 C, bed 70-90 C [SirPPA26]. THE TDS REPORTS NO Z / "
+        "INTERLAYER DATA AT ALL, so both through-layer fields are derived. "
+        "e_z_mpa: X-Y modulus x the Bambu PAHT-CF Z/XY modulus ratio 1820/4230 "
+        "= 0.430, the nearest CF-filled polyamide with full X-Y/Z data "
+        "[PAHTCF]; good to about +-20-30%. strength_z_mpa does NOT use that "
+        "datasheet ratio (0.488): the user's own 4x4 mm coupons on the same "
+        "printer put Elegoo PAHT-CF at Z/XY 0.156 where the cross-brand "
+        "datasheet analogy predicted 0.49 — 3x optimistic [ELPAHT-COUPON]. "
+        "Interlayer strength is a property of the PROCESS, not the polymer, so "
+        "the measured process ratio carries across to another CF-filled "
+        "polyamide on that printer far better than a second vendor's lab "
+        "specimens: 145 x 0.156 = 22.6 MPa. That may be PESSIMISTIC here, "
+        "since PPA extrudes at 280-320 C against PA12's ~260-290 C and hotter "
+        "welds bond better; it is also nearly free, because the exporter prints "
+        "blades FLAT and the Z allowable only binds on an upright print. "
+        "CONDITIONED: e_mpa = 6800 x 0.80 (_PPA_WET_RETENTION, see the constant "
+        "for why 0.80 and not PA12's 0.85) = 5440 MPa, the in-service default. "
+        "as_printed_retention is the INHERITED 0.85 measured on Elegoo PAHT-CF "
+        "coupons, not a measurement of this filament — per sizing's book-the-"
+        "uncertainty-once rule an untested card inherits rather than inventing "
+        "a lower number, and the residual rides in STRUCTURAL_SF. Test E "
+        "(coupons) and Test G (seawater soak) in docs/BENCH-PROTOCOL.md are the "
+        "decision-grade replacements for strength_z, as_printed_retention and "
+        "the wet conditioning respectively."),
 )
 
 # Generic reference resin — NOT a seawater candidate (cheap, brittle, low HDT),
@@ -243,11 +327,15 @@ _PLA = MaterialCard(
 # card for that slot; a measured card registered under the alias shadows it.
 CARDS: dict[str, MaterialCard] = {
     c.name: c for c in (
-        _FIBERON_PET_CF17, _BAMBU_PET_CF, _ELEGOO_PAHT_CF, _BAMBU_PAHT_CF, _PLA)
+        _FIBERON_PET_CF17, _BAMBU_PET_CF, _ELEGOO_PAHT_CF, _BAMBU_PAHT_CF,
+        _SIRAYA_PPA_CF, _PLA)
 }
 CARDS["pet-cf"] = _FIBERON_PET_CF17  # user's filament is the pet-cf default
+CARDS["ppa-cf"] = _SIRAYA_PPA_CF     # only PPA-CF card, so it takes the slot
 # ("paht-cf" is already _ELEGOO_PAHT_CF via its own name; "bambu-paht-cf" is the
 #  analog. Both pet-cf and paht-cf slots hold the user's actual filaments.)
+# NOTE the Siraya filament is SOLD as "PAHT-CF" but is PPA-based, not the PA12
+# the paht-cf slot holds — it is deliberately NOT aliased there.
 
 
 def get_card(name: str) -> MaterialCard:

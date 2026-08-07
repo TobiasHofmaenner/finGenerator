@@ -110,11 +110,37 @@ def test_sizing_allowable_derives_from_card_strength():
     # as-printed retention, over a PROVENANCE-SCALED structural SF. In-plane —
     # not the old blanket 0.5 — because the exporter prints the blade FLAT, so
     # its bending tension runs within the layer planes.
-    for mat, moisture in (("pet-cf", 1.0), ("paht-cf", 0.85)):
+    # The moisture retention is read off the CARD, not a name-keyed module dict
+    # that silently returned 1.0 (no derate at all, the unsafe direction) for
+    # any material or registry alias not spelled into it. The expected values
+    # are asserted here so the card cannot drift them unnoticed.
+    for mat, moisture in (("pet-cf", 1.0), ("paht-cf", 0.85), ("ppa-cf", 0.80)):
         card = get_card(mat)
+        assert card.wet_retention == pytest.approx(moisture)
         assert _MATERIAL_ALLOW_MPA[mat] == pytest.approx(
             card.strength_xy_mpa * moisture * card.as_printed_retention
             / STRUCTURAL_SF, rel=1e-3)
+
+
+def test_every_designable_material_declares_its_wet_retention():
+    """A submerged polyamide must not be designed as if water did not exist.
+
+    The old sizing._MOISTURE_RETENTION dict was keyed by material name and read
+    with .get(name, 1.0), so adding a card — or aliasing one — quietly opted it
+    OUT of the moisture derate. Now that the factor lives on the card, this
+    pins the invariant that matters: every material the sizing layer will
+    actually design with carries a deliberate retention, and any water-absorbing
+    resin carries one below unity."""
+    from fingen.sizing import _MATERIAL_ALLOW_MPA
+
+    for mat in _MATERIAL_ALLOW_MPA:
+        card = get_card(mat)
+        assert 0.5 <= card.wet_retention <= 1.0, mat
+        # The polyamides (PA12-CF, PPA-CF) all take up water; only the PET-CF
+        # card is water-indifferent (0.53% uptake) and may sit at 1.0.
+        if "pet" not in card.name:
+            assert card.wet_retention < 1.0, (
+                f"{mat} is a polyamide and must carry a moisture derate")
 
 
 def test_interlaminar_ratio_is_per_card_not_global():
