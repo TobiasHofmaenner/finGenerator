@@ -25,12 +25,45 @@ band gets its own reported maximum, the tier-0 closure of the
 critical-section note in docs/PHYSICS.md §4.
 
 Validity limits: strip torsion constant J = (1/3)∫t³dx holds for SOLID THIN
-sections (t/c ≤ 0.15 — the FoilParams ceiling). The pure wetted-span beam
+sections (t/c ≤ 0.15). That USED to be the FoilParams ceiling, so the two
+agreed by construction; the ceiling has since been raised to 0.22 (the search
+was pinned to the old one on 28/28 archived seeds) and this limit did NOT move
+with it. For a section of finite width-to-thickness ratio the true Saint-Venant
+constant is β·b·t³ with β < 1/3, falling as the section gets stubbier, so the
+strip formula OVERESTIMATES J: ~6% at t/c 0.09, ~10% at 0.15, ~12% at 0.17. A
+gradual drift, not a cliff at 0.15 — a section modestly above the limit is not
+categorically worse than one at it.
+
+THE CONSEQUENCE IS NOT UNIFORMLY "OPTIMISTIC", which is worth stating because
+the obvious guess is wrong. Softening GJ was measured on the 46 kg anchor fins
+(J scaled by the one-term correction below): divergence speed falls 2-5%, so the
+strip value there IS optimistic — but tip twist and washout fall too, 2-3% and
+5-8%. Washout on a RAKED blade is dominated by the nose-down rake coupling
+(Δα = −θ·sinΛ_e), while direct torsion about an elastic axis behind the c/4 CP
+pushes nose-UP; a softer GJ grows the nose-up term and thus SHRINKS net washout.
+So the strip formula is conservative on washout and optimistic on divergence at
+the same time.
+
+The one-term fix is known and cheap — J = (1/3)bt³[1 − 0.6302·(t/b)], the first
+term of the exact Fourier solution, accurate to 0.01% for b/t ≥ 3 and 0.2% at
+b/t = 2 — and is deliberately NOT applied. The 3D torsional anchor has since
+been measured (TORSION_COMPLIANCE_*, 12 CalculiX runs) and is a ×1.2-1.8
+effect: a 5-10% analytic SHAPE correction underneath a measured 3D correction
+an order of magnitude larger would be double-counting the same discrepancy,
+since the FEM ratio already contains whatever shape error the strip formula
+carries. It becomes meaningful only if J_strip is ever replaced by an exact
+section solve, at which point the anchor must be refitted against THAT baseline.
+Nothing here rejects a thick section — optimize.evaluate() reports it as an
+issue and tier-1 adjudicates.
+The pure wetted-span beam
 reads consistently STIFF against 3D references — root warping, shear lag
 and plate behavior are missing, and they grow with how stubby the blade is —
 so bending compliance carries a single calibrated knockdown (see
-ROOT_COMPLIANCE_SLOPE); torsion is left uncorrected (no torsional anchor
-yet). CALIBRATION NOTE: with no explicit override, E now comes from the
+ROOT_COMPLIANCE_SLOPE) and torsional compliance carries its own, separately
+calibrated one (TORSION_COMPLIANCE_*, 12 CalculiX pure-couple runs). The two
+trend OPPOSITE ways with stubbiness — bending's correction grows with
+c_root/span, torsion's shrinks — so they are deliberately not one constant.
+CALIBRATION NOTE: with no explicit override, E now comes from the
 material card — `get_card(material).e_mpa`, the datasheet ISO-178 X-Y bending
 modulus (4744 MPa for pet-cf = Polymaker Fiberon PET-CF17 [FibPET26], the
 user's filament), which is the correct span-bending stiffness of a flat-printed
@@ -80,6 +113,73 @@ X_CP_FRAC = 0.25
 # A fit through exactly two anchors: treat the tests as regression pins; the
 # FEM tier recalibrates per-geometry, the load-cell rig per-material.
 ROOT_COMPLIANCE_SLOPE = 0.55
+
+# 3D TORSIONAL-COMPLIANCE CALIBRATION (scripts/torsion_anchor.py,
+# out/torsion-anchor.json). Torsional compliance is scaled by
+#     TORSION_COMPLIANCE_A / (1 + TORSION_COMPLIANCE_B · (c_root/span)^TORSION_COMPLIANCE_N)
+# added to 1, i.e. torsion_compliance_factor() below.
+#
+# WHY THIS EXISTS. Bending got the slope above; torsion got nothing, so `gj`
+# was raw Saint-Venant. That is not a neutral omission — it is an ASYMMETRY in
+# a near-cancellation. Washout is nose-down rake coupling (driven by the bending
+# slope θ, already softened ×1.49 on the 46 kg anchor fin) MINUS nose-up direct
+# torsion (not softened at all). Inflating one term of a difference and not the
+# other biased washout systematically high, and washout_max was the binding gate
+# on 16 of 16 optimizer seeds. Correcting torsion REMOVES an asymmetry rather
+# than introducing one: on that fin this factor is ×1.494 against bending's
+# ×1.487.
+#
+# PROVENANCE. 12 CalculiX runs over c_root/span 0.27-1.59, comparing the FEM
+# section rotation to the Saint-Venant integral T·∫dz/(G·J_strip) on identical
+# geometry. The load case is a PURE COUPLE (nodal Fy = k(x−x̄) on a tip slab),
+# so the resultant is zero to ~1e−13 N and no bending contaminates the twist,
+# and the applied torque is reference-axis independent. Mesh-converged: 0.35%
+# over a 14× element range (12.6k → 178.5k C3D10). Load-patch insensitive: 1.5%
+# over patch positions 0.85/0.90/0.95 span. A fixed-chord control series (chord
+# held at 110 mm, span 95-220 mm) lands within 1.6% of the varying-chord series
+# at equal c/s, confirming c_root/span is the governing group — which follows,
+# since the underlying warping-restraint boundary layer has a length set by the
+# CHORD (measured ≈0.31·c_root, near-constant across a 1.6× chord range) and so
+# occupies a span fraction of exactly c/s.
+#
+# TWO MECHANISMS, OPPOSITE SIGNS, SEPARATED IN SPACE — the reason a single
+# scalar could not have been guessed. Inboard of z/span ≈ 0.28 the clamp
+# restrains warping and the blade is STIFFER than Saint-Venant (locally ×0.42 at
+# 7% span); outboard, shear lag and plate behaviour make it SOFTER (locally
+# ×1.5). This factor is the integrated result, which is what the beam model
+# needs.
+#
+# WHY THE SATURATING FORM. A linear fit is slightly better in range (RMS 0.038
+# vs 0.022) and is UNUSABLE: it returns negative compliance at c/s ≥ 3.85, and
+# _SLIDER_BOUNDS lets the optimizer reach c/s = 250/40 = 6.25. This form is
+# bounded (1, 1.83], monotone, and saturates to 1 outside the fitted range —
+# conservative, since it then never predicts stiffer-than-Saint-Venant and so
+# never under-predicts washout.
+#
+# SCOPE. Fitted at t/c 0.09, flat-inside, no grooves, no tabs, isotropic. The
+# RATIO is E-independent, but orthotropy (task #14) is untested here and printed
+# blades are orthotropic. Bending's slope came from two anchors; this came from
+# twelve, but both are FEM-and-literature, not bench — Test A/D on the rig is
+# what makes either of them measured.
+TORSION_COMPLIANCE_A = 0.8275
+TORSION_COMPLIANCE_B = 0.9497
+TORSION_COMPLIANCE_N = 2.8115
+
+
+def torsion_compliance_factor(c_root_mm: float, span_mm: float) -> float:
+    """3D torsional-compliance multiplier for a blade of this stubbiness.
+
+    ≥ 1 always: the integrated 3D blade twists MORE than the Saint-Venant beam
+    over every geometry measured. See the block comment above for provenance and
+    the two competing mechanisms this single number integrates.
+    """
+    if span_mm <= 0.0:
+        return 1.0 + TORSION_COMPLIANCE_A
+    c_s = max(c_root_mm, 0.0) / span_mm
+    return 1.0 + TORSION_COMPLIANCE_A / (
+        1.0 + TORSION_COMPLIANCE_B * c_s**TORSION_COMPLIANCE_N)
+
+
 # Station resolution for the FinParams wrapper: beam double-integrals are
 # converged well below the model error at 40 stations, still milliseconds.
 _N_STATIONS = 40
@@ -227,7 +327,13 @@ def flex_solve(z_mm: np.ndarray, chord_mm: np.ndarray, x_le_mm: np.ndarray,
     # header) softens the beam; internal actions M, V stay equilibrium-exact.
     root_factor = 1.0 + ROOT_COMPLIANCE_SLOPE * float(chord[0] / span)
     ei = e_pa * i_m4 / root_factor
-    gj = e_pa / (2.0 * (1.0 + nu)) * j_m4
+    # Torsion carries its OWN 3D compliance factor, not root_factor: the two are
+    # numerically close on a typical side fin (1.49 vs 1.49) but they are
+    # different calibrations of different physics — bending's grows with c/s,
+    # torsion's SHRINKS with it (see torsion_compliance_factor). Sharing the
+    # bending slope would be right at c/s ≈ 0.9 and wrong at both ends.
+    torsion_factor = torsion_compliance_factor(float(chord[0]), float(span))
+    gj = e_pa / (2.0 * (1.0 + nu)) * j_m4 / torsion_factor
 
     # Distributed lateral load, scaled so the resultant equals force_n.
     shape = np.asarray(load(z_mm), dtype=float) if load is not None else chord

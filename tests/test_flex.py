@@ -221,3 +221,81 @@ def test_wrapper_material_and_modulus_paths():
         flex_report(fin, 74.0, 6.4, material="unobtainium")
     with pytest.raises(ValueError):
         flex_report(fin, -5.0, 6.4)
+
+
+# --- 3D torsional-compliance anchor -------------------------------------------
+# scripts/torsion_anchor.py, out/torsion-anchor.json: 12 CalculiX pure-couple
+# runs over c_root/span 0.27-1.59. These are regression pins on that fit, in the
+# same spirit as the bending anchors above.
+
+def test_torsion_factor_matches_the_calculix_anchor_points():
+    """The fit must reproduce the measured FEM ratios at the sweep's ends and
+    at the geometry the bending anchor also used. Tolerance is the fit's own
+    spread (max residual 0.041), not machine precision."""
+    from fingen.flex import torsion_compliance_factor as f
+
+    for c_root, span, measured in (
+        (70.0, 260.0, 1.768),    # veryslender, c/s 0.27
+        (95.0, 150.0, 1.659),    # mid,         c/s 0.63
+        (110.0, 115.0, 1.420),   # default,     c/s 0.96 (the CalculiX bending anchor)
+        (135.0, 85.0, 1.202),    # verystubby,  c/s 1.59
+    ):
+        assert f(c_root, span) == pytest.approx(measured, abs=0.045)
+
+
+def test_torsion_factor_trends_opposite_to_bending():
+    """The whole reason this is a separate calibration: bending's correction
+    GROWS with c_root/span and torsion's SHRINKS. Sharing one constant would be
+    right near c/s 0.9 and wrong at both ends."""
+    from fingen.flex import ROOT_COMPLIANCE_SLOPE, torsion_compliance_factor as f
+
+    slender, stubby = f(80.0, 200.0), f(125.0, 100.0)
+    assert slender > stubby, "torsional correction must shrink with stubbiness"
+    bend_slender = 1.0 + ROOT_COMPLIANCE_SLOPE * (80.0 / 200.0)
+    bend_stubby = 1.0 + ROOT_COMPLIANCE_SLOPE * (125.0 / 100.0)
+    assert bend_stubby > bend_slender, "bending correction must grow with stubbiness"
+
+
+def test_torsion_factor_stays_bounded_across_the_whole_search_box():
+    """_SLIDER_BOUNDS lets the optimizer reach depth 40 / base 250, i.e.
+    c/s = 6.25 — far outside the fitted 0.27-1.59. The linear fit that was
+    marginally better in range returns NEGATIVE compliance there (zero crossing
+    at c/s 3.85), which is why the saturating form was chosen. Guard the
+    property that made the choice."""
+    from fingen.flex import TORSION_COMPLIANCE_A, torsion_compliance_factor as f
+
+    for c_root, span in ((40.0, 300.0), (250.0, 40.0), (110.0, 115.0), (40.0, 40.0)):
+        v = f(c_root, span)
+        assert 1.0 <= v <= 1.0 + TORSION_COMPLIANCE_A + 1e-9, (c_root, span, v)
+    assert f(0.0, 100.0) == pytest.approx(1.0 + TORSION_COMPLIANCE_A)
+    assert f(110.0, 0.0) == pytest.approx(1.0 + TORSION_COMPLIANCE_A)  # no divide-by-zero
+
+
+def test_torsion_correction_reaches_the_report_and_softens_twist():
+    """End-to-end: the factor must actually change flex_report, not just exist.
+
+    Softening GJ REDUCES washout magnitude on a raked blade — nose-down rake
+    coupling minus a now-larger nose-up direct-torsion term — and lowers the
+    divergence speed. Both directions are asserted because the washout one is
+    counter-intuitive and was got wrong once by reasoning alone."""
+    import dataclasses
+
+    import fingen.flex as flex
+    from fingen.params import FinParams, FoilFamily, FoilParams, OutlineParams
+
+    fin = FinParams(outline=OutlineParams(depth=115.0, base=110.0, sweep=35.0),
+                    foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
+    live = flex.flex_report(fin, 300.0, 7.5)
+
+    # Recompute with the correction disabled, by neutralising the factor.
+    orig = flex.torsion_compliance_factor
+    flex.torsion_compliance_factor = lambda *_a, **_k: 1.0
+    try:
+        raw = flex.flex_report(fin, 300.0, 7.5)
+    finally:
+        flex.torsion_compliance_factor = orig
+
+    assert live.divergence_speed_ms < raw.divergence_speed_ms
+    assert abs(live.lift_knockdown) < abs(raw.lift_knockdown)
+    assert live.divergence_speed_ms == pytest.approx(
+        raw.divergence_speed_ms / math.sqrt(orig(110.0, 115.0)), rel=0.02)
