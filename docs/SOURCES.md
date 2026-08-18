@@ -467,15 +467,44 @@ Unannealed / annealed: bending strength 145 / 145 MPa (ISO 178), bending modulus
 1.2 g/cm³ (ISO 1183), water absorption 1.37% (ISO 62), Tg 80 °C and Tm 232 °C (ASTM D3418),
 Vicat 230 °C (ISO 306). Process: nozzle 280-320 °C, bed 70-90 °C, 30-120 mm/s, dry 100 °C/4-6 h.
 **No Z-direction, interlayer or layer-adhesion property is reported at all.**
-**Cited for:** the `ppa-cf` / `siraya-ppa-cf` material card in `fingen.materials`, an
-`"approximated"` card built on the UNANNEALED column (the annealed one is not reproducible
-without a schedule, and trades 43% of the impact toughness for 8% modulus and no strength).
-Both through-layer fields are derived — modulus by the [PAHTCF] Z/XY analogy, strength by the
-measured process ratio [ELPAHT-COUPON] — and the wet conditioning is estimated at 0.80; see the
-card's `derivation` field. Note the thermal numbers (Tm 232 °C, Tg 80 °C) are NOT those of a
+**Cited for:** the `siraya-ppa-cf` material card in `fingen.materials`, an `"approximated"`
+card built on the UNANNEALED column (the annealed one is not reproducible without a schedule,
+and trades 43% of the impact toughness for 8% modulus and no strength). Both through-layer
+fields are derived — modulus by the [PAHTCF] Z/XY analogy, strength by the measured process
+ratio [ELPAHT-COUPON] — and the wet conditioning is estimated at 0.80; see the card's
+`derivation` field. Note the thermal numbers (Tm 232 °C, Tg 80 °C) are NOT those of a
 classic polyphthalamide (Tm ~310-325 °C, Tg 90-125 °C), which is why the card reads its
 moisture behaviour as PA-like rather than trusting the "PPA" label. Tests E and G
-(docs/BENCH-PROTOCOL.md) are decision-grade for this card.
+(docs/BENCH-PROTOCOL.md) are decision-grade for this card. This is the PLAIN 15% grade, kept
+for comparison; the filament actually in use is the Core below, which holds the `ppa-cf` slot.
+
+### [SirPPACore26] Siraya Tech — Fibreheart PPA-CF **Core** Technical Data Sheet
+[Product TDS page](https://sirayatech.myshopify.com/pages/siraya-tech-fibreheart-ppa-cf-core-tds),
+accessed 2026-08-17. A DIFFERENT material from the 15% grade in [SirPPA26] above, not a revision
+of it: 25% carbon fibre and a **core-shell** filament — fibre-loaded core inside a pure-resin
+skin, which the vendor presents as a layer-bonding measure. Also sold under the "PAHT-CF" family
+name despite being PPA-based. Values are given in two columns, unannealed and annealed; as with
+the 15% sheet, **no anneal schedule is published** (neither temperature nor time).
+Unannealed / annealed: tensile stress at break 112 / 121 MPa (ASTM D638), Young's modulus
+9300 / 10220 MPa (ASTM D638), elongation at break 2.25 / 1.6% (ASTM D638), Charpy impact
+13.1 / 7.3 kJ/m² (ISO 179), bending strength 178 / 185 MPa (ISO 178), bending modulus
+8700 / 9510 MPa (ISO 178), HDT 84 / 126 °C at 1.80 MPa (Method A) and 97 / 199 °C at 0.45 MPa
+(Method B). State-independent: density 1.23 g/cm³ (ISO 1183), water absorption 1.09% (ISO 62),
+Tg 80 °C and Tm 239 °C (ASTM D3418), Vicat 238 °C (ISO 306). Process: nozzle 280-320 °C,
+bed 80 °C, 25% carbon fibre.
+**No Z-direction, interlayer or layer-adhesion property is reported at all** — the core-shell
+bonding claim is qualitative, unquantified by any number on the sheet.
+**Cited for:** the PRIMARY `ppa-cf` / `siraya-ppa-cf-core` material card in `fingen.materials`,
+an `"approximated"` card built on the UNANNEALED column (annealing buys +9.5% bending modulus
+and +4% strength for 44% of the Charpy toughness, the wrong trade for a fin that meets reef and
+sand). Both through-layer fields are derived exactly as on the 15% card — modulus by the
+[PAHTCF] Z/XY analogy, strength by the measured process ratio [ELPAHT-COUPON] — with the Z
+strength left deliberately pessimistic despite the core-shell construction arguing the other
+way, since raising an allowable on an unquantified vendor claim is the unsafe direction. Wet
+conditioning is estimated at 0.82, slightly above the 15% grade's 0.80: composite uptake is
+lower (1.09% vs 1.37%) but mostly through fibre dilution, so matrix-normalised the two are close
+(1.45% vs 1.61%) and the gain is really that more of the stiffness rides on water-indifferent
+fibre. Tests E and G (docs/BENCH-PROTOCOL.md) are decision-grade for this card.
 
 ### [3DXPA] 3DXTech — PA6-CF vs. PA12-CF Carbon Fiber Nylon comparison *(grey literature)*
 [3dxtech.com/blogs/featured/pa6-cf-vs-pa12-cf-carbon-fiber-nylon-comparison](https://www.3dxtech.com/blogs/featured/pa6-cf-vs-pa12-cf-carbon-fiber-nylon-comparison),

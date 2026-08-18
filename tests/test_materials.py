@@ -114,7 +114,7 @@ def test_sizing_allowable_derives_from_card_strength():
     # that silently returned 1.0 (no derate at all, the unsafe direction) for
     # any material or registry alias not spelled into it. The expected values
     # are asserted here so the card cannot drift them unnoticed.
-    for mat, moisture in (("pet-cf", 1.0), ("paht-cf", 0.85), ("ppa-cf", 0.80)):
+    for mat, moisture in (("pet-cf", 1.0), ("paht-cf", 0.85), ("ppa-cf", 0.82)):
         card = get_card(mat)
         assert card.wet_retention == pytest.approx(moisture)
         assert _MATERIAL_ALLOW_MPA[mat] == pytest.approx(

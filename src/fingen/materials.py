@@ -55,8 +55,14 @@ The registry default `"pet-cf"` is the user's actual filament, Polymaker
 Fiberon PET-CF17 ([FibPET26]); the Bambu PET-CF card is kept as
 `"bambu-pet-cf"` for filament comparison. `"paht-cf"` is the user's Elegoo
 PAHT-CF as an APPROXIMATED card ([ELPAHT26], structural gaps filled from the
-Bambu PAHT-CF analog [PAHTCF], which is kept as `"bambu-paht-cf"`); `"pla"` is
-Bambu PLA Basic ([PLA]), a low-stiffness reference only. The DRY X-Y bending
+Bambu PAHT-CF analog [PAHTCF], which is kept as `"bambu-paht-cf"`). `"ppa-cf"`
+is the user's Siraya Tech Fibreheart PPA-CF **Core** ([SirPPACore26]), also
+APPROXIMATED — a 25% carbon-fibre core-shell filament and the stiffest card
+here (8700 MPa dry X-Y bending); the plain 15% grade is kept as
+`"siraya-ppa-cf"` for comparison, and note that BOTH are sold under the
+"PAHT-CF" trade name while being PPA-based rather than the PA12-CF that name
+denotes on the `"paht-cf"` cards. `"pla"` is Bambu PLA Basic ([PLA]), a
+low-stiffness reference only. The DRY X-Y bending
 STRENGTHS here (`strength_xy_mpa`) are the inputs fingen.sizing knocks down
 (print + moisture) into its design allowables; that module cross-references
 this one.
@@ -159,6 +165,8 @@ _PLA_URL = ("https://store.bblcdn.com/s1/default/"
             "58b85d0f3db94878854a28fdb8a0006e/Bambu_PLA_Basic_Technical_Data_Sheet.pdf")
 _SIRAYA_PPACF_URL = ("https://sirayatech.myshopify.com/pages/"
                      "siraya-tech-fibreheart-paht-cf-ppa-based-tds")
+_SIRAYA_PPACF_CORE_URL = ("https://sirayatech.myshopify.com/pages/"
+                          "siraya-tech-fibreheart-ppa-cf-core-tds")
 # PPA-CF conditioned/wet retention. The TDS reports 1.37% water absorption
 # (ISO 62) — 2.6x the Fiberon PET-CF (0.53%, treated as water-indifferent) and
 # above PA12's <1% (retention 0.85 [3DXPA]). The trend puts this resin BELOW
@@ -171,6 +179,19 @@ _SIRAYA_PPACF_URL = ("https://sirayatech.myshopify.com/pages/"
 # read as PA-like, which is what the 1.37% uptake already says. Test G (seawater
 # soak, docs/BENCH-PROTOCOL.md) replaces this estimate with a measurement.
 _PPA_WET_RETENTION = 0.80
+# PPA-CF **Core** conditioned/wet retention. Its TDS reports 1.09% uptake
+# (ISO 62) against the 15% grade's 1.37% — but most of that drop is fibre
+# dilution, not a drier polymer: carbon does not absorb water, so going 15% ->
+# 25% CF removes ~12% of the absorbing phase by itself. MATRIX-NORMALISED the
+# two grades are close, 1.09/0.75 = 1.45% against 1.37/0.85 = 1.61%, so the
+# resin around the fibres still conditions nearly as wet and PA-like plasticiz-
+# ation still applies. Two effects nonetheless push retention slightly ABOVE the
+# 15% grade's 0.80: the matrix is a little drier, and with 25% CF a larger share
+# of the composite stiffness rides on fibre, which is indifferent to water — the
+# same matrix softening moves the composite less. 0.82 is the central estimate,
+# honest band 0.72-0.92, still below PA12's 0.85 [3DXPA] because the matrix is
+# wetter than PA12's <1%. Test G (seawater soak) replaces it with a measurement.
+_PPA_CORE_WET_RETENTION = 0.82
 
 # PRIMARY pet-cf: the user's actual filament. Polymaker Fiberon PET-CF17 TDS
 # V1.0 (ISO 178 bending, ISO 527 tensile, ISO 1183 density). ALL mechanical
@@ -252,9 +273,10 @@ _BAMBU_PAHT_CF = MaterialCard(
     wet_retention=_PA12_WET_RETENTION,   # PA12-CF, same as the Elegoo card
 )
 
-# PRIMARY ppa-cf: Siraya Tech Fibreheart PPA-CF, 15% carbon fibre. Sold as
-# "PAHT-CF" but it is NOT the PA12-CF the other paht-cf cards describe, so it
-# gets its own slot rather than shadowing one — its X-Y bending modulus is 6800
+# Secondary ppa-cf option: Siraya Tech Fibreheart PPA-CF, 15% carbon fibre — the
+# plain grade, kept for filament comparison against the Core the user actually
+# runs. Sold as "PAHT-CF" but it is NOT the PA12-CF the paht-cf cards describe,
+# so PPA takes its own slot rather than shadowing one — X-Y bending modulus 6800
 # MPa against Elegoo's 5089, a different material with a colliding trade name.
 #
 # UNANNEALED numbers are the card. The TDS reports both states but publishes no
@@ -310,6 +332,77 @@ _SIRAYA_PPA_CF = MaterialCard(
         "the wet conditioning respectively."),
 )
 
+# PRIMARY ppa-cf: the user's actual filament, Siraya Tech Fibreheart PPA-CF
+# **Core** — 25% carbon fibre, and a CORE-SHELL filament: fibre-loaded core
+# inside a pure-resin skin. It is a different material from the plain 15% grade
+# above, not a revision of it, so it takes the ppa-cf slot as its own card and
+# the 15% one stays for comparison. Every structural number is higher: X-Y
+# bending 8700/178 MPa against 6800/145, Young's 9300 against 7800, and — unlike
+# the usual stiffness-for-toughness trade — Charpy is UP too, 13.1 against
+# 11 kJ/m². At 8700 MPa dry it is the stiffest card in the registry by a wide
+# margin (1.8x the Fiberon PET-CF the fin defaults to).
+#
+# UNANNEALED numbers again, for the same two reasons as the 15% card: the TDS
+# publishes no anneal schedule (no temperature, no time), so the annealed column
+# is not reproducible; and it is the worse trade for a fin, buying +9.5% bending
+# modulus (8700 -> 9510) and +4% bending strength (178 -> 185) for 44% of the
+# Charpy impact toughness (13.1 -> 7.3 kJ/m^2). A fin meets reef, sand and the
+# other board, so impact toughness is the property to keep. The HDT gain
+# (84 -> 126 °C at 1.8 MPa) is irrelevant in water.
+_SIRAYA_PPA_CF_CORE = MaterialCard(
+    name="siraya-ppa-cf-core",
+    e_mpa=round(8700.0 * _PPA_CORE_WET_RETENTION, 1),  # =7134.0 MPa, conditioned/wet
+    e_z_mpa=3743.3,          # analog: 8700 x Bambu PAHT-CF Z/XY modulus (1820/4230)
+    strength_xy_mpa=178.0,   # ISO 178 bending strength X-Y, unannealed (dry)
+    strength_z_mpa=27.8,     # 178 x 0.156, the MEASURED process ratio (see below)
+    density_kg_m3=1230.0,    # ISO 1183, 1.23 g/cm³
+    source=("Siraya Tech Fibreheart PPA-CF Core TDS [SirPPACore26] (ISO 178 "
+            "bending, ASTM D638 tensile, ISO 1183 density, ISO 62 water uptake), "
+            f"UNANNEALED column; Z data and wet conditioning derived; "
+            f"{_SIRAYA_PPACF_CORE_URL}"),
+    accessed="2026-08-17",
+    provenance="approximated",
+    annealed=False,          # TDS publishes no anneal schedule; see above
+    e_mpa_dry=8700.0,        # ISO 178 X-Y bending modulus, unannealed (dry)
+    wet_retention=_PPA_CORE_WET_RETENTION,
+    derivation=(
+        "SIRAYA's own (X-Y, unannealed, dry): bending modulus 8700 MPa (-> "
+        "e_mpa_dry), bending strength 178 MPa (-> strength_xy_mpa), tensile at "
+        "break 112 MPa, Young's 9300 MPa, elongation 2.25%, Charpy 13.1 kJ/m2, "
+        "density 1.23 g/cm3, water absorption 1.09%, Tg 80 C, Tm 239 C, Vicat "
+        "238 C, HDT/A 84 C, 25% CF, core-shell, nozzle 280-320 C, bed 80 C "
+        "[SirPPACore26]. LIKE THE 15% GRADE, THE TDS REPORTS NO Z / INTERLAYER "
+        "PROPERTY AT ALL, so both through-layer fields are derived. e_z_mpa: "
+        "X-Y modulus x the Bambu PAHT-CF Z/XY modulus ratio 1820/4230 = 0.430, "
+        "the nearest CF-filled polyamide with full X-Y/Z data [PAHTCF]; good to "
+        "about +-20-30%, and the core-shell construction adds unquantified "
+        "scatter in BOTH directions here (resin-rich weld zones are more "
+        "compliant than the filled core, but they weld better). strength_z_mpa "
+        "does NOT use that datasheet ratio: the user's own 4x4 mm coupons on "
+        "the same printer put Elegoo PAHT-CF at Z/XY 0.156 where the cross-"
+        "brand datasheet analogy predicted 0.49 — 3x optimistic [ELPAHT-"
+        "COUPON]. Interlayer strength is a property of the PROCESS, so the "
+        "measured process ratio carries better than a second vendor's lab "
+        "specimens: 178 x 0.156 = 27.8 MPa. That is probably MORE pessimistic "
+        "here than on any other card, because the whole point of a core-shell "
+        "filament is that the surface meeting the previous layer is UNFILLED "
+        "resin, and fibre at the weld interface is exactly what disrupts inter-"
+        "road bonding; the hot 280-320 C melt argues the same way. It is left "
+        "pessimistic deliberately: the vendor quantifies none of that, raising "
+        "an allowable on an unquantified construction claim is the unsafe "
+        "direction, and it is nearly free because the exporter prints blades "
+        "FLAT — the Z allowable only binds on an upright print. CONDITIONED: "
+        "e_mpa = 8700 x 0.82 (_PPA_CORE_WET_RETENTION, see the constant for why "
+        "0.82 and not the 15% grade's 0.80) = 7134 MPa, the in-service default. "
+        "as_printed_retention is the INHERITED 0.85 measured on Elegoo PAHT-CF "
+        "coupons, not a measurement of this filament — per sizing's book-the-"
+        "uncertainty-once rule an untested card inherits rather than inventing "
+        "a lower number, and the residual rides in STRUCTURAL_SF. Test E "
+        "(coupons) and Test G (seawater soak) in docs/BENCH-PROTOCOL.md are the "
+        "decision-grade replacements for strength_z, as_printed_retention and "
+        "the wet conditioning respectively."),
+)
+
 # Generic reference resin — NOT a seawater candidate (cheap, brittle, low HDT),
 # kept as the low-stiffness anchor for card wiring and comparisons. Bambu Lab
 # PLA Basic TDS V3.0.
@@ -328,10 +421,10 @@ _PLA = MaterialCard(
 CARDS: dict[str, MaterialCard] = {
     c.name: c for c in (
         _FIBERON_PET_CF17, _BAMBU_PET_CF, _ELEGOO_PAHT_CF, _BAMBU_PAHT_CF,
-        _SIRAYA_PPA_CF, _PLA)
+        _SIRAYA_PPA_CF, _SIRAYA_PPA_CF_CORE, _PLA)
 }
-CARDS["pet-cf"] = _FIBERON_PET_CF17  # user's filament is the pet-cf default
-CARDS["ppa-cf"] = _SIRAYA_PPA_CF     # only PPA-CF card, so it takes the slot
+CARDS["pet-cf"] = _FIBERON_PET_CF17       # user's filament is the pet-cf default
+CARDS["ppa-cf"] = _SIRAYA_PPA_CF_CORE     # ...and the Core is the ppa-cf default
 # ("paht-cf" is already _ELEGOO_PAHT_CF via its own name; "bambu-paht-cf" is the
 #  analog. Both pet-cf and paht-cf slots hold the user's actual filaments.)
 # NOTE the Siraya filament is SOLD as "PAHT-CF" but is PPA-based, not the PA12
