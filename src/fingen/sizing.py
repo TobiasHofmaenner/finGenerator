@@ -68,23 +68,38 @@ SUSTAINED_WEIGHT_FRACTION = 0.103
 CL_USABLE = 0.65
 FORCE_SF = 1.3
 
-# Over-finned ceiling, as a multiple of the area MINIMUM. This is a heuristic
-# with no measurement behind it — a round number chosen to stop the optimizer
-# running away, pending CFD calibration that has not happened.
+# Over-finned ceiling, as a multiple of the area MINIMUM. NOW REMOVED BY
+# DEFAULT (math.inf); the machinery stays so a ceiling can be re-imposed per
+# rider via anchor(area_max_factor=...) / RiderSpec.area_max_factor.
 #
-# IT IS NOT INERT. A 32-seed pet-cf multistart for the 46 kg anchor rider put
-# 11 of 11 independent starts EXACTLY on it — side 6869.8 of 6869.8 mm2, centre
-# 5152.4 of 5152.4, gaps under 0.02 mm2 — on both blades, including the seeds
-# that found much better objectives. So for that rider this constant, not the
-# physics, is what sets fin size, and every "design variation" the search
-# reports is a rearrangement of one fixed area.
+# It was 2.0: a heuristic with no measurement behind it, a round number chosen
+# to stop the optimizer running away pending CFD calibration that never
+# happened. It was NOT inert. Across 28 archived multistart seeds for the 46 kg
+# anchor rider — 16 ppa-cf, 12 pet-cf — EVERY seed landed exactly on it, on
+# BOTH blades (side 6869.8 of 6869.8 mm2, centre 5152.4 of 5152.4, gaps under
+# 0.02 mm2), including the seeds that found much better objectives. So this
+# constant, not the physics, was setting fin size, and every "design variation"
+# the search reported was a rearrangement of one fixed area.
 #
-# Whether a ceiling SHOULD exist is a separate question from whether 2.0 is
-# right: over-finning is a real failure mode (draggy, stiff, slow to release),
-# and if the spider's speed/release axes priced it properly the optimizer would
-# stop on its own. Running to the ceiling is therefore also evidence about the
-# OBJECTIVE. Pass area_max_factor=math.inf to anchor() to test which.
-AREA_MAX_FACTOR = 2.0
+# WHAT REMOVING IT MEASURED. Lifting the ceiling moved the set objective from
+# 0.02520 to 0.00269 — 9.4x better — for only +5.5% side area and +25% centre
+# area. It was not restraining a runaway design; it was clipping the last few
+# percent of area exactly where the objective is steepest. It also caused the
+# multi-basin structure: capped runs split into two basins 2.2x apart (0.025 vs
+# 0.055) that 16 seeds never reconciled, because a constraint biting at the
+# optimum leaves a smear of degenerate solutions along the boundary. Uncapped,
+# independent seeds agree to 0.4% on the objective and 1 mm2 on area.
+#
+# THE ARGUMENT FOR A CEILING IS NOT THEREBY SETTLED. Over-finning is a real
+# failure mode (draggy, stiff, slow to release), and running to the ceiling was
+# always ALSO evidence about the objective: if the spider's speed/release axes
+# priced over-finning properly, the search would stop on its own. It now has to,
+# which makes any remaining runaway a visible objective bug rather than a
+# constant quietly hiding one. The gates that do bind next are washout_max, the
+# tip-deflection model-validity limit, and the stress SF — all of which are
+# either the rider's stated preference or a statement about where the physics
+# stops being trustworthy, which is the right kind of wall to hit.
+AREA_MAX_FACTOR = math.inf
 
 # Material design allowables: datasheet strength, moisture-conditioned, times
 # the card's AS-PRINTED retention, over a provenance-scaled structural SF.

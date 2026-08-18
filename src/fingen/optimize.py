@@ -105,6 +105,13 @@ _DEPTH_CORRIDOR_MM = {
 }
 AR_GEO_MIN, AR_GEO_MAX = 1.05, 2.6
 
+# Section thickness above which tier-0's two thin-section assumptions stop
+# holding: flex.py's strip torsion constant (docs/PHYSICS.md 5b) and hydro's
+# thin-airfoil 2*pi lift slope. This was the FoilParams ceiling until the ceiling
+# was raised to 0.22 to stop truncating the search; the PHYSICS limit stayed at
+# 0.15, so it now lives here as a reported model-validity note (see evaluate()).
+_THIN_SECTION_TC_MAX = 0.15
+
 # --- rider → working-point mapping ------------------------------------------
 # Design riding speed per skill (m/s): the sizing default 6.4 [Forsyth24] is the
 # intermediate anchor; cruisers ride slower, advanced/pro faster (the working
@@ -699,6 +706,24 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     if flex.divergence_speed_ms < div_req:
         issues.append(f"divergence speed {flex.divergence_speed_ms:.1f} m/s below "
                       f"{div_req:.1f} m/s margin")
+    # MODEL-VALIDITY NOTE, not a gate. The FoilParams ceiling was raised 0.15 ->
+    # 0.22 because the search was pinned to the old one; the physics that
+    # justified 0.15 did NOT move with it. Two models thin out first:
+    #   * flex.py's strip torsion constant J = (1/3)int t^3 dx is a SOLID THIN
+    #     section formula (docs/PHYSICS.md 5b), so twist, washout and divergence
+    #     speed are increasingly optimistic past t/c 0.15;
+    #   * hydro.SECTION_SLOPE is the thin-airfoil 2*pi, and real lift slope
+    #     falls while cd0 rises well before that.
+    # Reported rather than penalized on purpose: a thick blade may be the right
+    # answer and tier-1 (CFD + FEM) is what adjudicates it. Silently allowing it
+    # is what would be wrong — the previous ceiling at least made the wall
+    # visible by being hit.
+    if fin.foil.thickness_ratio > _THIN_SECTION_TC_MAX:
+        issues.append(
+            f"t/c {fin.foil.thickness_ratio:.3f} above the thin-section validity "
+            f"limit {_THIN_SECTION_TC_MAX:.2f}: strip torsion overestimates J "
+            "(divergence speed optimistic, washout conservative — see flex.py) "
+            "and the thin-airfoil lift slope is optimistic — tier-1 adjudicates")
     return EvalResult(
         objective=objective,
         distance=distance,
@@ -723,7 +748,10 @@ _SLIDER_BOUNDS: tuple[tuple[str, float, float], ...] = (
     ("tip_width_ratio", 0.05, 0.6),
     ("le_fullness", 0.0, 1.0),
     ("te_shape", -1.0, 1.0),
-    ("thickness_ratio", 0.04, 0.15),
+    # 0.22, matching the raised params bound. The centre blade sat on the old
+    # 0.15 edge in 28/28 archived seeds; a box edge produces no penalty and no
+    # margin entry, so it truncated the design space silently.
+    ("thickness_ratio", 0.04, 0.22),
     ("thickness_tip_factor", 0.5, 1.2),
 )
 _N_SLIDERS = len(_SLIDER_BOUNDS)

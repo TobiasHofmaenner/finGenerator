@@ -71,8 +71,23 @@ class FoilParams:
     te_thickness: float = 0.7
 
     def __post_init__(self) -> None:
-        _require(0.04 <= self.thickness_ratio <= 0.15,
-                 f"thickness_ratio {self.thickness_ratio} outside 0.04–0.15")
+        # Upper bound raised 0.15 -> 0.22. The old ceiling was BINDING, not
+        # slack: across 28 archived optimizer seeds for the 46 kg anchor rider
+        # the co-designed CENTRE blade sat at exactly 0.15 in every single one,
+        # on both materials. A search pinned to the edge of its own parameter
+        # box is not reporting an optimum, it is reporting a wall — and unlike
+        # the gates, a box edge raises no penalty and appears nowhere in the
+        # margins, so it was invisible. 0.22 keeps the section inside NACA
+        # 4-digit practice (0022 is a real, tested profile) while leaving enough
+        # room above the old wall for an interior optimum to actually show.
+        #
+        # NOTE the hydro model thins out before the geometry does:
+        # hydro.SECTION_SLOPE is the thin-airfoil 2*pi, and real lift-curve
+        # slope falls and cd0 rises past roughly 12-15% t/c. A section thicker
+        # than that is BUILDABLE and honestly reported, but its predicted lift
+        # is optimistic — tier-1 CFD is what adjudicates a thick blade.
+        _require(0.04 <= self.thickness_ratio <= 0.22,
+                 f"thickness_ratio {self.thickness_ratio} outside 0.04–0.22")
         # Upper bound is the demonstrated buildable limit of the NACA
         # perpendicular construction through the loft (higher cambers fold at
         # the LE and defeat spanwise skinning), and already exceeds realistic
