@@ -10,6 +10,7 @@ blade AND center. Writes the winner plus a per-seed ledger for the record.
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -38,6 +39,15 @@ _AF = sys.argv[5] if len(sys.argv) > 5 else None
 AREA_FACTOR = None if _AF is None else float(_AF)
 _TAG = "" if AREA_FACTOR is None else (
     "-nocap" if float("inf") == AREA_FACTOR else f"-af{AREA_FACTOR:g}")
+# MARTINA_WASHOUT_MAX: "none" removes the washout gate entirely, a number
+# overrides it. An ENV var rather than another positional because it is a
+# diagnostic knob, not part of the run's identity the way material is — but it
+# DOES tag the output directory, because a fin designed without the gate is not
+# comparable to one designed with it and the two must never share a folder.
+_WM = os.environ.get("MARTINA_WASHOUT_MAX")
+WASHOUT_MAX = 0.03 if _WM is None else (None if _WM.lower() == "none" else float(_WM))
+if WASHOUT_MAX != 0.03:
+    _TAG += "-nowashout" if WASHOUT_MAX is None else f"-wm{WASHOUT_MAX:g}"
 SEEDS = list(range(OFFSET, OFFSET + _N_SEEDS))
 OUT = Path(f"out/martina/46kg-{MATERIAL}{_TAG}")
 NAME = f"fin-martina-46kg-advanced-thruster-{MATERIAL}"
@@ -56,7 +66,7 @@ RIDER = RiderSpec(
     # Cap the lift the blade sheds to flex. Without it the search buys spider
     # points with floppiness (washout multiplies drive/hold) right up to the
     # strength wall — the opposite of the "locked-in" she asked for.
-    washout_max=0.03,
+    washout_max=WASHOUT_MAX,
     # Tab REPORTED, not gated. The analytic model is too crude to design
     # against (it cannot see the junction, and S_tab is fixed by the box, so
     # the search can only satisfy it by wrecking the blade). Tier-1 adjudicates:
@@ -112,7 +122,15 @@ def main() -> None:
             best = (set_obj, r)
             # CHECKPOINT the best-so-far after every seed. Writing only at the
             # end means an interrupted run loses everything — which it did.
-            write_result_json(r, OUT / f"{NAME}.json")
+            #
+            # PER-STREAM FILENAME. This used to be the unscoped {NAME}.json, and
+            # with two offset streams sharing one OUT directory that is a race:
+            # each stream wrote ITS OWN best there, so the headline artifact was
+            # whichever stream finished last, not whichever fin was best. It bit
+            # on the v2 run — the file held seed 7 (0.002719) while seed 14
+            # (0.002699) was on disk in seeds/ the whole time. The unscoped name
+            # is now written only by reconcile(), from all seeds.
+            write_result_json(r, OUT / f"{NAME}-best-{OFFSET:03d}.json")
             print(f"          ^ new best, checkpointed (seed {seed})", flush=True)
         (OUT / f"{NAME}-ledger-{OFFSET:03d}.json").write_text(
             json.dumps({"budget": BUDGET, "seeds": SEEDS,
@@ -123,6 +141,32 @@ def main() -> None:
         raise SystemExit("no feasible set found")
     print(f"\nBEST set_objective {best[0]:.5f} (seed {best[1].seed}) "
           f"in {time.time() - t0:.0f}s total")
+    reconcile()
+
+
+def reconcile() -> None:
+    """Write {NAME}.json as the best across EVERY seed file on disk.
+
+    Reads seeds/ rather than this process's own `best`, so it is correct no
+    matter how many streams ran, in what order they finished, or whether an
+    earlier stream was interrupted. Both streams call it; whoever runs last
+    still wins, but now it wins with the global answer instead of its own.
+    Safe to run by hand after a partial run: `python -c
+    "import martina_search as m; m.reconcile()"` from scripts/.
+    """
+    rows = []
+    for path in sorted((OUT / "seeds").glob("seed-*.json")):
+        d = json.loads(path.read_text())
+        if d.get("set", {}).get("feasible"):
+            rows.append((d["set"]["objective"], path, d["search"]["seed"]))
+    if not rows:
+        print("reconcile: no feasible seed files found", flush=True)
+        return
+    obj, path, seed = min(rows, key=lambda r: r[0])
+    (OUT / f"{NAME}.json").write_text(path.read_text())
+    print(f"reconcile: {NAME}.json <- seed {seed} "
+          f"(set_objective {obj:.6f}, best of {len(rows)} feasible seeds)",
+          flush=True)
 
 
 if __name__ == "__main__":
