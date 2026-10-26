@@ -1,0 +1,15 @@
+{
+  "name": "omar-60kg-pro-thruster-ppa-cf-big",
+  "weight_kg": 60.0,
+  "skill": "PRO",
+  "config": "thruster",
+  "material": "ppa-cf",
+  "tabs": "click_tab",
+  "stress_sf_min": 1.7,
+  "washout_max": 0.015,
+  "tab_sf_min": null,
+  "spider_targets": {
+    "speed": 0.80, "drive": 0.95, "hold": 0.95, "pivot": 0.55,
+    "release": 0.50, "stability": 0.90, "forgiveness": 0.35
+  }
+}
