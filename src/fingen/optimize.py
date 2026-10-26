@@ -65,6 +65,7 @@ from fingen.params import (
     TabSystem,
 )
 from fingen.roll import roll_report, roll_set_report
+from fingen.safety import safety_penalties
 from fingen.sizing import (
     AnchorSheet,
     Skill,
@@ -481,6 +482,11 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     penalties: dict[str, float] = {}
     m = metrics(fin.outline)
     area = m.area
+    # Third-party injury constraints (fingen.safety): no forward-hooking leading
+    # edge, no tip sharper than the commercial baseline. Always on — unlike
+    # practical_corridor these are not convention, they protect people the fin
+    # hits — and read by check_anchor too, so the exporter refuses the same set.
+    penalties.update(safety_penalties(fin.outline))
     if area < sheet.area_min_mm2:
         penalties["area_low"] = (sheet.area_min_mm2 - area) / sheet.area_min_mm2
     if area > sheet.area_max_mm2:

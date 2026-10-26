@@ -458,4 +458,8 @@ def check_anchor(fin: FinParams, sheet: AnchorSheet,
     if fin.outline.base < sheet.base_min_mm:
         issues.append(f"base {fin.outline.base:.0f} mm below the mounting "
                       f"system minimum {sheet.base_min_mm:.0f} mm")
+    # Third-party injury constraints (fingen.safety): the same functions the
+    # optimizer's soft gate reads, so the two walls cannot cross.
+    from fingen.safety import safety_issues
+    issues += safety_issues(fin.outline)
     return issues
