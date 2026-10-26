@@ -112,11 +112,18 @@ def test_micro_optimization_improves_and_builds():
     rider = RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE, config=FinConfig.THRUSTER)
     default_obj = evaluate(_side_default(), rider).objective
 
-    # Budget 400: the seven-axis objective (the stability/roll axis was added on
+    # Budget 800: the seven-axis objective (the stability/roll axis was added on
     # top of the original six) makes the tuned template start a harder point to
     # beat, so the micro-search needs a few hundred evals — not the old 150 — to
-    # clear it; at 400 it improves by a clear margin and still builds one solid.
-    result = optimize(rider, budget_evals=400, seed=0)
+    # clear it. It was 400 until the fingen.safety injury constraints landed:
+    # those do not change where the search ENDS (8 seeds at 800 evals: median
+    # objective 0.0946 with them, 0.0949 without, 8/8 feasible both ways) but
+    # they slow the EARLY phase, because a random start lands in forbidden
+    # outlines often (35% hook, 25% sharp tip across the search box) — at 400,
+    # 7/8 feasible and median 0.158 against 8/8 and 0.125 without, seed 0
+    # stopping 2 mm2 under the area minimum. 800 clears that transient.
+    budget = 800
+    result = optimize(rider, budget_evals=budget, seed=0)
     assert result.result.objective < default_obj, (
         f"opt {result.result.objective:.3f} did not beat default {default_obj:.3f}")
     assert result.result.feasible
@@ -124,7 +131,7 @@ def test_micro_optimization_improves_and_builds():
     assert 0 < result.stage_boundary < len(result.history)
 
     # Deterministic under seed.
-    again = optimize(rider, budget_evals=400, seed=0)
+    again = optimize(rider, budget_evals=budget, seed=0)
     assert again.result.objective == result.result.objective
     assert again.fin == result.fin
 
