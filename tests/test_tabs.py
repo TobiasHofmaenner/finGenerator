@@ -26,7 +26,7 @@ def _fin(system, **tab_kw):
 @pytest.mark.parametrize("system,depth", [
     (TabSystem.DUAL_TAB, 14.0),
     (TabSystem.SINGLE_TAB, 17.5),
-    (TabSystem.CLICK_TAB, 14.0),
+    (TabSystem.CLICK_TAB, 12.0),   # fit-tested 2026-10-26; see _CLICK_DEPTH
 ])
 def test_tabbed_fin_builds_checks_and_reaches_depth(system, depth):
     fin = _fin(system)
@@ -159,9 +159,11 @@ def test_tab_leaving_section_envelope_rejected():
 
 
 def test_tab_overhang_allowed_but_engagement_required():
-    # Commercial-style: rear tab overhangs the aft base corner — legal.
+    # A rear tab overhanging the aft base corner is legal as long as each tab
+    # stays engaged. Click tabs are front-anchored (notch 4.5 mm ahead of the
+    # LE), so the 98 mm set ends at 93.5 mm; +20 pushes it past the 110 mm base.
     over = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
-                     tabs=TabParams(system=TabSystem.CLICK_TAB, x_offset=8.0))
+                     tabs=TabParams(system=TabSystem.CLICK_TAB, x_offset=20.0))
     bb = build_tabs(over, COARSE).bounding_box()
     overhang = bb.max.X - over.outline.base
     assert overhang > 0  # genuinely past the aft base corner
@@ -181,3 +183,37 @@ def test_click_tabs_fit_small_base_via_overhang():
     part = fin_solid(fin, COARSE)
     report = check_solid(part, fin, COARSE)
     assert report.ok, report.issues
+
+
+# --- FCS II mountability: the hook notch must lead the blade ------------------
+
+@pytest.mark.parametrize("base", [104.0, 117.3, 133.3])
+def test_click_tab_notch_protrudes_ahead_of_the_leading_edge(base):
+    """FCS II mounts nose-first, so the front tab's hook notch must be reachable
+    ahead of the blade. Centred placement parked it 3-12 mm UNDER the blade on
+    every exported set — unmountable. Pinned at every base length because the
+    old rule was base-dependent and looked fine at exactly the 98 mm span."""
+    from fingen.params import DEFAULT_SETTINGS, OutlineParams, TabParams, TabSystem
+    from fingen.tabs import _NOTCH_DEEP, build_tabs, tab_span_x
+
+    fin = FinParams(outline=OutlineParams(base=base),
+                    foil=FoilParams(family=FoilFamily.FLAT_INSIDE),
+                    tabs=TabParams(system=TabSystem.CLICK_TAB))
+    tabs = build_tabs(fin, DEFAULT_SETTINGS)
+    x_lo = tabs.bounding_box().min.X
+    # the nose (and the notch above it) leads the blade LE (x = 0) by exactly the notch depth
+    assert x_lo == pytest.approx(-_NOTCH_DEEP, abs=1e-6)
+    # the extent the fillet logic uses must be the extent actually built
+    assert tab_span_x(fin)[0] == pytest.approx(x_lo, abs=1e-6)
+
+
+def test_click_tab_depth_is_the_fit_tested_12mm():
+    """Fit-tested against real FCS II plugs (2026-10-26), not the 13.5-14 mm the
+    spec sources give. Pinned because it is export-only geometry that no
+    structural test would catch if it drifted back."""
+    from fingen.params import TabParams, TabSystem
+    from fingen.tabs import system_depth
+
+    assert system_depth(TabParams(system=TabSystem.CLICK_TAB)) == pytest.approx(12.0)
+    # FCS1 is a different box and has not been fit-tested; it must NOT follow.
+    assert system_depth(TabParams(system=TabSystem.DUAL_TAB)) == pytest.approx(14.0)

@@ -41,7 +41,19 @@ _DUAL_LEN, _DUAL_DEPTH, _DUAL_THICK, _DUAL_PITCH = 20.0, 14.0, 6.35, 53.0
 _DUAL_CORNER = 2.0
 _SINGLE_THICK, _SINGLE_DEPTH_SIDE, _SINGLE_MAXLEN = 7.19, 17.5, 110.0
 _SINGLE_FRONT_ANGLE = 6.0  # deg, LOW confidence — single community source
-_CLICK_FRONT, _CLICK_REAR, _CLICK_GAP, _CLICK_DEPTH, _CLICK_THICK = 45.0, 33.0, 20.0, 14.0, 6.35
+# _CLICK_DEPTH was 14.0, the midpoint of the 13.5-14 mm the two reverse-
+# engineered spec sources agree on (docs/TAB-SYSTEMS.md). FIT-TESTED DOWN TO
+# 12.0 (2026-10-26): Bali coaches riding the first printed sets reported the
+# tabs needed ~2 mm off. A measurement from a fin that actually went in a board
+# outranks a figure triangulated from two secondary sources — the 15.9 mm plug
+# hole left only 1.9 mm clearance at 14, so anything in the hole (resin pooling,
+# a deep-set plug) bottoms the tab out before the fin seats. 12 leaves 3.9 mm.
+# Depth is NOT a structural parameter: sizing._TAB_NECK_GEOM carries it as the
+# unused `_depth_mm`, and tab stress is set by the tab LENGTHS (45+33) and
+# thickness, so this changes the exported solid only — no re-search needed.
+# DUAL_TAB keeps 14.0: that is the FCS1 box, a different standard, and no one
+# has fit-tested one of ours.
+_CLICK_FRONT, _CLICK_REAR, _CLICK_GAP, _CLICK_DEPTH, _CLICK_THICK = 45.0, 33.0, 20.0, 12.0, 6.35
 _CLICK_SPAN = _CLICK_FRONT + _CLICK_GAP + _CLICK_REAR  # 98.0
 _CLICK_TE_RAKE = 20.0  # deg
 # Hook notch on the front tab's leading edge: 4 mm tall, 4-8 mm below surface.
@@ -61,6 +73,29 @@ def system_depth(tabs: TabParams) -> float:
             TabSystem.CLICK_TAB: _CLICK_DEPTH}[tabs.system]
 
 
+def _click_x0(fin: FinParams) -> float:
+    """Chordwise start of the FCS II (click) tab set, mm from the base LE.
+
+    FCS II mounts NOSE-FIRST: the fin is tipped forward, the front tab's hook
+    notch slides under the plug's internal bar, and the fin rotates down until
+    the rear tab clicks. So the notch has to be reachable AHEAD of the blade. If
+    the blade base overhangs it, the base strikes the board before the hook can
+    engage and the fin cannot be fitted at all.
+
+    It used to be CENTRED under the base like the other systems. On every base
+    longer than the 98 mm set that parked the notch UNDER the blade — 3.0 to
+    12.4 mm behind the leading edge across the first exported sets (two riders,
+    six blades), none of which would have mounted. Caught by hand-fitting
+    intuition, not by any check in this repo.
+
+    PROVISIONAL RULE (2026-09-17), pending a caliper measurement of a
+    commercial FCS II fin: the notch's INNER end sits flush with the blade's
+    leading edge at the base, so the whole notch — and the nose below it —
+    protrudes _NOTCH_DEEP ahead of the fin. `x_offset` still adjusts from there.
+    """
+    return -_NOTCH_DEEP + fin.tabs.x_offset
+
+
 def tab_span_x(fin: FinParams) -> tuple[float, float] | None:
     """(x_lo, x_hi) chordwise extent the tab set occupies, or None for NONE.
 
@@ -74,8 +109,10 @@ def tab_span_x(fin: FinParams) -> tuple[float, float] | None:
         length = min(base - 12.0, _SINGLE_MAXLEN)
         x0 = (base - length) / 2.0 + tabs.x_offset
         return x0, x0 + length
-    span = (_DUAL_PITCH + _DUAL_LEN if tabs.system is TabSystem.DUAL_TAB
-            else _CLICK_SPAN)
+    if tabs.system is TabSystem.CLICK_TAB:
+        x0 = _click_x0(fin)
+        return x0, x0 + _CLICK_SPAN
+    span = _DUAL_PITCH + _DUAL_LEN
     x0 = (base - span) / 2.0 + tabs.x_offset
     return x0, x0 + span
 
@@ -125,9 +162,10 @@ def _tab_center_y(fin: FinParams, settings: GenSettings, thick: float) -> float:
 def _require_engagement(intervals: list[tuple[float, float]], base: float,
                         x_offset: float, label: str) -> None:
     """Each tab must keep enough length engaged under the base footprint to
-    fuse structurally — but tabs MAY overhang the base ends: commercial
-    click fins align the rear indent with the fin's aft end, and on small
-    fins (base < set span) overhang is the only way the set fits at all.
+    fuse structurally — but tabs MAY overhang the base ends: click fins must
+    carry the front hook notch ahead of the leading edge to mount (see
+    _click_x0), and on small fins (base < set span) overhang is the only way
+    the set fits at all.
     Engagement floor: half the tab's length, at least 8 mm."""
     for x_lo, x_hi in intervals:
         need = max(0.5 * (x_hi - x_lo), 8.0)
@@ -197,7 +235,7 @@ def build_tabs(fin: FinParams, settings: GenSettings) -> Part | None:
     # CLICK_TAB
     thick = _CLICK_THICK + tabs.fit_offset
     y_c = _tab_center_y(fin, settings, thick)
-    x0 = (base - _CLICK_SPAN) / 2.0 + tabs.x_offset
+    x0 = _click_x0(fin)  # nose-first mount: see _click_x0
     rear_span = (x0 + _CLICK_FRONT + _CLICK_GAP, x0 + _CLICK_SPAN)
     _require_engagement([(x0, x0 + _CLICK_FRONT), rear_span],
                         base, tabs.x_offset, "click-tab")

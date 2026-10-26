@@ -17,7 +17,7 @@ and patent US5464359A (qualitative: plain rectangular tabs, no draft).
 | Feature | Value | Agreement |
 |---|---|---|
 | Tab length (each) | 20.0–20.5 mm | 2 sources ±0.5 |
-| Tab depth below base | 13.5–14 mm | 2 sources ±0.5 |
+| Tab depth below base | **12.0 mm as built** (spec sources say 13.5–14) | FIT-TESTED 2026-10-26: Bali coaches reported ~2 mm too long on the first printed sets; a real mount beats the secondary sources. Non-structural (see `_CLICK_DEPTH`). |
 | Tab thickness | 6.0–6.35 mm (nominal slot 1/4″; print ~6.2–6.3) | 4 sources |
 | **Center-to-center spacing** | **53–53.5 mm** | 2 precise sources; plug slots have ~1.25 mm fore-aft play |
 | Gap between tabs | 33 mm | exact agreement |
@@ -109,10 +109,16 @@ printer/filament; CF-reinforced filament over PLA.
 
 `TabParams.x_offset` slides the whole tab set along the base chord;
 `y_offset` shifts it across the section thickness. The set may overhang
-the base ends — commercial click fins align the rear indent with the
-fin's aft end so the rear tab protrudes past the trailing base corner,
-and on small fins (base shorter than the 98 mm click span) overhang is
-the only way the set fits. The build-time guard checks *engagement*
+the base ends, and for click tabs it must: FCS II mounts nose-first (tip the
+fin forward, slide the front tab's hook notch under the plug's bar, rotate the
+rear down), so the notch has to sit AHEAD of the blade or the base strikes the
+board first. Click tabs are therefore front-anchored, not centred: the notch's
+inner end is flush with the blade leading edge at the base and the notch
+protrudes 4.5 mm ahead of it (provisional, 2026-09-17, pending a caliper
+measurement of a commercial FCS II fin; `x_offset` adjusts from there). The
+earlier centred placement left the notch 3-12 mm under the blade on every base
+longer than the 98 mm span. Dual and single tabs stay centred. On small fins
+(base shorter than the set span) overhang is the only way the set fits. The build-time guard checks *engagement*
 instead of containment: each tab keeps at least half its length (min
 8 mm) under the base, or a per-tab ValueError names the shortfall. The thickness
 anchor is family-aware: **flat-inside fins carry the tab's inner face flush
