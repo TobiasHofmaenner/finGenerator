@@ -26,7 +26,17 @@ from fingen.params import (
     TabSystem,
 )
 
-__version__ = "0.6.0"
+# From the installed distribution, so this cannot drift from pyproject again
+# (it sat at "0.6.0" while pyproject said 0.13.2). Falls back for a bare
+# source tree that was never installed.
+try:
+    from importlib.metadata import PackageNotFoundError, version as _dist_version
+    try:
+        __version__ = _dist_version("fingen")
+    except PackageNotFoundError:
+        __version__ = "0+unknown"
+except ImportError:  # pragma: no cover
+    __version__ = "0+unknown"
 
 __all__ = [
     "FinConfig",

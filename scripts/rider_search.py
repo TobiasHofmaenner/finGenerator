@@ -92,7 +92,11 @@ def main() -> None:
         (out / f"{name}-ledger-{offset:03d}.json").write_text(json.dumps(
             {"budget": budget, "runs": ledger}, indent=2) + "\n")
 
-    print(f"\nstream {offset}: best {best} in {time.time() - t0:.0f}s", flush=True)
+    from fingen.generation import stamp
+    g = stamp()
+    print(f"\nstream {offset}: best {best} in {time.time() - t0:.0f}s  "
+          f"[model generation {g['model']}, fingen {g['fingen']}, git {g['git']}"
+          f"{' DIRTY' if g['dirty'] else ''}]", flush=True)
     reconcile(out, name)
 
 

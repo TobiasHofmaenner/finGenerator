@@ -63,6 +63,12 @@ INDENT_DEPTH = 0.0
 
 def main() -> None:
     result = json.loads(RESULT.read_text())
+    from fingen.generation import MODEL_GENERATION
+    gen = (result.get("generation") or {}).get("model")
+    print(f"result model generation: {gen if gen is not None else 'untagged (pre-tracking)'}"
+          f"  | exporter runs generation {MODEL_GENERATION}"
+          + ("" if gen == MODEL_GENERATION else
+             "  <- scores in this file are NOT comparable to current-model numbers"))
     rider = result["rider"]
     tabs = TabParams(system=TABS, fit_offset=FIT_OFFSET,
                      click_indent_depth=INDENT_DEPTH)
