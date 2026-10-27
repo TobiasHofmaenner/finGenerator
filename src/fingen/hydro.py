@@ -15,8 +15,12 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
+from functools import lru_cache
+
+import numpy as np
+
 from fingen.outline import metrics, planform
-from fingen.params import FinParams
+from fingen.params import FinParams, FoilFamily, FoilParams
 
 RHO_SEAWATER = 1025.0  # kg/m³
 NU_SEAWATER = 1.05e-6  # m²/s
@@ -144,6 +148,64 @@ def lift_curve_slope(fin: FinParams) -> tuple[float, float]:
     return slope, ar_eff
 
 
+@lru_cache(maxsize=512)
+def _alpha_zero_cached(family: FoilFamily, thickness_ratio: float,
+                       camber_ratio: float, camber_position: float,
+                       te_thickness: float) -> float:
+    """alpha_0 in DEGREES from the section's own camber line, thin-airfoil
+    theory [AvD59]:  alpha_0 = -(1/pi) * int_0^pi (dz/dx)(cos t - 1) dt.
+
+    Chord-independent (the integrand is a ratio), so a unit chord is used and
+    the result cached on the FoilParams fields that shape the section.
+    """
+    # Deferred: fingen.foil imports nothing from hydro, but keeping this local
+    # mirrors sizing's pattern and keeps the module import graph flat.
+    from fingen.foil import section_points
+
+    foil = FoilParams(family=family, thickness_ratio=thickness_ratio,
+                      camber_ratio=camber_ratio, camber_position=camber_position,
+                      te_thickness=te_thickness)
+    chord = 1000.0  # mm; large enough that te_thickness stays a small fraction
+    up, lo = section_points(foil, chord, thickness_ratio=thickness_ratio,
+                            n_points=400)
+    x = np.linspace(0.0, chord, 400)
+    camber = 0.5 * (np.interp(x, up[:, 0], up[:, 1])
+                    + np.interp(x, lo[:, 0], lo[:, 1]))
+    xc = x / chord
+    dzdx = np.gradient(camber / chord, xc)
+    theta = np.arccos(np.clip(1.0 - 2.0 * xc, -1.0, 1.0))
+    order = np.argsort(theta)
+    integral = float(np.trapezoid(dzdx[order] * (np.cos(theta[order]) - 1.0),
+                                  theta[order]))
+    return -math.degrees(integral / math.pi)
+
+
+def zero_lift_alpha_deg(fin: FinParams) -> float:
+    """Angle of attack at which this fin's section makes NO side force, deg.
+
+    NEGATIVE for a positively cambered section: the fin already pulls at zero
+    geometric angle. Tier-0 assumed CL = slope * alpha, i.e. alpha_0 = 0, which
+    is right for a SYMMETRIC centre fin and wrong for every side fin — a
+    FLAT_INSIDE section's mean line sits at t/2 camber BY CONSTRUCTION
+    (4.95 % on the 46/60 kg anchor blades), so the model was discarding the
+    force that camber contributes.
+
+    MEASURED, not asserted: the first CFD polar on a shipped fin
+    (out/cfd/omar-big-asridden, OpenFOAM level-2, 5 angles) found CL = 0.3252
+    at alpha = 0 on a blade tier-0 scored as making nothing there. Thin-airfoil
+    theory on that same section's camber line gives alpha_0 = -4.22 deg against
+    the polar's implied -4.68 deg (10 % low), and reproduces the measured CL to
+    -9.9 / -5.4 / +0.2 % at 0 / 4 / 8 deg. It over-predicts by +17.8 % at
+    12 deg, which is expected and outside the model's claim: thin-airfoil
+    theory is a LINEAR-REGIME result and the polar is already non-linear by
+    then (local slope falls 3.98 -> 1.57 /rad between 0-4 and 8-12 deg). Tier-0
+    has no representation of that roll-off; see docs/PHYSICS.md.
+    """
+    f = fin.foil
+    return _alpha_zero_cached(f.family, f.thickness_ratio, f.camber_ratio,
+                              f.camber_position, f.te_thickness)
+
+
 def estimate(fin: FinParams, speed: float, leeway_deg: float) -> HydroEstimate:
     """Point estimate at board speed [m/s] and leeway (angle of attack) [deg]."""
     m = metrics(fin.outline)
@@ -151,7 +213,7 @@ def estimate(fin: FinParams, speed: float, leeway_deg: float) -> HydroEstimate:
     mean_chord_m = (m.area / fin.outline.depth) * 1e-3
     slope, ar_eff = lift_curve_slope(fin)
     alpha = math.radians(leeway_deg)
-    cl = slope * alpha
+    cl = slope * (alpha - math.radians(zero_lift_alpha_deg(fin)))
     q = 0.5 * RHO_SEAWATER * speed**2
     cdi = cl**2 / (math.pi * SPAN_EFFICIENCY * ar_eff)
     a_break = stall_alpha_deg(ar_eff)

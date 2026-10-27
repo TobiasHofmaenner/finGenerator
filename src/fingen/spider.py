@@ -47,6 +47,7 @@ from fingen.hydro import (
     RHO_SEAWATER,
     estimate,
     lift_curve_slope,
+    zero_lift_alpha_deg,
     stall_alpha_deg,
     stall_drag_cd,
 )
@@ -135,7 +136,8 @@ def _cd0(fin: FinParams, speed: float) -> float:
 
 
 def raw_scores(fin: FinParams, speed: float = REF_SPEED,
-               weight_kg: float = W_REF) -> dict[str, float]:
+               weight_kg: float = W_REF,
+               peak_force_n: float | None = None) -> dict[str, float]:
     """Unnormalized physical values per axis (bigger = more of the quality).
 
     `weight_kg` sets the rider's working side force (`work_force_n`) that fixes
@@ -157,13 +159,17 @@ def raw_scores(fin: FinParams, speed: float = REF_SPEED,
                                + stall_drag_cd(est_trim.cl, slope, ar_eff))
     # hold: max side force in N (linear to the AR-dependent break)
     a_break = stall_alpha_deg(ar_eff)
-    f_max = q * area_m2 * slope * math.radians(a_break)
+    # alpha_0 < 0 for a cambered section, so (a_break - alpha_0) is the REAL
+    # usable angular range: a side fin already pulls at zero geometric angle.
+    # Ignoring it discarded ~35 % of a flat-inside blade's peak side force.
+    a_zero = zero_lift_alpha_deg(fin)
+    f_max = q * area_m2 * slope * math.radians(a_break - a_zero)
     # drive: L/D delivering the rider's reference force (capped near the break
     # for fins too small to deliver it at all). CL_work CAN exceed the stall
     # knee for small fins / light q, so the post-knee stall drag (task #22)
     # bites here — repricing small blades that must work hard.
     cl_work = min(work_force_n(weight_kg) / (q * area_m2),
-                  0.95 * slope * math.radians(a_break))
+                  0.95 * slope * math.radians(a_break - a_zero))
     cdi_work = cl_work**2 / (math.pi * 0.9 * ar_eff)
     ld_work = cl_work / (cd0 + cdi_work + stall_drag_cd(cl_work, slope, ar_eff))
     # pivot: inverse yaw stiffness — CP arm measured from the base center
@@ -176,9 +182,28 @@ def raw_scores(fin: FinParams, speed: float = REF_SPEED,
     yaw_stiffness = q * area_m2 * slope * arm_m
     # release (PROXY): raked, tip-unloaded planforms shed load gradually
     release = 0.6 * (m.sweep / 50.0) + 0.4 * min(m.elliptic_deviation / 0.30, 1.0)
-    # forgiveness: margin from the working angle to the break
-    alpha_work = math.degrees(cl_work / slope)
-    margin = a_break - alpha_work
+    # forgiveness: margin from the angle the fin is ACTUALLY ASKED TO HOLD to
+    # the break. cl = slope*(alpha - alpha_0) => alpha = cl/slope + alpha_0, so
+    # camber lowers the angle needed for a given force.
+    #
+    # THIS USED TO BE READ AT THE SUSTAINED WORKING LOAD, which made the axis
+    # answer a question no rider asks. The complaint that exposed it — a pro
+    # reporting "feels sliding, for top turn lose the control" on a blade this
+    # model scored 36/100 forgiveness and 73/100 hold — resolves exactly here:
+    # at the 93 N working load that fin needed 1.05 deg with ~11 deg of margin,
+    # while the 318 N PEAK TURN load needs 14.1 deg, 2.1 deg PAST its own
+    # break. Every handling axis was read at cruise while the failure happens
+    # in the turn. force_peak_n already existed in sizing.AnchorSheet; it sized
+    # the STRUCTURE only, and nothing ever asked whether the fin could
+    # hydrodynamically deliver it.
+    #
+    # Deliberately NOT capped at the break: a negative margin is the honest
+    # reading that the fin cannot make the turn force at any angle. `drive`
+    # stays at the WORKING load — it is trim efficiency, a cruising quantity.
+    f_margin = work_force_n(weight_kg) if peak_force_n is None else peak_force_n
+    cl_margin = f_margin / (q * area_m2)
+    alpha_margin = math.degrees(cl_margin / slope) + a_zero
+    margin = a_break - alpha_margin
     # stability: the blade's own lift-based roll damping |L_p| (fingen.roll at
     # the rider speed), the KAPPA_FS-CORRECTED value the module reports — the
     # felt "planted vs agile" quantity. Rider-independent metric (weight enters
@@ -240,9 +265,20 @@ def normalized_scores(fin: FinParams, speed: float = REF_SPEED,
     calibrated: drive/forgiveness use the W_REF working force and hold is scored
     against a W_REF thruster requirement, so callers that never pass a weight
     (spider_chart, test_spider) see the original adult basis on every axis."""
-    fleet = [raw_scores(f, speed, weight_kg) for f in reference_fleet().values()]
-    raw = raw_scores(fin, speed, weight_kg)
-    f_req = required_side_force_n(anchor(weight_kg, design_speed=speed))
+    # HOLD AND FORGIVENESS ARE BOTH PEAK-REFERENCED (see raw_scores): the fin
+    # must deliver the TURN, not the cruise. Scoring hold against the sustained
+    # requirement put every real fin at r = f_max/F_req of 2-4, deep in the flat
+    # tail of 100r/(r+r_ref) — the whole commercial fleet compressed into 73-91
+    # at ~4.9 pts per unit r, which is why "more hold" was an unaskable
+    # request. Against the peak the same fleet spreads over 41-72 at ~28 pts
+    # per unit r, with HOLD_R_REF untouched. (Per unit r that is 5.8x steeper,
+    # but r is ~4x smaller, so per unit AREA the gain is only ~1.4x — the real
+    # win is the SPREAD, which makes hold targets distinguishable.) The
+    # saturation was never the constant; it was the denominator.
+    f_peak = anchor(weight_kg, design_speed=speed).force_peak_n
+    fleet = [raw_scores(f, speed, weight_kg, f_peak) for f in reference_fleet().values()]
+    raw = raw_scores(fin, speed, weight_kg, f_peak)
+    f_req = f_peak
     import numpy as np
 
     out = {}

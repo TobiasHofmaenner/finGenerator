@@ -48,9 +48,14 @@ from pathlib import Path
 
 import numpy as np
 
-from fingen import spider
+from fingen import generation, spider
 from fingen.flex import FlexReport, flex_report
-from fingen.hydro import RHO_SEAWATER, lift_curve_slope, stall_alpha_deg
+from fingen.hydro import (
+    RHO_SEAWATER,
+    lift_curve_slope,
+    stall_alpha_deg,
+    zero_lift_alpha_deg,
+)
 from fingen.outline import metrics, planform
 from fingen.params import (
     FinConfig,
@@ -272,6 +277,15 @@ class RiderSpec:
     # binding constraint on every seed of a 46 kg pet-cf multistart, so whether
     # it is doing real work needs to be testable rather than argued.
     area_max_factor: float | None = None
+    # Minimum angular margin, in degrees, between the angle a PEAK TURN demands
+    # and the section's break. None = no gate. The first gen-2 search for the
+    # pro who reported sliding converged to a peak margin of +0.05 deg: it made
+    # the turn force exactly and spent every other degree on speed, because
+    # forgiveness is fleet-RANKED and the whole fleet is marginal at a 60 kg
+    # pro's 318 N, so "as forgiving as typical" still means "no headroom". This
+    # is the absolute floor the rank cannot express. A candidate default for
+    # gen 3; opt-in now so existing riders' numbers do not move.
+    peak_margin_min_deg: float | None = None
     spider_targets: dict[str, float] | None = None
     practical_corridor: bool = True
 
@@ -397,16 +411,19 @@ def interference_factor(config: FinConfig, alpha_deg: float) -> float:
 
 
 @functools.lru_cache(maxsize=64)
-def _fleet_raw(speed_key: float, weight_key: float
+def _fleet_raw(speed_key: float, weight_key: float, peak_key: float
                ) -> tuple[tuple[tuple[str, float], ...], ...]:
     """Reference-fleet raw axis values at `speed_key`/`weight_key`, cached (the
     fleet is fixed; recomputing six fins' raw scores every evaluate would blow
     the budget). Keyed on weight too because the drive/forgiveness working point
     scales with the rider's force (spider.work_force_n), so the fleet must be
-    ranked at the same weight as the candidate. Returned as hashable sorted-item
+    ranked at the same weight as the candidate. Keyed on the
+    PEAK force too, since forgiveness is now read at the turn load and the
+    fleet has to be read at the same one. Returned as hashable sorted-item
     tuples."""
     fleet = spider.reference_fleet()
-    return tuple(tuple(sorted(spider.raw_scores(f, speed_key, weight_key).items()))
+    return tuple(tuple(sorted(spider.raw_scores(f, speed_key, weight_key,
+                                               peak_key).items()))
                  for f in fleet.values())
 
 
@@ -494,8 +511,20 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
 
     slope, ar_eff = lift_curve_slope(fin)
     a_break = stall_alpha_deg(ar_eff)
+    a_zero = zero_lift_alpha_deg(fin)   # < 0 when cambered; see hydro
     q = 0.5 * RHO_SEAWATER * speed**2
-    f_capacity = q * area * 1e-6 * slope * math.radians(a_break)
+    f_capacity = q * area * 1e-6 * slope * math.radians(a_break - a_zero)
+    # The angle a PEAK TURN demands, uncapped, and the margin left to the break.
+    # Negative = the fin cannot make the turn force at any angle. This is the
+    # number that explained the first field complaint: tier-0 had only ever
+    # looked at alpha_work (cruise) while the rider was describing a turn.
+    # Computed HERE, above penalty_sum, so the opt-in gate below actually counts.
+    cl_peak = sheet.force_peak_n / (q * area * 1e-6)
+    alpha_peak = math.degrees(cl_peak / slope) + a_zero
+    margin_peak = a_break - alpha_peak
+    if rider.peak_margin_min_deg is not None and margin_peak < rider.peak_margin_min_deg:
+        penalties["peak_margin"] = ((rider.peak_margin_min_deg - margin_peak)
+                                    / max(rider.peak_margin_min_deg, 1e-9))
     # A designed REAR/center member (thruster/2+1) sits in the forward pair's
     # downwash: derate its produced side force by the measured Falk factor
     # (interference_factor) — at the break angle for the capacity gate here, at
@@ -508,6 +537,10 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     if fin.outline.base < sheet.base_min_mm:
         penalties["base_min"] = ((sheet.base_min_mm - fin.outline.base)
                                  / max(sheet.base_min_mm, 1.0))
+    if fin.outline.base > sheet.base_max_mm:
+        # Blade overhang behind the tab set; see sizing.TAIL_MAX_MM.
+        penalties["base_max"] = ((fin.outline.base - sheet.base_max_mm)
+                                 / sheet.base_max_mm)
 
     # Practical planform corridor — constraints reality imposes that no hydro
     # axis prices: board clearance / swing weight bound the span per config,
@@ -626,10 +659,10 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     # lift-magnitude axes. work_force_n scales the drive/forgiveness working
     # point with rider weight (spider.raw_scores takes it), so a light rider's
     # drive is read at a lighter force budget than an adult's.
-    raw = spider.raw_scores(fin, speed, rider.weight_kg)
+    raw = spider.raw_scores(fin, speed, rider.weight_kg, sheet.force_peak_n)
     cl_work = min(spider.work_force_n(rider.weight_kg) / (q * area * 1e-6),
-                  0.95 * slope * math.radians(a_break))
-    alpha_work = math.degrees(cl_work / slope)
+                  0.95 * slope * math.radians(a_break - a_zero))
+    alpha_work = math.degrees(cl_work / slope) + a_zero
     # knockdown < 0 = lift lost (washout). CLIPPED AT 1.0: a positive knockdown
     # is elastic WASH-IN — the blade twisting to load itself up — and crediting
     # it pays the optimizer for flexibility out of a torsion model that has no
@@ -661,8 +694,12 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     f_max_eff = raw["hold"] * washout * env_work
 
     predicted = _normalize(raw, _fleet_raw(round(speed, 2),
-                                           round(rider.weight_kg, 2)))
-    predicted["hold"] = spider.hold_score(f_max_eff, req)
+                                           round(rider.weight_kg, 2),
+                                           round(sheet.force_peak_n, 2)))
+    # Scored against the PEAK TURN demand, not the sustained requirement (see
+    # spider.raw_scores). `req` still drives the capacity GATE above — that is
+    # a different question: "can it cruise at all" vs "can it hold a turn".
+    predicted["hold"] = spider.hold_score(f_max_eff, sheet.force_peak_n)
     targets = rider.resolved_targets(rear_member=rear_member)
     distance = 0.0
     for axis in spider.AXES:
@@ -682,7 +719,10 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
         "area_max_mm2": sheet.area_max_mm2,
         "capacity_n": f_capacity,
         "capacity_req_n": req,
+        "base_max_mm": sheet.base_max_mm,
         "alpha_work_deg": alpha_work,
+        "alpha_peak_deg": alpha_peak,
+        "margin_peak_deg": margin_peak,
         "washout_pct": 100.0 * flex.lift_knockdown,
         "env_factor": env_work,  # rear member: Falk downwash; dominant blade 1.0
         "tip_deflection_mm": flex.tip_deflection_mm,
@@ -697,6 +737,15 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
         "roll_set_damping_nm_s": roll_set.roll_damping_nm_s,
     }
     issues = check_anchor(fin, sheet, span_worst)   # SAME number as the soft gate
+    if rider.peak_margin_min_deg is not None and margin_peak < rider.peak_margin_min_deg:
+        issues.append(f"peak-turn margin {margin_peak:.1f} deg < required "
+                      f"{rider.peak_margin_min_deg:.1f} deg")
+    if margin_peak < 0.0:
+        # Informational, not a gate (the hold axis already prices it): the
+        # peak turn demands more angle than the section has before its break.
+        issues.append(f"peak turn ({sheet.force_peak_n:.0f} N) needs {alpha_peak:.1f} deg, "
+                      f"{-margin_peak:.1f} deg past the {a_break:.0f} deg break — the fin "
+                      "cannot deliver the turn force at any angle (will slide)")
     if stress_sf < rider.stress_sf_min:
         issues.append(f"flex bending SF {stress_sf:.2f} < {rider.stress_sf_min:.2f} "
                       "at the peak load")
@@ -1336,6 +1385,10 @@ def result_to_dict(result: OptimizationResult) -> dict:
             "area_mm2": metrics(result.fin.outline).area,
             "aspect_ratio": metrics(result.fin.outline).aspect_ratio,
         },
+        # Which PHYSICS scored this — see fingen.generation. Without it, two
+        # files for the same blade from different model generations are
+        # indistinguishable, and their scores are not comparable.
+        "generation": generation.stamp(),
         "search": {
             "n_evals": result.n_evals, "seed": result.seed,
             "stage_boundary": result.stage_boundary,

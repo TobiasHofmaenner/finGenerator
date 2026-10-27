@@ -438,12 +438,18 @@ def test_hold_is_requirement_relative_not_fleet_ranked(monkeypatch):
     assert res.margins["capacity_n"] > res.margins["capacity_req_n"]  # has headroom
     assert res.spider_predicted["hold"] > 52.0  # clears the old ~35 fleet ceiling
 
-    real = opt.required_side_force_n
+    # (2) under the PEAK-referenced hold (spider.raw_scores): the reference is
+    # now sheet.force_peak_n, the turn load, not the sustained F_req — so
+    # inflate THAT. Hold stays requirement-relative; the requirement moved to
+    # the one a rider actually feels.
+    import dataclasses
+    real_anchor = opt.anchor
 
-    def inflated(sheet):
-        return real(sheet) * 4.0
+    def inflated(*args, **kwargs):
+        sheet = real_anchor(*args, **kwargs)
+        return dataclasses.replace(sheet, force_peak_n=sheet.force_peak_n * 4.0)
 
-    monkeypatch.setattr(opt, "required_side_force_n", inflated)
+    monkeypatch.setattr(opt, "anchor", inflated)
     harder = evaluate(fin, rider)
     assert harder.spider_predicted["hold"] < res.spider_predicted["hold"] - 10.0
 
@@ -506,9 +512,15 @@ def test_evaluate_scores_track_rider_weight_not_wref():
                       config=FinConfig.THRUSTER, speed_ms=6.4)
     heavy = RiderSpec(weight_kg=95.0, skill=Skill.INTERMEDIATE,
                       config=FinConfig.THRUSTER, speed_ms=6.4)
-    res_l = evaluate(fin, light).spider_predicted
-    res_h = evaluate(fin, heavy).spider_predicted
-    assert res_l["forgiveness"] > res_h["forgiveness"]
+    ev_l, ev_h = evaluate(fin, light), evaluate(fin, heavy)
+    res_l, res_h = ev_l.spider_predicted, ev_h.spider_predicted
+    # Forgiveness is now read at the PEAK turn load and fleet-ranked at that
+    # same load, so its RANK is near weight-neutral by construction (the fleet
+    # shifts with the rider). The physics the comment above describes lives in
+    # the RAW margin, which must still favour the light rider — and on this fin
+    # the heavy rider's is NEGATIVE (stalled in the turn), which is the point.
+    assert ev_l.margins["margin_peak_deg"] > ev_h.margins["margin_peak_deg"] + 5.0
+    assert ev_h.margins["margin_peak_deg"] < 0.0
     assert res_l["drive"] > res_h["drive"]
 
     # Magnitude pin. Substituting the W_REF default would REVERSE both directions
@@ -518,9 +530,11 @@ def test_evaluate_scores_track_rider_weight_not_wref():
     # fleet-normalized rank of spider.raw_scores(fin, 6.4, 45.0)['forgiveness']
     # against the 45 kg fleet — computed here directly WITH the weight. Under the
     # W_REF default this reads ~0 (the floored margin) instead of ~59.
-    raw45 = spider.raw_scores(fin, 6.4, 45.0)
+    peak45 = opt.anchor(45.0, Skill.INTERMEDIATE, design_speed=6.4,
+                        config=FinConfig.THRUSTER).force_peak_n
+    raw45 = spider.raw_scores(fin, 6.4, 45.0, peak45)
     expected_forgiveness = opt._normalize(
-        raw45, opt._fleet_raw(6.4, 45.0))["forgiveness"]
+        raw45, opt._fleet_raw(6.4, 45.0, round(peak45, 2)))["forgiveness"]
     assert expected_forgiveness > 55.0          # the real value, not the ~0 floor
     assert res_l["forgiveness"] == pytest.approx(expected_forgiveness)
 
@@ -812,3 +826,116 @@ def test_rider_serialization_is_strict_json_safe():
 
     res = optimize(rider, budget_evals=60, seed=0)
     _json.dumps(result_to_dict(res), allow_nan=False)
+
+
+# --- the first field complaint, pinned ---------------------------------------
+# A pro reported "feels sliding, for top turn lose the control" on a blade
+# tier-0 scored hold 73 / forgiveness 36. Two model defects, both fixed here:
+# the lift model had no camber term (CFD measured CL 0.325 at alpha = 0 on
+# this flat-inside section; tier-0 assumed 0), and every handling axis was
+# read at the SUSTAINED cruise load while the failure happens at the PEAK
+# turn load. out/cfd/omar-big-asridden/verify-polar.json is the measurement.
+
+_OMAR_BIG_AS_RIDDEN = dict(
+    outline=dict(depth=131.1, base=110.1, sweep=28.5, tip_width_ratio=0.25,
+                 le_fullness=0.57, te_shape=-0.32),
+    foil=dict(family=FoilFamily.FLAT_INSIDE, thickness_ratio=0.0989))
+
+
+def _omar_rider():
+    return RiderSpec(weight_kg=60.0, skill=Skill.PRO, config=FinConfig.THRUSTER,
+                     material="ppa-cf", tabs=TabSystem.CLICK_TAB, tab_sf_min=None,
+                     stress_sf_min=1.3, washout_max=0.015)
+
+
+def test_camber_term_matches_the_cfd_polar():
+    """Thin-airfoil alpha_0 from the section's own camber line reproduces the
+    first production CFD polar to within 10 %: CFD-implied -4.68 deg, theory
+    -4.22 deg. SYMMETRIC must give exactly 0 (no camber line to integrate)."""
+    from fingen.hydro import zero_lift_alpha_deg
+    fin = FinParams(outline=OutlineParams(**_OMAR_BIG_AS_RIDDEN["outline"]),
+                    foil=FoilParams(**_OMAR_BIG_AS_RIDDEN["foil"]))
+    a0 = zero_lift_alpha_deg(fin)
+    assert -4.68 * 1.10 < a0 < -4.68 * 0.90
+    sym = FinParams(foil=FoilParams(family=FoilFamily.SYMMETRIC))
+    assert zero_lift_alpha_deg(sym) == pytest.approx(0.0, abs=1e-9)
+
+
+def test_handling_axes_are_read_at_the_peak_turn_load():
+    """The fin the pro rode must now score as the fin he described.
+
+    At the 93 N cruise load it needs ~1 deg and looks fine; at the 318 N peak
+    turn it needs ~14 deg, past its 12 deg break. So: hold well below the old
+    73 (it is now scored against the turn, not the cruise), a NEGATIVE peak
+    margin reported, and an issue saying so in words a rider would use."""
+    fin = FinParams(outline=OutlineParams(**_OMAR_BIG_AS_RIDDEN["outline"]),
+                    foil=FoilParams(**_OMAR_BIG_AS_RIDDEN["foil"]))
+    r = evaluate(fin, _omar_rider())
+    m = r.margins
+    assert m["alpha_work_deg"] < 2.0                       # cruise: trivially easy
+    assert m["alpha_peak_deg"] > 12.0                      # turn: past the break
+    assert m["margin_peak_deg"] < 0.0
+    assert r.spider_predicted["hold"] < 60.0               # was 73.4 at cruise
+    assert any("cannot deliver the turn force" in i for i in r.issues)
+
+
+def test_peak_referenced_hold_is_sensitive_where_fins_live():
+    """The point of the reference change. Against the sustained load the
+    commercial fleet sat at r = 2-4, in the flat tail of 100r/(r+r_ref), and
+    +50 % area bought ~4 points. Against the peak, real fins sit at r ~ 0.5-1,
+    where the curve is steep. Honest magnitude: per unit r the slope is 5.8x
+    steeper, but r is ~4x smaller, so per unit AREA the gain is ~1.4x (a 15 %
+    bigger copy of the ridden blade: +3.5 now vs ~+2.6 under the old model).
+    The larger win is the SPREAD — the fleet occupies 41-72 instead of 73-91,
+    so hold targets become distinguishable. Pin the per-area gain."""
+    import dataclasses
+    import math
+    fin = FinParams(outline=OutlineParams(**_OMAR_BIG_AS_RIDDEN["outline"]),
+                    foil=FoilParams(**_OMAR_BIG_AS_RIDDEN["foil"]))
+    k = math.sqrt(1.15)
+    big = dataclasses.replace(fin, outline=dataclasses.replace(
+        fin.outline, depth=fin.outline.depth * k, base=fin.outline.base * k))
+    h0 = evaluate(fin, _omar_rider()).spider_predicted["hold"]
+    h1 = evaluate(big, _omar_rider()).spider_predicted["hold"]
+    assert h1 - h0 > 3.0, (h0, h1)   # old model: ~2.6 for the same +15 %
+
+
+def test_peak_margin_gate_is_opt_in_and_bites():
+    """Default None leaves evaluate() untouched; set, it penalizes a fin whose
+    peak-turn angle sits too close to the break — the gen-2 search's first
+    answer for the sliding complaint was a fin with +0.05 deg of margin. Also
+    pins that the penalty is summed into the objective (it was first written
+    below penalty_sum and would have been silently inert)."""
+    import dataclasses
+    fin = FinParams(outline=OutlineParams(**_OMAR_BIG_AS_RIDDEN["outline"]),
+                    foil=FoilParams(**_OMAR_BIG_AS_RIDDEN["foil"]))
+    base = evaluate(fin, _omar_rider())
+    assert "peak_margin" not in base.penalties
+    gated = evaluate(fin, dataclasses.replace(_omar_rider(), peak_margin_min_deg=3.0))
+    assert gated.penalties["peak_margin"] > 0.0
+    assert not gated.feasible
+    assert gated.penalty > base.penalty            # it reached the sum
+    assert any("peak-turn margin" in i for i in gated.issues)
+
+
+def test_tail_behind_the_tab_set_is_capped():
+    """The base is bounded from ABOVE by the mount: more than TAIL_MAX_MM of fin
+    behind the rear tab sticks out past the board. FCS II set ends 93.5 mm aft
+    of the LE, so base_max = 123.5. Both gen-2 first results (base 131-149)
+    violated it on both blades; the user caught it on a render. Soft gate and
+    hard gate must agree, like base_min."""
+    import dataclasses
+    from fingen.sizing import TAIL_MAX_MM, anchor, check_anchor
+    from fingen.tabs import base_max_for_tail
+    assert base_max_for_tail(TabSystem.CLICK_TAB, TAIL_MAX_MM) == pytest.approx(123.5)
+    assert base_max_for_tail(TabSystem.NONE, TAIL_MAX_MM) == float("inf")
+    rider = _omar_rider()
+    sheet = anchor(60.0, Skill.PRO, design_speed=8.5, config=FinConfig.THRUSTER,
+                   material="ppa-cf", tabs=TabSystem.CLICK_TAB)
+    assert sheet.base_max_mm == pytest.approx(123.5)
+    for base, bad in ((120.0, False), (131.4, True)):
+        fin = FinParams(outline=OutlineParams(**{**_OMAR_BIG_AS_RIDDEN["outline"], "base": base}),
+                        foil=FoilParams(**_OMAR_BIG_AS_RIDDEN["foil"]))
+        r = evaluate(fin, rider)
+        assert ("base_max" in r.penalties) is bad, (base, r.penalties)
+        assert any("behind the tab set" in i for i in check_anchor(fin, sheet)) is bad
