@@ -23,6 +23,8 @@ directly on the angled face, as most printed fins do).
 
 from __future__ import annotations
 
+import math
+
 import numpy as np
 from build123d import Axis, Box, Part, Plane, Polygon, Pos, extrude
 
@@ -94,6 +96,29 @@ def _click_x0(fin: FinParams) -> float:
     protrudes _NOTCH_DEEP ahead of the fin. `x_offset` still adjusts from there.
     """
     return -_NOTCH_DEEP + fin.tabs.x_offset
+
+
+def base_max_for_tail(system: TabSystem, tail_max_mm: float) -> float:
+    """Largest base chord whose trailing base corner sits no more than
+    `tail_max_mm` behind the AFT END of the tab set, mm. inf for NONE.
+
+    Why this exists: the blade behind the rear tab hangs over the board behind
+    the box. The first gen-2 optimizer results grew the base to 131-149 mm to buy
+    turn force, which on FCS II (set ends 93.5 mm behind the LE) left 38-55 mm
+    of fin sticking out past the tail of the board. Spotted on a render by the
+    user, 2026-10-27; no gate had ever bounded the base from ABOVE. x_offset is
+    taken as 0 here — the sheet does not know the export-time offset, and 0 is
+    what every shipped set has used.
+    """
+    if system is TabSystem.NONE:
+        return math.inf
+    if system is TabSystem.CLICK_TAB:            # front-anchored: aft end is fixed
+        return (-_NOTCH_DEEP + _CLICK_SPAN) + tail_max_mm
+    if system is TabSystem.DUAL_TAB:             # centred: tail = (base - span)/2
+        return (_DUAL_PITCH + _DUAL_LEN) + 2.0 * tail_max_mm
+    # SINGLE: length = min(base - 12, 110), centred. Below base 122 the tail is
+    # a fixed 6 mm; above it, tail = (base - 110)/2.
+    return max(122.0, _SINGLE_MAXLEN + 2.0 * tail_max_mm)
 
 
 def tab_span_x(fin: FinParams) -> tuple[float, float] | None:

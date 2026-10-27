@@ -24,7 +24,12 @@ from enum import Enum
 import numpy as np
 
 from fingen.foil import section_points
-from fingen.hydro import RHO_SEAWATER, lift_curve_slope, stall_alpha_deg
+from fingen.hydro import (
+    RHO_SEAWATER,
+    lift_curve_slope,
+    stall_alpha_deg,
+    zero_lift_alpha_deg,
+)
 from fingen.outline import metrics
 from fingen.params import FinConfig, FinParams, TabSystem
 
@@ -149,6 +154,14 @@ AREA_MAX_FACTOR = math.inf
 #     It is a property of the polymer, so it is now MaterialCard.wet_retention
 #     like every other material-dependent factor here.
 STRUCTURAL_SF = 2.0
+
+# Longest permitted blade overhang BEHIND the aft end of the tab set, mm: the
+# part of the base that hangs over the board behind the box. Set from the
+# user's board on 2026-10-27 ("cap this to say 3 cm") after the first gen-2
+# results grew bases to 131-149 mm. Same class of constraint as base_min —
+# the fin does not fit the board otherwise — so it is gated the same way, via
+# AnchorSheet.base_max_mm, read by both evaluate() and check_anchor().
+TAIL_MAX_MM = 30.0
 
 
 def _design_allowable_mpa(material: str) -> float:
@@ -290,6 +303,7 @@ class AnchorSheet:
     area_min_mm2: float
     area_max_mm2: float
     base_min_mm: float  # from the mounting system
+    base_max_mm: float  # mounting system + TAIL_MAX_MM behind the tab set (inf for NONE)
     material: str
     allow_mpa: float
 
@@ -332,6 +346,8 @@ def anchor(rider_mass_kg: float, skill: Skill = Skill.INTERMEDIATE,
 
     base_min = {TabSystem.NONE: 0.0, TabSystem.DUAL_TAB: 80.0,
                 TabSystem.SINGLE_TAB: 62.0, TabSystem.CLICK_TAB: 104.0}[tabs]
+    from fingen.tabs import base_max_for_tail  # deferred: tabs imports loft
+    base_max = base_max_for_tail(tabs, TAIL_MAX_MM)
     return AnchorSheet(
         total_mass_kg=m_total,
         design_speed=design_speed,
@@ -340,6 +356,7 @@ def anchor(rider_mass_kg: float, skill: Skill = Skill.INTERMEDIATE,
         area_min_mm2=area_min,
         area_max_mm2=area_max,
         base_min_mm=base_min,
+        base_max_mm=base_max,
         material=material,
         allow_mpa=_MATERIAL_ALLOW_MPA[material],
     )
@@ -445,7 +462,8 @@ def check_anchor(fin: FinParams, sheet: AnchorSheet,
     slope, ar_eff = lift_curve_slope(fin)
     q = 0.5 * RHO_SEAWATER * sheet.design_speed**2
     f_capacity = (q * m.area * 1e-6 * slope
-                  * math.radians(stall_alpha_deg(ar_eff)))
+                  * math.radians(stall_alpha_deg(ar_eff)
+                                 - zero_lift_alpha_deg(fin)))
     f_req = required_side_force_n(sheet)
     if f_capacity < f_req:
         issues.append(f"steady side-force capacity {f_capacity:.0f} N below "
@@ -458,6 +476,11 @@ def check_anchor(fin: FinParams, sheet: AnchorSheet,
     if fin.outline.base < sheet.base_min_mm:
         issues.append(f"base {fin.outline.base:.0f} mm below the mounting "
                       f"system minimum {sheet.base_min_mm:.0f} mm")
+    if fin.outline.base > sheet.base_max_mm:
+        issues.append(f"base {fin.outline.base:.0f} mm leaves "
+                      f"{fin.outline.base - (sheet.base_max_mm - TAIL_MAX_MM):.0f} mm of fin "
+                      f"behind the tab set (max {TAIL_MAX_MM:.0f} mm) — sticks out past "
+                      "the board's tail")
     # Third-party injury constraints (fingen.safety): the same functions the
     # optimizer's soft gate reads, so the two walls cannot cross.
     from fingen.safety import safety_issues
