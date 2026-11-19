@@ -11,6 +11,13 @@ repository, noted per entry. Citation keys (e.g. `[BW04]`) are used throughout
 
 ## 1. Surf-fin hydrodynamics (experiments & CFD)
 
+### [KP01] Katz & Plotkin (2001) — Low-Speed Aerodynamics, 2nd ed.
+*Cambridge University Press, ISBN 978-0-521-66552-0.* Chapters 12–13: lifting-surface
+discretisation by horseshoe and ring vortices, the quarter-chord / three-quarter-chord rule,
+Kutta–Joukowski force evaluation, far-wake (Trefftz-plane) induced drag, mirror images for
+walls. Standard text; cited from memory of the method, not fetched.
+**Cited for:** the vortex-lattice formulation of `fingen/lattice.py`.
+
 ### [BW04] Brandner & Walker (2004) — Hydrodynamic Performance of a Surfboard Fin
 *Proc. 15th Australasian Fluid Mechanics Conference, Sydney, paper AFMC00105.*
 [Wayback copy](https://web.archive.org/web/2020/https://www.aeromech.usyd.edu.au/15afmc/proceedings/papers/AFMC00105.pdf) —
@@ -574,3 +581,99 @@ system (speed-generating ↔ speed-control).
 Production installation conventions: thruster fronts 1/4" toe, 7–9° cant (≈5° big-wave);
 quad rears 1/8–3/16" toe, 3–5° cant; keels 0°.
 **Cited for:** default toe/cant placement values and their drive/pivot trade-offs.
+
+### [ST26] SurferToday — How to do a frontside snap in surfing
+[surfertoday.com/surfing/how-to-do-a-frontside-snap-in-surfing](https://www.surfertoday.com/surfing/how-to-do-a-frontside-snap-in-surfing), accessed 2026-11-19.
+Technique description of the snap: come off the bottom turn, "keep your speed up and get
+perpendicular to the wave face", at the lip "extend your back leg and bend your front leg",
+"stay low while the board pivots and completes the arc", then weight to the front foot for the
+landing. "The thruster's back fin will tighten your turn to keep the board working like a clock
+hand"; quads are "harder to release the fins when attacking the lip". Read together with
+footage reviewed with a pro (2026-11-19): the tail is fully engaged at low bank on the way up,
+the snap is an impulsive yaw about the tail, the fins release at very high sideslip and re-grip.
+**Cited for:** the manoeuvre model behind the centre-fin load cases (docs/GEN3-PLAN.md §2.1,
+2.2′): centre = pivot pin (tail lateral stiffness), release/re-grip as the snap's fin physics.
+
+---
+
+## 10. Manoeuvres, judging and ride telemetry (gen-3 research, 2026-11-19)
+
+Read for [MANOEUVRES.md](MANOEUVRES.md). Web pages were read as data; where a page blocked
+automated access the entry says what was actually seen.
+
+### [WSL26] World Surf League — Rule Book 2026, §13.05 judging criteria; Surf 101 judging page
+[worldsurfleague.com/pages/rules-and-regulations](https://www.worldsurfleague.com/pages/rules-and-regulations);
+[Surf 101: Judging Criteria](https://www.worldsurfleague.com/the-ultimate-surfer/surf-101/485502), accessed 2026-11-19.
+Five criteria: commitment and degree of difficulty; innovative and progressive manoeuvres;
+combination of major manoeuvres; variety of manoeuvres; speed, power and flow. Five judges,
+high and low dropped, 0–10 per wave, two waves count.
+**Cited for:** the sport's own grading vocabulary mapped onto fin quantities.
+
+### [JM26] Judgemate — "How surfing is scored" (explainer)
+[judgemate.com/en/guides/how-surfing-is-scored](https://www.judgemate.com/en/guides/how-surfing-is-scored), accessed 2026-11-19.
+Per-criterion explanations and score bands (2.0–4.9 fair … 8.0–10 excellent); "weighted toward
+commitment and difficulty"; a 10 needs all five "in the critical section of the wave".
+Third-party, not WSL; used only for the plain-language reading of the criteria.
+
+### [For17] Forsyth, de la Harpe, Riddiford-Harland, Whitting & Steele (2017) — Analysis of scoring of maneuvers performed in elite men's professional surfing competitions
+*Int J Sports Physiol Perform 12(9):1243–1248.* [DOI 10.1123/ijspp.2016-0561](https://doi.org/10.1123/ijspp.2016-0561)
+(metadata via Europe PMC, PMID 28253028). Video of all 11 events of the 2015 WSL men's tour;
+manoeuvres classed as turns, tube rides, aerials. Aerials scored significantly higher than tubes
+and turns; aerial completion 45.4 % (55.4 % in finals).
+**Cited for:** which manoeuvres the sport values; landing/re-grip as the limiting skill.
+
+### [Whi24] Whitting, Brinsmead, Forsyth, Hollier & Crowley-McHattan (2024) — A qualitative analysis to determine the critical features of a frontside bottom turn in professional surfing
+*Scand J Med Sci Sports 34(11):e14755.* [DOI 10.1111/sms.14755](https://doi.org/10.1111/sms.14755)
+(abstract via Europe PMC; full text paywalled). 199 frontside bottom turns from the 2017 J-Bay
+finals, split into those leading to a cutback (106) and to a top turn (93); a 47-item checklist
+of critical features; exit-phase features predict which follows.
+**Cited for:** the bottom turn as the set-up for two different load cases (carve vs snap).
+
+### [Pat17] US Patent 9,697,743 B2 — Monitoring surfing (2017)
+[patents.google.com/patent/US9697743B2](https://patents.google.com/patent/US9697743B2/en), accessed 2026-11-19.
+One worked example ride with IMU/GPS: pump to 9.13 m/s then a snap turn at "over 200
+degrees/second" and "1.77 g"; a cutback at "over 300 degrees/second"; ride 17.8 s, 116 m.
+No detection thresholds disclosed. Single example, not a dataset.
+**Cited for:** the only published in-ride yaw rate and g for a snap and a cutback.
+
+### [Far12] Farley, Harris & Kilding (2012) — Physiological demands of competitive surfing
+*J Strength Cond Res 26(7):1887–1896.* [DOI 10.1519/JSC.0b013e3182392c4b](https://doi.org/10.1519/JSC.0b013e3182392c4b)
+(numbers via search abstracts and the ScienceDaily release). 12 nationally ranked surfers, GPS +
+HR in two competitions: mean of per-surfer maximum speed 33.4 ± 6.5 km/h, highest 45 km/h;
+paddling 54 % of time. Later GNSS summaries quote 16.7 km/h average per wave and 25.2 km/h
+typical peak; Secomb et al. report 35.3 ± 4.9 km/h mean maximum in training.
+**Cited for:** the rider speed band (per-wave average ≈ 4.6 m/s, typical peak ≈ 7, competitive
+mean maximum ≈ 9–10, fastest ≈ 12.5 m/s).
+
+### [HS26] Honest Surf — Surf tricks & manoeuvres, the ultimate guide
+[honestsurf.com/surf-tricks-manoeuvres](https://honestsurf.com/surf-tricks-manoeuvres/), accessed 2026-11-19.
+25 manoeuvres with technique notes; explicit on fins for snap ("fins exit the back of the wave",
+"high and dry"), tail slide ("enough power to lose your fins", slide ends "when the fins
+re-engage"), reverse ("finish by re-engaging the fins").
+**Cited for:** the catalogue and the release/re-grip language.
+
+### [Surfd21] Surfd — Surf moves explained: bottom turn to aerials
+[surfd.com/guides/a-guide-to-the-most-important-surf-moves-and-tricks](https://surfd.com/guides/a-guide-to-the-most-important-surf-moves-and-tricks), accessed 2026-11-19.
+Levels 1–3; carve = "bury that rail", pivot "using the rails and fins"; cutback "buries the
+outside rail and engages the fins"; snap approach "30 to 50 degrees", "push the board away on
+your back leg"; floater "flat, not on rail"; alley-oop "kick the tail out".
+**Cited for:** technique essentials per manoeuvre.
+
+### [BFT] Barefoot Surf Travel — How to turn on a surfboard: trimming vs carving
+[tutorials.barefootsurftravel.com](https://tutorials.barefootsurftravel.com/articles/turn-surfboard-trimming-vs-carving/), accessed 2026-11-19 (search excerpt).
+Trim turns use the rails with weight forward; a carve lifts the nose, "creating a pivot point
+at the tail where the fins are".
+**Cited for:** the rail-turn definition.
+
+### [BC] Boardcave — Surf 101: How to tail slide
+[boardcave.com/surf-school/how-to-tail-slide](https://www.boardcave.com/surf-school/how-to-tail-slide), accessed 2026-11-19 (search excerpt).
+Tail slide as an extension of a top turn until "the fins free themselves", slide "up to 180
+degrees", recovery by pressing the back foot to re-engage the fins.
+**Cited for:** release held on purpose, re-grip under the back foot.
+
+### [Sla11] Surfer Magazine (2011) — Kelly Slater tip on carves vs slides
+[surfer.com/wp-content/uploads/2011/01/kelly3.html](https://www.surfer.com/wp-content/uploads/2011/01/kelly3.html) — page blocks
+automated access; quoted from the search-engine excerpt only: "any successful carving turn is
+done in the fins and on the rail. Slides … are done with the rotation pivoting around the front
+of the board, ahead of the fins … when you release your fins, you lose speed."
+**Cited for:** the two-family split of turns. Verify against the page before quoting further.
