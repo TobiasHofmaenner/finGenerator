@@ -110,6 +110,12 @@ else. The phases below keep their content; this is the sequence.
      [SK81] gate PASSED with the resolved wall (`bench/section-gate/`: CL_max
      +3 %, slope −7 %; wall functions were the defect). Table plan: 10
      sections × Re 5.7e5 and 2.8e5, −10…+16° (`~/bench-results/gen3run/tables`).
+     First two sections in (`bench/section-tables/`,
+     `scripts/section_table_check.py`): table v0 stands where the fins trim
+     (drag within 0–12 % from −6° to 0° for the flat section, to +4° for the
+     cambered one, lift within 0.03); it is 16–27 % low in drag under load
+     (+2…+12°), 3–13 % high in maximum lift, and 2.3–4× low in drag past the
+     stall. Those three are what v1 has to correct.
    - `[!]` Knee test: resolved-wall 3-D runs DIVERGE within 40 iterations on
      the gen-2 side (59 % layer coverage) and on the [BW04] replica (78 %),
      gentle start included. Parked as its own task: continuation from a low
@@ -134,11 +140,15 @@ else. The phases below keep their content; this is the sequence.
      (`RiderSpec.side_foil = "cambered"`, one camber gene, 0–5 % at 40 %
      chord). First search: the shipped planform with 4.3 % camber on t/c 0.074.
      Its CFD polar (`bench/cambered-candidate/`) confirms the lift to 0.005 in
-     C_L and REFUTES the drag: 9.1 N going straight, not 5.1 N — the section
-     table under-reads every cambered section at negative incidence by 35–55 %,
-     and the search had run into exactly that gap. No cambered fin is exported
-     before table v1 carries RANS data there (corner sections queued:
-     `~/bench-results/gen3corner`). Zero-lift angle tied to toe: still open.
+     C_L and disputes the drag: 9.1 N going straight against the model's
+     5.1 N, and the same 35–55 % gap on every cambered fin at negative
+     incidence. The section data are NOT the cause: resolved-wall 2-D RANS of
+     the 3 % camber section agrees with the table from −6° to +4°
+     (`bench/section-tables/`). Open: real effect of the thin outer sections,
+     or the level-2 mesh — decided by a level-3 run of the same fin
+     (`~/bench-results/meshcheck`) and thin-section RANS runs
+     (`~/bench-results/gen3corner`). No cambered fin is exported before that.
+     Zero-lift angle tied to toe: still open.
    - `[ ]` Fitted separation model for the knee; nonlinear step for stall order.
      Now with a reason to go first: `hydro.stall_alpha_deg` (break held at 12°
      above AR_eff 2.5, +8° per unit of aspect ratio below) had no bench below

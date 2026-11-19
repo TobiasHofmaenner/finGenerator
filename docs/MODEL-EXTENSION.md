@@ -488,7 +488,8 @@ wall functions):
   noticeable steps.
 - **Going straight it costs more**, 10.6 N against 9.1 N (candidate) or 6.9 N
   (3 % camber on the shipped planform): 1.5–3.7 N per fin, half a step to one
-  step. The model reads 6.6 N — the cambered-section under-read again
+  step. The model reads 6.6 N — the same gap between model and level-2 CFD
+  as on every cambered fin at negative incidence, not yet attributed
   (`bench/cambered-candidate/`).
 - **Lift: the lattice is within 7 % up to 16°** (0.510 against 0.547 at 8°)
   and has the zero-lift angle to 0.2°. Its drag falls behind as the angle
@@ -578,9 +579,56 @@ from the model. What this investigation leaves on the table:
    feel some drag": the model reads +3.4 N per fin there, 5.5 % of board drag
    for the pair, one noticeable step. Lean → oversized is another +54 % of
    area, so a rider would probably feel it going straight as well.
-5. **Cambered sections at negative incidence** (`bench/cambered-candidate/`):
-   drag under-read by 35–55 %, which is why the search chose 3.4–4.4 % camber
-   on thin sections. Waits for the RANS section tables.
+5. **Cambered blades at negative incidence** (`bench/cambered-candidate/`):
+   the model reads 35–55 % less drag going straight than the level-2 CFD.
+   The 2-D section data are not the cause — resolved-wall RANS of the 3 %
+   camber section agrees with the table from −6° to +4° (next section) — so
+   it is either a real effect of the thin outer sections or the mesh, and
+   the search's taste for 3.4–4.4 % camber on thin sections stands or falls
+   with that. A level-3 run of the same fin and the thin-section RANS runs
+   decide it.
+
+## Section table v0 against resolved-wall RANS: the first two sections (2026-11-19)
+
+The section runs on the EPYC (`finGenerator-cfd/scripts/section_polar.py`,
+resolved wall, the recipe that passed the [SK81] gate) are the referee for the
+table the lattice reads. `bench/section-tables/results.json` holds what has
+finished; `scripts/section_table_check.py` prints every finished section
+beside the table. Two of twenty so far, both t/c 0.092 at Re 5.7e5:
+
+| α ° | flat inside: cd RANS | cd table | ratio | 3 % camber: cd RANS | cd table | ratio |
+|---|---|---|---|---|---|---|
+| −6 | 0.0770 | 0.0753 | 0.98 | 0.0173 | 0.0151 | 0.88 |
+| −4.5 | 0.0556 | 0.0533 | 0.96 | 0.0146 | 0.0132 | 0.90 |
+| −3.5 | 0.0423 | 0.0424 | 1.00 | 0.0137 | 0.0125 | 0.92 |
+| −2.5 | 0.0319 | 0.0315 | 0.99 | 0.0133 | 0.0123 | 0.92 |
+| 0 | 0.0185 | 0.0175 | 0.94 | 0.0130 | 0.0125 | 0.97 |
+| +4 | 0.0177 | 0.0138 | 0.78 | 0.0156 | 0.0140 | 0.90 |
+| +8 | 0.0260 | 0.0189 | 0.73 | 0.0225 | 0.0186 | 0.82 |
+| +10 | 0.0354 | 0.0269 | 0.76 | 0.0309 | 0.0243 | 0.79 |
+| +12 | 0.0623 | 0.0466 | 0.75 | 0.1217 | 0.0339 | 0.28 |
+| +16 | 0.3291 | 0.1417 | 0.43 | 0.2573 | 0.0984 | 0.38 |
+
+- **Where the fins trim, the table stands.** Drag within 0–12 % from −6° to
+  0° for both sections; the flat inside face costs three times the cambered
+  one at −3.5° in RANS as in the table (0.042 against 0.014). Lift within
+  0.03 (0.04 for the flat section at −6°).
+- **Under load the table is low in drag**, 16–27 % from +4° to +10° (flat
+  inside already from +2°). That is part of why the lattice reads a fin's
+  drag 16–28 % below the 3-D CFD at 8–12°.
+- **Maximum lift is high and the stall is missing.** RANS: 1.36 at 10° (flat)
+  and 1.29 at 10° (cambered), then a plateau with the drag jumping fourfold.
+  Table: 1.41 at 10° and 1.46 at 14°, with a quarter to a half of the drag
+  past the stall.
+- **The cambered section has no drag penalty at negative incidence in 2-D.**
+  Its low-drag range is flat from −6° to +2°. So the 35–55 % by which the
+  model reads less drag than the level-2 CFD on cambered fins going straight
+  (`bench/cambered-candidate/`) does not come from the section data.
+
+Table v1 therefore has three corrections to carry, in this order of weight:
+the stall (maximum lift and what the drag does after it), drag under load,
+and the deep negative angles of cambered sections (−8°, −10°: table 0.4–0.6
+of RANS). The trim range needs none on these two sections.
 
 ## What a fast method cannot do — the rest
 
