@@ -166,6 +166,34 @@ TORSION_COMPLIANCE_B = 0.9497
 TORSION_COMPLIANCE_N = 2.8115
 
 
+# GROOVE CALIBRATION (bench/groove-fem, generation 3). The first 3D check of
+# the groove model: Omar's shipped gen-2 side at its 318 N peak load, plain and
+# with 3 or 6 chordwise channels (3 mm wide, 6 mm pitch), gmsh + CalculiX.
+#
+#   variant                     softening of tip deflection vs the plain blade
+#                                  FEM      beam, uncorrected
+#   3 channels, depth 0.35         +10.9 %     +7.4 %
+#   6 channels, depth 0.35         +19.9 %    +15.0 %
+#   6 channels, depth 0.50         +40.9 %    +24.5 %
+#
+# The beam prices a channel as its thinned section over its own WIDTH. A notch
+# in a real plate is softer than that: the stress field needs about a notch
+# depth on either side to recover, so the compliance a channel adds grows with
+# its depth-to-width ratio. Model: the ADDED compliance of every thinned
+# station is multiplied by 1 + GROOVE_NOTCH_K * (channel depth / channel
+# width), the depth read at the band's mid station on the grooved face. One
+# constant, 0.60, puts the beam at +10.4 / +20.4 / +41.3 % on the three anchors
+# (rms 3 % of the increment; pinned in tests/test_flex.py). Bending only — the
+# torsional effect of a channel has no anchor and GJ is left as computed.
+GROOVE_NOTCH_K = 0.60
+# The same runs put the FEM raw stress peak at the channel roots at up to 1.20x
+# the beam's net-section stress in the band (41.0 vs 34.2 MPa; 50.9 vs 45.7;
+# 29.6 vs 31.7). 1.20 is the envelope of those three on a 1.4 mm mesh that does
+# not resolve a 3 mm channel root, so it is a floor on the true concentration,
+# applied to the thinned stations only.
+GROOVE_STRESS_KT = 1.20
+
+
 def torsion_compliance_factor(c_root_mm: float, span_mm: float) -> float:
     """3D torsional-compliance multiplier for a blade of this stubbiness.
 
@@ -282,7 +310,9 @@ def flex_solve(z_mm: np.ndarray, chord_mm: np.ndarray, x_le_mm: np.ndarray,
                allow_mpa: float = _MATERIAL_ALLOW_MPA["pet-cf"],
                groove_band_mm: tuple[float, float] | None = None,
                p_design_rad_s: float = 0.0,
-               stall_alpha_rad: float = math.inf) -> FlexReport:
+               stall_alpha_rad: float = math.inf,
+               plain_sections: Sequence[tuple[np.ndarray, np.ndarray]] | None = None,
+               groove_notch_factor: float = 1.0) -> FlexReport:
     """Core solve on station arrays (root at z_mm[0], free tip at z_mm[-1]).
 
     sections are (upper, lower) polygons per station in local mm (the
@@ -299,6 +329,12 @@ def flex_solve(z_mm: np.ndarray, chord_mm: np.ndarray, x_le_mm: np.ndarray,
     stall takes no extra load. The extra distributed load q·c·a·Δα_eff is added
     on top of the steady distribution and a second bending pass gives
     stress_max_roll_mpa; p_design_rad_s = 0 reproduces the steady case exactly.
+
+    Grooves: `plain_sections` are the same stations WITHOUT channel thinning.
+    Given them, the bending compliance a thinned station adds over its plain
+    twin is multiplied by `groove_notch_factor`, and the bending stress at
+    thinned stations by GROOVE_STRESS_KT (module GROOVE CALIBRATION). Omitted,
+    the sections are taken as they are.
     """
     z_mm = np.asarray(z_mm, dtype=float)
     chord_mm = np.asarray(chord_mm, dtype=float)
@@ -327,6 +363,16 @@ def flex_solve(z_mm: np.ndarray, chord_mm: np.ndarray, x_le_mm: np.ndarray,
     # header) softens the beam; internal actions M, V stay equilibrium-exact.
     root_factor = 1.0 + ROOT_COMPLIANCE_SLOPE * float(chord[0] / span)
     ei = e_pa * i_m4 / root_factor
+    thinned = np.zeros(len(z_mm), dtype=bool)
+    if plain_sections is not None:
+        if len(plain_sections) != len(sections):
+            raise ValueError("plain_sections must match sections station for station")
+        i_plain = np.array([section_mech(u, lo).i_mm4 for u, lo in plain_sections]) * 1e-12
+        thinned = i_m4 < i_plain * (1.0 - 1e-9)
+        ei_plain = e_pa * i_plain / root_factor
+        ei = np.where(thinned,
+                      1.0 / (1.0 / ei_plain + groove_notch_factor * (1.0 / ei - 1.0 / ei_plain)),
+                      ei)
     # Torsion carries its OWN 3D compliance factor, not root_factor: the two are
     # numerically close on a typical side fin (1.49 vs 1.49) but they are
     # different calibrations of different physics — bending's grows with c/s,
@@ -393,7 +439,8 @@ def flex_solve(z_mm: np.ndarray, chord_mm: np.ndarray, x_le_mm: np.ndarray,
     # Bending stress per station σ = M·y_max/I [GT97]; the critical section
     # of a grooved fin is usually inside the band (nearly the root moment
     # against a disproportionate modulus cut — docs/PHYSICS.md §5b).
-    sigma_mpa = moment * y_max / np.maximum(i_m4, 1e-18) / 1e6
+    kt = np.where(thinned, GROOVE_STRESS_KT, 1.0)
+    sigma_mpa = kt * moment * y_max / np.maximum(i_m4, 1e-18) / 1e6
     i_max = int(np.argmax(sigma_mpa))
     groove_mpa = None
     if groove_band_mm is not None:
@@ -419,7 +466,7 @@ def flex_solve(z_mm: np.ndarray, chord_mm: np.ndarray, x_le_mm: np.ndarray,
         w_roll = w
     v_roll = float(np.trapezoid(w_roll, z)) - _cumtrapz(w_roll, z)
     moment_roll = float(np.trapezoid(v_roll, z)) - _cumtrapz(v_roll, z)
-    sigma_roll_mpa = moment_roll * y_max / np.maximum(i_m4, 1e-18) / 1e6
+    sigma_roll_mpa = kt * moment_roll * y_max / np.maximum(i_m4, 1e-18) / 1e6
 
     return FlexReport(
         z_mm=z_mm,
@@ -472,14 +519,21 @@ def flex_report(fin: FinParams, force_n: float, speed: float,
                                        thin_outer=thin_outer, thin_inner=thin_inner))
     slope, ar_eff = lift_curve_slope(fin)
     stall_rad = math.radians(stall_alpha_deg(ar_eff))
-    band = None
+    band, plain, notch = None, None, 1.0
     if fin.grooves.count:
         g = fin.grooves
         z0 = g.span_start * fin.outline.depth - 0.5 * g.width
         band = (z0, z0 + (g.count - 1) * g.pitch + g.width)
+        plain = [section_points(fin.foil, st.chord, thickness_ratio=_thickness_at(fin, st.z),
+                                n_points=settings.n_foil_points) for st in stations]
+        # Channel depth on the grooved (outer) face at the band's mid station.
+        k_mid = int(np.argmin([abs(st.z - 0.5 * (band[0] + band[1])) for st in stations]))
+        depth_mm = g.depth_ratio * float(np.max(plain[k_mid][0][:, 1]))
+        notch = 1.0 + GROOVE_NOTCH_K * depth_mm / g.width
     return flex_solve(np.array([st.z for st in stations]),
                       np.array([st.chord for st in stations]),
                       np.array([st.x_le for st in stations]),
                       sections, e, force_n, speed, slope,
                       allow_mpa=_MATERIAL_ALLOW_MPA[material], groove_band_mm=band,
-                      p_design_rad_s=p_design_rad_s, stall_alpha_rad=stall_rad)
+                      p_design_rad_s=p_design_rad_s, stall_alpha_rad=stall_rad,
+                      plain_sections=plain, groove_notch_factor=notch)

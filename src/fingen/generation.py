@@ -50,7 +50,12 @@ GENERATIONS: dict[int, str] = {
         "(iii) camber credit: alpha_0 was converted 1:1 into max lift at any "
         "thickness; beyond flat-inside t/c 0.10 the break angle now drops degree "
         "for degree (hydro.break_alpha_deg). Symmetric blades change on pivot "
-        "only; flat-inside blades up to t/c 0.10 change on pivot and speed."),
+        "only; flat-inside blades up to t/c 0.10 change on pivot and speed. "
+        "(iv) grooves, from their first 3D check (bench/groove-fem): the bending "
+        "compliance a channel adds is scaled by 1 + 0.60 * depth/width and the "
+        "band stress by 1.20 (flex.GROOVE_NOTCH_K, GROOVE_STRESS_KT); only "
+        "grooved blades change, and they read softer and closer to the "
+        "allowable than before."),
 }
 
 

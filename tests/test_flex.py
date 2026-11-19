@@ -299,3 +299,55 @@ def test_torsion_correction_reaches_the_report_and_softens_twist():
     assert abs(live.lift_knockdown) < abs(raw.lift_knockdown)
     assert live.divergence_speed_ms == pytest.approx(
         raw.divergence_speed_ms / math.sqrt(orig(110.0, 115.0)), rel=0.02)
+
+
+# --------------------------------------------------------------------------
+# Generation 3 — groove calibration against the first 3D check (bench/groove-fem)
+# --------------------------------------------------------------------------
+
+def _groove_fem_fin(name: str):
+    import json
+    from pathlib import Path
+
+    from fingen.optimize import fin_from_dict
+
+    path = Path(__file__).parents[1] / "bench/groove-fem" / f"{name}.json"
+    return fin_from_dict(json.loads(path.read_text())["fin"])
+
+
+@pytest.mark.parametrize("name, fem_softening", [
+    ("g3-d035", 0.1088),      # 3 channels, depth 0.35: FEM tip deflection 5.567 vs 5.021 mm
+    ("g6-d035", 0.1994),      # 6 channels, depth 0.35: 6.022 mm
+    ("g6-d050", 0.4093),      # 6 channels, depth 0.50 from 30 % span: 7.076 mm
+])
+def test_groove_softening_matches_the_fem_anchors(name, fem_softening):
+    # CalculiX at the blade's 317.7 N peak load (scripts/validate_fin_fem.py). The
+    # uncorrected beam captured only 60-75 % of these (+7.4 / +15.0 / +24.5 %): a
+    # channel is softer than its thinned section over its own width. One constant,
+    # GROOVE_NOTCH_K, has to carry all three.
+    from fingen.flex import flex_report
+
+    plain = flex_report(_groove_fem_fin("plain"), 317.7, 8.5, material="ppa-cf")
+    grooved = flex_report(_groove_fem_fin(name), 317.7, 8.5, material="ppa-cf")
+    softening = grooved.tip_deflection_mm / plain.tip_deflection_mm - 1.0
+    assert softening == pytest.approx(fem_softening, rel=0.08)
+
+
+def test_groove_calibration_leaves_plain_blades_alone_and_scales_with_k(monkeypatch):
+    import fingen.flex as flex_mod
+
+    plain = _groove_fem_fin("plain")
+    grooved = _groove_fem_fin("g6-d035")
+    base = flex_mod.flex_report(plain, 317.7, 8.5, material="ppa-cf")
+    with_k = flex_mod.flex_report(grooved, 317.7, 8.5, material="ppa-cf")
+    monkeypatch.setattr(flex_mod, "GROOVE_NOTCH_K", 0.0)
+    monkeypatch.setattr(flex_mod, "GROOVE_STRESS_KT", 1.0)
+    assert flex_mod.flex_report(plain, 317.7, 8.5, material="ppa-cf").tip_deflection_mm == \
+        base.tip_deflection_mm                              # no channels: bit-for-bit
+    raw = flex_mod.flex_report(grooved, 317.7, 8.5, material="ppa-cf")
+    assert raw.tip_deflection_mm / base.tip_deflection_mm - 1.0 == pytest.approx(0.150, abs=0.01)
+    assert with_k.tip_deflection_mm > raw.tip_deflection_mm
+    # the band stress carries the concentration factor, and only the band does
+    assert with_k.stress_groove_mpa == pytest.approx(1.20 * raw.stress_groove_mpa, rel=1e-9)
+    assert with_k.stress_root_mpa == pytest.approx(raw.stress_root_mpa, rel=1e-9)
+    assert with_k.stress_groove_mpa == pytest.approx(41.0, rel=0.05)   # FEM raw peak

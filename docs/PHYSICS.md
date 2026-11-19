@@ -191,6 +191,16 @@ parameterization is required — knot merging across incompatible sections produ
 control-point explosion [PT02]; the skinning algorithm itself is the standard one [PT97].
 The solid is closed with a flat base at z = 0 (tab systems attach here later).
 
+**Groove calibration (generation 3).** The first 3D check of the groove model
+(`bench/groove-fem`: the shipped gen-2 side, plain and with 3 or 6 channels, CalculiX at
+the peak load) showed the beam capturing only 60–75 % of the softening — a channel is
+softer than its thinned section over its own width — and missing the stress peak at the
+channel roots. `flex.py` therefore multiplies the bending compliance a thinned station
+adds by `1 + GROOVE_NOTCH_K·(depth/width)` (K = 0.60: +10.4 / +20.4 / +41.3 % against
+the FEM's +10.9 / +19.9 / +40.9 %) and its bending stress by `GROOVE_STRESS_KT = 1.20`.
+The flow side is settled separately by the groove A/B (`docs/CFD-BENCH.md` item 6): no
+benefit at any angle, a penalty at the knee — grooves are a flex device.
+
 **Groove-band skinning:** ThruSections' global surface fit is unstable against
 short-wavelength thickness alternation (a 5 % thinning dip produced metre-scale
 skin excursions — measured during development). Grooved fins therefore use a
