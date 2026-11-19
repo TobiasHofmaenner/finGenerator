@@ -1,0 +1,28 @@
+##### plain
+
+=== side: c/s 0.882 · 92,954 C3D10 · 317.7 N over 9694 mm2 (32.78 kPa) · 62s
+  tip deflection mm        tier-0    6.988   FEM    5.021   FEM/tier-0 0.719
+  tip defl % span          tier-0     4.99   FEM     3.59
+  peak stress MPa          tier-0    17.36   FEM    16.26 (p99.9 clear of clamp)   raw max 16.6
+  safety factor            tier-0    3.573   FEM    3.814   (allowable 62.03 MPa)
+##### g3-d035
+
+=== side: c/s 0.882 · 109,022 C3D10 · 317.7 N over 9934 mm2 (31.99 kPa) · 59s
+  tip deflection mm        tier-0    7.503   FEM    5.567   FEM/tier-0 0.742
+  tip defl % span          tier-0     5.36   FEM     3.98
+  peak stress MPa          tier-0    31.71   FEM    21.18 (p99.9 clear of clamp)   raw max 29.6
+  safety factor            tier-0    1.956   FEM    2.928   (allowable 62.03 MPa)
+##### g6-d035
+
+=== side: c/s 0.882 · 146,478 C3D10 · 317.7 N over 10035 mm2 (31.66 kPa) · 9822s
+  tip deflection mm        tier-0    8.034   FEM    6.022   FEM/tier-0 0.750
+  tip defl % span          tier-0     5.74   FEM     4.30
+  peak stress MPa          tier-0    34.24   FEM    23.88 (p99.9 clear of clamp)   raw max 41.0
+  safety factor            tier-0    1.812   FEM    2.598   (allowable 62.03 MPa)
+##### g6-d050
+
+=== side: c/s 0.882 · 137,558 C3D10 · 317.7 N over 10745 mm2 (29.57 kPa) · 67s
+  tip deflection mm        tier-0    8.699   FEM    7.076   FEM/tier-0 0.813
+  tip defl % span          tier-0     6.22   FEM     5.06
+  peak stress MPa          tier-0    45.65   FEM    28.24 (p99.9 clear of clamp)   raw max 50.9
+  safety factor            tier-0    1.359   FEM    2.196   (allowable 62.03 MPa)

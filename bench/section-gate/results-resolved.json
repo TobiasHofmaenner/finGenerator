@@ -1,0 +1,124 @@
+{
+ "plan": {
+  "domain_chords": 20,
+  "wall": "resolved",
+  "end_time": 4000,
+  "sections": [
+   {
+    "name": "naca0012-re700k",
+    "family": "symmetric",
+    "thickness_ratio": 0.12,
+    "te_thickness": 0.4,
+    "chord": 0.2,
+    "re": 700000.0,
+    "angles": [
+     4,
+     0,
+     8,
+     10,
+     12,
+     14,
+     16
+    ]
+   }
+  ]
+ },
+ "smoke": false,
+ "sections": {
+  "naca0012-re700k": {
+   "spec": {
+    "name": "naca0012-re700k",
+    "family": "symmetric",
+    "thickness_ratio": 0.12,
+    "te_thickness": 0.4,
+    "chord": 0.2,
+    "re": 700000.0,
+    "angles": [
+     4,
+     0,
+     8,
+     10,
+     12,
+     14,
+     16
+    ]
+   },
+   "rows": [
+    {
+     "alpha": 0.0,
+     "cl": 5.2927420475e-05,
+     "cd": 0.013048799999999998,
+     "iters": 4000.0,
+     "yplus_min": 0.345369,
+     "yplus_max": 22.74128,
+     "wall_s": 233.8
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.4223687855,
+     "cd": 0.014255356450000001,
+     "iters": 4000.0,
+     "yplus_min": 0.2329013,
+     "yplus_max": 22.93355,
+     "wall_s": 374.0
+    },
+    {
+     "alpha": 8.0,
+     "cl": 0.815554674875,
+     "cd": 0.018651842112499997,
+     "iters": 4000.0,
+     "yplus_min": 0.216532,
+     "yplus_max": 22.48861,
+     "wall_s": 293.0
+    },
+    {
+     "alpha": 10.0,
+     "cl": 0.979029403125,
+     "cd": 0.023524841325,
+     "iters": 4000.0,
+     "yplus_min": 0.2043128,
+     "yplus_max": 22.29028,
+     "wall_s": 286.5
+    },
+    {
+     "alpha": 12.0,
+     "cl": 1.1104718037499999,
+     "cd": 0.0329611582125,
+     "iters": 4000.0,
+     "yplus_min": 0.02577194,
+     "yplus_max": 23.22184,
+     "wall_s": 290.4
+    },
+    {
+     "alpha": 14.0,
+     "cl": 0.643734596,
+     "cd": 0.168713677375,
+     "iters": 4000.0,
+     "yplus_min": 0.0255384,
+     "yplus_max": 50.15601,
+     "wall_s": 257.1
+    },
+    {
+     "alpha": 16.0,
+     "cl": 1.04315916185625,
+     "cd": 0.23100887725,
+     "iters": 4000.0,
+     "yplus_min": 0.07817761,
+     "yplus_max": 30.80886,
+     "wall_s": 275.0
+    }
+   ],
+   "mesh": {
+    "u_inf": 3.6749999999999994,
+    "span": 0.020000000000000004,
+    "cell": 0.020000000000000004,
+    "surface_cell": 0.00031250000000000006,
+    "n_layers": 14,
+    "first_layer": 1.293527039282275e-05,
+    "bg_cells": 8652,
+    "resolved": true,
+    "cells": 60011
+   }
+  }
+ }
+}

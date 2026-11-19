@@ -1,0 +1,9 @@
+{
+  "domain_chords": 20,
+  "wall": "wf",
+  "end_time": 4000,
+  "sections": [
+    {"name": "naca0012-re700k", "family": "symmetric", "thickness_ratio": 0.12, "te_thickness": 0.4,
+     "chord": 0.2, "re": 7.0e5, "angles": [4, 0, 8, 10, 12, 14, 16]}
+  ]
+}
