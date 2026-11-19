@@ -48,3 +48,35 @@ def test_point_estimate_magnitudes():
     assert est.stall_margin_deg == pytest.approx(6.0)
     assert 3e5 < est.reynolds < 8e5
     assert est.drag_induced_n < est.lift_n / 4.0
+
+
+def test_camber_credit_stops_at_the_validated_thickness():
+    # Generation 3, defect 3 (docs/MODEL-REACH.md): on a FLAT_INSIDE foil camber
+    # is t/2, and alpha_0 was converted 1:1 into max lift at ANY thickness
+    # (model CL_max 0.89 at t/c 0.05 -> 1.36 at 0.22) although the camber term
+    # was validated at t/c 0.092 / 0.099 only. Beyond CAMBER_CREDIT_TC the break
+    # drops degree for degree: the usable angle (break - alpha_0) keeps growing
+    # up to 0.10 and is flat above it. Symmetric foils are never shifted.
+    from fingen.hydro import (CAMBER_CREDIT_TC, break_alpha_deg, camber_break_shift_deg,
+                              stall_alpha_deg, zero_lift_alpha_deg)
+    from fingen.params import FoilFamily, FoilParams
+
+    def side(tc):
+        return FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE, thickness_ratio=tc))
+
+    _, ar_eff = lift_curve_slope(side(0.10))
+
+    def usable(f):
+        return break_alpha_deg(f, ar_eff) - zero_lift_alpha_deg(f)
+
+    assert CAMBER_CREDIT_TC == 0.10
+    assert camber_break_shift_deg(side(0.07)) == 0.0
+    assert camber_break_shift_deg(side(0.10)) == pytest.approx(0.0, abs=1e-12)
+    assert break_alpha_deg(side(0.07), ar_eff) == stall_alpha_deg(ar_eff)
+    assert usable(side(0.07)) < usable(side(0.10))
+    assert usable(side(0.16)) == pytest.approx(usable(side(0.10)), abs=1e-9)
+    assert usable(side(0.22)) == pytest.approx(usable(side(0.10)), abs=1e-9)
+    assert camber_break_shift_deg(side(0.22)) > 4.0
+    assert camber_break_shift_deg(FinParams()) == 0.0
+    sym_thick = FinParams(foil=FoilParams(thickness_ratio=0.20))
+    assert camber_break_shift_deg(sym_thick) == 0.0

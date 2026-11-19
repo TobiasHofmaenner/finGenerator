@@ -206,6 +206,39 @@ def zero_lift_alpha_deg(fin: FinParams) -> float:
                               f.camber_position, f.te_thickness)
 
 
+# --- Camber credit toward MAX lift (generation 3) ----------------------------
+# Thin-airfoil theory shifts the lift curve by alpha_0, and through generation 2
+# tier-0 turned that shift 1:1 into maximum lift: CL_max = slope * (alpha_break
+# - alpha_0), with alpha_break a function of aspect ratio only. On a FLAT_INSIDE
+# foil camber is t/2 BY CONSTRUCTION, so section thickness became an unbounded
+# lift lever: alpha_0 runs -2.2 deg at t/c 0.05 to -9.7 deg at 0.22 and the
+# model's CL_max 0.89 -> 1.36 (docs/MODEL-REACH.md, defect 3). The shift was
+# validated on two CFD polars only, at t/c 0.092 and 0.099, where CL_max already
+# reads 20-22 % high. Real sections do not convert camber into CL_max 1:1 — the
+# geometric stall angle FALLS as camber rises [AvD59 section data] — so beyond
+# the validated camber the break angle is lowered degree for degree. More camber
+# still moves the lift curve (trim, working angle); it no longer buys maximum
+# lift. A guard on an extrapolation, to be replaced by section polars.
+CAMBER_CREDIT_TC = 0.10  # flat-inside t/c up to which the camber term is validated
+
+
+def camber_break_shift_deg(fin: FinParams) -> float:
+    """Degrees by which this fin's break angle is lowered because its camber
+    exceeds the validated range: 0 for every symmetric foil and for flat-inside
+    foils up to CAMBER_CREDIT_TC."""
+    ref = FoilParams()
+    floor = _alpha_zero_cached(FoilFamily.FLAT_INSIDE, CAMBER_CREDIT_TC,
+                               ref.camber_ratio, ref.camber_position, ref.te_thickness)
+    return max(0.0, floor - zero_lift_alpha_deg(fin))
+
+
+def break_alpha_deg(fin: FinParams, ar_eff: float) -> float:
+    """Geometric angle at which THIS fin's lift curve breaks: the aspect-ratio
+    heuristic (stall_alpha_deg) less the camber shift above. Use this, not
+    stall_alpha_deg, wherever the break bounds max lift or a margin."""
+    return stall_alpha_deg(ar_eff) - camber_break_shift_deg(fin)
+
+
 def estimate(fin: FinParams, speed: float, leeway_deg: float) -> HydroEstimate:
     """Point estimate at board speed [m/s] and leeway (angle of attack) [deg]."""
     m = metrics(fin.outline)

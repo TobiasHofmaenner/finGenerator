@@ -19,7 +19,7 @@ import functools
 import subprocess
 from pathlib import Path
 
-MODEL_GENERATION = 2
+MODEL_GENERATION = 3
 
 GENERATIONS: dict[int, str] = {
     1: ("Everything before 2026-10-27, stamped retroactively (no file carried a "
@@ -38,6 +38,19 @@ GENERATIONS: dict[int, str] = {
         "forgiveness 36, which gen 2 scores hold 50 with a NEGATIVE peak margin. "
         "Also adds the opt-in RiderSpec.peak_margin_min_deg gate (default None, so "
         "no existing rider's numbers move)."),
+    3: ("2026-11-19, IN DEVELOPMENT (docs/GEN3-PLAN.md) — this entry grows until "
+        "the first generation-3 set ships. So far, three model defects found by "
+        "the reach audit (docs/MODEL-REACH.md): (i) pivot: the yaw arm was "
+        "|x_cp - base/2| + c/4, a distance inside the fin with an absolute "
+        "value, so rake up to ~45 deg scored as MORE pivoty; now the signed arm "
+        "from the board's yaw centre to the blade's CP (spider.YAW_ARM_REF_MM). "
+        "(ii) speed: every blade was read isolated at +1 deg; a toed side fin "
+        "is now read at its own incidence, pair-averaged, so a toe-matched "
+        "cambered blade trims like a symmetric one (spider.trim_drag_n). "
+        "(iii) camber credit: alpha_0 was converted 1:1 into max lift at any "
+        "thickness; beyond flat-inside t/c 0.10 the break angle now drops degree "
+        "for degree (hydro.break_alpha_deg). Symmetric blades change on pivot "
+        "only; flat-inside blades up to t/c 0.10 change on pivot and speed."),
 }
 
 

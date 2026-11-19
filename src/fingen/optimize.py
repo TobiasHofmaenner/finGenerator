@@ -51,9 +51,11 @@ import numpy as np
 from fingen import generation, spider
 from fingen.flex import FlexReport, flex_report
 from fingen.hydro import (
+    CAMBER_CREDIT_TC,
     RHO_SEAWATER,
+    break_alpha_deg,
+    camber_break_shift_deg,
     lift_curve_slope,
-    stall_alpha_deg,
     zero_lift_alpha_deg,
 )
 from fingen.outline import metrics, planform
@@ -510,7 +512,11 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
         penalties["area_high"] = (area - sheet.area_max_mm2) / sheet.area_max_mm2
 
     slope, ar_eff = lift_curve_slope(fin)
-    a_break = stall_alpha_deg(ar_eff)
+    # The break is the AR heuristic less the camber shift: camber beyond the
+    # validated range lowers the break degree for degree, so it no longer buys
+    # max lift or margin (hydro.break_alpha_deg; 0 shift for every symmetric
+    # foil and for flat-inside foils up to CAMBER_CREDIT_TC).
+    a_break = break_alpha_deg(fin, ar_eff)
     a_zero = zero_lift_alpha_deg(fin)   # < 0 when cambered; see hydro
     q = 0.5 * RHO_SEAWATER * speed**2
     f_capacity = q * area * 1e-6 * slope * math.radians(a_break - a_zero)
@@ -773,6 +779,13 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     # answer and tier-1 (CFD + FEM) is what adjudicates it. Silently allowing it
     # is what would be wrong — the previous ceiling at least made the wall
     # visible by being hit.
+    shift = camber_break_shift_deg(fin)
+    if shift > 0.0:
+        issues.append(
+            f"camber beyond the validated range (flat-inside t/c "
+            f"{fin.foil.thickness_ratio:.3f} > {CAMBER_CREDIT_TC:.2f}): break angle "
+            f"lowered {shift:.1f} deg, so the extra camber earns no max lift or "
+            "margin — section polars adjudicate")
     if fin.foil.thickness_ratio > _THIN_SECTION_TC_MAX:
         issues.append(
             f"t/c {fin.foil.thickness_ratio:.3f} above the thin-section validity "

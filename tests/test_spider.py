@@ -122,3 +122,77 @@ def test_stability_is_fleet_ranked_and_monotone():
         assert set(s) == set(AXES)
         assert 0.0 <= s["stability"] <= 100.0
     assert sd["stability"] > ss["stability"]
+
+
+# --------------------------------------------------------------------------
+# Generation 3 — model defects found by the reach audit (docs/MODEL-REACH.md)
+# --------------------------------------------------------------------------
+
+def _side(**outline):
+    import dataclasses
+
+    base = FinParams(foil=FoilParams(family=FoilFamily.FLAT_INSIDE))
+    return dataclasses.replace(base, outline=dataclasses.replace(base.outline, **outline))
+
+
+def test_pivot_yaw_stiffness_does_not_fall_with_rake():
+    # Defect 1: the yaw arm was |x_cp - base/2| + c/4. An upright blade's CP is
+    # AHEAD of its base centre and rake moves it aft, so that arm shrank with
+    # rake up to ~45 deg and the axis scored a raked fin as MORE pivoty. With
+    # the signed board-level arm, rake up to 45 deg can only stiffen yaw — and
+    # only modestly: it is an outline detail, not a x3 lever.
+    ks = [1.0 / raw_scores(_side(sweep=sw), 7.0)["pivot"] for sw in (0.0, 15.0, 30.0, 45.0)]
+    assert ks == sorted(ks)
+    assert 1.0 < ks[-1] / ks[0] < 1.5
+
+
+def test_pivot_composition_signed_board_arm():
+    # 1/pivot = q * S * CL_alpha * (L_ref + x_cp - base/2), every literal written
+    # out (250 mm, quarter-chord CP). Reverting to the in-fin absolute arm fails
+    # this by an order of magnitude.
+    import math
+
+    import numpy as np
+
+    from fingen.hydro import RHO_SEAWATER, lift_curve_slope
+    from fingen.outline import metrics, planform
+
+    fin = _side()
+    speed = 7.0
+    z, x_le, chord = planform(fin.outline)
+    x_cp = float(np.trapezoid((x_le + 0.25 * chord) * chord, z) / np.trapezoid(chord, z))
+    arm_m = (250.0 + (x_cp - fin.outline.base / 2.0)) * 1e-3
+    assert x_cp < fin.outline.base / 2.0            # CP ahead of the base centre
+    slope, _ = lift_curve_slope(fin)
+    k = 0.5 * RHO_SEAWATER * speed**2 * metrics(fin.outline).area * 1e-6 * slope * arm_m
+    assert 1.0 / raw_scores(fin, speed)["pivot"] == pytest.approx(k, rel=1e-12)
+    assert math.isfinite(k) and k > 0.0
+
+
+def test_trim_drag_reads_the_blade_as_mounted():
+    # Defect 2: every blade was read ISOLATED at +1 deg, charging a cambered side
+    # fin the induced drag of a side force its toe-in exists to cancel. A blade
+    # toed to its own zero-lift angle must trim exactly like a symmetric one
+    # (leeway term only); any mismatch costs; symmetric blades are untouched.
+    import math
+
+    from fingen.hydro import RHO_SEAWATER, estimate, lift_curve_slope, zero_lift_alpha_deg
+    from fingen.outline import metrics
+    from fingen.spider import default_toe_deg, trim_drag_n
+
+    fin, speed = _side(), 7.0
+    a0 = zero_lift_alpha_deg(fin)
+    assert a0 < -2.0                                 # genuinely cambered
+    slope, ar_eff = lift_curve_slope(fin)
+    q_s = 0.5 * RHO_SEAWATER * speed**2 * metrics(fin.outline).area * 1e-6
+    cf = 0.074 / estimate(fin, speed, 0.0).reynolds ** 0.2
+    t = fin.foil.thickness_ratio
+    cd0 = 1.10 * 2.0 * cf * (1.0 + 2.0 * t + 60.0 * t**4)
+    leeway_only = (slope * math.radians(1.0)) ** 2 / (math.pi * 0.90 * ar_eff)
+    matched = trim_drag_n(fin, speed, toe_deg=-a0)
+    assert matched == pytest.approx(q_s * (cd0 + leeway_only), rel=1e-9)
+    assert trim_drag_n(fin, speed, toe_deg=-a0 + 2.0) > matched
+    assert trim_drag_n(fin, speed, toe_deg=-a0 - 2.0) > matched
+    assert trim_drag_n(fin, speed, toe_deg=0.0) > 1.2 * matched   # the old reading
+    assert default_toe_deg(fin) == 3.5 and default_toe_deg(FinParams()) == 0.0
+    assert 1.0 / raw_scores(fin, speed)["speed"] == pytest.approx(trim_drag_n(fin, speed, 3.5))

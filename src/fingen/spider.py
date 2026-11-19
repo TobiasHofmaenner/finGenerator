@@ -7,11 +7,14 @@ and the CFD polar card replaces the backing numbers later WITHOUT changing
 the axes (docs/PHYSICS.md §6, the metrics discussion).
 
 Axes and their hidden metrics (at the 7 m/s reference point):
-  speed        1 / total drag at trim (friction+form CD0 [Hoe75] + induced)
+  speed        1 / drag of the blade going straight AS MOUNTED: friction+form
+               CD0 [Hoe75] + induced, a toed side blade read at its own
+               incidence (see `trim_drag_n`)
   drive        L/D at the rider's working side force (weight-scaled, below)
   hold         side-force headroom RELATIVE TO the rider's requirement:
                100·r/(r+r_ref), r = f_max / F_req (see `hold_score`)
-  pivot        1 / yaw stiffness (slope · area · CP arm from the base center)
+  pivot        1 / board-level yaw stiffness: slope · area · signed arm from
+               the board's yaw centre to the blade's CP (see YAW_ARM_REF_MM)
   release      PROXY: sweep + tip-unloading (elliptic deviation) — replaced
                by the post-peak lift gradient once URANS points exist
   forgiveness  degrees of margin from the working angle to the [BW04] break
@@ -45,14 +48,15 @@ from pathlib import Path
 
 from fingen.hydro import (
     RHO_SEAWATER,
+    SPAN_EFFICIENCY,
+    break_alpha_deg,
     estimate,
     lift_curve_slope,
     zero_lift_alpha_deg,
-    stall_alpha_deg,
     stall_drag_cd,
 )
 from fingen.outline import metrics, planform
-from fingen.params import FinParams, FoilFamily, FoilParams, OutlineParams
+from fingen.params import FinParams, FinSetParams, FoilFamily, FoilParams, OutlineParams
 from fingen.roll import roll_report
 from fingen.sizing import anchor, required_side_force_n
 
@@ -82,6 +86,66 @@ def work_force_n(weight_kg: float) -> float:
 # Rider-agnostic alias = work_force_n(W_REF) = 120.0, kept so plotting defaults
 # and any weight-agnostic caller keep the original working point unchanged.
 WORK_FORCE_N = work_force_n(W_REF)
+
+# --- Trim condition of a blade AS MOUNTED (generation 3) ---------------------
+# Through generation 2 the speed axis read every blade ISOLATED at +1 deg. A
+# side fin never runs there: it is toed in, so going straight its own incidence
+# is MINUS the toe angle, and at a small leeway b the two blades of the pair sit
+# at (b - toe) and (-b - toe). A cambered blade at +1 deg makes a large side
+# force and was charged its induced drag — 42 % of the "trim drag" of Omar's
+# gen-2 side, growing with thickness — which is precisely the force the toe-in
+# exists to cancel (docs/MODEL-REACH.md, defect 2; set CFD in bench/mount: zero
+# net side force at toe 3.65 deg against a zero-lift angle of 3.50 deg).
+# The pair-averaged induced term is slope^2 * ((toe + alpha_0)^2 + b^2): a
+# toe-matched cambered blade trims exactly like a symmetric one, a mismatched
+# one pays for the mismatch on both sides. Symmetric blades (toe 0, alpha_0 0)
+# are unchanged.
+# KNOWN RESIDUAL: the profile drag of a flat-inside section at NEGATIVE
+# incidence is not modelled (cd0 is the zero-lift flat-plate value). The set
+# CFD reads 11.2 / 13.3 / 16.1 N per gen-2 side at toe 2.5 / 3.5 / 4.5 deg
+# against ~5 N here; closing that needs section polars (docs/GEN3-PLAN.md).
+TRIM_LEEWAY_DEG = 1.0
+# Production toe-in of a side fin: the FinSetParams default [Gre26, Falk20].
+SIDE_TOE_DEFAULT_DEG = FinSetParams.__dataclass_fields__["toe"].default
+
+
+def default_toe_deg(fin: FinParams) -> float:
+    """Toe-in a blade is mounted with when nothing says otherwise: asymmetric
+    foils are side fins (toed in), symmetric foils ride the stringer."""
+    return 0.0 if fin.foil.family is FoilFamily.SYMMETRIC else SIDE_TOE_DEFAULT_DEG
+
+
+def trim_drag_n(fin: FinParams, speed: float, toe_deg: float | None = None) -> float:
+    """Drag in N of ONE blade going straight as it is mounted (the speed axis
+    is its inverse). `toe_deg` None = the family default (`default_toe_deg`)."""
+    toe = default_toe_deg(fin) if toe_deg is None else toe_deg
+    m = metrics(fin.outline)
+    q = 0.5 * RHO_SEAWATER * speed**2
+    slope, ar_eff = lift_curve_slope(fin)
+    a0 = math.radians(zero_lift_alpha_deg(fin))
+    cl_in = slope * (math.radians(TRIM_LEEWAY_DEG - toe) - a0)
+    cl_out = slope * (math.radians(-TRIM_LEEWAY_DEG - toe) - a0)
+    cdi = 0.5 * (cl_in**2 + cl_out**2) / (math.pi * SPAN_EFFICIENCY * ar_eff)
+    stall = stall_drag_cd(max(abs(cl_in), abs(cl_out)), slope, ar_eff)
+    return q * m.area * 1e-6 * (_cd0(fin, speed) + cdi + stall)
+
+
+# --- Yaw arm (generation 3) -------------------------------------------------
+# A fin resists the board yawing about the board's yaw centre (the rider's
+# centre of mass, between the feet), not about its own base. Its contribution
+# to the directional stiffness is N_beta = q * S * CL_alpha * L, with L the
+# SIGNED distance from that centre aft to the blade's centre of pressure.
+# Through generation 2 the arm was |x_cp - base/2| + c_mean/4: a distance
+# inside the fin, with an absolute value. An upright blade's CP sits AHEAD of
+# its base centre and rake moves it aft toward it, so that arm SHRANK with rake
+# up to ~45 deg — the axis scored a raked fin as more pivoty and gave outline
+# details a x3 leverage they do not have (docs/MODEL-REACH.md, defect 1).
+# YAW_ARM_REF_MM is the nominal distance from the yaw centre to the blade's
+# base centre: fin cluster 0.15-0.34 m from the tail, rider's centre of mass
+# ~0.45-0.5 m from it on a shortboard. A nominal constant until board stations
+# and stance are rider inputs (docs/GEN3-PLAN.md D3); at 250 mm the full rake
+# range moves the arm by ~20 %, in the direction a shaper expects.
+YAW_ARM_REF_MM = 250.0
 
 # Requirement-relative hold saturation constant. hold_score = 100·r/(r+r_ref)
 # with r = f_max/F_req. r_ref is calibrated ONCE for backward compatibility: at
@@ -137,7 +201,8 @@ def _cd0(fin: FinParams, speed: float) -> float:
 
 def raw_scores(fin: FinParams, speed: float = REF_SPEED,
                weight_kg: float = W_REF,
-               peak_force_n: float | None = None) -> dict[str, float]:
+               peak_force_n: float | None = None,
+               toe_deg: float | None = None) -> dict[str, float]:
     """Unnormalized physical values per axis (bigger = more of the quality).
 
     `weight_kg` sets the rider's working side force (`work_force_n`) that fixes
@@ -151,14 +216,15 @@ def raw_scores(fin: FinParams, speed: float = REF_SPEED,
     slope, ar_eff = lift_curve_slope(fin)
     cd0 = _cd0(fin, speed)
 
-    # speed: inverse total drag at trim (α = 1°) in N. α=1 sits far below the
-    # stall knee for every real fin, so the stall term is ~0 here and the speed
-    # axis just carries the uniform +CD0_CAL profile-drag bump (task #22).
-    est_trim = estimate(fin, speed, 1.0)
-    drag_trim = q * area_m2 * (cd0 + est_trim.cdi
-                               + stall_drag_cd(est_trim.cl, slope, ar_eff))
-    # hold: max side force in N (linear to the AR-dependent break)
-    a_break = stall_alpha_deg(ar_eff)
+    # speed: inverse drag going straight in N, the blade read AS MOUNTED (a
+    # toed side fin at its own incidence — trim_drag_n). Trim sits far below
+    # the stall knee for every real fin, so the stall term is ~0 here and the
+    # axis carries profile drag, the leeway-induced sliver and, for a side
+    # blade, the toe/zero-lift mismatch.
+    drag_trim = trim_drag_n(fin, speed, toe_deg)
+    # hold: max side force in N (linear to the break; the break is the
+    # AR-dependent heuristic less the camber shift — hydro.break_alpha_deg)
+    a_break = break_alpha_deg(fin, ar_eff)
     # alpha_0 < 0 for a cambered section, so (a_break - alpha_0) is the REAL
     # usable angular range: a side fin already pulls at zero geometric angle.
     # Ignoring it discarded ~35 % of a flat-inside blade's peak side force.
@@ -172,13 +238,14 @@ def raw_scores(fin: FinParams, speed: float = REF_SPEED,
                   0.95 * slope * math.radians(a_break - a_zero))
     cdi_work = cl_work**2 / (math.pi * 0.9 * ar_eff)
     ld_work = cl_work / (cd0 + cdi_work + stall_drag_cd(cl_work, slope, ar_eff))
-    # pivot: inverse yaw stiffness — CP arm measured from the base center
+    # pivot: inverse board-level yaw stiffness — signed arm from the board's
+    # yaw centre to the blade's CP (YAW_ARM_REF_MM; +x is aft)
     z, x_le, chord = planform(fin.outline)
     import numpy as np
 
     x_cp = float(np.trapezoid((x_le + 0.25 * chord) * chord, z)
                  / max(np.trapezoid(chord, z), 1e-9))
-    arm_m = abs(x_cp - fin.outline.base / 2.0) * 1e-3 + 0.25 * (m.area / fin.outline.depth) * 1e-3
+    arm_m = max(YAW_ARM_REF_MM + (x_cp - fin.outline.base / 2.0), 1.0) * 1e-3
     yaw_stiffness = q * area_m2 * slope * arm_m
     # release (PROXY): raked, tip-unloaded planforms shed load gradually
     release = 0.6 * (m.sweep / 50.0) + 0.4 * min(m.elliptic_deviation / 0.30, 1.0)
