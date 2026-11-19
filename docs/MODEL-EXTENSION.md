@@ -966,10 +966,10 @@ induced drag near zero lift), the lift columns move.
 |---|---|---|---|---|
 | −4.5 | −0.085 / −0.092 | 7.0 † / 5.6 | −0.001 / −0.003 | 9.4 † / 7.3 / 10.1 / 5.6 |
 | −3.5 | −0.019 / −0.026 | 5.4 † / 4.9 | +0.062 / +0.065 | 7.1 / 6.0 / 7.2 / 5.1 |
-| −2.5 | – | – | +0.128 / +0.130 | 6.0 / 5.7 / 5.7 / 5.2 |
+| −2.5 | +0.044 / +0.040 | 4.8 / 4.6 | +0.128 / +0.130 | 6.0 / 5.7 / 5.7 / 5.2 |
 | 0 | +0.207 / +0.206 | 5.6 / 5.6 | +0.291 / +0.292 | 7.3 / 7.1 / 7.0 / 6.7 |
 | +4 | +0.461 / +0.467 | 11.0 / 10.1 | +0.541 / +0.548 | 14.0 / 12.9 / 12.9 / 12.5 |
-| going straight | | | | **7.7** / 6.5 / 7.9 / 5.4 |
+| going straight | | **5.9** / 5.1 | | **7.7** / 6.5 / 7.9 / 5.4 |
 
 † at the iteration cap.
 
@@ -980,6 +980,13 @@ induced drag near zero lift), the lift columns move.
   5 % is its near-field induced drag (a far-wake evaluation gives 10.7 N;
   the near-field sum on 10 × 2 panels under-reads induced drag by about a
   tenth, noted in `lattice.trefftz_cdi`).
+- **The flat inside face reads 13.3 N going straight on level 5**, 13.7 N
+  on level 2 (`bench/cambered-candidate/mesh-level-5/`): its separation is
+  fixed by the corner of the face and the mesh does not move it. The lattice
+  has it at 15.0 N (v0) and 15.3 N (v1), 12–15 % high, and v1's drag level
+  for this family — one section, taken at its minimum — makes 0° worse (9.9
+  against 8.2 N). So by this mesh camber saves 5.6–7.4 N per fin; the model
+  says 8.8–10.2 N.
 - **Between the nodes v1 is about a newton too kind.** Both blades have
   their sections between t/c 0.070 and 0.092. v1 moves the lower end of the
   attached range evenly with thickness between those two nodes; the 3-D
@@ -1050,6 +1057,10 @@ evaluations, corrected frontier rule), and every earlier optimum rescored:
   about ±1°.
 - **Induced drag.** The lattice's near-field sum is about a tenth low in
   induced drag. Nothing at the working load (0.2 N); 2 N at the peak force.
+- **The flat-inside family** has one RANS section (t/c 0.092); its level is
+  held for every thickness, and the lattice over-reads the shipped fin's
+  drag going straight by 2 N against level 5. Three more flat sections are
+  in the main plan.
 
 ## What a fast method cannot do — the rest
 
