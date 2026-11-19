@@ -5,9 +5,16 @@
 Each bench directory holds what finGenerator-cfd/scripts/polar_angles.py wrote:
 `plan.json` (speed, fin file, variants with an optional foil patch) and
 `results.json` (CL, CD per own incidence). For every variant the same blade is
-solved with `bladehydro.point` — the viscous lattice on the section table, the
-board as a weakened mirror — at the CFD's speed and angles, and the two are
-printed side by side: lift coefficient, drag in N, and the ratio.
+solved with the viscous lattice on the section table at the CFD's speed and
+angles, and the two are printed side by side: lift coefficient, drag in N,
+and the ratio.
+
+The CFD holds the fin on a symmetry plane, so the lattice is solved here with
+a PERFECT mirror (`--mirror=1.0`, the default), not with the weakened one that
+stands for a real board in `bladehydro` (0.85). Until 2026-11-20 this script
+compared the weakened mirror with the symmetry plane; that reads the lattice's
+lift 8 % low and hid a level-2 mesh that is itself low by about as much.
+`--table=v1` reads section table v1.
 
 This is the check that says where the fast model may be trusted. Read it per
 REGIME (negative incidence = going straight at toe; small positive = working
@@ -22,7 +29,7 @@ import json
 import sys
 from pathlib import Path
 
-from fingen import bladehydro
+from fingen import bladehydro, lattice
 from fingen.hydro import RHO_SEAWATER
 from fingen.optimize import fin_from_dict
 from fingen.outline import metrics
@@ -36,7 +43,14 @@ def _patched(fin, patch: dict):
     return dataclasses.replace(fin, foil=dataclasses.replace(fin.foil, **foil)) if foil else fin
 
 
-def compare(bench: Path) -> list[str]:
+def solve(fin, speed: float, alpha_deg: float, mirror: float, table: str):
+    blade = lattice.blade_from_fin("blade", fin, nz=bladehydro.NZ, nx=bladehydro.NX)
+    polars = {"blade": lattice.strip_sections(fin, blade, speed, table)}
+    sol = lattice.solve_viscous([blade], polars, speed, alpha_deg, mirror_strength=mirror)
+    return sol.loads["blade"], sol.converged
+
+
+def compare(bench: Path, mirror: float = 1.0, table: str = "v0") -> list[str]:
     plan = json.loads((bench / "plan.json").read_text())
     res = json.loads((bench / "results.json").read_text())["variants"]
     raw = json.loads((bench / plan["fin"]).read_text())
@@ -55,7 +69,7 @@ def compare(bench: Path) -> list[str]:
         out.append("| own incidence ° | CL CFD | CL lattice | drag CFD N | drag lattice N | lattice / CFD | CFD iterations |")
         out.append("|---|---|---|---|---|---|---|")
         for row in sorted(res[name]["rows"], key=lambda r: r["alpha"]):
-            loads, converged = bladehydro.point(fin, speed, row["alpha"])
+            loads, converged = solve(fin, speed, row["alpha"], mirror, table)
             capped = row.get("iterations", 0) >= plan.get("end_time", 1e9)
             out.append(f"| {row['alpha']:+.1f} | {row['cl']:+.3f} | {loads.cl:+.3f} | {row['cd'] * q_area:.1f} | "
                        f"{loads.cd * q_area:.1f}{'' if converged else ' (strips not converged)'} | "
@@ -70,7 +84,7 @@ def main() -> None:
     opt = dict(a.lstrip("-").split("=", 1) for a in sys.argv[1:] if a.startswith("--") and "=" in a)
     lines = ["# Lattice model vs isolated-fin CFD"]
     for d in dirs:
-        lines += compare(d)
+        lines += compare(d, float(opt.get("mirror", 1.0)), opt.get("table", "v0"))
     text = "\n".join(lines)
     print(text)
     if "md" in opt:

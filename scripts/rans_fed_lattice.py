@@ -15,6 +15,13 @@ carries the Reynolds-number trend. A node whose run has not finished is filled
 from the other three. Rows above +8° are not used: past the knee a steady RANS
 polar is a lower bound, not a referee (docs/CFD-BENCH.md).
 
+The lattice is solved with a perfect mirror, as the CFD's symmetry plane is one
+(bladehydro's 0.85 stands for a real board and reads 8 % less lift). The
+section-table v1 that grew out of this script carries the ends of the
+attached range instead of blending ratios; `--table=v1` is not needed here
+because the ratios ARE the correction — use scripts/lattice_vs_polar.py
+--table=v1 to see v1 against the same polars.
+
 Linear interpolation between a section that is inside its low-drag range and
 one that has left it smears a step; the numbers at the edge are good to about
 the 1° spacing of the section runs.
@@ -44,6 +51,7 @@ CAMBER = (0.030, 0.045)
 RE = 5.7e5
 ALPHA_RANGE = (-10.0, 8.0)
 SPEED = 8.5
+MIRROR = 1.0            # the CFD's symmetry plane, not bladehydro's weakened board mirror
 
 
 def load_nodes() -> dict:
@@ -95,7 +103,7 @@ def solve(fin, alpha_deg: float, nodes: dict | None):
     if nodes is not None:
         pols = [rans_fed(p, nodes) for p in pols]
     sol = lattice.solve_viscous([blade], {"blade": pols}, SPEED, alpha_deg,
-                                mirror_strength=bladehydro.BOARD_MIRROR_STRENGTH)
+                                mirror_strength=MIRROR)
     return sol.loads["blade"]
 
 

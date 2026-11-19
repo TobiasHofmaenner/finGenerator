@@ -803,6 +803,11 @@ polar and the model with referee sections is 0.5 N at −3.5° and 0.7 N at
 
 ### 4. What the search does with referee sections
 
+*Read again after "Section table v1" below: this search used the plain ratio
+blend. With the ends of the attached range carried properly the search keeps
+the camber and thickens the section instead; the move to more area and less
+camber was the blend.*
+
 Three neutral searches (seeds 0–2, 6000 evaluations, the corrected frontier
 rule) with the RANS correction applied to every cambered section the lattice
 asks for. All three end on the same score, +0.447, with the rider-file peak
@@ -901,6 +906,150 @@ Open:
   far.** Level 5 on the candidate and on the flat-inside fin is running. The
   resolved-wall 3-D recipe still diverges (parked), so level 5 keeps its
   wall functions and their softness at a suction peak.
+
+## Section table v1: v0 moved onto the referee's sections (2026-11-20)
+
+Table v0 has the right shapes and the wrong ends; the RANS sections have the
+right ends and are too few, and too coarse in angle, to be a table. v1
+(`scripts/build_section_table_v1.py`, `src/fingen/data/sections_v1.npz`) is
+v0 warped: the angle axis of every v0 polar is stretched piecewise-linearly
+so that the centre of its low-drag range stays and its two ends land where
+the referee has them, its drag is scaled to the referee's level, and its
+lift keeps v0's line (with the referee's slope) plus v0's departure from
+that line carried along with the ends. Seven numbers per section do it. They
+are measured at every finished RANS section and carried over the rest of the
+grid by a least-squares plane in thickness, camber and log Reynolds number
+per foil family, held constant outside the box the nodes span. The ends are
+quantities of their own, so between a section that is attached at some angle
+and one that is not, v1 moves the cliff; it does not average across it.
+
+At the four nodes it was built on (`bench/section-tables/table-v1-nodes.md`):
+
+| section | lower end °: RANS / v0 / v1 | upper end °: RANS / v0 / v1 | drag level v1 / v0 | lift slope v1 / v0 | lift retention | cd v1 / RANS over the settled rows: min … max | largest cl difference |
+|---|---|---|---|---|---|---|---|
+| flat-tc092-re570k | -1.38 / -0.81 / -1.48 | +11.00 / +11.51 / +11.00 | 1.244 | 0.967 | 0.79 | 0.95 … 1.10 | 0.020 |
+| camb3-tc092-re570k | -6.09 / -7.23 / -5.94 | +10.17 / +12.44 / +10.18 | 1.039 | 0.975 | 0.57 | 0.96 … 1.19 | 0.005 |
+| camb45-tc070-re570k | -3.67 / -4.47 / -3.66 | +8.33 / +10.03 / +8.33 | 1.097 | 0.972 | 0.50 | 0.93 … 1.30 | 0.003 |
+| camb3-tc070-re570k | -3.77 / -5.06 / -3.95 | +8.09 / +9.59 / +8.10 | 1.065 | 0.971 | 0.71 | 0.90 … 1.11 | 0.006 |
+
+The warp alone removes what had looked like a separate defect: v0's
+"16–27 % low in drag under load" was mostly its knee sitting 1.5–2.3° too
+far out. With the ends in place, drag inside the range is within 0.90–1.19
+of the RANS, one last attached row at 1.30 (v0: 0.73–0.97), lift within 0.006
+up to the knee on the
+cambered sections, and the knee is a maximum again. Past the knee v1 keeps
+v0's drag, moved with the end; nothing referees it there.
+
+`hydro_model = "lattice-v1"` reads it; `"lattice"` keeps v0 and every earlier
+number. The table is a parameter through `sections`, `lattice` and
+`bladehydro`, not global state.
+
+### The comparison's own boundary condition
+
+Checking v1 against the level-5 polar showed an error in every lattice-against-CFD
+table before this one: the lattice was solved with the weakened mirror that
+stands for a real board in `bladehydro` (strength 0.85), the CFD holds the fin
+on a symmetry plane (strength 1). With the matching mirror the lattice
+carries 8 % more lift. The "lift within 0.005 in C_L" of the candidate
+against its level-2 polar was two offsets of that size cancelling: the
+weakened mirror, and a level-2 mesh whose coarse nose loses lift.
+`scripts/lattice_vs_polar.py` and `scripts/rans_fed_lattice.py` now use the
+perfect mirror; drag at negative incidence moves by under 0.2 N (little
+induced drag near zero lift), the lift columns move.
+
+### Against the finer 3-D mesh
+
+`scripts/lattice_vs_polar.py bench/cambered-candidate/mesh-level-5 bench/cambered-candidate/mesh-level-5-candidate --table=v1`
+(level 5, perfect mirror on both sides):
+
+| own incidence ° | 3 % camber, shipped planform: C_L CFD / v1 | drag N CFD / v1 | candidate: C_L CFD / v1 | drag N CFD / v1 / ratio blend / v0 |
+|---|---|---|---|---|
+| −4.5 | −0.085 / −0.092 | 7.0 † / 5.6 | −0.001 / −0.003 | 9.4 † / 7.3 / 10.1 / 5.6 |
+| −3.5 | −0.019 / −0.026 | 5.4 † / 4.9 | +0.062 / +0.065 | 7.1 / 6.0 / 7.2 / 5.1 |
+| −2.5 | – | – | +0.128 / +0.130 | 6.0 / 5.7 / 5.7 / 5.2 |
+| 0 | +0.207 / +0.206 | 5.6 / 5.6 | +0.291 / +0.292 | 7.3 / 7.1 / 7.0 / 6.7 |
+| +4 | +0.461 / +0.467 | 11.0 / 10.1 | +0.541 / +0.548 | 14.0 / 12.9 / 12.9 / 12.5 |
+| going straight | | | | **7.7** / 6.5 / 7.9 / 5.4 |
+
+† at the iteration cap.
+
+- **Lift: within 0.007 at every angle on both blades.** This is the first
+  comparison in which the mesh, the boundary condition and the section data
+  are all in order, and the lattice's lift stands.
+- **Drag at 0° within 3 %; at +4° the lattice is 8 % low**, of which about
+  5 % is its near-field induced drag (a far-wake evaluation gives 10.7 N;
+  the near-field sum on 10 × 2 panels under-reads induced drag by about a
+  tenth, noted in `lattice.trefftz_cdi`).
+- **Between the nodes v1 is about a newton too kind.** Both blades have
+  their sections between t/c 0.070 and 0.092. v1 moves the lower end of the
+  attached range evenly with thickness between those two nodes; the 3-D
+  polar says the range stays short for longer (candidate 9.4 N at −4.5°,
+  v1 7.3, the plain blend 10.1). The candidate costs 7.7 N going straight,
+  not 6.5. Two sections at t/c 0.080 are queued to measure the middle.
+
+### What the search does on v1
+
+The first build of v1 kept v0's grid, and its best fin came back on t/c 0.090
+from root to tip: a grid node. Between nodes the library interpolates
+plainly, and between t/c 0.07 and 0.09 that still turned the cliff into two
+half steps, so the search parked on the node. v1 now ships on a finer grid
+(t/c in steps of 0.005, camber in steps of 0.5 %), filled from v0 with the
+ends aligned. On that table, six neutral and three hold-first searches (6000
+evaluations, corrected frontier rule), and every earlier optimum rescored:
+
+| found with | area mm² | depth | camber % | t/c root × tip factor | AR_eff | going straight N (v1) | hold (v1) | score (v1) |
+|---|---|---|---|---|---|---|---|---|
+| v1, neutral, seeds 0, 1, 3 | 10 000 – 10 180 | 140 | 4.1 – 4.2 | 0.089 – 0.092 × 0.97 – 1.04 | 3.3 | 5.5 – 5.6 | 1.14 | +0.23 … +0.25 |
+| v1, neutral, seeds 2, 4, 5 | 11 750 – 11 970 | 125 – 138 | 3.1 – 3.2 | 0.071 – 0.094 | 2.3 – 2.7 | 5.7 – 5.8 | 1.13 – 1.15 | +0.43 … +0.48 |
+| v1, hold first (three seeds) | 14 550 – 14 880 | 132 – 135 | 3.0 – 3.1 | 0.072 – 0.082 | 2.05 – 2.09 | 6.8 – 6.9 | 1.48 | −0.19 (its own aspirations) |
+| table v0, neutral (three seeds) | 9 750 – 10 800 | 138 – 140 | 4.2 – 4.4 | 0.076 – 0.089 × 1.08 – 1.19 | 3.0 – 3.4 | 5.6 – 5.8 | 1.13 | margin 1.86–1.93°, under the gate |
+| ratio blend, neutral (three seeds) | 11 730 – 11 915 | 121 – 122 | 2.3 – 2.6 | 0.058 – 0.075 × 0.53 – 0.93 | 2.1 – 2.2 | 6.8 – 8.5 | 1.13 | margin 1.98–1.99° |
+
+- **On v1 the lean fin is back, on a thicker section.** Three of six seeds
+  end on the same blade: 140 mm deep, about 10 000 mm², 4.2 % camber, t/c
+  0.09 from root to tip (v0's optima: 0.076–0.089 at the root, thicker toward
+  the tip). Thickness is what keeps the lower end of the attached range
+  clear of the −4.5° the fin sees going straight; v1 prices it. 5.5 N going
+  straight, hold 1.14, where v0 had promised 5.0–5.4. Its level-5 polar is
+  queued.
+- **The move to more area and less camber was the blend plus the missing
+  nodes, not the fin.** Those optima have sections thinner than any node; on
+  v1 they cost 6.8–8.5 N.
+- **Half the neutral seeds end in a worse valley** (+0.43 … +0.48 against
+  +0.23), some on the far side of the stall-rule kink. A sharper cliff makes
+  a rougher landscape; the search needs more starts than three before a v1
+  result is taken as the optimum.
+- **Hold first is where it was:** about 14 700 mm² on the far side of the
+  kink, 6.8–6.9 N, hold 1.48.
+
+### What is provisional in v1
+
+- **Between nodes.** The level-5 polars say the lower end does not move
+  evenly with thickness between t/c 0.070 and 0.092; v1 assumes it does and
+  is about 1 N per fin low there. The t/c 0.080 sections decide.
+- **The decisive node for the current optimum is not in yet.** It sits at
+  4.2 % camber on t/c 0.09; v1's ends there come from the plane through the
+  other three cambered nodes (lower end −5.5°). The 4.5 % / t/c 0.092
+  section is the next one to finish.
+- Below t/c 0.070, above 0.092, below 3 % camber and away from Re 5.7e5 the
+  corrections are held at the nearest node; the third batch (t/c 0.05, 0.08
+  and 0.12, 1 and 2 % camber, Re 2.8e5) and the quarter-degree edge pass
+  replace that. The symmetric family has no finished section and is v0
+  unchanged.
+- The ends are located inside 1–2° sampling brackets by linear
+  interpolation of the drag.
+- **The referee's lower end against measurements.** Tabulated UIUC low-speed
+  tunnel polars of comparable sections, looked up for this purpose, put the
+  lower corner within about a degree of the RANS on either side: E387 (9.1 %
+  thick, 3.8 % camber, tripped, Re 5e5) cd 0.0147 at −4.2° and 0.036 at
+  −5.2°; SD7037 (9.2 %, 3.0 %, Re 3e5) 0.0149 at −4.0°, 0.0225 at −5.0°,
+  0.058 at −5.9°; A18 (7.3 %, 3.8 %, tripped, Re 3e5) 0.0166 at −4.7°. None
+  is our section, none is fully turbulent, and their noses differ; at 9 %
+  they contradict table v0's −7.2° and sit at or up to a degree inside the
+  RANS bracket (−6 … −8°), at 7 % they cannot separate the two. Reliability
+  about ±1°.
+- **Induced drag.** The lattice's near-field sum is about a tenth low in
+  induced drag. Nothing at the working load (0.2 N); 2 N at the peak force.
 
 ## What a fast method cannot do — the rest
 
