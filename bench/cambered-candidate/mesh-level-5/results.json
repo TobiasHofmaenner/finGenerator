@@ -1,0 +1,79 @@
+{
+ "plan": {
+  "speed": 8.5,
+  "mesh_level": 5,
+  "end_time": 800,
+  "fin": "fins/side-shipped-gen2.json",
+  "variants": [
+   {
+    "name": "cambered-3pct-L5",
+    "angles": [
+     -3.5,
+     0,
+     -4.5,
+     4,
+     8
+    ],
+    "patch": {
+     "foil": {
+      "family": "cambered",
+      "camber_ratio": 0.03,
+      "camber_position": 0.4
+     }
+    }
+   }
+  ]
+ },
+ "variants": {
+  "cambered-3pct-L5": {
+   "patch": {
+    "foil": {
+     "family": "cambered",
+     "camber_ratio": 0.03,
+     "camber_position": 0.4
+    }
+   },
+   "rows": [
+    {
+     "alpha": -4.5,
+     "cl": -0.08467204125,
+     "cd": 0.019311653625,
+     "cm": -0.039650862187500004,
+     "iterations": 800.0,
+     "wall_s": 334.4
+    },
+    {
+     "alpha": -3.5,
+     "cl": -0.0194772936875,
+     "cd": 0.014937656062499999,
+     "cm": -0.06806644975000001,
+     "iterations": 800.0,
+     "wall_s": 506.0
+    },
+    {
+     "alpha": 0.0,
+     "cl": 0.2074054512820513,
+     "cd": 0.015635539487179488,
+     "cm": -0.16491012564102564,
+     "iterations": 194.0,
+     "wall_s": 86.6
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.46136833666666666,
+     "cd": 0.030582963,
+     "cm": -0.27068968,
+     "iterations": 146.0,
+     "wall_s": 64.9
+    }
+   ],
+   "area_mm2": 9733.62607226676,
+   "foil": {
+    "family": "cambered",
+    "thickness_ratio": 0.09211512693674807,
+    "camber_ratio": 0.03,
+    "camber_position": 0.4
+   }
+  }
+ }
+}

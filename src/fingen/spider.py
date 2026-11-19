@@ -151,8 +151,12 @@ YAW_ARM_REF_MM = 250.0
 # Which hydrodynamics score a blade. "tier0" = the closed forms of hydro.py
 # (the default, every shipped number); "lattice" = lift curve, centre of
 # pressure and drag from the viscous lattice and the section table
-# (bladehydro.py), with tier-0's break angle. See RiderSpec.hydro_model.
-HYDRO_MODELS = ("tier0", "lattice")
+# (bladehydro.py), with tier-0's break angle; "lattice-v1" = the same lattice
+# reading section table v1 (v0 moved onto the resolved-wall RANS sections,
+# sections.TABLES). See RiderSpec.hydro_model.
+HYDRO_MODELS = ("tier0", "lattice", "lattice-v1")
+# Section table each lattice model reads; a model not listed here is closed-form.
+SECTION_TABLE = {"lattice": "v0", "lattice-v1": "v1"}
 
 # Requirement-relative hold saturation constant. hold_score = 100·r/(r+r_ref)
 # with r = f_max/F_req. r_ref is calibrated ONCE for backward compatibility: at
@@ -220,7 +224,8 @@ def raw_scores(fin: FinParams, speed: float = REF_SPEED,
     requirement-relative axis at scoring time."""
     if model not in HYDRO_MODELS:
         raise ValueError(f"hydro model {model!r} not in {HYDRO_MODELS}")
-    lattice_model = model == "lattice"
+    lattice_model = model in SECTION_TABLE
+    table = SECTION_TABLE.get(model, "v0")
     m = metrics(fin.outline)
     area_m2 = m.area * 1e-6
     q = 0.5 * RHO_SEAWATER * speed**2
@@ -230,14 +235,14 @@ def raw_scores(fin: FinParams, speed: float = REF_SPEED,
     if lattice_model:
         # Lift curve and CP of the blade's own planform, tip thickness and
         # section (bladehydro); the break angle below stays tier-0's.
-        slope, a_zero_lat, x_cp_lat = bladehydro.lift_curve(fin, speed)
+        slope, a_zero_lat, x_cp_lat = bladehydro.lift_curve(fin, speed, table)
 
     # speed: inverse drag going straight in N, the blade read AS MOUNTED (a
     # toed side fin at its own incidence — trim_drag_n). Trim sits far below
     # the stall knee for every real fin, so the stall term is ~0 here and the
     # axis carries profile drag, the leeway-induced sliver and, for a side
     # blade, the toe/zero-lift mismatch.
-    drag_trim = (bladehydro.trim_drag_n(fin, speed, toe) if lattice_model
+    drag_trim = (bladehydro.trim_drag_n(fin, speed, toe, table) if lattice_model
                  else trim_drag_n(fin, speed, toe_deg))
     # hold: max side force in N (linear to the break; the break is the
     # AR-dependent heuristic less the camber shift — hydro.break_alpha_deg)
@@ -258,7 +263,7 @@ def raw_scores(fin: FinParams, speed: float = REF_SPEED,
         # is kept on the attached side of the break (0.95 of the usable angle).
         a_cap = a_zero + 0.95 * (a_break - a_zero)
         drag_work, lift_work = bladehydro.drag_at_force_n(
-            fin, speed, cl_work * q * area_m2, a_cap)
+            fin, speed, cl_work * q * area_m2, a_cap, table)
         ld_work = lift_work / max(drag_work, 1e-9)
     else:
         cdi_work = cl_work**2 / (math.pi * 0.9 * ar_eff)

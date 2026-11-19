@@ -1,7 +1,8 @@
 """One blade's hydrodynamics AS MOUNTED, from the viscous lattice.
 
 The generation-3 path for the lift curve and the drag of a blade
-(`RiderSpec.hydro_model = "lattice"`). Tier-0's closed forms (hydro.py,
+(`RiderSpec.hydro_model = "lattice"`, or `"lattice-v1"` for the same lattice on
+section table v1 — spider.SECTION_TABLE). Tier-0's closed forms (hydro.py,
 spider._cd0) stay the default until a before/after on every rider spec says
 otherwise; this module answers the same questions from `lattice.solve_viscous`
 and the section table:
@@ -50,35 +51,38 @@ TRIM_LEEWAY_DEG = 1.0
 
 
 @functools.lru_cache(maxsize=256)
-def _context(fin: FinParams, speed_key: int):
+def _context(fin: FinParams, speed_key: int, table: str):
     speed = speed_key * 1e-3
     blade = lattice.blade_from_fin("blade", fin, nz=NZ, nx=NX)
-    return blade, {"blade": lattice.strip_sections(fin, blade, speed)}
+    return blade, {"blade": lattice.strip_sections(fin, blade, speed, table)}
 
 
 @functools.lru_cache(maxsize=4096)
-def _point(fin: FinParams, speed_key: int, alpha_key: int) -> tuple[ViscousLoads, bool]:
-    blade, polars = _context(fin, speed_key)
+def _point(fin: FinParams, speed_key: int, alpha_key: int,
+           table: str) -> tuple[ViscousLoads, bool]:
+    blade, polars = _context(fin, speed_key, table)
     sol = lattice.solve_viscous([blade], polars, speed_key * 1e-3, alpha_key * 1e-3,
                                 mirror_strength=BOARD_MIRROR_STRENGTH)
     return sol.loads["blade"], sol.converged
 
 
-def point(fin: FinParams, speed: float, alpha_deg: float) -> tuple[ViscousLoads, bool]:
+def point(fin: FinParams, speed: float, alpha_deg: float,
+          table: str = "v0") -> tuple[ViscousLoads, bool]:
     """Loads on the blade alone at its OWN incidence `alpha_deg` (positive = flow
-    onto the flat inside face), and whether the strip iteration converged."""
-    return _point(fin, round(speed * 1e3), round(alpha_deg * 1e3))
+    onto the flat inside face), and whether the strip iteration converged.
+    `table` is the shipped section table the strips read (sections.TABLES)."""
+    return _point(fin, round(speed * 1e3), round(alpha_deg * 1e3), table)
 
 
-def lift_curve(fin: FinParams, speed: float) -> tuple[float, float, float]:
+def lift_curve(fin: FinParams, speed: float, table: str = "v0") -> tuple[float, float, float]:
     """(CL per radian, zero-lift angle in degrees, chordwise CP in mm from the
     base centre, + aft) of the blade's working range.
 
     The zero-lift angle is the working range extended down to zero lift — the
     quantity a toe angle has to match — not the bent curve a flat-inside foil
     actually follows there."""
-    lo, _ = point(fin, speed, _LIN_LO_DEG)
-    hi, _ = point(fin, speed, _LIN_HI_DEG)
+    lo, _ = point(fin, speed, _LIN_LO_DEG, table)
+    hi, _ = point(fin, speed, _LIN_HI_DEG, table)
     slope_deg = (hi.cl - lo.cl) / (_LIN_HI_DEG - _LIN_LO_DEG)
     if not math.isfinite(slope_deg) or slope_deg <= 0.0:
         raise ValueError("lattice lift curve is not usable for this blade")
@@ -89,25 +93,25 @@ def _q_area(fin: FinParams, speed: float) -> float:
     return 0.5 * RHO_SEAWATER * speed**2 * metrics(fin.outline).area * 1e-6
 
 
-def trim_drag_n(fin: FinParams, speed: float, toe_deg: float) -> float:
+def trim_drag_n(fin: FinParams, speed: float, toe_deg: float, table: str = "v0") -> float:
     """Drag in N of one blade going straight, toed in by `toe_deg`: the mean of
     the two blades of a pair at the trim leeway, own incidences ±leeway − toe."""
     qa = _q_area(fin, speed)
-    return 0.5 * qa * (point(fin, speed, TRIM_LEEWAY_DEG - toe_deg)[0].cd
-                       + point(fin, speed, -TRIM_LEEWAY_DEG - toe_deg)[0].cd)
+    return 0.5 * qa * (point(fin, speed, TRIM_LEEWAY_DEG - toe_deg, table)[0].cd
+                       + point(fin, speed, -TRIM_LEEWAY_DEG - toe_deg, table)[0].cd)
 
 
 def drag_at_force_n(fin: FinParams, speed: float, force_n: float,
-                    alpha_max_deg: float) -> tuple[float, float]:
+                    alpha_max_deg: float, table: str = "v0") -> tuple[float, float]:
     """(drag N, side force N actually made) with the blade making `force_n`, its
     own incidence capped at `alpha_max_deg` (the caller's break angle, so the
     strip model is never asked about separated flow)."""
     qa = _q_area(fin, speed)
-    slope, a0, _ = lift_curve(fin, speed)
+    slope, a0, _ = lift_curve(fin, speed, table)
     cl_req = force_n / qa
     alpha = min(a0 + math.degrees(cl_req / slope), alpha_max_deg)
-    loads, _ = point(fin, speed, alpha)
+    loads, _ = point(fin, speed, alpha, table)
     if alpha < alpha_max_deg and abs(loads.cl - cl_req) > 0.02 * max(cl_req, 0.05):
         alpha = min(alpha + math.degrees((cl_req - loads.cl) / slope), alpha_max_deg)
-        loads, _ = point(fin, speed, alpha)        # one secant step onto the target
+        loads, _ = point(fin, speed, alpha, table)   # one secant step onto the target
     return loads.cd * qa, loads.cl * qa

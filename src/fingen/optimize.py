@@ -295,7 +295,10 @@ class RiderSpec:
     # the lift curve, the centre of pressure and the drag from the viscous
     # lattice and the section table (bladehydro.py): the blade is read as
     # mounted, so a flat inside face pays for its toe angle and a cambered one
-    # does not. Opt-in until a before/after on every rider spec is accepted.
+    # does not. "lattice-v1" is the same lattice on section table v1 (v0 moved
+    # onto the resolved-wall RANS sections: both ends of each section's attached
+    # range, drag level, lift slope). Opt-in until a before/after on every rider
+    # spec is accepted.
     hydro_model: str = "tier0"
     # Foil family of the SIDE blade (SIDE_FOILS). "flat_inside" is the classic
     # flat foil every shipped set uses. "cambered" searches a conventional
@@ -647,10 +650,11 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     # foil and for flat-inside foils up to CAMBER_CREDIT_TC).
     a_break = break_alpha_deg(fin, ar_eff)
     a_zero = zero_lift_alpha_deg(fin)   # < 0 when cambered; see hydro
-    if rider.hydro_model == "lattice":
+    if rider.hydro_model in spider.SECTION_TABLE:
         # Lift curve of the blade's own planform, tip thickness and section,
         # on a real board (bladehydro). The break angle stays the heuristic.
-        slope, a_zero, _ = bladehydro.lift_curve(fin, speed)
+        slope, a_zero, _ = bladehydro.lift_curve(
+            fin, speed, spider.SECTION_TABLE[rider.hydro_model])
     q = 0.5 * RHO_SEAWATER * speed**2
     f_capacity = q * area * 1e-6 * slope * math.radians(a_break - a_zero)
     # The angle a PEAK TURN demands, uncapped, and the margin left to the break.

@@ -14,6 +14,13 @@ section's own frame: positive = flow onto the flat (inside) face of a side
 foil, the direction it is cambered for. The library needs only numpy; the
 table is built offline by `scripts/build_section_table.py`.
 
+Two tables ship (`TABLES`): "v0" below, and "v1" — v0 moved onto the
+resolved-wall RANS sections of bench/section-tables/ (both ends of each
+section's attached range, the drag level, the lift slope; builder
+scripts/build_section_table_v1.py, which records its nodes and fits in the
+table's meta). `table=` selects one; "v0" stays the default until v1's
+sections are complete.
+
 Status of the data (v0): NeuralFoil with the boundary layer tripped. Checked
 against resolved-wall 2-D RANS on our flat-inside section (cl 0.43 / 0.86 /
 1.35 at 0 / 4 / 12°, cd 0.042 at −3.5°, Re 5.7e5 — all within a few percent)
@@ -36,23 +43,31 @@ import numpy as np
 from fingen.hydro import NU_SEAWATER
 from fingen.params import FinParams, FoilFamily
 
-_TABLE_PATH = Path(__file__).parent / "data" / "sections_v0.npz"
+# Shipped tables. "v0" is NeuralFoil as built (every lattice result up to
+# 2026-11-19); "v1" is v0 moved onto the resolved-wall RANS sections — both
+# ends of each section's attached range, drag level, lift slope
+# (scripts/build_section_table_v1.py). Same layout, so either reads the same way.
+TABLES = ("v0", "v1")
+_DATA = Path(__file__).parent / "data"
 # The table's cambered block is built at this camber position (NACA p).
 CAMBER_POSITION = 0.4
 
 
-@functools.lru_cache(maxsize=1)
-def _table() -> dict:
-    with np.load(_TABLE_PATH) as raw:
+@functools.lru_cache(maxsize=len(TABLES))
+def _table(table: str = "v0") -> dict:
+    if table not in TABLES:
+        raise ValueError(f"section table {table!r} not in {TABLES}")
+    with np.load(_DATA / f"sections_{table}.npz") as raw:
         out = {k: np.asarray(raw[k], dtype=float) for k in raw.files if k != "meta"}
         out["meta"] = json.loads(str(raw["meta"]))
     out["log_re"] = np.log10(out["reynolds"])
     return out
 
 
-def table_meta() -> dict:
-    """Provenance of the shipped table (source, boundary-layer state, build date)."""
-    return dict(_table()["meta"])
+def table_meta(table: str = "v0") -> dict:
+    """Provenance of a shipped table (source, boundary-layer state, build date;
+    for v1 also the RANS nodes and the fitted corrections)."""
+    return dict(_table(table)["meta"])
 
 
 def _bracket(grid: np.ndarray, x: float) -> tuple[int, float, bool]:
@@ -151,9 +166,10 @@ class SectionPolar:
         return float(self.cd.min())
 
 
-@functools.lru_cache(maxsize=4096)
-def _polar(family: FoilFamily, tc_key: int, re_key: int, camber_key: int) -> SectionPolar:
-    t = _table()
+@functools.lru_cache(maxsize=8192)
+def _polar(family: FoilFamily, tc_key: int, re_key: int, camber_key: int,
+           table: str = "v0") -> SectionPolar:
+    t = _table(table)
     tc, log_re, camber = tc_key * 1e-4, re_key * 1e-3, camber_key * 1e-4
     b_re = _bracket(t["log_re"], log_re)
     if family is FoilFamily.CAMBERED and camber > 0.0:
@@ -169,8 +185,8 @@ def _polar(family: FoilFamily, tc_key: int, re_key: int, camber_key: int) -> Sec
 
 
 def polar(family: FoilFamily, thickness_ratio: float, reynolds: float,
-          camber_ratio: float = 0.0) -> SectionPolar:
-    """Section polar of one of fingen's foil families.
+          camber_ratio: float = 0.0, table: str = "v0") -> SectionPolar:
+    """Section polar of one of fingen's foil families, from the shipped `table`.
 
     `camber_ratio` is read for FoilFamily.CAMBERED only (camber at 40 % chord; a
     cambered foil with zero camber is the symmetric one). A FLAT_INSIDE foil's
@@ -180,13 +196,14 @@ def polar(family: FoilFamily, thickness_ratio: float, reynolds: float,
         raise ValueError(f"reynolds {reynolds} must be positive")
     camber = camber_ratio if family is FoilFamily.CAMBERED else 0.0
     return _polar(family, round(thickness_ratio * 1e4), round(math.log10(reynolds) * 1e3),
-                  round(camber * 1e4))
+                  round(camber * 1e4), table)
 
 
-def for_station(fin: FinParams, speed: float, chord_mm: float, z_frac: float) -> SectionPolar:
+def for_station(fin: FinParams, speed: float, chord_mm: float, z_frac: float,
+                table: str = "v0") -> SectionPolar:
     """The section a blade presents at span fraction `z_frac`, where its chord is
     `chord_mm`, at board speed `speed` [m/s]: local thickness from the spanwise
     schedule, Reynolds number on the local chord."""
     f = fin.foil
     tc = f.thickness_ratio * (1.0 + (fin.thickness_tip_factor - 1.0) * z_frac)
-    return polar(f.family, tc, speed * chord_mm * 1e-3 / NU_SEAWATER, f.camber_ratio)
+    return polar(f.family, tc, speed * chord_mm * 1e-3 / NU_SEAWATER, f.camber_ratio, table)

@@ -20,11 +20,11 @@ Three sections of `../thin-cambered/` and `../results.json` again, same driver a
 
 ## Reading
 
-- **The wall-function recipe ends the attached range about a degree early at negative incidence.** At chord/160 all three sections read 26–43 % more drag at −3.5° than on the resolved wall and agree with it at 0°. The t/c 0.092 section, attached to −6° on the resolved wall, has let go by −4.5°.
-- **It is the wall treatment, not the cell size.** With wall functions the rise from 0° to −3.5° is +39 % at chord/160, +63 % at chord/320 and +33 % at chord/640; on the resolved wall it is +9 %. (The two finer wall-function meshes have their first cell in the buffer layer, y+ 5–90, and under-read friction by 14–29 %; their absolute values mean little.)
-- **The coarse surface costs lift and adds drag under load.** At +4°, chord/160 reads 10–17 % less lift and 20–25 % more drag. This part does go away with finer cells.
+- **At the cell size level 2 gives a fin's base, the attached range ends about a degree early at negative incidence.** At chord/160 all three sections read 26–43 % more drag at −3.5° than on the resolved wall and agree with it at 0°. The t/c 0.092 section, attached to −6° on the resolved wall, has let go by −4.5°.
+- **The same cells cost lift and add drag under load.** At +4°, chord/160 reads 10–17 % less lift and 20–25 % more drag; at chord/640 the lift is back within 1.5 %.
+- **The two finer wall-function rows do not separate cell size from wall treatment.** Their first cell sits in the buffer layer (y+ 5–90) and they under-read friction by 14–29 %; wall functions are not valid there. I first read their persisting rise at −3.5° as "the wall treatment, not the cell size". The 3-D run on a finer surface with the first cell in the log layer (`bench/cambered-candidate/mesh-level-5/`) says otherwise: there one refinement removes most of the excess (6.9 → 5.4 N at −3.5° on the 3 % camber fin).
 - **Chord/80 is too coarse to use.** Its lift is wrong by up to 0.2 at every angle, which the 3-D polars do not show; the 2-D slab at that resolution is not a fair stand-in for the 3-D mesh.
 
-This is the weakness `docs/CFD-BENCH.md` records for maximum lift — wall functions cannot hold a suction peak — at the other end of the attached range: at negative incidence the peak sits on the inside of the nose. Level-2 and level-3 polars of cambered fins read high below about −3° of own incidence and are not a referee for their drag going straight.
+So: level-2 and level-3 polars of cambered fins read high below about −3° of own incidence, because the nose is under-resolved there, and are not a referee for drag going straight. Mesh level 5 (`finGenerator-cfd`, level 2 with one more surface refinement) is.
 
 Driver options added for this check: a section may carry its own `wall` and `surface_level` (`finGenerator-cfd/scripts/section_polar.py`).

@@ -659,7 +659,8 @@ at 9.9 N (`bench/cambered-candidate/`). The first referee section (3 % camber
 at t/c 0.092) sided with the table, so the gap was left as "the fin or the
 mesh". The thin sections that were queued to test the physical explanation
 have run, and with them three further checks. The gap has two causes, one in
-the model and one in the CFD, and the model's is the larger for the candidate.
+the model's section table and one in the CFD mesh, and the table's is the
+larger for the candidate.
 
 ### 1. The table draws the attached range of a thin cambered section too wide
 
@@ -726,16 +727,18 @@ per fin going straight (5.4 against 4.6); with the referee sections it costs
 2.5 N (8.0 against 5.5). Camber for hold against drag at the fixed toe is a
 real tradeoff, and table v0 hid most of it.
 
-### 3. The rest of the gap is the wall-function mesh, and the bench record had said so
+### 3. The rest of the gap is the level-2 mesh at the nose
 
 With referee sections the model still reads less than the level-2 CFD at
 negative incidence: 4.9 against 6.9 N on the 3 % camber blade at −3.5°, where
 every section of that blade is attached in 2-D. The level-3 run (prism layers
-added) had not removed that. `bench/section-tables/mesh-recipe/` puts the
-question to the 2-D driver instead: the same three sections on the 3-D
-recipe — wall functions, no layers, surface cells of chord/160 (what level 2
-gives a section at the fin's base) and coarser and finer — beside the
-resolved-wall runs. Ratio to the resolved-wall value in brackets:
+added, same surface cells) had not removed that. Two checks, and the second
+corrected my reading of the first.
+
+**The same sections in 2-D on the 3-D recipe** (`bench/section-tables/mesh-recipe/`):
+wall functions, no layers, surface cells of chord/160 — what level 2 gives a
+section at the fin's base — and coarser and finer, beside the resolved-wall
+runs. Ratio to the resolved-wall value in brackets:
 
 | section | wall, surface cell | cd at −4.5° | cd at −3.5° | cd at −2.5° | cd at 0° | cd at +4° | cl at −3.5° / 0° / +4° |
 |---|---|---|---|---|---|---|---|
@@ -753,38 +756,50 @@ resolved-wall runs. Ratio to the resolved-wall value in brackets:
 
 \* not settled within 3000 iterations. Lift is in the last column.
 
-- **On the 3-D recipe the lower end of the attached range arrives about a
-  degree early.** At chord/160 — the cells level 2 puts on a section at the
-  fin's base — all three sections read 26–43 % more drag at −3.5° than on the
-  resolved wall and agree with it at 0° (the 4.5 % camber section is already
-  21 % up at −2.5°). The t/c 0.092 section, attached to −6° on the resolved
-  wall, has let go by −4.5°.
-- **It is the wall treatment, not the cell size.** With wall functions the
-  rise from 0° to −3.5° is there at every resolution: +39 % at chord/160,
-  +63 % at chord/320, +33 % at chord/640, against +9 % on the resolved wall.
-  (The two finer wall-function meshes put the first cell in the buffer layer,
-  y+ 5–90, and under-read the friction by 14–29 %, so their absolute values
-  mean little. They are in the table for the rise.)
-- **The coarse surface costs lift and adds drag under load**: at +4° the
-  chord/160 runs read 10–17 % less lift and 20–25 % more drag than the
-  resolved wall. Unlike the early lower end this does go away with finer
-  cells (lift within 1.5 % at chord/640 with wall functions).
-- **Chord/80 is too coarse to say anything.** At the cell size level 2 gives
-  the outer blade, the 2-D section's lift is wrong by up to 0.2 at every
-  angle, which none of the 3-D polars show (their lift matches the lattice
-  within 0.01–0.03). The 2-D slab at that resolution is not a fair stand-in
-  for the 3-D mesh and is left out of the reading.
+At chord/160 all three sections read 26–43 % more drag at −3.5° than on the
+resolved wall and agree with it at 0°; the t/c 0.092 section, attached to −6°
+on the resolved wall, has let go by −4.5°. So the level-2 recipe ends the
+attached range about a degree early at negative incidence. At +4° the same
+cells cost 10–17 % of the lift and add 20–25 % drag. (Chord/80 gets the lift
+wrong by up to 0.2 at every angle, which no 3-D polar shows; the 2-D slab at
+that resolution is not a fair stand-in and is left out.)
 
-This is the weakness `docs/CFD-BENCH.md` already records for maximum lift —
-wall functions cannot hold a suction peak — seen from the other side: at
-negative incidence the peak sits on the inside of the nose, and its collapse
-is the lower end of the attached range. On the 3 % camber blade at −3.5° the
-3-D profile drag coefficient is 0.019–0.021; resolved-wall sections give
-0.0137–0.0139 and the same sections with wall functions 0.0172–0.0177. So
-the wall treatment accounts for half to two thirds of what was left of the
-gap, at the resolution of the base section alone. The level-2 and level-3
-polars of cambered fins read high below about −3° and are not a referee for
-their drag going straight.
+The two finer wall-function meshes kept the early rise, and I read that as
+"the wall treatment, not the cell size". That reading was wrong, and the
+table shows why it could not carry it: at chord/320 and chord/640 the first
+cell sits in the buffer layer (y+ 5–90), the friction is under-read by
+14–29 %, and wall functions are not valid there. Refining the 2-D mesh
+changed two things at once.
+
+**The fin itself on a finer surface** (`bench/cambered-candidate/mesh-level-5/`;
+mesh level 5 = level 2 with one more surface refinement, cells of base/320,
+547 000 cells, still wall functions; at 8.5 m/s the first cell stays in the
+log layer, y+ 12–162, mean 74):
+
+| own incidence ° | level 2 N | level 3 N | level 5 N | model, table v0 N | model, RANS sections N |
+|---|---|---|---|---|---|
+| −4.5 | 8.8 | 9.9 | 7.0 † | 4.9 | 6.3 |
+| −3.5 | 6.9 | 7.7 | 5.4 † | 4.5 | 4.9 |
+| 0 | 5.8 | 6.0 | 5.6 | 5.4 | 5.6 |
+| +4 | 10.2 | – | 11.0 (C_L 0.461 against 0.410) | 9.9 | 10.1 |
+
+† at the 800-iteration cap: the flow is at the edge of its attached range
+and does not settle.
+
+One refinement of the surface takes 1.5–1.8 N off the level-2 polar at the
+negative angles and leaves 0° where it was. What remains between the 3-D
+polar and the model with referee sections is 0.5 N at −3.5° and 0.7 N at
+−4.5°, on runs that do not settle. So:
+
+- **The level-2 surface is too coarse at the nose of a cambered blade run
+  below its zero-lift angle.** The frozen recipe was converged on a symmetric
+  fin at +6° (`docs/CFD-BENCH.md`), level 3 against level 2, which share
+  their surface cells; that ladder could not see this.
+- **Level-2 and level-3 polars of cambered fins read high below about −3°**
+  and are not a referee for their drag going straight. Level 5 is, to about
+  half a newton per fin, and it agrees with the lattice on referee sections.
+- At +4° level 5 carries 12 % more lift than level 2 (0.461 against 0.410;
+  the lattice has 0.43), which is the lift the coarse nose was losing.
 
 ### 4. What the search does with referee sections
 
@@ -852,9 +867,10 @@ Changed:
   6 N going straight by the model with referee sections, not 4.5–5.4 N. The
   flat inside face still costs 13–15 N by model and CFD alike.
 - Level-2 and level-3 polars are no referee for a cambered fin's drag below
-  about −3° of own incidence. Their lift, and their drag from 0° up to the
-  knee, stay as they were (with the wall-function caveats of
-  `docs/CFD-BENCH.md`).
+  about −3° of own incidence; mesh level 5 (one more surface refinement) is
+  the recipe for that question. Their drag from 0° up to the knee stays as
+  it was (with the wall-function caveats of `docs/CFD-BENCH.md`); their lift
+  under load is a few percent low.
 - No cap or gate was added. The scoring is unchanged; the section data are
   what was wrong, and they are being replaced by the referee's.
 
@@ -881,10 +897,10 @@ Open:
   nose is shaped for. Where the camber sits along the chord and how the nose
   is shaped decide how much of that a section tolerates; both are fixed in
   the cambered family (maximum camber at 40 % chord) and in the table.
-- **No 3-D referee for cambered trim drag.** The resolved-wall 3-D recipe
-  still diverges (parked). For a blade near zero lift the strips are nearly
-  independent, so resolved sections through the lattice are the best
-  available reading; the tip and the base junction are not in it.
+- **The 3-D referee for cambered trim drag is one fin at three angles so
+  far.** Level 5 on the candidate and on the flat-inside fin is running. The
+  resolved-wall 3-D recipe still diverges (parked), so level 5 keeps its
+  wall functions and their softness at a suction peak.
 
 ## What a fast method cannot do — the rest
 

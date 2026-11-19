@@ -21,6 +21,13 @@ def _fin(name: str) -> FinParams:
     return fin_from_dict(json.loads((BENCH / name).read_text())["fin"])
 
 
+def _candidate() -> FinParams:
+    """bench/cambered-candidate: 4.3 % camber on t/c 0.074, the first camber-free winner."""
+    raw = json.loads((BENCH.parents[1]
+                      / "cambered-candidate/fins/side-cambered-candidate.json").read_text())
+    return fin_from_dict(raw.get("fin", raw))
+
+
 def _cambered(fin: FinParams) -> FinParams:
     return dataclasses.replace(fin, foil=dataclasses.replace(
         fin.foil, family=FoilFamily.CAMBERED, camber_ratio=0.03, camber_position=0.4))
@@ -33,7 +40,8 @@ def _rider(**kw) -> RiderSpec:
 
 def test_tier0_stays_the_default_and_unknown_models_are_refused():
     assert _rider().hydro_model == "tier0"
-    assert spider.HYDRO_MODELS == ("tier0", "lattice")
+    assert spider.HYDRO_MODELS == ("tier0", "lattice", "lattice-v1")
+    assert spider.SECTION_TABLE == {"lattice": "v0", "lattice-v1": "v1"}
     with pytest.raises(ValueError):
         _rider(hydro_model="cfd")
     with pytest.raises(ValueError):
@@ -104,3 +112,33 @@ def test_symmetric_centre_reads_similarly_under_both_models():
     assert lat == pytest.approx(t0, rel=0.35)       # no camber, no toe: little to disagree on
     scores = spider.normalized_scores(centre, SPEED, 60.0, model="lattice")
     assert all(0.0 <= v <= 100.0 for v in scores.values())
+
+
+def test_section_table_v1_prices_a_thin_cambered_blade_on_the_edge_of_its_range():
+    # bench/cambered-candidate: 4.3 % camber on t/c 0.074. Going straight at the 3.5 deg
+    # toe it works at -2.5..-4.5 deg; resolved-wall RANS has thin cambered sections leave
+    # their attached range between -3.5 and -4.5 deg, table v0 a degree later
+    # (docs/MODEL-EXTENSION.md, "The cambered candidate was a second exploit").
+    cand = _candidate()
+    v0 = bladehydro.trim_drag_n(cand, SPEED, 3.5)
+    v1 = bladehydro.trim_drag_n(cand, SPEED, 3.5, "v1")
+    assert v0 == pytest.approx(5.4, abs=0.3)
+    assert 6.5 < v1 < 9.0
+    # the thicker 3 % blade keeps most of its range and moves by under a newton
+    twin = _cambered(_fin("side-shipped-gen2.json"))
+    assert 0.3 < (bladehydro.trim_drag_n(twin, SPEED, 3.5, "v1")
+                  - bladehydro.trim_drag_n(twin, SPEED, 3.5)) < 1.3
+    # lift is the same blade: within 0.02 in CL across the working range
+    for a in (-3.5, 0.0, 4.0):
+        assert bladehydro.point(cand, SPEED, a, "v1")[0].cl == pytest.approx(
+            bladehydro.point(cand, SPEED, a)[0].cl, abs=0.02)
+
+
+def test_evaluate_reads_the_table_its_model_names():
+    cand = _candidate()
+    e0 = evaluate(cand, _rider(hydro_model="lattice", scoring="frontier"))
+    e1 = evaluate(cand, _rider(hydro_model="lattice-v1", scoring="frontier"))
+    assert e0.margins["trim_drag_n"] == pytest.approx(bladehydro.trim_drag_n(cand, SPEED, 3.5))
+    assert e1.margins["trim_drag_n"] == pytest.approx(
+        bladehydro.trim_drag_n(cand, SPEED, 3.5, "v1"))
+    assert e1.margins["trim_drag_n"] > e0.margins["trim_drag_n"] + 1.0

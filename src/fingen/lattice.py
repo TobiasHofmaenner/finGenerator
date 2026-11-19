@@ -380,10 +380,12 @@ class ViscousSolution:
     decamber: np.ndarray        # (all strips,) converged offsets, rad — a warm start
 
 
-def strip_sections(fin: FinParams, blade: Blade, speed: float) -> list[SectionPolar]:
+def strip_sections(fin: FinParams, blade: Blade, speed: float,
+                   table: str = "v0") -> list[SectionPolar]:
     """The section polar of every strip of `blade`: local thickness from the
-    spanwise schedule, Reynolds number on the local chord at `speed`."""
-    return [sections.for_station(fin, speed, c * 1e3, z / blade.depth)
+    spanwise schedule, Reynolds number on the local chord at `speed`, read from
+    the shipped section `table` (sections.TABLES)."""
+    return [sections.for_station(fin, speed, c * 1e3, z / blade.depth, table)
             for z, c in zip(blade.z_mid, blade.chord, strict=True)]
 
 
@@ -501,12 +503,12 @@ def solve_viscous(blades: list[Blade], polars: dict[str, list[SectionPolar]], sp
                            decamber=delta)
 
 
-def viscous_polar(fin: FinParams, speed: float, angles_deg, *, nz: int = 12,
-                  nx: int = 3) -> list[tuple[float, ViscousLoads, bool]]:
+def viscous_polar(fin: FinParams, speed: float, angles_deg, *, nz: int = 12, nx: int = 3,
+                  table: str = "v0") -> list[tuple[float, ViscousLoads, bool]]:
     """Polar of one blade alone on the mirror: (angle, loads, converged) per angle,
     each angle warm-started from the one before."""
     b = blade_from_fin("blade", fin, nz=nz, nx=nx)
-    pol = {"blade": strip_sections(fin, b, speed)}
+    pol = {"blade": strip_sections(fin, b, speed, table)}
     rows, warm = [], None
     for a in angles_deg:
         sol = solve_viscous([b], pol, speed, float(a), decamber0=warm)

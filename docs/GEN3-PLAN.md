@@ -154,9 +154,13 @@ else. The phases below keep their content; this is the sequence.
      second exploit"): two causes. (1) Table v0 draws the attached range of
      thin cambered sections too wide; with the referee's sections through
      the lattice (`scripts/rans_fed_lattice.py`) the candidate costs 8.0 N
-     and is withdrawn. (2) Wall-function 3-D polars read cambered fins high
-     below about −3° (`bench/section-tables/mesh-recipe/`): the same
-     sections in 2-D on the 3-D recipe show +26–43 % at −3.5°. A search with
+     and is withdrawn. (2) Level-2 and level-3 polars read cambered fins high
+     below about −3°: the nose is under-resolved. In 2-D on the same cells
+     the sections show +26–43 % at −3.5° (`bench/section-tables/mesh-recipe/`);
+     on mesh level 5 (one more surface refinement) the 3 % camber fin drops
+     from 6.9 to 5.4 N at −3.5°, within 0.5 N of the lattice with referee
+     sections (`bench/cambered-candidate/mesh-level-5/`). Level 5 is the
+     recipe for a cambered fin's drag going straight. A search with
      referee sections goes to ~11 800 mm², depth 121, camber 2.3–2.6 %,
      6.1 N — outside the referee's nodes and pinned to its −3.5° sample, so
      it names the sections to run, not a fin. No cambered fin is exported
