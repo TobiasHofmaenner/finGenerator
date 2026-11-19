@@ -101,6 +101,23 @@ and cant ±1° and see how much the per-fin split actually moves. If interferenc
 is insensitive at that scale, cheap photos are plenty; if it is sensitive, the
 jig has to be good — and we will know *before* building it.
 
+**Result (set CFD, 2026-11-13, `bench/mount/`):** 12 cases × 4 leeways on the
+shipped gen-2 sides + ridden gen-1 centre, mesh level 2, 8.5 m/s. Across the
+whole production envelope (toe 2.5–4.5°, cant 6–10°, side offset ±15 mm, side
+station ±25 mm) the set side force moves ≤ 7 %, the centre's share ≤ 3 pp, and
+cant does nothing measurable. Toe is the only mount parameter with a real effect
+and it acts at trim and small leeway: ±1° toe is ±20 % fin drag going straight
+and a 19 pp front-fin asymmetry at 5° leeway; the forces at 10–20° are
+untouched. The side offset is the one parameter that reaches the centre (+12 %
+centre force over 30 mm, less shielding). Blade geometry is an order of
+magnitude bigger: swapping the side blade moves the set force 20 %, 22 mm of
+centre depth moves the centre force 25–33 %. So for thrusters within the
+production envelope the board model is **not needed**. What the study yields is
+a design rule, not a measurement: toe should equal the side foil's zero-lift
+angle (3.65° measured in the set vs 3.50° from the isolated polar for the gen-2
+foil; the gen-1 foil wanted 4.7° and ran off-trim at 3.5°). Quads remain the
+open case ([Falk20]: rear-fin spacing matters there).
+
 ## Jig design sketch
 
 - **Mates like a fin**: the existing `fingen.tabs` geometry (CLICK_TAB / DUAL_TAB
@@ -139,8 +156,9 @@ jig has to be good — and we will know *before* building it.
 - **Not all riders will do this.** The defaults must stay a sane fallback, and
   any result computed from defaults must be *labelled* as generic — never
   silently presented as being about the rider's board.
-- **Is it worth it?** Gated on the sensitivity study above. If ±0.5° toe barely
-  moves the per-fin split, this is a beautiful solution to a non-problem.
+- **Is it worth it?** Answered 2026-11-13 by the study above: for thrusters,
+  no — ±1° toe barely moves the per-fin split in a turn. Keep the idea for
+  quads, and for any board that turns out to be glassed far off 3.5°/8°.
 
 ## Why it is attractive beyond the physics
 

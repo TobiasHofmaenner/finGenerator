@@ -1,0 +1,26 @@
+{
+  "speed": 8.5,
+  "angles": [0, 5, 10, 20],
+  "mesh_level": 2,
+  "end_time": 1500,
+  "side": "fins/side-shipped-gen2.json",
+  "center": "fins/centre-ridden-gen1.json",
+  "toe": 3.5,
+  "cant": 8.0,
+  "side_x": -195.0,
+  "side_y": 118.0,
+  "cases": [
+    {"name": "baseline"},
+    {"name": "toe-2.5", "toe": 2.5},
+    {"name": "toe-4.5", "toe": 4.5},
+    {"name": "cant-6", "cant": 6.0},
+    {"name": "cant-10", "cant": 10.0},
+    {"name": "sidey-103", "side_y": 103.0},
+    {"name": "sidey-133", "side_y": 133.0},
+    {"name": "sidex-170", "side_x": -170.0},
+    {"name": "sidex-220", "side_x": -220.0},
+    {"name": "G1-side-asridden-gen1", "side": "fins/side-asridden-gen1.json"},
+    {"name": "G2-centre-depth131", "center_patch": {"outline": {"depth": 131.0}}},
+    {"name": "G3-centre-depth131-tc09", "center_patch": {"outline": {"depth": 131.0}, "foil": {"thickness_ratio": 0.09}}}
+  ]
+}
