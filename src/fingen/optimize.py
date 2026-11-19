@@ -48,7 +48,7 @@ from pathlib import Path
 
 import numpy as np
 
-from fingen import generation, spider
+from fingen import bladehydro, generation, spider
 from fingen.flex import FlexReport, flex_report
 from fingen.hydro import (
     CAMBER_CREDIT_TC,
@@ -290,10 +290,19 @@ class RiderSpec:
     peak_margin_min_deg: float | None = None
     spider_targets: dict[str, float] | None = None
     practical_corridor: bool = True
+    # Which hydrodynamics score the blade (spider.HYDRO_MODELS). "tier0" is the
+    # closed-form model every shipped result was scored with. "lattice" takes
+    # the lift curve, the centre of pressure and the drag from the viscous
+    # lattice and the section table (bladehydro.py): the blade is read as
+    # mounted, so a flat inside face pays for its toe angle and a cambered one
+    # does not. Opt-in until a before/after on every rider spec is accepted.
+    hydro_model: str = "tier0"
 
     def __post_init__(self) -> None:
         if not 30.0 <= self.weight_kg <= 160.0:
             raise ValueError(f"weight_kg {self.weight_kg} outside 30-160 kg")
+        if self.hydro_model not in spider.HYDRO_MODELS:
+            raise ValueError(f"hydro_model {self.hydro_model!r} not in {spider.HYDRO_MODELS}")
         if self.spider_targets is not None:
             unknown = set(self.spider_targets) - set(spider.AXES)
             if unknown:
@@ -413,8 +422,8 @@ def interference_factor(config: FinConfig, alpha_deg: float) -> float:
 
 
 @functools.lru_cache(maxsize=64)
-def _fleet_raw(speed_key: float, weight_key: float, peak_key: float
-               ) -> tuple[tuple[tuple[str, float], ...], ...]:
+def _fleet_raw(speed_key: float, weight_key: float, peak_key: float,
+               model: str = "tier0") -> tuple[tuple[tuple[str, float], ...], ...]:
     """Reference-fleet raw axis values at `speed_key`/`weight_key`, cached (the
     fleet is fixed; recomputing six fins' raw scores every evaluate would blow
     the budget). Keyed on weight too because the drive/forgiveness working point
@@ -425,7 +434,7 @@ def _fleet_raw(speed_key: float, weight_key: float, peak_key: float
     tuples."""
     fleet = spider.reference_fleet()
     return tuple(tuple(sorted(spider.raw_scores(f, speed_key, weight_key,
-                                               peak_key).items()))
+                                               peak_key, model=model).items()))
                  for f in fleet.values())
 
 
@@ -518,6 +527,10 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     # foil and for flat-inside foils up to CAMBER_CREDIT_TC).
     a_break = break_alpha_deg(fin, ar_eff)
     a_zero = zero_lift_alpha_deg(fin)   # < 0 when cambered; see hydro
+    if rider.hydro_model == "lattice":
+        # Lift curve of the blade's own planform, tip thickness and section,
+        # on a real board (bladehydro). The break angle stays the heuristic.
+        slope, a_zero, _ = bladehydro.lift_curve(fin, speed)
     q = 0.5 * RHO_SEAWATER * speed**2
     f_capacity = q * area * 1e-6 * slope * math.radians(a_break - a_zero)
     # The angle a PEAK TURN demands, uncapped, and the margin left to the break.
@@ -665,7 +678,8 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     # lift-magnitude axes. work_force_n scales the drive/forgiveness working
     # point with rider weight (spider.raw_scores takes it), so a light rider's
     # drive is read at a lighter force budget than an adult's.
-    raw = spider.raw_scores(fin, speed, rider.weight_kg, sheet.force_peak_n)
+    raw = spider.raw_scores(fin, speed, rider.weight_kg, sheet.force_peak_n,
+                            model=rider.hydro_model)
     cl_work = min(spider.work_force_n(rider.weight_kg) / (q * area * 1e-6),
                   0.95 * slope * math.radians(a_break - a_zero))
     alpha_work = math.degrees(cl_work / slope) + a_zero
@@ -701,7 +715,8 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
 
     predicted = _normalize(raw, _fleet_raw(round(speed, 2),
                                            round(rider.weight_kg, 2),
-                                           round(sheet.force_peak_n, 2)))
+                                           round(sheet.force_peak_n, 2),
+                                           rider.hydro_model))
     # Scored against the PEAK TURN demand, not the sustained requirement (see
     # spider.raw_scores). `req` still drives the capacity GATE above — that is
     # a different question: "can it cruise at all" vs "can it hold a turn".

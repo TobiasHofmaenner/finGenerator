@@ -121,9 +121,15 @@ else. The phases below keep their content; this is the sequence.
      of CFD; lift 20 % above the tunnel by a constant factor; no knee.
    - `[x]` Grooves: FEM check folded into `flex.py` (GROOVE_NOTCH_K = 0.60,
      GROOVE_STRESS_KT = 1.20; three anchors within 3 %).
-   - `[ ]` Swap it into `evaluate`: lift slope and CP (pivot arm), interference
-     in place of the Falk table, load shape for the flex model, roll damping
-     by a rate boundary condition; before/after on every rider spec.
+   - `[~]` Swap it into `evaluate`: DONE behind `RiderSpec.hydro_model`
+     (`"tier0"` default, `"lattice"` opt-in; `bladehydro.py`): lift slope,
+     zero-lift angle, CP, trim drag as mounted, drag at the working load.
+     Before/after on every archived winner: `scripts/hydro_model_compare.py`.
+     Flat-inside sides cost ×3 going straight under the lattice model; a
+     re-search with only flat-inside foils dodges that by thinning — so the
+     default flips only after camber is searched and the goods are one-sided.
+     Still to swap: interference in place of the Falk table, load shape for
+     the flex model, roll damping by a rate boundary condition.
    - `[ ]` Camber as a searched parameter (D8), zero-lift angle tied to toe.
    - `[ ]` Fitted separation model for the knee; nonlinear step for stall order.
    - `[ ]` Discrepancy layer with uncertainty over physical features; the

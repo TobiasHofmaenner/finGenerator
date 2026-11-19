@@ -290,6 +290,41 @@ gentle start included (`finGenerator-cfd/scripts/polar_angles.py`). That
 recipe needs a continuation from low angle or mesh work; until then the tunnel
 data are the only truth past 12°.
 
+## The switch into the evaluation, and its first before/after (2026-11-19)
+
+`RiderSpec.hydro_model` selects which hydrodynamics score a blade: `"tier0"`
+(the default, unchanged) or `"lattice"` — lift slope, zero-lift angle, centre
+of pressure and drag from `bladehydro.py` (viscous lattice + section table,
+the blade toed in as mounted, board mirror strength 0.85 ≈ tier-0's reflection
+factor 1.7). The break angle, the structure, release and stability are tier-0's
+in both. Cost: 28 ms per fresh blade against 18 ms.
+
+`scripts/hydro_model_compare.py` scores every archived winner twice
+(`out/hydro-model-compare.md`). The pattern, in Newtons at 8.5 m/s:
+
+| blade | going straight, tier-0 → lattice | at the 93 N working load |
+|---|---|---|
+| gen-1 big-wave side (flat inside, 6611 mm²) | 3.8 → 11.5 | 6.4 → 7.7 |
+| all-round side (flat inside, 6730 mm²) | 3.7 → 10.7 | 6.5 → 7.1 |
+| small-wave side (flat inside, 7272 mm², t/c 0.063) | 3.7 → 9.9 | 7.2 → 6.8 |
+| shipped gen-2 side (flat inside, 9734 mm²) | 5.1 → 14.9 | 7.4 → 9.6 |
+| ridden centre (symmetric, 7673 mm²) | 3.7 → 3.2 | 7.7 → 6.6 |
+
+Every flat-inside side fin costs about three times what tier-0 thought going
+straight, and about the same under load; symmetric centres read slightly
+better. Peak margin drops 0.2–0.7° (the lattice zero-lift angle is smaller than
+thin-airfoil theory on the root section, because the tip is thinner): the
+shipped gen-2 side reads +1.27° against its 2° gate.
+
+A re-search of Omar's gen-2 spec under the lattice model (one seed, 6000
+evaluations — a look, not a design) moves to a low, wide, thin blade (depth
+114, area 11 750 mm², AR 1.1, t/c 0.054 with a 0.5 tip factor): with only the
+flat-inside family to choose from, the search dodges the flat-face penalty by
+thinning the camber away. That is the model saying the foil family is the
+missing parameter. The default therefore stays `"tier0"` until camber is
+searched and the scoring is one-sided; flipping it now would trade one
+artefact for another.
+
 ## The board as a mirror: lattice experiment (2026-11-19)
 
 `scripts/board_edge_probe.py`, tables in `out/board-edge-probe.md`. All our

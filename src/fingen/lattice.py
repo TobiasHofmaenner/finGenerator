@@ -225,13 +225,14 @@ class BladeLoads:
 
 
 def solve(blades: list[Blade], speed: float, leeway_deg: float, *,
-          mirror: bool = True) -> dict[str, BladeLoads]:
+          mirror: bool = True, mirror_strength: float = 1.0) -> dict[str, BladeLoads]:
     """Solve the placed blades together at one speed [m/s] and leeway [deg].
 
     The freestream is (cos β, sin β, 0); lift is counted along (−sin β, cos β, 0)
     and drag along the flow — the force-coefficient convention of the CFD cases
     (fincfd.setcase). A side blade whose outboard face is to leeward works WITH
-    its camber. mirror=False removes the board (a free blade, for checks)."""
+    its camber. mirror=False removes the board (a free blade, for checks);
+    `mirror_strength` < 1 weakens the image for a real board (BOARD_MIRROR)."""
     if not blades:
         raise ValueError("solve needs at least one blade")
     if speed <= 0.0:
@@ -249,8 +250,9 @@ def solve(blades: list[Blade], speed: float, leeway_deg: float, *,
         if mirror:
             # Image in z = 0 with the orientation reversed, so the circulation
             # runs continuously from the image tip through the root to the tip.
-            v = v + _horseshoe(P, (B * _MIRROR)[None], (A * _MIRROR)[None],
-                               (BTE * _MIRROR)[None], (ATE * _MIRROR)[None], d)
+            v = v + mirror_strength * _horseshoe(
+                P, (B * _MIRROR)[None], (A * _MIRROR)[None],
+                (BTE * _MIRROR)[None], (ATE * _MIRROR)[None], d)
         return v
 
     aic = (influence(CP) * N[:, None, :]).sum(-1)
@@ -386,8 +388,8 @@ def strip_sections(fin: FinParams, blade: Blade, speed: float) -> list[SectionPo
 
 
 def solve_viscous(blades: list[Blade], polars: dict[str, list[SectionPolar]], speed: float,
-                  leeway_deg: float, *, mirror: bool = True, relax: float = 0.5,
-                  tol: float = 2e-3, max_iter: int = 120,
+                  leeway_deg: float, *, mirror: bool = True, mirror_strength: float = 1.0,
+                  relax: float = 0.5, tol: float = 2e-3, max_iter: int = 120,
                   decamber0: np.ndarray | None = None) -> ViscousSolution:
     """`solve` with every strip following its section polar (see the block above).
 
@@ -415,8 +417,9 @@ def solve_viscous(blades: list[Blade], polars: dict[str, list[SectionPolar]], sp
         P = P[:, None, :]
         v = _horseshoe(P, A[None], B[None], ATE[None], BTE[None], d)
         if mirror:
-            v = v + _horseshoe(P, (B * _MIRROR)[None], (A * _MIRROR)[None],
-                               (BTE * _MIRROR)[None], (ATE * _MIRROR)[None], d)
+            v = v + mirror_strength * _horseshoe(
+                P, (B * _MIRROR)[None], (A * _MIRROR)[None],
+                (BTE * _MIRROR)[None], (ATE * _MIRROR)[None], d)
         return v
 
     aic_inv = np.linalg.inv((influence(CP) * N[:, None, :]).sum(-1))

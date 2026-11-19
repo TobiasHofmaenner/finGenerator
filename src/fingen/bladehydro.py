@@ -1,0 +1,113 @@
+"""One blade's hydrodynamics AS MOUNTED, from the viscous lattice.
+
+The generation-3 path for the lift curve and the drag of a blade
+(`RiderSpec.hydro_model = "lattice"`). Tier-0's closed forms (hydro.py,
+spider._cd0) stay the default until a before/after on every rider spec says
+otherwise; this module answers the same questions from `lattice.solve_viscous`
+and the section table:
+
+  lift_curve       slope and zero-lift angle of the blade's working range, and
+                   where its centre of pressure sits;
+  trim_drag_n      drag going straight, the blade toed in as it is mounted;
+  drag_at_force_n  drag while it makes a given side force.
+
+What changes against tier-0, and why it matters (docs/MODEL-EXTENSION.md):
+profile drag follows the section at the incidence each strip really works at,
+so a flat inside face at its toe angle costs what the CFD says it costs
+(13–15 N per gen-2 side going straight; tier-0 reads ~5 N), and a cambered
+foil does not; the lift slope and zero-lift angle carry the planform, the tip
+thickness and the section instead of a formula in four numbers.
+
+What does not change: the knee. The strip coupling has no three-dimensional
+separation onset, so the break angle stays tier-0's (hydro.break_alpha_deg)
+and every solve here is kept on the attached side of it.
+
+The board is not a perfect mirror. BOARD_MIRROR_STRENGTH weakens the image so
+the lift slope loses about 8–9 %, which is tier-0's reflection factor 1.7 and
+sits between the lattice's own estimates for a finite board under a free
+surface (scripts/board_edge_probe.py: centre fin ≈ 0.90, side fin ≈ 0.84).
+"""
+
+from __future__ import annotations
+
+import functools
+import math
+
+from fingen import lattice
+from fingen.hydro import RHO_SEAWATER
+from fingen.lattice import ViscousLoads
+from fingen.outline import metrics
+from fingen.params import FinParams
+
+BOARD_MIRROR_STRENGTH = 0.85
+# Lattice resolution inside the optimizer loop: 10 strips x 2 chordwise panels
+# is within ~1 % of the converged lift slope (tests/test_lattice.py).
+NZ, NX = 10, 2
+# Two own-incidences that bracket the working range of every blade and stay
+# clear of the zero-lift kink of a flat inside face.
+_LIN_LO_DEG, _LIN_HI_DEG = 2.0, 6.0
+TRIM_LEEWAY_DEG = 1.0
+
+
+@functools.lru_cache(maxsize=256)
+def _context(fin: FinParams, speed_key: int):
+    speed = speed_key * 1e-3
+    blade = lattice.blade_from_fin("blade", fin, nz=NZ, nx=NX)
+    return blade, {"blade": lattice.strip_sections(fin, blade, speed)}
+
+
+@functools.lru_cache(maxsize=4096)
+def _point(fin: FinParams, speed_key: int, alpha_key: int) -> tuple[ViscousLoads, bool]:
+    blade, polars = _context(fin, speed_key)
+    sol = lattice.solve_viscous([blade], polars, speed_key * 1e-3, alpha_key * 1e-3,
+                                mirror_strength=BOARD_MIRROR_STRENGTH)
+    return sol.loads["blade"], sol.converged
+
+
+def point(fin: FinParams, speed: float, alpha_deg: float) -> tuple[ViscousLoads, bool]:
+    """Loads on the blade alone at its OWN incidence `alpha_deg` (positive = flow
+    onto the flat inside face), and whether the strip iteration converged."""
+    return _point(fin, round(speed * 1e3), round(alpha_deg * 1e3))
+
+
+def lift_curve(fin: FinParams, speed: float) -> tuple[float, float, float]:
+    """(CL per radian, zero-lift angle in degrees, chordwise CP in mm from the
+    base centre, + aft) of the blade's working range.
+
+    The zero-lift angle is the working range extended down to zero lift — the
+    quantity a toe angle has to match — not the bent curve a flat-inside foil
+    actually follows there."""
+    lo, _ = point(fin, speed, _LIN_LO_DEG)
+    hi, _ = point(fin, speed, _LIN_HI_DEG)
+    slope_deg = (hi.cl - lo.cl) / (_LIN_HI_DEG - _LIN_LO_DEG)
+    if not math.isfinite(slope_deg) or slope_deg <= 0.0:
+        raise ValueError("lattice lift curve is not usable for this blade")
+    return math.degrees(slope_deg), _LIN_LO_DEG - lo.cl / slope_deg, hi.x_cp_m * 1e3
+
+
+def _q_area(fin: FinParams, speed: float) -> float:
+    return 0.5 * RHO_SEAWATER * speed**2 * metrics(fin.outline).area * 1e-6
+
+
+def trim_drag_n(fin: FinParams, speed: float, toe_deg: float) -> float:
+    """Drag in N of one blade going straight, toed in by `toe_deg`: the mean of
+    the two blades of a pair at the trim leeway, own incidences ±leeway − toe."""
+    qa = _q_area(fin, speed)
+    return 0.5 * qa * (point(fin, speed, TRIM_LEEWAY_DEG - toe_deg)[0].cd
+                       + point(fin, speed, -TRIM_LEEWAY_DEG - toe_deg)[0].cd)
+
+
+def drag_at_force_n(fin: FinParams, speed: float, force_n: float,
+                    alpha_max_deg: float) -> tuple[float, float]:
+    """(drag N, side force N actually made) with the blade making `force_n`, its
+    own incidence capped at `alpha_max_deg` (the caller's break angle, so the
+    strip model is never asked about separated flow)."""
+    qa = _q_area(fin, speed)
+    slope, a0, _ = lift_curve(fin, speed)
+    cl_req = force_n / qa
+    alpha = min(a0 + math.degrees(cl_req / slope), alpha_max_deg)
+    loads, _ = point(fin, speed, alpha)
+    if alpha < alpha_max_deg and abs(loads.cl - cl_req) > 0.02 * max(cl_req, 0.05):
+        alpha = min(alpha + math.degrees((cl_req - loads.cl) / slope), alpha_max_deg)
+        loads, _ = point(fin, speed, alpha)        # one secant step onto the target
+    return loads.cd * qa, loads.cl * qa

@@ -46,6 +46,7 @@ from __future__ import annotations
 import math
 from pathlib import Path
 
+from fingen import bladehydro
 from fingen.hydro import (
     RHO_SEAWATER,
     SPAN_EFFICIENCY,
@@ -147,6 +148,12 @@ def trim_drag_n(fin: FinParams, speed: float, toe_deg: float | None = None) -> f
 # range moves the arm by ~20 %, in the direction a shaper expects.
 YAW_ARM_REF_MM = 250.0
 
+# Which hydrodynamics score a blade. "tier0" = the closed forms of hydro.py
+# (the default, every shipped number); "lattice" = lift curve, centre of
+# pressure and drag from the viscous lattice and the section table
+# (bladehydro.py), with tier-0's break angle. See RiderSpec.hydro_model.
+HYDRO_MODELS = ("tier0", "lattice")
+
 # Requirement-relative hold saturation constant. hold_score = 100·r/(r+r_ref)
 # with r = f_max/F_req. r_ref is calibrated ONCE for backward compatibility: at
 # the committed 75 kg intermediate winner (out/before-after-2.json) the adult
@@ -202,7 +209,8 @@ def _cd0(fin: FinParams, speed: float) -> float:
 def raw_scores(fin: FinParams, speed: float = REF_SPEED,
                weight_kg: float = W_REF,
                peak_force_n: float | None = None,
-               toe_deg: float | None = None) -> dict[str, float]:
+               toe_deg: float | None = None,
+               model: str = "tier0") -> dict[str, float]:
     """Unnormalized physical values per axis (bigger = more of the quality).
 
     `weight_kg` sets the rider's working side force (`work_force_n`) that fixes
@@ -210,25 +218,34 @@ def raw_scores(fin: FinParams, speed: float = REF_SPEED,
     fleet-normalization basis and the viz path stay adult-calibrated. `hold`
     stays the raw maximum side force in N — `hold_score` turns it into the
     requirement-relative axis at scoring time."""
+    if model not in HYDRO_MODELS:
+        raise ValueError(f"hydro model {model!r} not in {HYDRO_MODELS}")
+    lattice_model = model == "lattice"
     m = metrics(fin.outline)
     area_m2 = m.area * 1e-6
     q = 0.5 * RHO_SEAWATER * speed**2
     slope, ar_eff = lift_curve_slope(fin)
     cd0 = _cd0(fin, speed)
+    toe = default_toe_deg(fin) if toe_deg is None else toe_deg
+    if lattice_model:
+        # Lift curve and CP of the blade's own planform, tip thickness and
+        # section (bladehydro); the break angle below stays tier-0's.
+        slope, a_zero_lat, x_cp_lat = bladehydro.lift_curve(fin, speed)
 
     # speed: inverse drag going straight in N, the blade read AS MOUNTED (a
     # toed side fin at its own incidence — trim_drag_n). Trim sits far below
     # the stall knee for every real fin, so the stall term is ~0 here and the
     # axis carries profile drag, the leeway-induced sliver and, for a side
     # blade, the toe/zero-lift mismatch.
-    drag_trim = trim_drag_n(fin, speed, toe_deg)
+    drag_trim = (bladehydro.trim_drag_n(fin, speed, toe) if lattice_model
+                 else trim_drag_n(fin, speed, toe_deg))
     # hold: max side force in N (linear to the break; the break is the
     # AR-dependent heuristic less the camber shift — hydro.break_alpha_deg)
     a_break = break_alpha_deg(fin, ar_eff)
     # alpha_0 < 0 for a cambered section, so (a_break - alpha_0) is the REAL
     # usable angular range: a side fin already pulls at zero geometric angle.
     # Ignoring it discarded ~35 % of a flat-inside blade's peak side force.
-    a_zero = zero_lift_alpha_deg(fin)
+    a_zero = a_zero_lat if lattice_model else zero_lift_alpha_deg(fin)
     f_max = q * area_m2 * slope * math.radians(a_break - a_zero)
     # drive: L/D delivering the rider's reference force (capped near the break
     # for fins too small to deliver it at all). CL_work CAN exceed the stall
@@ -236,8 +253,16 @@ def raw_scores(fin: FinParams, speed: float = REF_SPEED,
     # bites here — repricing small blades that must work hard.
     cl_work = min(work_force_n(weight_kg) / (q * area_m2),
                   0.95 * slope * math.radians(a_break - a_zero))
-    cdi_work = cl_work**2 / (math.pi * 0.9 * ar_eff)
-    ld_work = cl_work / (cd0 + cdi_work + stall_drag_cd(cl_work, slope, ar_eff))
+    if lattice_model:
+        # Drag from the strips at the incidence each really works at; the blade
+        # is kept on the attached side of the break (0.95 of the usable angle).
+        a_cap = a_zero + 0.95 * (a_break - a_zero)
+        drag_work, lift_work = bladehydro.drag_at_force_n(
+            fin, speed, cl_work * q * area_m2, a_cap)
+        ld_work = lift_work / max(drag_work, 1e-9)
+    else:
+        cdi_work = cl_work**2 / (math.pi * 0.9 * ar_eff)
+        ld_work = cl_work / (cd0 + cdi_work + stall_drag_cd(cl_work, slope, ar_eff))
     # pivot: inverse board-level yaw stiffness — signed arm from the board's
     # yaw centre to the blade's CP (YAW_ARM_REF_MM; +x is aft)
     z, x_le, chord = planform(fin.outline)
@@ -245,7 +270,8 @@ def raw_scores(fin: FinParams, speed: float = REF_SPEED,
 
     x_cp = float(np.trapezoid((x_le + 0.25 * chord) * chord, z)
                  / max(np.trapezoid(chord, z), 1e-9))
-    arm_m = max(YAW_ARM_REF_MM + (x_cp - fin.outline.base / 2.0), 1.0) * 1e-3
+    cp_aft_mm = x_cp_lat if lattice_model else x_cp - fin.outline.base / 2.0
+    arm_m = max(YAW_ARM_REF_MM + cp_aft_mm, 1.0) * 1e-3
     yaw_stiffness = q * area_m2 * slope * arm_m
     # release (PROXY): raked, tip-unloaded planforms shed load gradually
     release = 0.6 * (m.sweep / 50.0) + 0.4 * min(m.elliptic_deviation / 0.30, 1.0)
@@ -323,7 +349,7 @@ def reference_fleet() -> dict[str, FinParams]:
 
 
 def normalized_scores(fin: FinParams, speed: float = REF_SPEED,
-                      weight_kg: float = W_REF) -> dict[str, float]:
+                      weight_kg: float = W_REF, model: str = "tier0") -> dict[str, float]:
     """0–100 per axis. The five intensive axes are rank-scaled against the
     reference fleet (clipped; a genuinely out-of-fleet fin can pin at 0 or 100);
     `hold` is requirement-relative (`hold_score`) against the rider's F_req.
@@ -343,8 +369,9 @@ def normalized_scores(fin: FinParams, speed: float = REF_SPEED,
     # win is the SPREAD, which makes hold targets distinguishable.) The
     # saturation was never the constant; it was the denominator.
     f_peak = anchor(weight_kg, design_speed=speed).force_peak_n
-    fleet = [raw_scores(f, speed, weight_kg, f_peak) for f in reference_fleet().values()]
-    raw = raw_scores(fin, speed, weight_kg, f_peak)
+    fleet = [raw_scores(f, speed, weight_kg, f_peak, model=model)
+             for f in reference_fleet().values()]
+    raw = raw_scores(fin, speed, weight_kg, f_peak, model=model)
     f_req = f_peak
     import numpy as np
 
