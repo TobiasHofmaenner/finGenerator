@@ -155,8 +155,10 @@ else. The phases below keep their content; this is the sequence.
      AR_eff 2.5 and implies a maximum lift that dips 15 % at its kink. The
      kink is what makes an oversized fin a second optimum
      (`docs/MODEL-EXTENSION.md`, "The oversized fin"). `bench/paddle-probe/`
-     is the first polar in that range; calibrate the rule on it together with
-     the five polars at AR_eff 2.6–4.5.
+     is the first polar in that range and anchors the linear part there. The
+     referee for the knee itself is the [BW04] tunnel fin (lift still rising
+     at 24°) and the resolved-wall sections — NOT the steady 3-D polars, which
+     flatten past the knee.
    - `[ ]` Discrepancy layer with uncertainty over physical features; the
      verify queue feeds it (D10).
 5. `[~]` **C. Scoring rework** (Phase 1 below) — on top of the extended model,
@@ -172,11 +174,13 @@ else. The phases below keep their content; this is the sequence.
      (2° peak margin, 140 mm depth corridor, minimum base), so neutral and
      speed-first aspirations return the same fin. Only hold moves the design.
    - area is nearly free in the model (lean → oversized: +1.5 N per fin going
-     straight, half a noticeable step, for two steps of hold), and CFD backs
-     it (`bench/paddle-probe/`): the large fin tops out at 483 N where the
-     normal-sized ones reach 258–299 N, pays 30 N at 290 N where they pay
-     44–47 N, and costs half a step to one step more going straight. What
-     opposes area in the water is not in the model.
+     straight, half a noticeable step, for two steps of hold), and nothing
+     contradicts it: in CFD (`bench/paddle-probe/`) the large fin is still
+     linear at 12° (409 N), makes the 318 N peak force at 8° for 35 N, and
+     costs half a step to one step more going straight. (Its numbers past the
+     knee, like every fin's in steady RANS, are lower bounds and settle
+     nothing — the tunnel fin keeps lifting to 24°.) What opposes area in the
+     water is not in the model; release is the leading hypothesis, untested.
    Open, in this order: **hold as a requirement** at the speed floor of the
    design point instead of an open-ended good (needs D4); **drag at the peak
    force as a good** (item 1.3 — the one place the fins differ by felt

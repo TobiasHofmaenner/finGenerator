@@ -475,31 +475,45 @@ wall functions):
 | cambered candidate (4.3 %) | 10054 | 9.1 | 295 | 16 (last angle run) | 7.9 | 15.8 | 25.7 | 44.5 | — |
 | oversized fin (3.5 % camber) | 15433 | 10.6 | 485 | 24 (last angle run) | 9.3 | 17.0 | 24.2 | 30.0 | 35.1 |
 
-- **The hold is real.** The large fin makes the 318 N peak turn force at
-  about 8°, tops out at 483 N at 16° and holds that level through 24° (479
-  and 485 N). The model's figure for it is 516 N at 16.9°. The normal-sized
-  fins top out at 258–299 N where the model credits them with 332–362 N: the
-  rule is about right at low aspect ratio and 16–29 % generous at the aspect
-  ratio every shipped side fin has. In CFD terms the gap between the two
-  sizes is wider than the model says, not narrower.
-- **In a hard turn the large fin is the cheaper one.** Equal drag up to about
-  250 N; at 290 N it pays 30 N where the shipped flat-inside fin pays 47 N and
-  the cambered candidate 44 N. That is 14–17 N per fin, more than four
-  noticeable steps.
+What this polar can and cannot referee. Steady wall-function RANS flattens a
+fin's lift past the knee; the one measurement we have, the [BW04] tunnel fin
+(effective aspect ratio 2.6), does not flatten: C_L 0.775 at 12°, 0.96 at 18°,
+1.10 at 24° (`docs/CFD-BENCH.md`; "Viscous lattice" above). So every row past
+the knee of every fin in the table — the largest forces, the drag at 290 N of
+the normal-sized fins, the plateau of the large one — is a lower bound on lift
+and an upper bound on what the fin can still do. The first reading of this run
+ignored that and was corrected the same evening. What is left:
+
+- **The late break is real.** The large fin is still on the straight part of
+  its lift curve at 12° (409 N; 202 N at 4°, 312 N at 8°), where every
+  normal-sized fin has reached its knee. The model's figure for it, 516 N at
+  16.9°, is not contradicted: the CFD shows at least 483 N.
+- **The model's hold for the normal-sized fins is not contradicted either.**
+  CFD stops them at 258–299 N; the model says 332–362 N, a lift coefficient
+  of 0.96–0.98. The tunnel fin reaches 0.96 at 18° and keeps going. So the
+  ranking and the size of the gap — about 40 % more hold for half again the
+  area — stand on the model at both ends, checked by CFD at the large end and
+  by the tunnel at the normal end.
+- **It makes the peak turn force well inside its linear range**: 318 N at
+  about 8° for 35 N of drag. A normal-sized fin has to be at its knee to make
+  318 N. What that costs it cannot be settled with the tools at hand: about
+  36 N if it stays linear to 12° as the tunnel fin did, about 57 N with the
+  tunnel fin's own coefficients on its area, more in this CFD. So the large
+  fin is at least as cheap in the hard turn and possibly much cheaper.
 - **Going straight it costs more**, 10.6 N against 9.1 N (candidate) or 6.9 N
   (3 % camber on the shipped planform): 1.5–3.7 N per fin, half a step to one
   step. The model reads 6.6 N — the same gap between model and level-2 CFD
   as on every cambered fin at negative incidence, not yet attributed
   (`bench/cambered-candidate/`).
 - **Lift: the lattice is within 7 % up to 16°** (0.510 against 0.547 at 8°)
-  and has the zero-lift angle to 0.2°. Its drag falls behind as the angle
-  grows — 0.80 of CFD at 8°, 0.67 at 12° — because the strip model has no
-  drag rise toward the break.
+  and has the zero-lift angle to 0.2°. Its drag is 0.80–0.86 of CFD from 0°
+  to 8°.
 
-So the answer to "is it an exploit or is it correct" is: for a 318 N turn at
-8.5 m/s the large fin is correct on every quantity the model scores, and the
-CFD makes its case stronger. The second valley was real physics seen through
-a kinked rule and counted twice.
+So the answer to "is it an exploit or is it correct" is: nothing measured or
+computed contradicts it. For a 318 N turn at 8.5 m/s the large fin has more
+margin, no more drag in the turn, and costs half a step to a step going
+straight. The second valley was real physics seen through a kinked rule and
+counted twice.
 
 ### 4. What changed, and what did not
 
@@ -542,20 +556,21 @@ Not changed, on purpose:
 
 ### 5. What the model still cannot say
 
-The fast model and the CFD now agree that, for a 318 N peak turn at 8.5 m/s,
-more area buys real hold for a small price going straight. Riders do not ride
-side fins this large on a thruster, so something that opposes area is missing
-from the model. What this investigation leaves on the table:
+The model says that, for a 318 N peak turn at 8.5 m/s, more area buys real
+hold for a small price going straight, and neither the CFD nor the tunnel
+data contradict it. Riders do not ride side fins this large on a thruster, so
+something that opposes area is missing from the model — or from our picture of
+the load. What this investigation leaves on the table:
 
-1. **Release.** The snap needs the tail to let go on demand and take hold
-   again (plan, "the snap has three fin phases"; quads are "harder to release
-   … when attacking the lip"). The large fin does the opposite: its side force
-   climbs to 483 N at 16° and then stays there — 479 N at 20°, 485 N at 24° —
-   where the gen-1 side falls from its maximum between 12° and 16°. Nothing
-   in the model prices that: the release proxy is a planform heuristic, not
-   offered in gen 3, so the reserve is all gain and no cost. This is the most
-   likely missing counterweight, and it is a model term to build (plan 0.1b,
-   Phase 2 snap case), not a limit to impose.
+1. **Release — a hypothesis, not a finding.** The snap needs the tail to let
+   go on demand and take hold again (plan, "the snap has three fin phases";
+   quads are "harder to release … when attacking the lip"). Nothing in the
+   model prices that: the release proxy is a planform heuristic, not offered
+   in gen 3, so reserve is all gain and no cost. Whether a large fin releases
+   worse cannot be read from this polar: its plateau from 16° to 24° is
+   post-knee RANS, and the measured conventional fin does not let go inside
+   24° either. It needs the high-angle work of plan item 0.1b with a method
+   that can be trusted there, or the field.
 2. **Hold is a requirement, not a good without end.** A rider cannot use
    force beyond the hardest turn they make. The physical statement is "the
    fins hold my hardest turn down to my lowest speed": F_max falls with V²,
@@ -564,16 +579,19 @@ from the model. What this investigation leaves on the table:
    0.79 V). With the speed floor of the design point as an input (decision
    D4) hold becomes a floor the search must meet, and the surplus stops being
    something to pay for.
-3. **Drag at the peak force is where size is felt, and the model is blind
-   there.** The lattice path has no drag rise toward the break: it reads 27 N
-   at 318 N for the lean fins and 28–29 N for the large ones. CFD reads 35 N
-   for the large fin and puts the lean ones past their limit. Plan item 1.3
-   (drag at the peak force as a good) needs the separation model first.
+3. **Drag at the peak force: nobody can read it yet.** The lattice path has
+   no drag rise toward the break: 27 N at 318 N for the lean fins, 28–29 N
+   for the large ones. CFD gives 35 N for the large fin, on the straight part
+   of its curve; for the lean ones the answer lies between about 36 N and
+   "past the limit", depending on a knee that neither the model nor steady
+   RANS resolves. Plan item 1.3 (drag at the peak force as a good) needs the
+   separation model first, and that model needs the tunnel data and the
+   resolved-wall sections, not these polars, as its referee.
 4. **The peak force itself, and what the field says about size.** 318 N is
    bank angle 55° × the fins' share × the side fin's share. Two fins
-   bracket it loosely: the gen-1 side (CFD maximum 234 N at 8.5 m/s, model
-   hold 0.86) came with "feels sliding", the shipped gen-2 side (299 N, model
-   hold 1.09) with "control way better" — though part of the first complaint
+   bracket it loosely: the gen-1 side (model hold 0.86) came with "feels
+   sliding", the shipped gen-2 side (model hold 1.09) with "control way
+   better" — though part of the first complaint
    was later traced to the centre fin, so this is consistent with the hold
    scale, not a proof of it. The same step, +47 % area, was reported as "can
    feel some drag": the model reads +3.4 N per fin there, 5.5 % of board drag
