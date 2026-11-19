@@ -22,7 +22,16 @@ Lift coefficient, candidate: CFD −0.006 / +0.054 / +0.116 / +0.262 / +0.504 at
 - **Lift: the model is right.** Within 0.005 in CL from −4.5 to +4° on a fin it had never been compared with, zero-lift angle included.
 - **Drag at negative incidence: the model and this CFD disagree by 35–55 %.** Going straight at the production toe the candidate costs 9.1 N in the level-2 CFD and 5.1 N in the model; the 3 % camber fin 6.9 N against 4.5 N. The 3 % camber runs converged at these angles (155–405 iterations), so this is not solver noise. At 0…+4° the same fins agree within 2–15 %, and the flat-inside fin agrees within 6–14 % at the negative angles — the gap is specific to cambered blades run below their zero-lift angle.
 - **The section data are not the cause** (added the same evening, `bench/section-tables/`, `scripts/section_table_check.py`): resolved-wall 2-D RANS of the 3 % camber section at t/c 0.092 gives cd 0.0146 / 0.0137 / 0.0133 / 0.0130 at −4.5 / −3.5 / −2.5 / 0°, against the table's 0.0132 / 0.0125 / 0.0123 / 0.0125. Its low-drag range runs flat from −6° to +2°, as the table says. The 3-D fin's profile drag matches that at 0° (0.0133 after taking off the induced part) and is 40–60 % above it at −3.5 and −4.5° (0.0193, 0.0236).
-- **So the extra drag belongs to the fin or to the mesh, and it is not yet known which.** Either thin, small-chord sections toward the tip leave their low-drag range earlier than the one section tested (the candidate, on t/c 0.074, shows the largest gap), or the level-2 wall-function mesh, validated at positive angles only, mishandles the flow turning the thin leading edge onto the inside face. Two runs decide it: the same fin on the level-3 mesh at −4.5 / −3.5 / 0° (`~/bench-results/meshcheck`), and resolved-wall sections at t/c 0.07 with 2–4.5 % camber (`~/bench-results/gen3corner`).
+- **So the extra drag belongs to the fin or to the mesh, and it is not yet known which.** Either thin, small-chord sections toward the tip leave their low-drag range earlier than the one section tested (the shipped planform thins to t/c 0.072 at the tip; the candidate, on t/c 0.074 at the root, shows the largest gap), or the wall-function mesh, validated at positive angles only, mishandles the flow turning the thin leading edge onto the inside face.
+- **Adding prism layers does not remove it** (`mesh-level-3/`: the 3 % camber fin again, level 3 = level 2 plus four layers, same surface cells):
+
+| own incidence ° | level 2: C_L | drag N | level 3: C_L | drag N | lattice model N | 2-D section cd (resolved wall) |
+|---|---|---|---|---|---|---|
+| -4.5 | -0.089 | 8.8 | -0.102 | 9.9 | 4.9 | 0.0146 |
+| -3.5 | -0.030 | 6.9 | -0.043 | 7.7 | 4.5 | 0.0137 |
+| +0.0 | +0.166 | 5.8 | +0.164 | 6.0 | 5.4 | 0.0130 |
+
+  Level 3 reads 10–12 % more drag than level 2 at the negative angles and 4 % more at 0°, so the excess is not a missing-layer artefact. Both levels share their leading-edge resolution, so the mesh is not cleared; the resolved-wall sections at t/c 0.07 with 2–4.5 % camber (`~/bench-results/gen3corner`) test the physical explanation.
 - **Either way the cambered foil beats the flat one going straight:** 9.1 N (candidate) or 6.9 N (3 % camber) against 13.4 N by the pessimistic reading, 5 N against 14 N by the model's. Whether 3 % or 4.3 % camber is the better choice in trim depends on which reading is right; the candidate holds more lift (0.79 against 0.72).
 
 ## Consequence
