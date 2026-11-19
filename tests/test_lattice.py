@@ -166,3 +166,78 @@ def test_bad_inputs_are_rejected():
         solve([], 7.0, 4.0)
     with pytest.raises(ValueError):
         solve([blade_from_fin("b", fin)], 0.0, 4.0)
+
+
+# --------------------------------------------------------------------------
+# Viscous coupling: every strip follows its section polar (fingen.sections)
+# --------------------------------------------------------------------------
+
+def _bw04():
+    """The [BW04] water-tunnel fin replica (finGenerator-cfd/scripts/bw04_polar.py)."""
+    from fingen.params import OutlineParams
+
+    return FinParams(outline=OutlineParams(depth=120.0, base=100.0, sweep=25.0,
+                                           tip_width_ratio=0.45, le_fullness=0.75, te_shape=0.8),
+                     foil=FoilParams(family=FoilFamily.FLAT_INSIDE, thickness_ratio=0.09),
+                     thickness_tip_factor=1.0)
+
+
+def test_viscous_polar_reproduces_the_tunnel_drag_in_the_linear_range():
+    # Brandner & Walker, digitised Figure 2 (+-0.02 on CD): CD 0.030 / 0.035 /
+    # 0.055 / 0.09 at 0 / 4 / 8 / 12 deg. Tier-0's flat-plate cd0 has no notion of
+    # what a flat inside face costs at low incidence; the section table does.
+    from fingen.lattice import viscous_polar
+
+    rows = viscous_polar(_bw04(), 7.0, [0.0, 4.0, 8.0, 12.0])
+    for (_, loads, ok), cd_meas in zip(rows, (0.030, 0.035, 0.055, 0.090), strict=True):
+        assert ok
+        assert loads.cd == pytest.approx(cd_meas, abs=0.008)
+    # lift keeps the tunnel's slope within the known mirror/wall offset (model high)
+    slope = (rows[2][1].cl - rows[0][1].cl) / 8.0
+    assert 0.050 < slope < 0.066
+    assert not rows[3][1].separated.any()                   # no strip at its break at 12 deg
+
+
+def test_viscous_lattice_sees_the_flat_inside_face_at_the_toe_angle():
+    # bench/foil-family, isolated level-2 RANS at -3.5 deg: 13.4 N for the shipped
+    # flat-inside side fin (tier-0 generation 3: ~5 N).
+    from fingen.lattice import viscous_polar
+    from fingen.outline import metrics
+
+    side = _field_fin("side-shipped-gen2.json")
+    camb = dataclasses.replace(side, foil=dataclasses.replace(
+        side.foil, family=FoilFamily.CAMBERED, camber_ratio=0.03, camber_position=0.4))
+    qs = 0.5 * 1025.0 * 8.5**2 * metrics(side.outline).area * 1e-6
+    flat_n = viscous_polar(side, 8.5, [-3.5])[0][1].cd * qs
+    camb_n = viscous_polar(camb, 8.5, [-3.5])[0][1].cd * qs
+    assert flat_n == pytest.approx(13.4, rel=0.20)
+    assert camb_n < 0.5 * flat_n
+
+
+def test_viscous_and_linear_lattice_agree_where_the_section_is_linear():
+    from fingen.lattice import solve_viscous, strip_sections
+
+    fin = _field_fin("centre-ridden-gen1.json")
+    b = blade_from_fin("c", fin)
+    lin = solve([b], 8.5, 4.0)["c"].cl
+    sol = solve_viscous([b], {"c": strip_sections(fin, b, 8.5)}, 8.5, 4.0)
+    assert sol.converged and sol.iterations < 40
+    assert sol.loads["c"].cl == pytest.approx(lin, rel=0.06)        # section slope ~ 2 pi
+    assert sol.loads["c"].cd_profile > 0.008
+
+
+def test_viscous_set_keeps_the_side_fin_roles():
+    from fingen.lattice import solve_viscous, strip_sections
+
+    sp = _thruster()
+    blades = set_blades(sp)
+    pol = {b.name: strip_sections(sp.center if b.name == "center" else sp.side, b, 8.5)
+           for b in blades}
+    sol = solve_viscous(blades, pol, 8.5, 5.0)
+    assert sol.converged
+    right, left, centre = (sol.loads[k] for k in ("right", "left", "center"))
+    assert right.cl > left.cl > 0.0 and centre.cl > 0.0
+    assert left.alpha_eff_deg.mean() < -3.0 < right.alpha_eff_deg.mean()   # against / with camber
+    assert left.cd_profile > 1.5 * right.cd_profile        # the flat face, loaded the wrong way
+    with pytest.raises(ValueError):
+        solve_viscous(blades, {**pol, "left": pol["left"][:-1]}, 8.5, 5.0)

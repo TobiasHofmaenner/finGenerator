@@ -46,9 +46,11 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from fingen import sections
 from fingen.hydro import RHO_SEAWATER, zero_lift_alpha_deg
 from fingen.outline import metrics, planform
 from fingen.params import FinConfig, FinParams, FinSetParams, FoilFamily
+from fingen.sections import SectionPolar
 
 _FOUR_PI = 4.0 * math.pi
 _CORE = 1e-14          # m²: regularises the Biot–Savart kernel on a vortex line
@@ -332,3 +334,179 @@ def isolated(fin: FinParams, speed: float = 7.0, *, nz: int = 12, nx: int = 3,
                     x_cp_mm=r1.x_cp_m * 1e3, z_cp_frac=r1.z_cp_m / depth,
                     peak_ratio=float(shape[k]), peak_z_frac=float(b.z_mid[k] / depth),
                     cl_local=shape, z_frac=b.z_mid / depth)
+
+
+# ----------------------------------------------------------- viscous coupling
+# The linear lattice treats every strip as a flat plate with a camber offset:
+# strip lift = 2π · (effective incidence + offset). A real section follows its
+# polar instead — its slope is not 2π, it rolls off toward the break, and a
+# flat inside face misbehaves at negative incidence. The coupling below is the
+# standard "decambering" iteration of nonlinear lifting-surface methods: give
+# every strip an extra incidence offset δ, read the effective incidence the
+# strip works at off its own circulation (α_eff = cl/2π − δ), look up what the
+# section would really lift there, and move δ until the two agree. The lattice
+# keeps doing the 3-D part (induced angles, interference, the mirror); the
+# table does the 2-D viscous part. Profile drag comes from the same lookup.
+#
+# What this cannot know: three-dimensional separation (spanwise boundary-layer
+# flow, a leading-edge vortex on a low, swept blade). Past the first strip's
+# break the result is an estimate, flagged per strip in `separated`.
+
+
+@dataclass(frozen=True)
+class ViscousLoads:
+    """Loads on one blade from `solve_viscous`. Coefficients use the blade's own area."""
+
+    cl: float                   # force across the flow, in the board plane, / (q·S)
+    cd: float                   # induced + profile, along the flow
+    cd_induced: float           # near-field, indicative
+    cd_profile: float           # from the section table at each strip's incidence
+    cl_local: np.ndarray        # (nz,) strip lift along the blade normal / (q · c · dz)
+    alpha_eff_deg: np.ndarray   # (nz,) section incidence each strip works at
+    separated: np.ndarray       # (nz,) strip past its section's break
+    z: np.ndarray               # (nz,) strip stations, m
+    x_cp_m: float
+    z_cp_m: float
+
+
+@dataclass(frozen=True)
+class ViscousSolution:
+    loads: dict[str, ViscousLoads]
+    converged: bool
+    iterations: int
+    residual: float             # largest |section cl − strip cl| at exit
+    decamber: np.ndarray        # (all strips,) converged offsets, rad — a warm start
+
+
+def strip_sections(fin: FinParams, blade: Blade, speed: float) -> list[SectionPolar]:
+    """The section polar of every strip of `blade`: local thickness from the
+    spanwise schedule, Reynolds number on the local chord at `speed`."""
+    return [sections.for_station(fin, speed, c * 1e3, z / blade.depth)
+            for z, c in zip(blade.z_mid, blade.chord, strict=True)]
+
+
+def solve_viscous(blades: list[Blade], polars: dict[str, list[SectionPolar]], speed: float,
+                  leeway_deg: float, *, mirror: bool = True, relax: float = 0.5,
+                  tol: float = 2e-3, max_iter: int = 120,
+                  decamber0: np.ndarray | None = None) -> ViscousSolution:
+    """`solve` with every strip following its section polar (see the block above).
+
+    `polars[blade.name]` holds one SectionPolar per strip (`strip_sections`).
+    `decamber0` warm-starts the iteration from a neighbouring angle. Not
+    converged does not raise: past the break several solutions can exist and
+    the iteration may hunt between them; `converged` and `residual` say so."""
+    if not blades:
+        raise ValueError("solve_viscous needs at least one blade")
+    cat = lambda k: np.vstack([getattr(b, k) for b in blades])  # noqa: E731
+    A, B, ATE, BTE, CP, N = (cat(k) for k in ("A", "B", "ATE", "BTE", "CP", "normal"))
+    offsets = np.cumsum([0] + [len(b.z_mid) for b in blades])
+    strip = np.concatenate([b.strip + o for b, o in zip(blades, offsets[:-1], strict=True)])
+    chord = np.concatenate([b.chord for b in blades])
+    dz = np.concatenate([b.dz for b in blades])
+    pol = [p for b in blades for p in polars[b.name]]
+    if len(pol) != len(chord):
+        raise ValueError("polars must hold one SectionPolar per strip of every blade")
+    beta = math.radians(leeway_deg)
+    d = np.array([math.cos(beta), math.sin(beta), 0.0])
+    v_inf = speed * d
+    q = 0.5 * RHO_SEAWATER * speed**2
+
+    def influence(P: np.ndarray) -> np.ndarray:
+        P = P[:, None, :]
+        v = _horseshoe(P, A[None], B[None], ATE[None], BTE[None], d)
+        if mirror:
+            v = v + _horseshoe(P, (B * _MIRROR)[None], (A * _MIRROR)[None],
+                               (BTE * _MIRROR)[None], (ATE * _MIRROR)[None], d)
+        return v
+
+    aic_inv = np.linalg.inv((influence(CP) * N[:, None, :]).sum(-1))
+    mid = influence(0.5 * (A + B))
+    rhs0 = -(N @ v_inf)
+    # strip lift along the blade normal per unit circulation (Kutta–Joukowski on the freestream)
+    kj_n = RHO_SEAWATER * (np.cross(np.broadcast_to(v_inf, A.shape), B - A) * N).sum(-1)
+    n_strip = len(chord)
+    delta = (np.array([-math.radians(p.alpha0_deg) for p in pol]) if decamber0 is None
+             else np.asarray(decamber0, dtype=float).copy())
+    two_pi = 2.0 * math.pi
+    a_lo, a_hi = math.radians(float(pol[0].alpha_deg[0])), math.radians(float(pol[0].alpha_deg[-1]))
+    step_max = math.radians(1.0)
+    # Spanwise smoothing of the update, blade by blade. Past the break a strip
+    # method has a saw-tooth mode — one strip stalls, its neighbour is driven
+    # the other way by the shed vorticity, and the pair runs away. Spreading a
+    # quarter of each strip's correction to its neighbours (a discrete
+    # diffusion of the UPDATE, not of the solution) removes it and vanishes at
+    # convergence, where the update is zero.
+    smooth = np.zeros((n_strip, n_strip))
+    for o0, o1 in zip(offsets[:-1], offsets[1:], strict=True):
+        for k in range(o0, o1):
+            lo_k, hi_k = max(k - 1, o0), min(k + 1, o1 - 1)
+            smooth[k, k] += 0.5
+            smooth[k, lo_k] += 0.25
+            smooth[k, hi_k] += 0.25
+
+    def state(dl: np.ndarray):
+        g = aic_inv @ (rhs0 - speed * dl[strip])
+        c = np.bincount(strip, weights=kj_n * g, minlength=n_strip) / (q * chord * dz)
+        a = np.clip(c / two_pi - dl, a_lo, a_hi)
+        cv = np.array([float(p.cl_at(math.degrees(x))) for p, x in zip(pol, a, strict=True)])
+        return g, c, a, cv - c
+
+    gamma, cl_k, a_eff, resid = state(delta)
+    best = (float(np.abs(resid).max()), delta.copy())
+    omega, it = relax, 0
+    while it < max_iter and best[0] >= tol:
+        it += 1
+        trial = delta + np.clip(smooth @ (omega * resid / two_pi), -step_max, step_max)
+        g2, c2, a2, r2 = state(trial)
+        r_max = float(np.abs(r2).max())
+        if r_max < best[0]:
+            delta, gamma, cl_k, a_eff, resid = trial, g2, c2, a2, r2
+            best = (r_max, trial.copy())
+            omega = min(omega * 1.15, relax)
+        else:                              # overshoot: keep the iterate, shorten the step
+            omega *= 0.5
+            if omega < 1e-3:
+                break
+    resid_max = best[0]
+    converged = resid_max < tol
+
+    v_local = v_inf + (mid * gamma[None, :, None]).sum(1)
+    force = RHO_SEAWATER * gamma[:, None] * np.cross(v_local, B - A)
+    lift_dir = np.array([-math.sin(beta), math.cos(beta), 0.0])
+    a_deg = np.degrees(a_eff)
+    cd_k = np.array([float(p.cd_at(a)) for p, a in zip(pol, a_deg, strict=True)])
+    sep = np.array([a > p.alpha_break_deg for p, a in zip(pol, a_deg, strict=True)])
+    out: dict[str, ViscousLoads] = {}
+    i0 = 0
+    for b, o in zip(blades, offsets[:-1], strict=True):
+        n, nz = b.n_panels, len(b.z_mid)
+        f = force[i0:i0 + n]
+        lift = f @ lift_dir
+        strip_lift = np.bincount(b.strip, weights=lift, minlength=nz)
+        total = float(lift.sum())
+        ok = abs(total) > 1e-12
+        cdi = float((f @ d).sum()) / (q * b.area)
+        cdp = float((cd_k[o:o + nz] * b.chord * b.dz).sum()) / b.area
+        out[b.name] = ViscousLoads(
+            cl=total / (q * b.area), cd=cdi + cdp, cd_induced=cdi, cd_profile=cdp,
+            cl_local=cl_k[o:o + nz].copy(), alpha_eff_deg=a_deg[o:o + nz].copy(),
+            separated=sep[o:o + nz].copy(), z=b.z_mid,
+            x_cp_m=float((lift * b.xq_local).sum() / total) if ok else float("nan"),
+            z_cp_m=float((strip_lift * b.z_mid).sum() / total) if ok else float("nan"))
+        i0 += n
+    return ViscousSolution(loads=out, converged=converged, iterations=it, residual=resid_max,
+                           decamber=delta)
+
+
+def viscous_polar(fin: FinParams, speed: float, angles_deg, *, nz: int = 12,
+                  nx: int = 3) -> list[tuple[float, ViscousLoads, bool]]:
+    """Polar of one blade alone on the mirror: (angle, loads, converged) per angle,
+    each angle warm-started from the one before."""
+    b = blade_from_fin("blade", fin, nz=nz, nx=nx)
+    pol = {"blade": strip_sections(fin, b, speed)}
+    rows, warm = [], None
+    for a in angles_deg:
+        sol = solve_viscous([b], pol, speed, float(a), decamber0=warm)
+        warm = sol.decamber
+        rows.append((float(a), sol.loads["blade"], sol.converged))
+    return rows

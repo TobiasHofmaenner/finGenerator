@@ -110,12 +110,17 @@ else. The phases below keep their content; this is the sequence.
      [SK81] gate PASSED with the resolved wall (`bench/section-gate/`: CL_max
      +3 %, slope −7 %; wall functions were the defect). Table plan: 10
      sections × Re 5.7e5 and 2.8e5, −10…+16° (`~/bench-results/gen3run/tables`).
-   - `[~]` Knee test: gen-2 side at mesh level 4 (resolved wall), 8 / 12 / 16°
-     (`~/bench-results/gen3run/knee`) — are the wall-function 3-D CL_max values
-     low, as the section gate suggests?
-   - `[ ]` Grooves: fold the FEM check (`bench/groove-fem/`) into `flex.py` —
-     softening factor ×1.3–1.7 on the groove increment, stress concentration
-     ≈ 1.2 on the band stress.
+   - `[!]` Knee test: resolved-wall 3-D runs DIVERGE within 40 iterations on
+     the gen-2 side (59 % layer coverage) and on the [BW04] replica (78 %),
+     gentle start included. Parked as its own task: continuation from a low
+     angle, or mesh work on the level-4 recipe. Until then the tunnel data
+     are the only referee past 12°.
+   - `[x]` `fingen.sections` + shipped table v0 (NeuralFoil, tripped) and
+     `lattice.solve_viscous` (strip decambering). Tunnel drag polar reproduced
+     through the linear range; flat-inside drag at toe angles within 8–12 %
+     of CFD; lift 20 % above the tunnel by a constant factor; no knee.
+   - `[x]` Grooves: FEM check folded into `flex.py` (GROOVE_NOTCH_K = 0.60,
+     GROOVE_STRESS_KT = 1.20; three anchors within 3 %).
    - `[ ]` Swap it into `evaluate`: lift slope and CP (pivot arm), interference
      in place of the Falk table, load shape for the flex model, roll damping
      by a rate boundary condition; before/after on every rider spec.

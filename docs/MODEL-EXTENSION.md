@@ -231,6 +231,65 @@ than tier-0 says and need a depth-dependent softening factor and a stress
 concentration factor of about 1.2. On this blade the plain beam is also 39 %
 too soft, so the deflection and washout gates are conservative here.
 
+## Viscous lattice: strips that follow their section polar (2026-11-19)
+
+`fingen.sections` reads a shipped table (`src/fingen/data/sections_v0.npz`,
+built offline by `scripts/build_section_table.py` from NeuralFoil, boundary
+layer tripped: symmetric and flat-inside over ten thicknesses, cambered over
+five thicknesses and six cambers, five Reynolds numbers, −16…+24°).
+`lattice.solve_viscous` couples it to the lattice by the usual decambering
+iteration: every strip gets an incidence offset until its lift equals what its
+section gives at the incidence it works at. About 4 ms per angle for one blade.
+
+Against the water-tunnel fin [BW04] (7 m/s; the only experiment we have):
+
+| α ° | CL model | CL measured | CL wall-function RANS | CD model | CD measured (± 0.02) |
+|---|---|---|---|---|---|
+| 0 | 0.205 | 0.175 | 0.214 | 0.028 | 0.030 |
+| 4 | 0.457 | 0.375 | 0.447 | 0.036 | 0.035 |
+| 8 | 0.692 | 0.575 | 0.671 | 0.058 | 0.055 |
+| 12 | 0.929 | 0.775 | 0.871 | 0.095 | 0.090 |
+| 16 | 1.16 | 0.89 | 0.856 | 0.143 | 0.16 |
+| 20 | 1.29–1.38 | 1.02 | 0.862 | 0.20 | 0.25 |
+| 24 | 1.42 | 1.10 | 0.815 | 0.26 | 0.38 |
+
+Against our own isolated polars (level-2 wall-function RANS, 8.5 m/s), drag
+per fin in N:
+
+| blade | −4.5° | −3.5° | −2.5° | 0° | 4° |
+|---|---|---|---|---|---|
+| gen-2 side, flat inside: model / CFD | 17.3 / 16.1 | 14.8 / 13.4 | 12.6 / 11.2 | 9.4 / 8.8 | 11.7 / 12.7 |
+| same planform, cambered 3 %: model / CFD | 4.9 / 8.8 | 4.5 / 6.9 | 4.4 / 6.0 | 5.4 / 5.8 | 10.1 / 10.2 |
+
+Reading:
+- **Drag is right where it could be checked.** The tunnel's drag polar is
+  reproduced through the linear range, and the flat-inside fin's drag at the
+  toe angles — the 8 N per fin tier-0 could not see — comes out within 8–12 %
+  of the CFD. This closes the residual of the trim-drag fix.
+- **Lift level is high by a constant factor.** Model / tunnel ≈ 1.2 from 0 to
+  12°; our wall-function RANS sits in between (1.14). Lift slopes against our
+  own polars are 8–11 % high on the sides, 16 % on the thin centre. The lattice
+  assumes a perfect mirror and the section table has slopes above 2π; which of
+  the three is nearest the truth is not settled.
+- **The post-knee climb is there, the knee is not.** The model keeps climbing
+  as the tunnel fin does (RANS, steady or unsteady, flattens), but it climbs
+  straight through 12° where the measured curve bends: at 12° no strip is near
+  its section break (they work at 4–6°). The measured knee is a
+  three-dimensional onset the strip coupling cannot produce; it has to stay an
+  empirical element, as tier-0's break angle is.
+- **Past the first stalled strip the iteration is not reliable** (it is damped
+  and smoothed against the saw-tooth mode but does not always converge); those
+  rows are estimates and flagged.
+- The cambered foil's drag at negative incidence disagrees (model flat at
+  4.5 N, CFD rising to 8.8 N). Wall-function drag levels are not a referee;
+  the resolved-wall section tables include this foil.
+
+Open on the referee side: the resolved-wall 3-D runs meant to test the knee
+diverge within 40 iterations on both the gen-2 side and the tunnel replica,
+gentle start included (`finGenerator-cfd/scripts/polar_angles.py`). That
+recipe needs a continuation from low angle or mesh work; until then the tunnel
+data are the only truth past 12°.
+
 ## The board as a mirror: lattice experiment (2026-11-19)
 
 `scripts/board_edge_probe.py`, tables in `out/board-edge-probe.md`. All our
