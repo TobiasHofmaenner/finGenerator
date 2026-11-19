@@ -1,0 +1,160 @@
+{
+ "domain_chords": 20,
+ "wall": "wf",
+ "end_time": 3000,
+ "stop_when_converged": true,
+ "sections": [
+  {
+   "name": "camb3-tc070-wf-lv4",
+   "family": "cambered",
+   "thickness_ratio": 0.07,
+   "te_thickness": 1.2,
+   "chord": 0.12,
+   "re": 570000.0,
+   "camber_ratio": 0.03,
+   "camber_position": 0.4,
+   "wall": "wf",
+   "surface_level": 4,
+   "angles": [
+    0,
+    -2.5,
+    -3.5,
+    -4.5,
+    4
+   ]
+  },
+  {
+   "name": "camb3-tc070-wf-lv3",
+   "family": "cambered",
+   "thickness_ratio": 0.07,
+   "te_thickness": 1.2,
+   "chord": 0.12,
+   "re": 570000.0,
+   "camber_ratio": 0.03,
+   "camber_position": 0.4,
+   "wall": "wf",
+   "surface_level": 3,
+   "angles": [
+    0,
+    -2.5,
+    -3.5,
+    -4.5,
+    4
+   ]
+  },
+  {
+   "name": "camb3-tc092-wf-lv4",
+   "family": "cambered",
+   "thickness_ratio": 0.092,
+   "te_thickness": 1.2,
+   "chord": 0.12,
+   "re": 570000.0,
+   "camber_ratio": 0.03,
+   "camber_position": 0.4,
+   "wall": "wf",
+   "surface_level": 4,
+   "angles": [
+    0,
+    -2.5,
+    -3.5,
+    -4.5,
+    4
+   ]
+  },
+  {
+   "name": "camb3-tc092-wf-lv3",
+   "family": "cambered",
+   "thickness_ratio": 0.092,
+   "te_thickness": 1.2,
+   "chord": 0.12,
+   "re": 570000.0,
+   "camber_ratio": 0.03,
+   "camber_position": 0.4,
+   "wall": "wf",
+   "surface_level": 3,
+   "angles": [
+    0,
+    -2.5,
+    -3.5,
+    -4.5,
+    4
+   ]
+  },
+  {
+   "name": "camb45-tc070-wf-lv4",
+   "family": "cambered",
+   "thickness_ratio": 0.07,
+   "te_thickness": 1.2,
+   "chord": 0.12,
+   "re": 570000.0,
+   "camber_ratio": 0.045,
+   "camber_position": 0.4,
+   "wall": "wf",
+   "surface_level": 4,
+   "angles": [
+    0,
+    -2.5,
+    -3.5,
+    -4.5,
+    4
+   ]
+  },
+  {
+   "name": "camb45-tc070-wf-lv3",
+   "family": "cambered",
+   "thickness_ratio": 0.07,
+   "te_thickness": 1.2,
+   "chord": 0.12,
+   "re": 570000.0,
+   "camber_ratio": 0.045,
+   "camber_position": 0.4,
+   "wall": "wf",
+   "surface_level": 3,
+   "angles": [
+    0,
+    -2.5,
+    -3.5,
+    -4.5,
+    4
+   ]
+  },
+  {
+   "name": "camb3-tc070-wf-lv5",
+   "family": "cambered",
+   "thickness_ratio": 0.07,
+   "te_thickness": 1.2,
+   "chord": 0.12,
+   "re": 570000.0,
+   "camber_ratio": 0.03,
+   "camber_position": 0.4,
+   "wall": "wf",
+   "surface_level": 5,
+   "angles": [
+    0,
+    -2.5,
+    -3.5,
+    -4.5,
+    4
+   ]
+  },
+  {
+   "name": "camb3-tc070-wf-lv6",
+   "family": "cambered",
+   "thickness_ratio": 0.07,
+   "te_thickness": 1.2,
+   "chord": 0.12,
+   "re": 570000.0,
+   "camber_ratio": 0.03,
+   "camber_position": 0.4,
+   "wall": "wf",
+   "surface_level": 6,
+   "angles": [
+    0,
+    -2.5,
+    -3.5,
+    -4.5,
+    4
+   ]
+  }
+ ]
+}

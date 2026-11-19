@@ -642,11 +642,241 @@ beside the table. Two of twenty so far, both t/c 0.092 at Re 5.7e5:
   Its low-drag range is flat from −6° to +2°. So the 35–55 % by which the
   model reads less drag than the level-2 CFD on cambered fins going straight
   (`bench/cambered-candidate/`) does not come from the section data.
+  *Read again after the next section: true of this t/c 0.092 section, not of
+  thin ones, whose range ends at −3.5°; the table misses that, and it is most
+  of the candidate's gap.*
 
 Table v1 therefore has three corrections to carry, in this order of weight:
 the stall (maximum lift and what the drag does after it), drag under load,
 and the deep negative angles of cambered sections (−8°, −10°: table 0.4–0.6
 of RANS). The trim range needs none on these two sections.
+
+## The cambered candidate was a second exploit: where a thin cambered section stops being cheap (2026-11-19)
+
+The first search with camber free returned a thin, strongly cambered blade
+(4.3 % camber, t/c 0.074) at 5.4 N going straight, and the level-2 CFD read it
+at 9.9 N (`bench/cambered-candidate/`). The first referee section (3 % camber
+at t/c 0.092) sided with the table, so the gap was left as "the fin or the
+mesh". The thin sections that were queued to test the physical explanation
+have run, and with them three further checks. The gap has two causes, one in
+the model and one in the CFD, and the model's is the larger for the candidate.
+
+### 1. The table draws the attached range of a thin cambered section too wide
+
+Resolved-wall 2-D RANS, Re 5.7e5, the recipe of the section gate
+(`bench/section-tables/thin-cambered/`, `scripts/section_table_check.py`,
+`scripts/section_edges.py`):
+
+| α ° | 3 % camber, t/c 0.092: cd RANS | table | 3 % camber, t/c 0.070: cd RANS | table | 4.5 % camber, t/c 0.070: cd RANS | table |
+|---|---|---|---|---|---|---|
+| −6 | 0.0173 | 0.0151 | 0.0501 * | 0.0339 | 0.0591 * | 0.0546 |
+| −4.5 | 0.0146 | 0.0132 | **0.0322** * | 0.0146 | **0.0447** * | 0.0186 |
+| −3.5 | 0.0137 | 0.0125 | 0.0139 | 0.0127 | 0.0154 | 0.0136 |
+| −2.5 | 0.0133 | 0.0123 | 0.0129 | 0.0118 | 0.0136 | 0.0125 |
+| 0 | 0.0130 | 0.0125 | 0.0128 | 0.0121 | 0.0139 | 0.0126 |
+| +4 | 0.0156 | 0.0140 | 0.0165 | 0.0134 | 0.0177 | 0.0143 |
+| +8 | 0.0225 | 0.0186 | 0.0340 | 0.0228 | 0.0278 | 0.0225 |
+| +10 | 0.0309 | 0.0243 | 0.1165 * | 0.0396 | 0.1052 * | 0.0364 |
+
+\* the run did not settle within 3000 iterations: the flow has separated, and
+the value says "outside the attached range", not what it costs there.
+
+The attached range of the t/c 0.092 section runs from −6° to +10°. At
+t/c 0.070 it runs from −3.5° to +8°: two degrees shorter at each end. The
+table has the thin sections attached to about −4.5° (4.5 % camber) and −5.25°
+(3 %) below and to +10° above, so it is a degree or more too generous at both
+ends. Inside the range the table is 5–10 % low in drag and 4–5 % high in lift
+slope, as on the first two sections.
+
+Why the lower end matters so much for a side fin: the board fixes the toe at
+3.5°, so going straight with ±1° of leeway the blade works at −2.5° to −4.5°
+of own incidence. A cambered section there is 3–4° below the incidence its
+nose is shaped for; the flow has to turn round the nose onto the inside face,
+and a thin nose lets go first. The thin sections end their attached range
+inside that band, the t/c 0.092 section 1.5° below it.
+
+### 2. Through the lattice, the referee sections close most of the gap on the candidate
+
+`scripts/rans_fed_lattice.py` applies the ratio RANS / table of the four
+cambered nodes (t/c 0.070 and 0.092, 3 and 4.5 % camber; the fourth still
+running and filled from the other three) to every strip's table polar and
+solves the same lattice:
+
+| own incidence ° | candidate (4.3 % camber, t/c 0.074–0.083): CFD level 2 N | table v0 N | RANS sections N | 3 % camber on the shipped planform (t/c 0.092–0.072): CFD level 2 N | CFD level 3 N | table v0 N | RANS sections N |
+|---|---|---|---|---|---|---|---|
+| −4.5 | 12.0 | 5.6 | 10.1 | 8.8 | 9.9 | 4.9 | 6.3 |
+| −3.5 | 9.1 | 5.1 | 7.4 | 6.9 | 7.7 | 4.5 | 4.9 |
+| −2.5 | 7.8 | 5.2 | 5.9 | 6.0 | – | 4.4 | 4.8 |
+| 0 | 7.9 | 6.7 | 7.1 | 5.8 | 6.0 | 5.4 | 5.6 |
+| +4 | 13.4 | 12.5 | 12.9 | 10.2 | – | 9.9 | 10.1 |
+| going straight (mean of −2.5 and −4.5) | 9.9 | 5.4 | **8.0** | 7.4 | – | 4.6 | **5.5** |
+
+The candidate's 5.4 N going straight was the table's wide range, not the fin:
+with referee sections it is 8.0 N, and every quarter degree by which the true
+edge differs from the middle of its 1° sampling bracket moves that by about
+0.4 N. The 3 % camber blade on the thicker shipped planform moves only from
+4.6 to 5.5 N, because its inner half is on t/c 0.08–0.09 sections that are
+still attached. Lift is unchanged (within 0.02 in CL on both blades).
+
+So the search had done with camber what it did with area the same day: it
+walked to the edge of a cliff the model had drawn in the wrong place. Camber
+buys hold, mostly through the zero-lift angle (the candidate reads 1.14, the
+3 % blade 1.04, on 3 % less area). With the table as it was that cost 0.8 N
+per fin going straight (5.4 against 4.6); with the referee sections it costs
+2.5 N (8.0 against 5.5). Camber for hold against drag at the fixed toe is a
+real tradeoff, and table v0 hid most of it.
+
+### 3. The rest of the gap is the wall-function mesh, and the bench record had said so
+
+With referee sections the model still reads less than the level-2 CFD at
+negative incidence: 4.9 against 6.9 N on the 3 % camber blade at −3.5°, where
+every section of that blade is attached in 2-D. The level-3 run (prism layers
+added) had not removed that. `bench/section-tables/mesh-recipe/` puts the
+question to the 2-D driver instead: the same three sections on the 3-D
+recipe — wall functions, no layers, surface cells of chord/160 (what level 2
+gives a section at the fin's base) and coarser and finer — beside the
+resolved-wall runs. Ratio to the resolved-wall value in brackets:
+
+| section | wall, surface cell | cd at −4.5° | cd at −3.5° | cd at −2.5° | cd at 0° | cd at +4° | cl at −3.5° / 0° / +4° |
+|---|---|---|---|---|---|---|---|
+| camb3-tc070 | resolved, c/640 | 0.0322 | 0.0139 | 0.0129 | 0.0128 | 0.0165 | −0.044 / +0.340 / +0.771 |
+| | wall functions, c/640 | 0.0247 (×0.76) | 0.0121 (×0.87) | 0.0094 (×0.73) | 0.0091 (×0.71) | 0.0128 (×0.77) | −0.046 / +0.343 / +0.782 |
+| | wall functions, c/320 | 0.0320 (×0.99) | 0.0179 (×1.29) | 0.0113 (×0.87)* | 0.0110 (×0.86) | 0.0152 (×0.92) | −0.056 / +0.325 / +0.759 |
+| | wall functions, c/160 | 0.0330 (×1.02) | 0.0177 (×1.28) | 0.0127 (×0.99) | 0.0127 (×0.99) | 0.0198 (×1.20) | −0.051 / +0.325 / +0.691 |
+| | wall functions, c/80 | 0.0306 (×0.95) | 0.0241 (×1.74) | 0.0207 (×1.60) | 0.0164 (×1.28) | 0.0235 (×1.42) | +0.143 / +0.389 / +0.774 |
+| camb3-tc092 | resolved, c/640 | 0.0146 | 0.0137 | 0.0133 | 0.0130 | 0.0156 | −0.041 / +0.345 / +0.778 |
+| | wall functions, c/160 | 0.0306 (×2.10)* | 0.0172 (×1.26)* | 0.0135 (×1.01) | 0.0129 (×1.00) | 0.0194 (×1.25) | −0.029 / +0.332 / +0.651 |
+| | wall functions, c/80 | 0.0312 (×2.14) | 0.0235 (×1.72) | 0.0215 (×1.62) | 0.0181 (×1.39) | 0.0213 (×1.36) | −0.025 / +0.121 / +0.463 |
+| camb45-tc070 | resolved, c/640 | 0.0447 | 0.0154 | 0.0136 | 0.0139 | 0.0177 | +0.124 / +0.510 / +0.935 |
+| | wall functions, c/160 | 0.0491 (×1.10)* | 0.0219 (×1.43) | 0.0165 (×1.21) | 0.0138 (×0.99) | 0.0221 (×1.25) | +0.111 / +0.484 / +0.780 |
+| | wall functions, c/80 | 0.0503 (×1.12) | 0.0371 (×2.41) | 0.0255 (×1.88) | 0.0180 (×1.30) | 0.0210 (×1.18) | −0.007 / +0.290 / +0.696 |
+
+\* not settled within 3000 iterations. Lift is in the last column.
+
+- **On the 3-D recipe the lower end of the attached range arrives about a
+  degree early.** At chord/160 — the cells level 2 puts on a section at the
+  fin's base — all three sections read 26–43 % more drag at −3.5° than on the
+  resolved wall and agree with it at 0° (the 4.5 % camber section is already
+  21 % up at −2.5°). The t/c 0.092 section, attached to −6° on the resolved
+  wall, has let go by −4.5°.
+- **It is the wall treatment, not the cell size.** With wall functions the
+  rise from 0° to −3.5° is there at every resolution: +39 % at chord/160,
+  +63 % at chord/320, +33 % at chord/640, against +9 % on the resolved wall.
+  (The two finer wall-function meshes put the first cell in the buffer layer,
+  y+ 5–90, and under-read the friction by 14–29 %, so their absolute values
+  mean little. They are in the table for the rise.)
+- **The coarse surface costs lift and adds drag under load**: at +4° the
+  chord/160 runs read 10–17 % less lift and 20–25 % more drag than the
+  resolved wall. Unlike the early lower end this does go away with finer
+  cells (lift within 1.5 % at chord/640 with wall functions).
+- **Chord/80 is too coarse to say anything.** At the cell size level 2 gives
+  the outer blade, the 2-D section's lift is wrong by up to 0.2 at every
+  angle, which none of the 3-D polars show (their lift matches the lattice
+  within 0.01–0.03). The 2-D slab at that resolution is not a fair stand-in
+  for the 3-D mesh and is left out of the reading.
+
+This is the weakness `docs/CFD-BENCH.md` already records for maximum lift —
+wall functions cannot hold a suction peak — seen from the other side: at
+negative incidence the peak sits on the inside of the nose, and its collapse
+is the lower end of the attached range. On the 3 % camber blade at −3.5° the
+3-D profile drag coefficient is 0.019–0.021; resolved-wall sections give
+0.0137–0.0139 and the same sections with wall functions 0.0172–0.0177. So
+the wall treatment accounts for half to two thirds of what was left of the
+gap, at the resolution of the base section alone. The level-2 and level-3
+polars of cambered fins read high below about −3° and are not a referee for
+their drag going straight.
+
+### 4. What the search does with referee sections
+
+Three neutral searches (seeds 0–2, 6000 evaluations, the corrected frontier
+rule) with the RANS correction applied to every cambered section the lattice
+asks for. All three end on the same score, +0.447, with the rider-file peak
+margin of 2.0° binding:
+
+| | found with table v0 (three neutral searches, earlier section) | found with RANS sections |
+|---|---|---|
+| area mm² | 9 750 – 10 800 | 11 730 – 11 915 |
+| depth mm | 138 – 140 (the corridor) | 121 – 122 |
+| camber % | 4.2 – 4.4 | 2.3 – 2.6 |
+| t/c at the root, tip factor | 0.076 – 0.089, 1.08 – 1.19 | 0.058 – 0.075, 0.53 – 0.93 |
+| going straight N, as scored when found | 5.0 – 5.4 | 6.1 |
+| the same fins scored with RANS sections | 6.2 – 6.8 (peak margin 1.89 – 1.96°, under the 2° gate) | 6.1 (2.00°) |
+| at working load N, with RANS sections | 6.7 – 7.2 | 7.3 |
+| hold, with RANS sections | 1.13 | 1.13 |
+
+Camber became expensive, so the search bought the same hold with a fifth more
+area on a lower blade. Going straight costs 6.1 N per fin, not the 5.0–5.4 N
+the table promised. The move itself is worth little: the old optima, scored
+with the same referee sections, cost 6.2–6.8 N and miss the peak-margin gate
+by a tenth of a degree. The valley is flat — a large change of shape for a
+few tenths of a newton — as it was in the nine searches of the earlier
+section. Against the flat-inside foil (14.9 N by the same model) every one of
+these fins is a different class. Two things about the new optimum are not the
+fin's:
+
+- **It left the part of the design space the referee covers.** Camber
+  2.3–2.6 % and roots down to t/c 0.058 lie outside the four nodes
+  (3–4.5 %, t/c 0.070–0.092), where the correction is held at the nearest
+  node. Root thickness, tip factor and base differ freely between the three
+  seeds at the same score: the model has no opinion there, which is itself
+  the finding.
+- **It is pinned to a sample.** At −4.5° of own incidence the three blades
+  hold every strip at −3.2° to −3.5° effective incidence — the last angle at
+  which the thin sections are attached in the 1° sampling — by carrying a
+  little negative lift there, so the induced flow relieves the sections. The
+  relief is real physics. That it lands on −3.5° is the sampling.
+
+Both say what to run next, and it is queued behind the present batch: finer
+angles at both ends of every cambered section's attached range
+(`finGenerator-cfd/scripts/section_edge_plan.py`: quarter-degree steps inside
+the 1° bracket), and five more sections — 2 and 3 % camber at t/c 0.05, 1 %
+at t/c 0.07, 3 % at t/c 0.12, and 3 % at t/c 0.07 at the lower Reynolds
+number the outer strips run at.
+
+### 5. What changed in the record, and what is open
+
+Changed:
+
+- "Where the fins trim, the table stands" in the section above holds for the
+  two t/c 0.092 sections it was written on, not for thin cambered ones.
+- The cambered candidate is withdrawn as a design
+  (`bench/cambered-candidate/README.md`). A good cambered side fin costs about
+  6 N going straight by the model with referee sections, not 4.5–5.4 N. The
+  flat inside face still costs 13–15 N by model and CFD alike.
+- Level-2 and level-3 polars are no referee for a cambered fin's drag below
+  about −3° of own incidence. Their lift, and their drag from 0° up to the
+  knee, stay as they were (with the wall-function caveats of
+  `docs/CFD-BENCH.md`).
+- No cap or gate was added. The scoring is unchanged; the section data are
+  what was wrong, and they are being replaced by the referee's.
+
+Open:
+
+- **The referee's lower end has no measurement behind it.** The section gate
+  tested the recipe on the upper end of a 12 % symmetric section. The lower
+  end of a thin cambered one is a leading-edge separation on the other face,
+  in fully turbulent RANS; a measured polar of such a section at negative
+  lift is being looked for.
+- **Table v1 has to interpolate on the ends, not through them.** The lower
+  end moves about a degree per 0.01 of t/c. A linear blend between a section
+  that is attached and one that is not smears the cliff over the gap between
+  nodes, and the search then parks every strip on the last attached sample.
+  v1 will carry the two ends of the attached range as quantities of their
+  own (from the quarter-degree edge pass) and blend polars aligned on them.
+- **The knee comes with it.** Thin sections end their attached range at +8°,
+  not +10°, with a maximum attached lift of 1.13 (3 % camber) against 1.29 at
+  t/c 0.092. Once the table carries that, the blade's break can be read from
+  the sections through the lattice and compared with the [BW04] tunnel fin,
+  in place of `stall_alpha_deg` and its kink.
+- **Levers the search does not have.** The toe is the board's (3.5°), so a
+  side fin going straight always runs 3–4° below the incidence a cambered
+  nose is shaped for. Where the camber sits along the chord and how the nose
+  is shaped decide how much of that a section tolerates; both are fixed in
+  the cambered family (maximum camber at 40 % chord) and in the table.
+- **No 3-D referee for cambered trim drag.** The resolved-wall 3-D recipe
+  still diverges (parked). For a blade near zero lift the strips are nearly
+  independent, so resolved sections through the lattice are the best
+  available reading; the tip and the base junction are not in it.
 
 ## What a fast method cannot do — the rest
 

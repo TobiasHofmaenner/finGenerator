@@ -1,0 +1,797 @@
+{
+ "plan": {
+  "domain_chords": 20,
+  "wall": "wf",
+  "end_time": 3000,
+  "stop_when_converged": true,
+  "sections": [
+   {
+    "name": "camb3-tc070-wf-lv4",
+    "family": "cambered",
+    "thickness_ratio": 0.07,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "camber_ratio": 0.03,
+    "camber_position": 0.4,
+    "wall": "wf",
+    "surface_level": 4,
+    "angles": [
+     0,
+     -2.5,
+     -3.5,
+     -4.5,
+     4
+    ]
+   },
+   {
+    "name": "camb3-tc070-wf-lv3",
+    "family": "cambered",
+    "thickness_ratio": 0.07,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "camber_ratio": 0.03,
+    "camber_position": 0.4,
+    "wall": "wf",
+    "surface_level": 3,
+    "angles": [
+     0,
+     -2.5,
+     -3.5,
+     -4.5,
+     4
+    ]
+   },
+   {
+    "name": "camb3-tc092-wf-lv4",
+    "family": "cambered",
+    "thickness_ratio": 0.092,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "camber_ratio": 0.03,
+    "camber_position": 0.4,
+    "wall": "wf",
+    "surface_level": 4,
+    "angles": [
+     0,
+     -2.5,
+     -3.5,
+     -4.5,
+     4
+    ]
+   },
+   {
+    "name": "camb3-tc092-wf-lv3",
+    "family": "cambered",
+    "thickness_ratio": 0.092,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "camber_ratio": 0.03,
+    "camber_position": 0.4,
+    "wall": "wf",
+    "surface_level": 3,
+    "angles": [
+     0,
+     -2.5,
+     -3.5,
+     -4.5,
+     4
+    ]
+   },
+   {
+    "name": "camb45-tc070-wf-lv4",
+    "family": "cambered",
+    "thickness_ratio": 0.07,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "camber_ratio": 0.045,
+    "camber_position": 0.4,
+    "wall": "wf",
+    "surface_level": 4,
+    "angles": [
+     0,
+     -2.5,
+     -3.5,
+     -4.5,
+     4
+    ]
+   },
+   {
+    "name": "camb45-tc070-wf-lv3",
+    "family": "cambered",
+    "thickness_ratio": 0.07,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "camber_ratio": 0.045,
+    "camber_position": 0.4,
+    "wall": "wf",
+    "surface_level": 3,
+    "angles": [
+     0,
+     -2.5,
+     -3.5,
+     -4.5,
+     4
+    ]
+   },
+   {
+    "name": "camb3-tc070-wf-lv5",
+    "family": "cambered",
+    "thickness_ratio": 0.07,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "camber_ratio": 0.03,
+    "camber_position": 0.4,
+    "wall": "wf",
+    "surface_level": 5,
+    "angles": [
+     0,
+     -2.5,
+     -3.5,
+     -4.5,
+     4
+    ]
+   },
+   {
+    "name": "camb3-tc070-wf-lv6",
+    "family": "cambered",
+    "thickness_ratio": 0.07,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "camber_ratio": 0.03,
+    "camber_position": 0.4,
+    "wall": "wf",
+    "surface_level": 6,
+    "angles": [
+     0,
+     -2.5,
+     -3.5,
+     -4.5,
+     4
+    ]
+   }
+  ]
+ },
+ "smoke": false,
+ "sections": {
+  "camb3-tc070-wf-lv4": {
+   "spec": {
+    "name": "camb3-tc070-wf-lv4",
+    "family": "cambered",
+    "thickness_ratio": 0.07,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "camber_ratio": 0.03,
+    "camber_position": 0.4,
+    "wall": "wf",
+    "surface_level": 4,
+    "angles": [
+     0,
+     -2.5,
+     -3.5,
+     -4.5,
+     4
+    ]
+   },
+   "rows": [
+    {
+     "alpha": -4.5,
+     "cl": -0.17739271833333334,
+     "cd": 0.03300389658333333,
+     "iters": 600.0,
+     "yplus_min": 23.39556,
+     "yplus_max": 191.1411,
+     "wall_s": 22.0
+    },
+    {
+     "alpha": -3.5,
+     "cl": -0.05084310508333333,
+     "cd": 0.01772389325,
+     "iters": 600.0,
+     "yplus_min": 16.21717,
+     "yplus_max": 153.1395,
+     "wall_s": 21.9
+    },
+    {
+     "alpha": -2.5,
+     "cl": 0.05388960108333333,
+     "cd": 0.012746673333333331,
+     "iters": 600.0,
+     "yplus_min": 18.25366,
+     "yplus_max": 147.773,
+     "wall_s": 21.2
+    },
+    {
+     "alpha": 0.0,
+     "cl": 0.3254233266666667,
+     "cd": 0.012700014833333334,
+     "iters": 600.0,
+     "yplus_min": 23.65338,
+     "yplus_max": 149.4559,
+     "wall_s": 47.4
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.6909837533333333,
+     "cd": 0.019849360333333333,
+     "iters": 600.0,
+     "yplus_min": 20.16334,
+     "yplus_max": 144.7647,
+     "wall_s": 20.9
+    }
+   ],
+   "mesh": {
+    "u_inf": 4.9875,
+    "span": 0.012,
+    "cell": 0.012,
+    "surface_cell": 0.00075,
+    "n_layers": 0,
+    "first_layer": NaN,
+    "bg_cells": 8652,
+    "resolved": false,
+    "cells": 22105
+   }
+  },
+  "camb3-tc070-wf-lv3": {
+   "spec": {
+    "name": "camb3-tc070-wf-lv3",
+    "family": "cambered",
+    "thickness_ratio": 0.07,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "camber_ratio": 0.03,
+    "camber_position": 0.4,
+    "wall": "wf",
+    "surface_level": 3,
+    "angles": [
+     0,
+     -2.5,
+     -3.5,
+     -4.5,
+     4
+    ]
+   },
+   "rows": [
+    {
+     "alpha": -4.5,
+     "cl": 0.09282797841666666,
+     "cd": 0.030580650166666667,
+     "iters": 600.0,
+     "yplus_min": 36.66636,
+     "yplus_max": 247.3593,
+     "wall_s": 20.2
+    },
+    {
+     "alpha": -3.5,
+     "cl": 0.14287863833333334,
+     "cd": 0.024124285000000002,
+     "iters": 600.0,
+     "yplus_min": 37.80245,
+     "yplus_max": 236.9662,
+     "wall_s": 22.1
+    },
+    {
+     "alpha": -2.5,
+     "cl": 0.19962533,
+     "cd": 0.020693399666666668,
+     "iters": 300.0,
+     "yplus_min": 37.57493,
+     "yplus_max": 240.6526,
+     "wall_s": 10.8
+    },
+    {
+     "alpha": 0.0,
+     "cl": 0.3891626816666667,
+     "cd": 0.016387181583333334,
+     "iters": 600.0,
+     "yplus_min": 33.98773,
+     "yplus_max": 237.7435,
+     "wall_s": 39.0
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.77374794,
+     "cd": 0.023466953333333332,
+     "iters": 300.0,
+     "yplus_min": 28.80205,
+     "yplus_max": 245.6463,
+     "wall_s": 10.9
+    }
+   ],
+   "mesh": {
+    "u_inf": 4.9875,
+    "span": 0.012,
+    "cell": 0.012,
+    "surface_cell": 0.0015,
+    "n_layers": 0,
+    "first_layer": NaN,
+    "bg_cells": 8652,
+    "resolved": false,
+    "cells": 21515
+   }
+  },
+  "camb3-tc092-wf-lv4": {
+   "spec": {
+    "name": "camb3-tc092-wf-lv4",
+    "family": "cambered",
+    "thickness_ratio": 0.092,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "camber_ratio": 0.03,
+    "camber_position": 0.4,
+    "wall": "wf",
+    "surface_level": 4,
+    "angles": [
+     0,
+     -2.5,
+     -3.5,
+     -4.5,
+     4
+    ]
+   },
+   "rows": [
+    {
+     "alpha": -4.5,
+     "cl": -0.152450397,
+     "cd": 0.030585186900000002,
+     "iters": 3000.0,
+     "yplus_min": 27.31513,
+     "yplus_max": 229.2729,
+     "wall_s": 100.6
+    },
+    {
+     "alpha": -3.5,
+     "cl": -0.0292899904,
+     "cd": 0.017197582716666666,
+     "iters": 3000.0,
+     "yplus_min": 27.33627,
+     "yplus_max": 168.0081,
+     "wall_s": 93.5
+    },
+    {
+     "alpha": -2.5,
+     "cl": 0.082836116,
+     "cd": 0.01347407875,
+     "iters": 600.0,
+     "yplus_min": 27.42789,
+     "yplus_max": 150.6066,
+     "wall_s": 21.8
+    },
+    {
+     "alpha": 0.0,
+     "cl": 0.33229468166666665,
+     "cd": 0.012936981833333333,
+     "iters": 300.0,
+     "yplus_min": 27.13563,
+     "yplus_max": 160.6714,
+     "wall_s": 28.0
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.6511844708333334,
+     "cd": 0.01943037225,
+     "iters": 600.0,
+     "yplus_min": 14.1983,
+     "yplus_max": 157.0347,
+     "wall_s": 20.2
+    }
+   ],
+   "mesh": {
+    "u_inf": 4.9875,
+    "span": 0.012,
+    "cell": 0.012,
+    "surface_cell": 0.00075,
+    "n_layers": 0,
+    "first_layer": NaN,
+    "bg_cells": 8652,
+    "resolved": false,
+    "cells": 22080
+   }
+  },
+  "camb3-tc092-wf-lv3": {
+   "spec": {
+    "name": "camb3-tc092-wf-lv3",
+    "family": "cambered",
+    "thickness_ratio": 0.092,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "camber_ratio": 0.03,
+    "camber_position": 0.4,
+    "wall": "wf",
+    "surface_level": 3,
+    "angles": [
+     0,
+     -2.5,
+     -3.5,
+     -4.5,
+     4
+    ]
+   },
+   "rows": [
+    {
+     "alpha": -4.5,
+     "cl": -0.12491229666666667,
+     "cd": 0.031165380416666666,
+     "iters": 600.0,
+     "yplus_min": 42.35545,
+     "yplus_max": 267.9332,
+     "wall_s": 21.2
+    },
+    {
+     "alpha": -3.5,
+     "cl": -0.025327969999999998,
+     "cd": 0.0234656735,
+     "iters": 600.0,
+     "yplus_min": 43.14885,
+     "yplus_max": 268.8223,
+     "wall_s": 20.6
+    },
+    {
+     "alpha": -2.5,
+     "cl": -0.0198273175,
+     "cd": 0.021519130583333334,
+     "iters": 600.0,
+     "yplus_min": 42.36092,
+     "yplus_max": 268.2457,
+     "wall_s": 18.9
+    },
+    {
+     "alpha": 0.0,
+     "cl": 0.12088234,
+     "cd": 0.018065733333333334,
+     "iters": 300.0,
+     "yplus_min": 40.44257,
+     "yplus_max": 263.4821,
+     "wall_s": 24.5
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.46281257833333334,
+     "cd": 0.021263695500000002,
+     "iters": 300.0,
+     "yplus_min": 38.92921,
+     "yplus_max": 259.9449,
+     "wall_s": 11.0
+    }
+   ],
+   "mesh": {
+    "u_inf": 4.9875,
+    "span": 0.012,
+    "cell": 0.012,
+    "surface_cell": 0.0015,
+    "n_layers": 0,
+    "first_layer": NaN,
+    "bg_cells": 8652,
+    "resolved": false,
+    "cells": 21466
+   }
+  },
+  "camb45-tc070-wf-lv4": {
+   "spec": {
+    "name": "camb45-tc070-wf-lv4",
+    "family": "cambered",
+    "thickness_ratio": 0.07,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "camber_ratio": 0.045,
+    "camber_position": 0.4,
+    "wall": "wf",
+    "surface_level": 4,
+    "angles": [
+     0,
+     -2.5,
+     -3.5,
+     -4.5,
+     4
+    ]
+   },
+   "rows": [
+    {
+     "alpha": -4.5,
+     "cl": -0.10442428525366666,
+     "cd": 0.04907891676666667,
+     "iters": 3000.0,
+     "yplus_min": 21.37942,
+     "yplus_max": 226.7499,
+     "wall_s": 93.4
+    },
+    {
+     "alpha": -3.5,
+     "cl": 0.111345005,
+     "cd": 0.021935533,
+     "iters": 300.0,
+     "yplus_min": 21.65124,
+     "yplus_max": 199.0519,
+     "wall_s": 11.2
+    },
+    {
+     "alpha": -2.5,
+     "cl": 0.23407660166666666,
+     "cd": 0.0164623925,
+     "iters": 300.0,
+     "yplus_min": 21.09682,
+     "yplus_max": 156.429,
+     "wall_s": 11.6
+    },
+    {
+     "alpha": 0.0,
+     "cl": 0.48403145833333333,
+     "cd": 0.013824675333333333,
+     "iters": 300.0,
+     "yplus_min": 19.27662,
+     "yplus_max": 144.912,
+     "wall_s": 27.5
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.7795725791666667,
+     "cd": 0.0220598005,
+     "iters": 600.0,
+     "yplus_min": 2.158625,
+     "yplus_max": 145.1069,
+     "wall_s": 21.3
+    }
+   ],
+   "mesh": {
+    "u_inf": 4.9875,
+    "span": 0.012,
+    "cell": 0.012,
+    "surface_cell": 0.00075,
+    "n_layers": 0,
+    "first_layer": NaN,
+    "bg_cells": 8652,
+    "resolved": false,
+    "cells": 22088
+   }
+  },
+  "camb45-tc070-wf-lv3": {
+   "spec": {
+    "name": "camb45-tc070-wf-lv3",
+    "family": "cambered",
+    "thickness_ratio": 0.07,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "camber_ratio": 0.045,
+    "camber_position": 0.4,
+    "wall": "wf",
+    "surface_level": 3,
+    "angles": [
+     0,
+     -2.5,
+     -3.5,
+     -4.5,
+     4
+    ]
+   },
+   "rows": [
+    {
+     "alpha": -4.5,
+     "cl": -0.11913981083333333,
+     "cd": 0.05026369008333333,
+     "iters": 600.0,
+     "yplus_min": 32.43926,
+     "yplus_max": 471.3812,
+     "wall_s": 19.6
+    },
+    {
+     "alpha": -3.5,
+     "cl": -0.007138895266666666,
+     "cd": 0.03707395725,
+     "iters": 600.0,
+     "yplus_min": 29.58344,
+     "yplus_max": 407.2055,
+     "wall_s": 19.1
+    },
+    {
+     "alpha": -2.5,
+     "cl": 0.1087054325,
+     "cd": 0.025483689833333333,
+     "iters": 600.0,
+     "yplus_min": 30.65363,
+     "yplus_max": 325.9939,
+     "wall_s": 20.6
+    },
+    {
+     "alpha": 0.0,
+     "cl": 0.28962038333333334,
+     "cd": 0.0180227475,
+     "iters": 300.0,
+     "yplus_min": 37.45157,
+     "yplus_max": 268.8442,
+     "wall_s": 24.3
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.6960304933333333,
+     "cd": 0.020960441833333333,
+     "iters": 300.0,
+     "yplus_min": 39.58322,
+     "yplus_max": 273.8246,
+     "wall_s": 11.8
+    }
+   ],
+   "mesh": {
+    "u_inf": 4.9875,
+    "span": 0.012,
+    "cell": 0.012,
+    "surface_cell": 0.0015,
+    "n_layers": 0,
+    "first_layer": NaN,
+    "bg_cells": 8652,
+    "resolved": false,
+    "cells": 21532
+   }
+  },
+  "camb3-tc070-wf-lv5": {
+   "spec": {
+    "name": "camb3-tc070-wf-lv5",
+    "family": "cambered",
+    "thickness_ratio": 0.07,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "camber_ratio": 0.03,
+    "camber_position": 0.4,
+    "wall": "wf",
+    "surface_level": 5,
+    "angles": [
+     0,
+     -2.5,
+     -3.5,
+     -4.5,
+     4
+    ]
+   },
+   "rows": [
+    {
+     "alpha": -4.5,
+     "cl": -0.18610418916666666,
+     "cd": 0.03204924133333333,
+     "iters": 600.0,
+     "yplus_min": 8.175639,
+     "yplus_max": 122.0953,
+     "wall_s": 24.5
+    },
+    {
+     "alpha": -3.5,
+     "cl": -0.05630199333333333,
+     "cd": 0.0178644785,
+     "iters": 600.0,
+     "yplus_min": 11.83447,
+     "yplus_max": 139.8158,
+     "wall_s": 23.7
+    },
+    {
+     "alpha": -2.5,
+     "cl": 0.05193714076666667,
+     "cd": 0.011262782366666666,
+     "iters": 3000.0,
+     "yplus_min": 7.994057,
+     "yplus_max": 90.92969,
+     "wall_s": 106.3
+    },
+    {
+     "alpha": 0.0,
+     "cl": 0.32527486333333333,
+     "cd": 0.010980338666666667,
+     "iters": 600.0,
+     "yplus_min": 12.12931,
+     "yplus_max": 85.11492,
+     "wall_s": 52.1
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.7591983516666667,
+     "cd": 0.015164275166666666,
+     "iters": 600.0,
+     "yplus_min": 8.003101,
+     "yplus_max": 85.67438,
+     "wall_s": 22.2
+    }
+   ],
+   "mesh": {
+    "u_inf": 4.9875,
+    "span": 0.012,
+    "cell": 0.012,
+    "surface_cell": 0.000375,
+    "n_layers": 0,
+    "first_layer": NaN,
+    "bg_cells": 8652,
+    "resolved": false,
+    "cells": 25947
+   }
+  },
+  "camb3-tc070-wf-lv6": {
+   "spec": {
+    "name": "camb3-tc070-wf-lv6",
+    "family": "cambered",
+    "thickness_ratio": 0.07,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "camber_ratio": 0.03,
+    "camber_position": 0.4,
+    "wall": "wf",
+    "surface_level": 6,
+    "angles": [
+     0,
+     -2.5,
+     -3.5,
+     -4.5,
+     4
+    ]
+   },
+   "rows": [
+    {
+     "alpha": -4.5,
+     "cl": -0.16040069666666668,
+     "cd": 0.02465312483333333,
+     "iters": 600.0,
+     "yplus_min": 4.881302,
+     "yplus_max": 57.25623,
+     "wall_s": 39.3
+    },
+    {
+     "alpha": -3.5,
+     "cl": -0.04647849033333333,
+     "cd": 0.012090550916666666,
+     "iters": 600.0,
+     "yplus_min": 5.036967,
+     "yplus_max": 57.86916,
+     "wall_s": 39.4
+    },
+    {
+     "alpha": -2.5,
+     "cl": 0.06393841658333334,
+     "cd": 0.00944395125,
+     "iters": 600.0,
+     "yplus_min": 5.035369,
+     "yplus_max": 45.71787,
+     "wall_s": 38.9
+    },
+    {
+     "alpha": 0.0,
+     "cl": 0.3428486316666667,
+     "cd": 0.009092172225,
+     "iters": 600.0,
+     "yplus_min": 5.013118,
+     "yplus_max": 45.78303,
+     "wall_s": 109.6
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.7821335825,
+     "cd": 0.012769316916666667,
+     "iters": 600.0,
+     "yplus_min": 4.771085,
+     "yplus_max": 49.23769,
+     "wall_s": 40.1
+    }
+   ],
+   "mesh": {
+    "u_inf": 4.9875,
+    "span": 0.012,
+    "cell": 0.012,
+    "surface_cell": 0.0001875,
+    "n_layers": 0,
+    "first_layer": NaN,
+    "bg_cells": 8652,
+    "resolved": false,
+    "cells": 50721
+   }
+  }
+ }
+}

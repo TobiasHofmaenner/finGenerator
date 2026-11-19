@@ -111,11 +111,20 @@ else. The phases below keep their content; this is the sequence.
      +3 %, slope −7 %; wall functions were the defect). Table plan: 10
      sections × Re 5.7e5 and 2.8e5, −10…+16° (`~/bench-results/gen3run/tables`).
      First two sections in (`bench/section-tables/`,
-     `scripts/section_table_check.py`): table v0 stands where the fins trim
-     (drag within 0–12 % from −6° to 0° for the flat section, to +4° for the
-     cambered one, lift within 0.03); it is 16–27 % low in drag under load
-     (+2…+12°), 3–13 % high in maximum lift, and 2.3–4× low in drag past the
-     stall. Those three are what v1 has to correct.
+     `scripts/section_table_check.py`): on t/c 0.092 table v0 stands where
+     the fins trim (drag within 0–12 % from −6° to 0° for the flat section,
+     to +4° for the cambered one, lift within 0.03); it is 16–27 % low in
+     drag under load (+2…+12°), 3–13 % high in maximum lift, and 2.3–4× low
+     in drag past the stall.
+     Thin cambered sections in (`bench/section-tables/thin-cambered/`,
+     `scripts/section_edges.py`): at t/c 0.070 the attached range is
+     −3.5…+8°, two degrees shorter at each end than at t/c 0.092, and the
+     table has it a degree or more too wide at both. **The ends of the
+     attached range are v1's first job**: carried as quantities of their own
+     and polars blended aligned on them, not through them. Third batch
+     queued (`~/bench-results/gen3edge`): quarter-degree edge pass, and
+     sections at 1–2 % camber, t/c 0.05 and 0.12, and Re 2.8e5 on a thin one.
+     Open: no measured polar behind the referee's lower end yet.
    - `[!]` Knee test: resolved-wall 3-D runs DIVERGE within 40 iterations on
      the gen-2 side (59 % layer coverage) and on the [BW04] replica (78 %),
      gentle start included. Parked as its own task: continuation from a low
@@ -140,14 +149,18 @@ else. The phases below keep their content; this is the sequence.
      (`RiderSpec.side_foil = "cambered"`, one camber gene, 0–5 % at 40 %
      chord). First search: the shipped planform with 4.3 % camber on t/c 0.074.
      Its CFD polar (`bench/cambered-candidate/`) confirms the lift to 0.005 in
-     C_L and disputes the drag: 9.1 N going straight against the model's
-     5.1 N, and the same 35–55 % gap on every cambered fin at negative
-     incidence. The section data are NOT the cause: resolved-wall 2-D RANS of
-     the 3 % camber section agrees with the table from −6° to +4°
-     (`bench/section-tables/`). Open: real effect of the thin outer sections,
-     or the level-2 mesh — decided by a level-3 run of the same fin
-     (`~/bench-results/meshcheck`) and thin-section RANS runs
-     (`~/bench-results/gen3corner`). No cambered fin is exported before that.
+     C_L and disputes the drag: 9.9 N going straight against the model's
+     5.4 N. Resolved (docs/MODEL-EXTENSION.md, "The cambered candidate was a
+     second exploit"): two causes. (1) Table v0 draws the attached range of
+     thin cambered sections too wide; with the referee's sections through
+     the lattice (`scripts/rans_fed_lattice.py`) the candidate costs 8.0 N
+     and is withdrawn. (2) Wall-function 3-D polars read cambered fins high
+     below about −3° (`bench/section-tables/mesh-recipe/`): the same
+     sections in 2-D on the 3-D recipe show +26–43 % at −3.5°. A search with
+     referee sections goes to ~11 800 mm², depth 121, camber 2.3–2.6 %,
+     6.1 N — outside the referee's nodes and pinned to its −3.5° sample, so
+     it names the sections to run, not a fin. No cambered fin is exported
+     before table v1.
      Zero-lift angle tied to toe: still open.
    - `[ ]` Fitted separation model for the knee; nonlinear step for stall order.
      Now with a reason to go first: `hydro.stall_alpha_deg` (break held at 12°

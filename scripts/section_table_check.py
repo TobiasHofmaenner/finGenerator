@@ -54,8 +54,10 @@ def check(path: Path) -> list[str]:
 
 
 def main() -> None:
+    bench = Path("bench/section-tables")
     paths = [Path(a) for a in sys.argv[1:] if not a.startswith("--")] or [
-        Path("bench/section-tables/results.json")]
+        p for p in (bench / "results.json", bench / "thin-cambered/results.json",
+                    bench / "third-batch/results.json") if p.exists()]
     opt = dict(a.lstrip("-").split("=", 1) for a in sys.argv[1:] if a.startswith("--") and "=" in a)
     lines = ["# Section table v0 against resolved-wall 2-D RANS"]
     for p in paths:
