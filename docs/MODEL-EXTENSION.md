@@ -811,8 +811,8 @@ with the same referee sections, cost 6.2–6.8 N and miss the peak-margin gate
 by a tenth of a degree. The valley is flat — a large change of shape for a
 few tenths of a newton — as it was in the nine searches of the earlier
 section. Against the flat-inside foil (14.9 N by the same model) every one of
-these fins is a different class. Two things about the new optimum are not the
-fin's:
+these fins is a different class. Three things about the new optimum are not
+the fin's:
 
 - **It left the part of the design space the referee covers.** Camber
   2.3–2.6 % and roots down to t/c 0.058 lie outside the four nodes
@@ -826,7 +826,15 @@ fin's:
   little negative lift there, so the induced flow relieves the sections. The
   relief is real physics. That it lands on −3.5° is the sampling.
 
-Both say what to run next, and it is queued behind the present batch: finer
+- **It crossed the kink in the stall rule.** The three blades have an
+  effective aspect ratio of 2.10–2.16 and take their break at 14.7–15.2°
+  from `stall_alpha_deg`; the optima found with table v0 sit at 3.0–3.4 with
+  the break at 12°. With camber expensive, the search bought its hold on the
+  side of the kink that has one bench point (the paddle probe, linear to 12°)
+  and no referee for where the break really is. Same shortcoming as the
+  oversized fin, reached by another road.
+
+The first two say what to run next, and it is queued behind the present batch: finer
 angles at both ends of every cambered section's attached range
 (`finGenerator-cfd/scripts/section_edge_plan.py`: quarter-degree steps inside
 the 1° bracket), and five more sections — 2 and 3 % camber at t/c 0.05, 1 %
