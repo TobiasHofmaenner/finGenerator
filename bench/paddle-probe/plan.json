@@ -1,0 +1,9 @@
+{
+ "speed": 8.5,
+ "mesh_level": 2,
+ "end_time": 800,
+ "fin": "fins/side-paddle-probe.json",
+ "variants": [
+  {"name": "paddle-probe", "angles": [-3.5, 0, 4, 8, 12, 16, 20, 24]}
+ ]
+}

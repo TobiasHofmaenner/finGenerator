@@ -1,0 +1,46 @@
+{
+ "fin": {
+  "outline": {
+   "depth": 130.8061225987342,
+   "base": 120.18665027425746,
+   "sweep": 31.690718590401545,
+   "tip_width_ratio": 0.5989940791642366,
+   "le_fullness": 0.99432436042454,
+   "te_shape": 0.9549410012674706,
+   "le_dx": [
+    -15.88309476694703,
+    -10.869802221637185,
+    3.6849783718585956,
+    7.085748203563953,
+    -12.041111544971802,
+    12.926147063992019
+   ],
+   "te_dx": [
+    28.91413220475057,
+    7.363183986331324,
+    17.603353627451856,
+    -4.647076548265872,
+    -10.566358060432318,
+    -0.3445385300137273
+   ]
+  },
+  "foil": {
+   "family": "cambered",
+   "thickness_ratio": 0.07012997801501936,
+   "camber_ratio": 0.03453508231136568,
+   "camber_position": 0.4,
+   "te_thickness": 0.7
+  },
+  "thickness_tip_factor": 1.0059734772410183,
+  "grooves": {
+   "count": 3,
+   "length": 55.0,
+   "pitch": 6.0,
+   "width": 3.0,
+   "depth_ratio": 0.2604166951533504,
+   "span_start": 0.3979761936376668,
+   "surface": "outer"
+  }
+ },
+ "note": "frontier-scoring search result under the first-cut rule (plain sum, rho 0.10), seed 0: the oversized side fin. A probe for CFD, not a design."
+}

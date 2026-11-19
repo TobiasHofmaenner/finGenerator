@@ -1,0 +1,21 @@
+{
+ "speed": 8.5,
+ "mesh_level": 2,
+ "end_time": 800,
+ "fin": "fins/side-cambered-candidate.json",
+ "variants": [
+  {
+   "name": "cambered-candidate",
+   "angles": [
+    -3.5,
+    -2.5,
+    -4.5,
+    0,
+    4,
+    8,
+    12,
+    16
+   ]
+  }
+ ]
+}

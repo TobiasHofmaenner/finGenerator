@@ -130,12 +130,49 @@ else. The phases below keep their content; this is the sequence.
      default flips only after camber is searched and the goods are one-sided.
      Still to swap: interference in place of the Falk table, load shape for
      the flex model, roll damping by a rate boundary condition.
-   - `[ ]` Camber as a searched parameter (D8), zero-lift angle tied to toe.
+   - `[~]` Camber as a searched parameter (D8): IN, opt-in
+     (`RiderSpec.side_foil = "cambered"`, one camber gene, 0–5 % at 40 %
+     chord). First search: the shipped planform with 4.3 % camber on t/c 0.074.
+     Its CFD polar (`bench/cambered-candidate/`) confirms the lift to 0.005 in
+     C_L and REFUTES the drag: 9.1 N going straight, not 5.1 N — the section
+     table under-reads every cambered section at negative incidence by 35–55 %,
+     and the search had run into exactly that gap. No cambered fin is exported
+     before table v1 carries RANS data there (corner sections queued:
+     `~/bench-results/gen3corner`). Zero-lift angle tied to toe: still open.
    - `[ ]` Fitted separation model for the knee; nonlinear step for stall order.
+     Now with a reason to go first: `hydro.stall_alpha_deg` (break held at 12°
+     above AR_eff 2.5, +8° per unit of aspect ratio below) had no bench below
+     AR_eff 2.5 and implies a maximum lift that dips 15 % at its kink. The
+     kink is what makes an oversized fin a second optimum
+     (`docs/MODEL-EXTENSION.md`, "The oversized fin"). `bench/paddle-probe/`
+     is the first polar in that range; calibrate the rule on it together with
+     the five polars at AR_eff 2.6–4.5.
    - `[ ]` Discrepancy layer with uncertainty over physical features; the
      verify queue feeds it (D10).
-5. `[ ]` **C. Scoring rework** (Phase 1 below) — on top of the extended model,
-   so the levers are defined on physics that exists.
+5. `[~]` **C. Scoring rework** (Phase 1 below) — on top of the extended model,
+   so the levers are defined on physics that exists. First cut IN, opt-in
+   (`RiderSpec.scoring = "frontier"`, items 1.1/1.2 for the side blade): three
+   goods in physical units — drag going straight, drag at the working load,
+   hold — one-sided, reference-point objective, tastes as optional bands.
+   What its first test showed (`scripts/frontier_demo.py`, record in
+   `docs/MODEL-EXTENSION.md`):
+   - hold and the peak margin are ONE reserve; scoring both made an oversized
+     fin a second optimum. Fixed: hold is scored, the margin reported and gated.
+   - for the 60 kg pro the speed lever is empty: the lean fin sits on its gates
+     (2° peak margin, 140 mm depth corridor, minimum base), so neutral and
+     speed-first aspirations return the same fin. Only hold moves the design.
+   - area is nearly free in the model (lean → oversized: +1.5 N per fin going
+     straight, half a noticeable step, for two steps of hold), and CFD backs
+     it (`bench/paddle-probe/`): the large fin tops out at 483 N where the
+     normal-sized ones reach 258–299 N, pays 30 N at 290 N where they pay
+     44–47 N, and costs half a step to one step more going straight. What
+     opposes area in the water is not in the model.
+   Open, in this order: **hold as a requirement** at the speed floor of the
+   design point instead of an open-ended good (needs D4); **drag at the peak
+   force as a good** (item 1.3 — the one place the fins differ by felt
+   amounts); **release** — the price of reserve in a snap — as the missing
+   counterweight (0.1b, Phase 2 snap case); the gates that bind every lean
+   winner (depth corridor = convention; shape sliders on their box edges).
 6. `[ ]` **D. Centre fin** (Phase 2). 7. `[ ]` **E. Validation and release** (Phase 3).
 
 Already done from Phase 0: 0.1 frontiers (both riders), 0.4 manoeuvre

@@ -325,6 +325,12 @@ missing parameter. The default therefore stays `"tier0"` until camber is
 searched and the scoring is one-sided; flipping it now would trade one
 artefact for another.
 
+*Read again after "The oversized fin" below:* that blade (AR 1.1, effective
+1.88) and two of the three later camber-free seeds (effective AR 2.06 and
+2.22) sit where the break rule adds 2–5° of stall angle. Thinning the camber
+away was not the whole story; the low aspect ratio was at least partly the
+same second valley.
+
 ## The board as a mirror: lattice experiment (2026-11-19)
 
 `scripts/board_edge_probe.py`, tables in `out/board-edge-probe.md`. All our
@@ -356,6 +362,225 @@ a fin set close to the rail pays up to 16 %. By the agreed rule (CFD only above
 sensitivity is worth keeping as a formula once board dimensions are inputs.
 Not modelled: viscosity, the actual wetted shape and spray, bank (a buried
 inside rail gives that fin MORE wall, a lifted outside rail less).
+
+## The oversized fin: what the first cut of frontier scoring exposed (2026-11-19)
+
+`RiderSpec.scoring = "frontier"` scores a blade on goods in physical units,
+one-sided, by the reference-point method (see the block in `optimize.py`).
+Its first test, `scripts/frontier_demo.py` on the 60 kg pro's big-wave spec
+with the lattice model and camber searched, asked for three different things
+— neutral, speed first, hold first — and got the same answer three times: a
+side fin of 15 400 mm², half again the size of the shipped one.
+
+Standing rule for this project: an answer that looks wrong is not capped,
+gated or scored away. It is either a shortcoming of the model or it is
+correct, and the work is to find out which. This section is that work.
+
+### 1. It was not the best fin, even under the rule that returned it
+
+27 searches: three versions of the surplus rule × three sets of aspirations ×
+three seeds, 6000 evaluations each, then every fin found scored under every
+rule and every set of aspirations.
+
+| aspirations | first-cut rule returned (3 seeds) | best fin any search found, scored by the same rule |
+|---|---|---|
+| neutral | 15 000–15 400 mm², objective +0.19…+0.20 | 9 800 mm², +0.06 |
+| speed first | the same three fins, +0.62…+0.63 | 9 600 mm², +0.48 |
+| hold first | 14 600–15 000 mm², −0.44…−0.51 | 15 400 mm², −0.52 |
+
+Six searches of six stopped on the large fin where a lean one scores better.
+And under every rule tried there are only two distinct best fins, not three:
+neutral and speed first share the lean fin (≈ 9 700 mm², 5.1 N going
+straight, hold 1.14, margin 2.0°), hold first takes the large one. The lean
+fin sits on its gates — the rider file's 2° peak margin, the 140 mm depth
+corridor, the minimum base — so asking for less drag cannot move it. **For
+this rider the speed lever is empty.**
+
+### 2. Two valleys, and what separates them
+
+The straight line in design space from the lean fin to the oversized one
+(every parameter interpolated, neutral aspirations):
+
+| along the line | area mm² | AR | straight N | work N | hold | margin ° | yaw stiffness N·m/rad | roll damping N·m·s | first-cut objective |
+|---|---|---|---|---|---|---|---|---|---|
+| lean | 9 996 | 1.96 | 5.10 | 6.33 | 1.14 | +2.0 | 296 | 0.48 | +0.06 |
+| 20 % | 10 949 | 1.74 | 5.37 | 6.65 | 1.17 | +2.4 | 305 | 0.49 | +0.15 |
+| 40 % | 11 967 | 1.55 | 5.67 | 6.98 | 1.20 | +2.6 | 311 | 0.51 | +0.25 |
+| 50 % | 12 502 | 1.47 | 5.82 | 7.15 | 1.21 | +2.8 | 313 | 0.52 | +0.31 |
+| 60 % | 13 055 | 1.39 | 5.97 | 7.33 | 1.30 | +4.0 | 315 | 0.52 | +0.27 |
+| 80 % | 14 213 | 1.24 | 6.28 | 7.69 | 1.47 | +6.1 | 318 | 0.54 | +0.22 |
+| oversized | 15 433 | 1.11 | 6.60 | 8.06 | 1.62 | +7.9 | 319 | 0.54 | +0.19 |
+
+Three things can be read off it.
+
+**Area at a fixed depth buys almost no force per degree.** Lift slope × area
+grows 12 % while the area grows 54 % (346 → 389 cm²/rad): a blade's side
+force per degree is set by its depth, the slender-wing result. That is also
+why yaw stiffness (+8 %) and roll damping (+13 %) barely notice the extra
+chord. What the area can buy is a later break.
+
+**The later break is one uncalibrated rule.** `hydro.stall_alpha_deg` holds
+the break at 12° down to an effective aspect ratio of 2.5 and then adds 8° per
+unit of aspect ratio below it ("heuristic … pending CFD calibration"; every
+bench it was checked against sits at AR_eff ≥ 2.5, `docs/PHYSICS.md`). The
+kink is the 50 % row: hold and margin take off exactly there. Read as a
+maximum lift coefficient, the rule gives 0.98 at the lean fin, falls to 0.83
+at the kink and recovers to 0.90 at the oversized one — a dip no physics asks
+for:
+
+| along the line | AR_eff | break ° | lift slope /rad | C_L at the break | F_max, relative |
+|---|---|---|---|---|---|
+| lean | 3.33 | 12.0 | 3.46 | 0.98 | 1.00 |
+| 30 % | 2.80 | 12.0 | 3.17 | 0.89 | 1.04 |
+| 50 % | 2.49 | 12.1 | 2.98 | 0.83 | 1.06 |
+| 70 % | 2.23 | 14.2 | 2.79 | 0.88 | 1.22 |
+| oversized | 1.88 | 16.9 | 2.52 | 0.90 | 1.42 |
+
+**The first-cut scoring counted that reserve twice.** Hold (F_max / F_peak)
+and the peak margin in degrees are one quantity, tied by the linear lift
+curve: margin = (α_break − α_zero)·(1 − 1/hold). Both were goods in the sum.
+The double credit is what turns the far end of the line into a second valley
+(+0.19) behind a ridge (+0.31); the lean valley is deeper (+0.06) but narrow,
+pinned between gates, and the search fell into the wide one every time.
+
+### 3. What CFD says about the oversized fin
+
+If the large fin is an artefact of the break rule, CFD will show it stalling
+like any other fin. `bench/paddle-probe/`: the first-cut winner (15 433 mm²,
+depth 131, base 120, 3.5 % camber, t/c 0.070, effective aspect ratio 1.88 —
+the first polar this project has below 2.5), isolated on the symmetry plane,
+8.5 m/s, level-2 RANS.
+
+| own incidence ° | C_L | side force N | drag N | iterations |
+|---|---|---|---|---|
+| -3.5 | -0.004 | -2 | 10.6 | 800 (cap) |
+| +0.0 | +0.163 | 93 | 9.3 | 800 (cap) |
+| +4.0 | +0.353 | 202 | 17.1 | 131 |
+| +8.0 | +0.547 | 312 | 33.2 | 131 |
+| +12.0 | +0.715 | 409 | 65.3 | 800 (cap) |
+| +16.0 | +0.846 | 483 | 111.1 | 800 (cap) |
+| +20.0 | +0.839 | 479 | 155.4 | 800 (cap) |
+| +24.0 | +0.849 | 485 | 206.7 | 800 (cap) |
+
+The same polars read as a rider loads a fin, drag at equal side force
+(`scripts/polar_at_force.py`; "—" = the fin never makes that force, or, in
+the first column, was not run at −3.5°; every largest force is a lower bound,
+wall functions):
+
+| fin | area mm² | going straight (−3.5°) N | largest force N | at ° | drag at 93 N | drag at 200 N | drag at 250 N | drag at 290 N | drag at 318 N |
+|---|---|---|---|---|---|---|---|---|---|
+| gen-1 side as ridden (flat inside) | 6611 | — | 234 | 12 | 8.2 | 16.1 | — | — | — |
+| 3 % camber on the shipped planform | 9734 | 6.9 | 258 | 16 (last angle run) | 7.5 | 20.0 | 38.6 | — | — |
+| shipped gen-2 side (flat inside) | 9734 | 13.4 | 299 | 16 (last angle run) | 9.2 | 16.9 | 27.0 | 47.3 | — |
+| cambered candidate (4.3 %) | 10054 | 9.1 | 295 | 16 (last angle run) | 7.9 | 15.8 | 25.7 | 44.5 | — |
+| oversized fin (3.5 % camber) | 15433 | 10.6 | 485 | 24 (last angle run) | 9.3 | 17.0 | 24.2 | 30.0 | 35.1 |
+
+- **The hold is real.** The large fin makes the 318 N peak turn force at
+  about 8°, tops out at 483 N at 16° and holds that level through 24° (479
+  and 485 N). The model's figure for it is 516 N at 16.9°. The normal-sized
+  fins top out at 258–299 N where the model credits them with 332–362 N: the
+  rule is about right at low aspect ratio and 16–29 % generous at the aspect
+  ratio every shipped side fin has. In CFD terms the gap between the two
+  sizes is wider than the model says, not narrower.
+- **In a hard turn the large fin is the cheaper one.** Equal drag up to about
+  250 N; at 290 N it pays 30 N where the shipped flat-inside fin pays 47 N and
+  the cambered candidate 44 N. That is 14–17 N per fin, more than four
+  noticeable steps.
+- **Going straight it costs more**, 10.6 N against 9.1 N (candidate) or 6.9 N
+  (3 % camber on the shipped planform): 1.5–3.7 N per fin, half a step to one
+  step. The model reads 6.6 N — the cambered-section under-read again
+  (`bench/cambered-candidate/`).
+- **Lift: the lattice is within 7 % up to 16°** (0.510 against 0.547 at 8°)
+  and has the zero-lift angle to 0.2°. Its drag falls behind as the angle
+  grows — 0.80 of CFD at 8°, 0.67 at 12° — because the strip model has no
+  drag rise toward the break.
+
+So the answer to "is it an exploit or is it correct" is: for a 318 N turn at
+8.5 m/s the large fin is correct on every quantity the model scores, and the
+CFD makes its case stronger. The second valley was real physics seen through
+a kinked rule and counted twice.
+
+### 4. What changed, and what did not
+
+Changed, because it was wrong:
+
+- **The reserve is scored once.** Three goods: drag going straight, drag at
+  the working load, hold. The peak margin is reported and stays the rider's
+  gate. The saturating surplus credit that had been added first — it made the
+  three answers differ, which is why it looked like a fix — is removed again:
+  it flattened the second valley without saying why the valley was there.
+- `scripts/frontier_demo.py` searches every set of aspirations from several
+  seeds and scores every fin found under every set, so a preference of the
+  scoring can be told from a search that stopped in the wrong valley.
+
+Nine searches under the corrected rule (3 seeds each):
+
+| aspirations | fins returned | going straight N | at work load N | hold | margin ° |
+|---|---|---|---|---|---|
+| neutral (straight ≤ 4.9 N, work ≤ 6.2 N, hold ≥ 1.15) | 9 750–10 800 mm², depth 138–140 | 5.0–5.4 | 6.3–6.7 | 1.14 | +2.0 |
+| speed first (≤ 3.7 N, ≤ 4.9 N, hold ≥ 1.05) | the same fins, seed for seed | 5.0–5.4 | 6.3–6.7 | 1.14 | +2.0 |
+| hold first (≤ 7.4 N, ≤ 8.7 N, hold ≥ 1.45) | 14 700–14 900 mm², depth 135–138 | 6.4–6.5 | 7.7–7.8 | 1.51 | +6.1…+6.3 |
+
+No search ends in the wrong valley any more. Seeds still differ by up to 0.17
+of a noticeable step at the lean end (5.0 against 5.4 N), and in shape far
+more than in score: tip width 0.14–0.58, sweep 24–35°, t/c 0.07–0.10 for the
+same goods — the outline sliders are free, as `docs/MODEL-REACH.md` said.
+
+Not changed, on purpose:
+
+- **No ceiling on area, no penalty on low aspect ratio.** The large fin is
+  what the model and the CFD say a rider gets who asks for hold 1.45.
+- **The break rule.** It is not replaced by a guess; it gets calibrated on
+  the polars (plan item B2, separation model).
+- **The gates.** But two of them are now on record as binding every lean
+  winner: the 140 mm depth corridor, which is convention and not physics
+  (`optimize._DEPTH_CORRIDOR_MM`), and the rider file's 2° peak margin. The
+  large fins sit on three slider box edges (tip width 0.6, leading-edge
+  fullness 1.0, trailing-edge shape 1.0): the box, not the physics, decides
+  where they stop.
+
+### 5. What the model still cannot say
+
+The fast model and the CFD now agree that, for a 318 N peak turn at 8.5 m/s,
+more area buys real hold for a small price going straight. Riders do not ride
+side fins this large on a thruster, so something that opposes area is missing
+from the model. What this investigation leaves on the table:
+
+1. **Release.** The snap needs the tail to let go on demand and take hold
+   again (plan, "the snap has three fin phases"; quads are "harder to release
+   … when attacking the lip"). The large fin does the opposite: its side force
+   climbs to 483 N at 16° and then stays there — 479 N at 20°, 485 N at 24° —
+   where the gen-1 side falls from its maximum between 12° and 16°. Nothing
+   in the model prices that: the release proxy is a planform heuristic, not
+   offered in gen 3, so the reserve is all gain and no cost. This is the most
+   likely missing counterweight, and it is a model term to build (plan 0.1b,
+   Phase 2 snap case), not a limit to impose.
+2. **Hold is a requirement, not a good without end.** A rider cannot use
+   force beyond the hardest turn they make. The physical statement is "the
+   fins hold my hardest turn down to my lowest speed": F_max falls with V²,
+   so hold at the design speed and the lowest speed that still holds are one
+   number, V_hold = V / √hold (hold 1.14 → 0.94 V; 1.51 → 0.81 V; 1.62 →
+   0.79 V). With the speed floor of the design point as an input (decision
+   D4) hold becomes a floor the search must meet, and the surplus stops being
+   something to pay for.
+3. **Drag at the peak force is where size is felt, and the model is blind
+   there.** The lattice path has no drag rise toward the break: it reads 27 N
+   at 318 N for the lean fins and 28–29 N for the large ones. CFD reads 35 N
+   for the large fin and puts the lean ones past their limit. Plan item 1.3
+   (drag at the peak force as a good) needs the separation model first.
+4. **The peak force itself, and what the field says about size.** 318 N is
+   bank angle 55° × the fins' share × the side fin's share. Two fins
+   bracket it loosely: the gen-1 side (CFD maximum 234 N at 8.5 m/s, model
+   hold 0.86) came with "feels sliding", the shipped gen-2 side (299 N, model
+   hold 1.09) with "control way better" — though part of the first complaint
+   was later traced to the centre fin, so this is consistent with the hold
+   scale, not a proof of it. The same step, +47 % area, was reported as "can
+   feel some drag": the model reads +3.4 N per fin there, 5.5 % of board drag
+   for the pair, one noticeable step. Lean → oversized is another +54 % of
+   area, so a rider would probably feel it going straight as well.
+5. **Cambered sections at negative incidence** (`bench/cambered-candidate/`):
+   drag under-read by 35–55 %, which is why the search chose 3.4–4.4 % camber
+   on thin sections. Waits for the RANS section tables.
 
 ## What a fast method cannot do — the rest
 
