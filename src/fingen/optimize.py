@@ -297,12 +297,38 @@ class RiderSpec:
     # mounted, so a flat inside face pays for its toe angle and a cambered one
     # does not. Opt-in until a before/after on every rider spec is accepted.
     hydro_model: str = "tier0"
+    # Foil family of the SIDE blade (SIDE_FOILS). "flat_inside" is the classic
+    # flat foil every shipped set uses. "cambered" searches a conventional
+    # cambered section instead, its camber ratio a design gene (0-5 %): the
+    # inside-face shape becomes a lever between speed in trim and drive/hold
+    # under load. Only the lattice hydro model can price that trade; under
+    # tier-0 the two families differ by their zero-lift angle alone.
+    side_foil: str = "flat_inside"
+    # How the blade is scored (SCORINGS). "targets" is the weighted distance to
+    # the seven spider targets — every shipped result. "frontier" maximises the
+    # goods in physical units and uses `aspirations` only to choose the
+    # point on the frontier (see the frontier-scoring block). `aspirations`
+    # merges over DEFAULT_ASPIRATIONS; `taste_bands` optionally bounds
+    # TASTES as (low, high) in physical units.
+    scoring: str = "targets"
+    aspirations: dict[str, float] | None = None
+    taste_bands: dict[str, tuple[float, float]] | None = None
 
     def __post_init__(self) -> None:
         if not 30.0 <= self.weight_kg <= 160.0:
             raise ValueError(f"weight_kg {self.weight_kg} outside 30-160 kg")
         if self.hydro_model not in spider.HYDRO_MODELS:
             raise ValueError(f"hydro_model {self.hydro_model!r} not in {spider.HYDRO_MODELS}")
+        if self.side_foil not in SIDE_FOILS:
+            raise ValueError(f"side_foil {self.side_foil!r} not in {SIDE_FOILS}")
+        if self.scoring not in SCORINGS:
+            raise ValueError(f"scoring {self.scoring!r} not in {SCORINGS}")
+        unknown = set(self.aspirations or {}) - set(GOODS)
+        if unknown:
+            raise ValueError(f"unknown aspirations: {sorted(unknown)} (known: {GOODS})")
+        for name, band in (self.taste_bands or {}).items():
+            if name not in TASTES or not 0.0 < band[0] < band[1]:
+                raise ValueError(f"taste band {name!r}: {band!r} (known: {TASTES}, 0 < low < high)")
         if self.spider_targets is not None:
             unknown = set(self.spider_targets) - set(spider.AXES)
             if unknown:
@@ -312,6 +338,10 @@ class RiderSpec:
     def speed(self) -> float:
         """Resolved design riding speed (m/s)."""
         return self.speed_ms if self.speed_ms is not None else _SKILL_SPEED_MS[self.skill]
+
+    def resolved_aspirations(self) -> dict[str, float]:
+        """DEFAULT_ASPIRATIONS with the rider's own merged over them."""
+        return {**DEFAULT_ASPIRATIONS, **(self.aspirations or {})}
 
     def resolved_targets(self, *, rear_member: bool = False) -> dict[str, float]:
         """Derived defaults with any explicit override merged over them.
@@ -455,6 +485,96 @@ def _normalize(raw: dict[str, float], fleet: tuple) -> dict[str, float]:
                                for i in range(len(uniq))])
         out[axis] = float(np.interp(raw[axis], uniq, mean_ranks))
     return out
+
+
+# --- frontier scoring (generation 3, opt-in: RiderSpec.scoring = "frontier") ---
+#
+# The spider distance below treats all seven axes as tastes with a point target,
+# so OVERSHOOTING a target is taxed like falling short. Four of them are goods
+# nobody wants less of — low drag going straight, low drag under load, hold,
+# margin — and the tax made the search throw away free improvements: a centre
+# fattened to add drag against a speed target; a peak margin parked at +0.05
+# deg; a search that prefers a fin with twice the trim drag because it lands on
+# "speed 65" instead of overshooting it (docs/GEN3-PLAN.md, MODEL-EXTENSION.md).
+#
+# Frontier scoring is the reference-point (achievement) method: the goods are
+# measured in PHYSICAL units, each divided by the step a rider would notice,
+# and the objective is
+#
+#     max_i d_i  +  FRONTIER_RHO * sum_i d_i,        d_i = shortfall_i / step_i
+#
+# where shortfall is positive below the rider's aspiration and NEGATIVE above
+# it. The max term serves the worst-served good first; the sum term keeps
+# rewarding every good past its aspiration, so the search runs to the Pareto
+# frontier and the aspirations only decide WHERE on it — "optimize first, then
+# consult the spider for the tradeoffs". Tastes (yaw stiffness, roll damping)
+# enter as optional bands, zero inside.
+#
+# THREE goods, not four. The reserve between the peak turn demand and the
+# break is ONE quantity: in force it is hold = F_max / F_peak, in angle the
+# peak margin, and the linear lift curve ties them,
+#     margin = (alpha_break - alpha_zero) * (1 - 1 / hold).
+# The first cut scored both. With the reserve credited twice a second valley
+# opened at the largest fin the shape sliders can draw, and for the two sets
+# of aspirations a lean fin serves better, six searches of six ended in it
+# anyway (docs/MODEL-EXTENSION.md, "The oversized fin"). Hold is the scored
+# term; the peak margin stays a reported number and the rider's gate
+# (peak_margin_min_deg).
+#
+# Steps = one noticeable difference (GEN3-PLAN D2): 5 % of the rider's total
+# board drag for the fin SET (so half of that per blade of a side pair), 20 %
+# of the peak turn force for hold, 30 % of a taste.
+SCORINGS = ("targets", "frontier")
+FRONTIER_RHO = 0.10
+DRAG_STEP_SET_FRACTION = 0.05     # of board drag, for the whole set
+HOLD_STEP = 0.20                  # of the peak turn force
+TASTE_STEP = 0.30                 # relative, outside a taste band
+BOARD_LIFT_TO_DRAG = 5.0          # planing board + rider: the drag yardstick
+BOARD_MASS_KG = 3.0
+# Aspirations a rider gets when nothing is said: what a good blade for the
+# design point reaches (the cambered lattice winner for a 60 kg pro reads 0.044
+# / 0.052 of board drag, hold 1.14). They set the direction of the trade, not a
+# ceiling.
+DEFAULT_ASPIRATIONS = {
+    "trim_drag_frac": 0.04,       # drag going straight, per blade, / board drag
+    "work_drag_frac": 0.05,       # drag at the working load, per blade, / board drag
+    "hold": 1.15,                 # max side force / peak turn force
+}
+GOODS = tuple(DEFAULT_ASPIRATIONS)
+TASTES = ("yaw_stiffness_nm_rad", "roll_damping_nm_s")
+
+
+def board_drag_n(weight_kg: float) -> float:
+    """The rider's total drag yardstick in N: weight of rider and board over a
+    planing lift-to-drag ratio. A scale for "would this be felt", not a model."""
+    return (weight_kg + BOARD_MASS_KG) * 9.81 / BOARD_LIFT_TO_DRAG
+
+
+def frontier_achievement(goods: dict[str, float], tastes: dict[str, float], rider: RiderSpec,
+                         rear_member: bool = False) -> tuple[float, dict[str, float]]:
+    """(objective, per-term shortfalls in steps) of the reference-point method.
+
+    `goods`: trim_drag_n, work_drag_n (N per blade), hold (F_max / F_peak).
+    `tastes`: yaw_stiffness_nm_rad, roll_damping_nm_s. A shortfall of +1 means
+    one noticeable step short of the aspiration, -1 one step past."""
+    asp = rider.resolved_aspirations()
+    d_board = board_drag_n(rider.weight_kg)
+    # the step is per SET; a side pair shares it, a centre or single carries it alone
+    paired = rider.config is not FinConfig.SINGLE and not rear_member
+    drag_step = DRAG_STEP_SET_FRACTION * d_board / (2.0 if paired else 1.0)
+    d = {
+        "trim_drag": (goods["trim_drag_n"] - asp["trim_drag_frac"] * d_board) / drag_step,
+        "work_drag": (goods["work_drag_n"] - asp["work_drag_frac"] * d_board) / drag_step,
+        "hold": (asp["hold"] - goods["hold"]) / HOLD_STEP,
+    }
+    value = max(d.values()) + FRONTIER_RHO * sum(d.values())
+    for name, band in (rider.taste_bands or {}).items():
+        lo, hi = band
+        x = tastes[name]
+        out = max((lo - x) / lo, (x - hi) / hi, 0.0) / TASTE_STEP
+        d[name] = out
+        value += out
+    return value, d
 
 
 # --- the objective -----------------------------------------------------------
@@ -728,8 +848,28 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
         weight = 1.0 + abs(tgt - 0.5)  # axes pushed to extremes matter more
         distance += weight * (predicted[axis] / 100.0 - tgt) ** 2
 
+    # The goods in physical units (always reported; they drive the objective
+    # only under frontier scoring). The peak margin is the hold reserve read in
+    # degrees: reported and gated, not scored a second time.
+    work_force_n = cl_work * q * area * 1e-6
+    goods = {
+        "trim_drag_n": 1.0 / raw["speed"],
+        "work_drag_n": work_force_n / max(raw["drive"], 1e-9),
+        "hold": f_max_eff / sheet.force_peak_n,
+    }
+    tastes = {"yaw_stiffness_nm_rad": 1.0 / raw["pivot"],
+              "roll_damping_nm_s": raw["stability"]}
+    shortfalls: dict[str, float] = {}
+    if rider.scoring == "frontier":
+        distance, shortfalls = frontier_achievement(goods, tastes, rider, rear_member)
+
     objective = distance + PENALTY_WEIGHT * penalty_sum
     margins = {
+        "trim_drag_n": goods["trim_drag_n"],
+        "work_drag_n": goods["work_drag_n"],
+        "hold_ratio": goods["hold"],
+        "yaw_stiffness_nm_rad": tastes["yaw_stiffness_nm_rad"],
+        **{f"shortfall_{k}": v for k, v in shortfalls.items()},
         "stress_sf": stress_sf,
         "stress_sf_roll": stress_sf_roll,
         "tab_sf": tab_sf,
@@ -853,6 +993,18 @@ _GROOVE_BOUNDS: tuple[tuple[str, float, float], ...] = (
     ("span_start", 0.18, 0.55),
 )
 _N_GROOVES = len(_GROOVE_BOUNDS)
+# Camber gene of a CAMBERED side blade (RiderSpec.side_foil = "cambered"): NACA
+# camber ratio at 40 % chord, 0 = the symmetric section, 0.05 = the FoilParams
+# ceiling. A flat-inside foil's camber is t/2 by construction and cannot be
+# chosen; this family makes the inside-face shape a design parameter
+# (bench/foil-family: 6.4 vs 13.4 N per fin going straight, against drive and
+# hold under load). The gene is APPENDED after every other gene, so vectors of
+# searches that do not use it keep their layout. Start: 3 %, whose zero-lift
+# angle sits near the 3.5 deg production toe.
+_CAMBER_BOUNDS = (0.0, 0.05)
+_CAMBER_POSITION = 0.4
+_CAMBER_X0 = 0.6
+SIDE_FOILS = ("flat_inside", "cambered")
 
 
 def _clip01(v: float) -> float:
@@ -861,12 +1013,14 @@ def _clip01(v: float) -> float:
 
 def _decode(x: np.ndarray, config: FinConfig, *, use_offsets: bool,
             use_grooves: bool, family: FoilFamily | None = None,
-            tabs: TabSystem = TabSystem.NONE) -> FinParams:
+            tabs: TabSystem = TabSystem.NONE, camber: bool = False) -> FinParams:
     """Normalized vector → FinParams. Raises ValueError for combinations the
     params/planform checks reject (the search treats that as a penalty).
 
     `family` overrides the config's default foil family — used to decode the
-    SYMMETRIC center of a set while `config` still selects its corridor/anchor."""
+    SYMMETRIC center of a set while `config` still selects its corridor/anchor.
+    `camber` reads one more gene AFTER all others and builds a CAMBERED section
+    with that camber ratio (see _CAMBER_BOUNDS)."""
     vals = {name: lo + _clip01(x[i]) * (hi - lo)
             for i, (name, lo, hi) in enumerate(_SLIDER_BOUNDS)}
     base = vals["base"]
@@ -899,8 +1053,14 @@ def _decode(x: np.ndarray, config: FinConfig, *, use_offsets: bool,
     # Force the planform check now (edge crossing from level-2 offsets) so the
     # caller's ValueError→penalty contract catches it before any scoring.
     planform(outline)
-    foil = FoilParams(family=family or family_for_config(config),
-                      thickness_ratio=vals["thickness_ratio"])
+    if camber:
+        lo, hi = _CAMBER_BOUNDS
+        foil = FoilParams(family=FoilFamily.CAMBERED, thickness_ratio=vals["thickness_ratio"],
+                          camber_ratio=lo + _clip01(x[idx + (_N_GROOVES if use_grooves else 0)])
+                          * (hi - lo), camber_position=_CAMBER_POSITION)
+    else:
+        foil = FoilParams(family=family or family_for_config(config),
+                          thickness_ratio=vals["thickness_ratio"])
     return FinParams(outline=outline, foil=foil,
                      thickness_tip_factor=vals["thickness_tip_factor"], grooves=grooves,
                      tabs=TabParams(system=tabs))
@@ -920,6 +1080,14 @@ def _x0_sliders(config: FinConfig) -> list[float]:
         "thickness_tip_factor": template.thickness_tip_factor,
     }
     return [(src[name] - lo) / (hi - lo) for name, lo, hi in _SLIDER_BOUNDS]
+
+
+def searches_camber(rider: RiderSpec, family: FoilFamily | None = None) -> bool:
+    """Whether the blade being designed carries the camber gene: the dominant
+    side blade of a set whose rider asked for a cambered side foil. Never the
+    symmetric centre, never a single fin."""
+    return (family is None and rider.side_foil == "cambered"
+            and rider.config is not FinConfig.SINGLE)
 
 
 def _fin_to_sliders(fin: FinParams) -> list[float]:
@@ -979,7 +1147,8 @@ def _score_candidate(payload: tuple) -> float:
     x, rider, use_offsets, use_grooves, family, rear_member = payload
     try:
         fin = _decode(np.asarray(x), rider.config, use_offsets=use_offsets,
-                      use_grooves=use_grooves, family=family, tabs=rider.tabs)
+                      use_grooves=use_grooves, family=family, tabs=rider.tabs,
+                      camber=searches_camber(rider, family))
         return evaluate(fin, rider, rear_member=rear_member).objective
     except ValueError:
         # Production contract: rejection paths live beyond _decode too
@@ -1159,12 +1328,17 @@ def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
         def cb(n_stage: int, best_f: float, best_x) -> None:
             fin = None
             with contextlib.suppress(ValueError):
-                fin = _decode(best_x, rider.config, tabs=rider.tabs, **decode_kw)
+                fin = _decode(best_x, rider.config, tabs=rider.tabs,
+                              camber=searches_camber(rider, decode_kw.get("family")),
+                              **decode_kw)
             progress(OptimizeProgress(
                 stage=stage, evals_done=evals_before + n_stage,
                 evals_budget=budget_evals, best_objective=best_f, best_fin=fin))
         return cb
 
+    side_camber = searches_camber(rider)
+    if side_camber:
+        x0_a = [*x0_a, _CAMBER_X0]          # the camber gene rides last
     xa, fa, hist_a, na = _run_cma(rider, x0_a, _SIGMA_A,
                                   use_offsets=False, use_grooves=False,
                                   budget=budget_a, seed=seed, workers=workers,
@@ -1172,13 +1346,15 @@ def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
                                                      use_offsets=False,
                                                      use_grooves=False))
     fin_a = _decode(xa, rider.config, use_offsets=False, use_grooves=False,
-                    tabs=rider.tabs)
+                    tabs=rider.tabs, camber=side_camber)
 
     best_fin = fin_a
     hist_b: list[float] = []
     nb = 0
     if budget_b > 0:
-        x0_b = list(xa) + [0.5] * _N_OFFSETS + ([0.5] * _N_GROOVES if use_grooves else [])
+        x0_b = (list(xa[:_N_SLIDERS]) + [0.5] * _N_OFFSETS
+                + ([0.5] * _N_GROOVES if use_grooves else [])
+                + ([float(xa[_N_SLIDERS])] if side_camber else []))
         xb, fb, hist_b, nb = _run_cma(rider, x0_b, _SIGMA_B, use_offsets=True,
                                       use_grooves=use_grooves, budget=budget_b,
                                       seed=seed, workers=workers,
@@ -1188,7 +1364,8 @@ def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
         if fb <= fa:
             try:
                 best_fin = _decode(xb, rider.config, use_offsets=True,
-                                   use_grooves=use_grooves, tabs=rider.tabs)
+                                   use_grooves=use_grooves, tabs=rider.tabs,
+                                   camber=side_camber)
             except ValueError:
                 best_fin = fin_a
 

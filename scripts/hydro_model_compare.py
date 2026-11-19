@@ -1,6 +1,7 @@
 """Before/after of the hydro-model switch (gen-3 step B2): tier-0 vs lattice.
 
-    uv run python scripts/hydro_model_compare.py [--search=<rider name>] [--budget=6000] [--md=out.md]
+    uv run python scripts/hydro_model_compare.py [--search=<rider name>] [--budget=6000]
+                                                 [--foil=cambered] [--seeds=1] [--md=out.md]
 
 For every rider spec in riders/ with an archived winner in out/riders/<name>/,
 the winner's side blade (and centre, as the rear member) is scored twice with
@@ -9,9 +10,10 @@ the SAME rider: once with hydro_model "tier0" (how it was designed), once with
 the section table, the blade read as mounted). Reported: the seven scores, the
 gates, and the physical quantities behind speed and drive in Newtons.
 
---search re-optimises one rider under the lattice model (single seed, small
-budget: a first look at where the optimum moves, NOT a design) and prints the
-winner next to the archived one.
+--search re-optimises one rider under the lattice model (small budget: a first
+look at where the optimum moves, NOT a design) and prints the winner next to
+the archived one. --foil=cambered lets the side blade choose its camber
+(RiderSpec.side_foil); --seeds runs several seeds and lists each winner.
 """
 
 from __future__ import annotations
@@ -101,29 +103,32 @@ def main() -> None:
               f"(L/D {ph['ld_t0']:.1f} → {ph['ld_lat']:.1f}); lattice lift slope {ph['slope_lat']:.2f}/rad, zero-lift {ph['a0_lat']:+.2f}°.\n")
     if "search" in opt:
         path = Path("riders") / f"{opt['search']}.json"
-        name, rider_lat = load_rider(path, hydro_model="lattice")
-        _, rider = load_rider(path)
-        budget = int(opt.get("budget", 6000))
-        t0 = time.time()
-        res = optimize(rider_lat, budget_evals=budget, seed=0)
-        e = evaluate(res.fin, rider_lat)
-        w(f"\n## Re-search under the lattice model — {name} (seed 0, {budget} evaluations, {time.time() - t0:.0f} s)\n")
-        w("A first look at where the optimum moves, not a design.\n")
+        foil = opt.get("foil", "flat_inside")
+        name, rider_lat = load_rider(path, hydro_model="lattice", side_foil=foil)
+        budget, n_seeds = int(opt.get("budget", 6000)), int(opt.get("seeds", 1))
+        w(f"\n## Re-search under the lattice model — {name}, side foil {foil} ({budget} evaluations per seed)\n")
+        w("A first look at where the optimum moves, not a design. Scores are the lattice model's.\n")
         arch = archived(name)
-        w("| blade | geometry | lattice scores (" + ", ".join(spider.AXES) + ") | feasible | going straight N | at work load N |")
-        w("|---|---|---|---|---|---|")
-        rows = [("lattice-model winner", res.fin)]
+        w("| blade | geometry | camber | zero-lift ° | " + " / ".join(spider.AXES)
+          + " | feasible | objective | going straight N | at work load N |")
+        w("|---|---|---|---|---|---|---|---|---|")
+        rows = []
         if arch:
-            rows.insert(0, ("archived (tier-0) winner", fin_from_dict(arch["fin"])))
+            rows.append(("archived (tier-0, flat inside) winner", fin_from_dict(arch["fin"])))
+        for seed in range(n_seeds):
+            t0 = time.time()
+            res = optimize(rider_lat, budget_evals=budget, seed=seed)
+            rows.append((f"lattice winner, seed {seed} ({time.time() - t0:.0f} s)", res.fin))
+            out = Path("out") / f"hydro-compare-{name}-{foil}-seed{seed}.json"
+            out.write_text(json.dumps({"rider": name, "budget": budget, "side_foil": foil, "fin": json.loads(
+                json.dumps(dataclasses.asdict(res.fin), default=lambda o: getattr(o, "value", str(o))))}, indent=1))
         for tag, fin in rows:
             ev = evaluate(fin, rider_lat)
             ph = physical(fin, rider_lat)
-            w(f"| {tag} | {geom(fin)} | " + " / ".join(f"{ev.spider_predicted[a]:.0f}" for a in spider.AXES)
-              + f" | {ev.feasible} | {ph['trim_lat']:.1f} | {ph['work_drag_lat']:.1f} |")
-        w(f"\nWinner objective {e.objective:.3f}, penalties {e.penalties or 'none'}.")
-        out = Path("out") / f"hydro-compare-{name}-lattice.json"
-        out.write_text(json.dumps({"rider": name, "budget": budget, "fin": json.loads(json.dumps(
-            dataclasses.asdict(res.fin), default=lambda o: getattr(o, "value", str(o))))}, indent=1))
+            cam = f"{fin.foil.camber_ratio * 100:.1f} %" if fin.foil.family.value == "cambered" else fin.foil.family.value
+            w(f"| {tag} | {geom(fin)} | {cam} | {ph['a0_lat']:+.2f} | "
+              + " / ".join(f"{ev.spider_predicted[a]:.0f}" for a in spider.AXES)
+              + f" | {ev.feasible} | {ev.objective:.3f} | {ph['trim_lat']:.1f} | {ph['work_drag_lat']:.1f} |")
     text = "\n".join(L)
     print(text)
     if "md" in opt:
