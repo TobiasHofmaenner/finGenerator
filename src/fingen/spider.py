@@ -153,10 +153,14 @@ YAW_ARM_REF_MM = 250.0
 # pressure and drag from the viscous lattice and the section table
 # (bladehydro.py), with tier-0's break angle; "lattice-v1" = the same lattice
 # reading section table v1 (v0 moved onto the resolved-wall RANS sections,
-# sections.TABLES). See RiderSpec.hydro_model.
-HYDRO_MODELS = ("tier0", "lattice", "lattice-v1")
+# sections.TABLES); "lattice-knee" = lattice-v1 with the break angle read off
+# the strips as well (bladehydro.knee) instead of tier-0's aspect-ratio rule.
+# See RiderSpec.hydro_model.
+HYDRO_MODELS = ("tier0", "lattice", "lattice-v1", "lattice-knee")
 # Section table each lattice model reads; a model not listed here is closed-form.
-SECTION_TABLE = {"lattice": "v0", "lattice-v1": "v1"}
+SECTION_TABLE = {"lattice": "v0", "lattice-v1": "v1", "lattice-knee": "v1"}
+# Models whose break angle is the blade's own knee (bladehydro.knee).
+STRIP_KNEE = frozenset({"lattice-knee"})
 
 # Requirement-relative hold saturation constant. hold_score = 100·r/(r+r_ref)
 # with r = f_max/F_req. r_ref is calibrated ONCE for backward compatibility: at
@@ -245,8 +249,11 @@ def raw_scores(fin: FinParams, speed: float = REF_SPEED,
     drag_trim = (bladehydro.trim_drag_n(fin, speed, toe, table) if lattice_model
                  else trim_drag_n(fin, speed, toe_deg))
     # hold: max side force in N (linear to the break; the break is the
-    # AR-dependent heuristic less the camber shift — hydro.break_alpha_deg)
-    a_break = break_alpha_deg(fin, ar_eff)
+    # AR-dependent heuristic less the camber shift — hydro.break_alpha_deg —
+    # or, for a STRIP_KNEE model, where the blade's own strips say it leaves
+    # its line)
+    a_break = (bladehydro.knee(fin, speed, table)[0] if model in STRIP_KNEE
+               else break_alpha_deg(fin, ar_eff))
     # alpha_0 < 0 for a cambered section, so (a_break - alpha_0) is the REAL
     # usable angular range: a side fin already pulls at zero geometric angle.
     # Ignoring it discarded ~35 % of a flat-inside blade's peak side force.

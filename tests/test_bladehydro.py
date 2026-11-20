@@ -40,8 +40,9 @@ def _rider(**kw) -> RiderSpec:
 
 def test_tier0_stays_the_default_and_unknown_models_are_refused():
     assert _rider().hydro_model == "tier0"
-    assert spider.HYDRO_MODELS == ("tier0", "lattice", "lattice-v1")
-    assert spider.SECTION_TABLE == {"lattice": "v0", "lattice-v1": "v1"}
+    assert spider.HYDRO_MODELS == ("tier0", "lattice", "lattice-v1", "lattice-knee")
+    assert spider.SECTION_TABLE == {"lattice": "v0", "lattice-v1": "v1", "lattice-knee": "v1"}
+    assert "lattice-knee" in spider.STRIP_KNEE and set(spider.SECTION_TABLE) >= spider.STRIP_KNEE
     with pytest.raises(ValueError):
         _rider(hydro_model="cfd")
     with pytest.raises(ValueError):
@@ -142,3 +143,38 @@ def test_evaluate_reads_the_table_its_model_names():
     assert e1.margins["trim_drag_n"] == pytest.approx(
         bladehydro.trim_drag_n(cand, SPEED, 3.5, "v1"))
     assert e1.margins["trim_drag_n"] > e0.margins["trim_drag_n"] + 0.7
+
+
+
+def test_knee_sits_on_the_tunnel_fin_and_comes_earlier_on_a_slender_blade():
+    # [BW04] tunnel fin (AR 1.5): lift on its line to 12 deg, 6 % below it at 14.
+    # KNEE_FRACTION is fitted to put its knee at 12 deg; nothing else is fitted.
+    from fingen.params import FoilParams, OutlineParams
+
+    bw04 = FinParams(outline=OutlineParams(depth=120.0, base=100.0, sweep=25.0,
+                                           tip_width_ratio=0.45, le_fullness=0.75, te_shape=0.8),
+                     foil=FoilParams(family=FoilFamily.FLAT_INSIDE, thickness_ratio=0.09),
+                     thickness_tip_factor=1.0)
+    a_bw04, cl_bw04 = bladehydro.knee(bw04, 7.0, "v1")
+    assert a_bw04 == pytest.approx(12.0, abs=0.4)
+    assert cl_bw04 == pytest.approx(0.80, abs=0.05)
+    # the shipped gen-2 side (AR 2.0): its level-2 and level-5 polars leave their line
+    # between 4 and 8 deg (bench/foil-family, bench/cambered-candidate/mesh-level-5);
+    # the aspect-ratio rule holds it to 12
+    side = _fin("side-shipped-gen2.json")
+    a_side, cl_side = bladehydro.knee(side, SPEED, "v1")
+    assert 6.0 < a_side < 9.0
+    assert cl_side < cl_bw04
+    # a low wide blade keeps its line longer (bench/paddle-probe: 12-16 deg)
+    paddle = fin_from_dict(json.loads(
+        (BENCH.parents[1] / "paddle-probe/fins/side-paddle-probe.json").read_text()).get("fin", {}))
+    assert bladehydro.knee(paddle, SPEED, "v1")[0] > a_bw04 + 2.0
+
+
+def test_lattice_knee_model_moves_hold_and_nothing_below_the_knee():
+    side = _fin("side-shipped-gen2.json")
+    v1 = evaluate(side, _rider(hydro_model="lattice-v1", scoring="frontier"))
+    kn = evaluate(side, _rider(hydro_model="lattice-knee", scoring="frontier"))
+    assert kn.margins["trim_drag_n"] == pytest.approx(v1.margins["trim_drag_n"])
+    assert kn.margins["hold_ratio"] < 0.8 * v1.margins["hold_ratio"]
+    assert kn.margins["margin_peak_deg"] < v1.margins["margin_peak_deg"] - 3.0

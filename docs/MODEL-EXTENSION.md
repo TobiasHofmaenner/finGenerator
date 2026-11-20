@@ -1262,6 +1262,141 @@ Six neutral searches, 6000 evaluations, table v1 with five cambered nodes:
 - Five of six seeds end in the worse valley. The search's robustness on v1
   is unchanged and still an open item.
 
+## The knee: where a blade leaves its lift line (2026-11-20)
+
+Hold is the force a blade makes at its break over the force the turn asks
+for, and the break angle has been tier-0's rule through every model so far:
+12° for any effective aspect ratio above 2.5 (the value measured on the one
+tunnel fin, [BW04], geometric aspect ratio 1.5), later below. The viscous
+lattice had no knee of its own. Two things changed that.
+
+### 1. The strips run to their sections' breaks put the knee ten degrees late
+
+With table v1 and the board mirror the tunnel fin's lift line runs straight
+to 22° before its first strip reaches its section's break; the tunnel has
+the fin on its line at 12° and 6 % below it at 14°. At 12° the most loaded
+strip of that fin works at a local lift coefficient of 0.91, 68 % of what
+its section has at its own break. So the blade's knee is not the 2-D
+section's stall carried through strip theory. Whatever ends the line —
+transition on a real section, spanwise flow on a swept blade, the tip — it
+ends when the hardest-working strip is at about 70 % of the fully turbulent
+section's lift.
+
+### 2. That one number, fitted on the tunnel fin, finds the knee of the other polars
+
+`bladehydro.knee`: follow every strip's lift along its own line through the
+working range; the knee is the first angle at which one of them reaches
+`KNEE_FRACTION` = 0.70 of its section's lift at the section's break. 0.70
+puts the tunnel fin at 12.0° on the board mirror. Nothing else is fitted.
+`scripts/knee_survey.py` against every stored 3-D polar that comes with a
+fin file (`bench/knee/`; polars are wall-function RANS in 4° steps, so their
+knee is a bracket; perfect mirror on the model side, as in the CFD):
+
+| blade | geometric aspect ratio | polar is 5 % below its line between | aspect-ratio rule | strip criterion | C_L at the knee: rule / criterion | highest C_L in the polar |
+|---|---|---|---|---|---|---|
+| tunnel fin [BW04], flat inside | 1.51 | 12–14° (tunnel: 12–14°) | 12.0° | 11.4° | 0.85 / 0.86 | 0.87 |
+| gen-2 side as shipped, flat inside | 2.01 | 4–8° | 12.0° | 7.1° | 1.01 / 0.68 | 0.83 |
+| same planform, 3 % camber (mesh level 2 and level 5) | 2.01 | 4–8° | 12.0° | 6.1° | 0.95 / 0.59 | 0.71, 0.66 |
+| cambered candidate | 1.95 | 4–8° | 11.9° | 6.4° | 1.01 / 0.68 | 0.79 |
+| gen-1 side as ridden, flat inside | 2.60 | 8–12° | 12.0° | 7.3° | 1.15 / 0.82 | 0.96 |
+| large low fin (paddle probe) | 1.11 | 12–16° | 16.9° | 14.3° | 0.89 / 0.83 | 0.85 |
+| gen-1 centre as ridden, symmetric | 1.53 | 8–12° | 12.0° | 7.2° | 0.65 / 0.41 | 0.58 |
+
+- **The rule is 4–6° late on every side blade slenderer than the tunnel
+  fin.** It carries their line to a lift of 1.0–1.15, above the highest lift
+  anywhere in their polars. This is the old finding that tier-0's maximum
+  lift reads 20–26 % above CFD; it had been put down to wall functions
+  being soft. The tunnel-anchored criterion says the same as the CFD.
+- **The criterion lands inside or within a degree of every side-blade
+  bracket.** A slender blade reaches the share earlier because each degree
+  loads its strips more, a tip-loaded one earlier than one that spreads its
+  load, a section with more maximum lift later. The rule knows none of
+  these above aspect ratio 2.5.
+- **It misses the one symmetric blade** (7.2° against about 10°). The
+  symmetric family has no referee section yet, and a thin symmetric
+  section stalls differently. For now the criterion is for side blades.
+- Soft spots: one tunnel fin fixes the number; the polars are coarse in
+  angle and wall-function runs tend to bend early (the tunnel fin's replica
+  is 5 % down at about 12°, the tunnel itself at about 13.6°). A level-5 run
+  in one-degree steps on four blades, the tunnel replica among them, is
+  queued behind the 2-D controls.
+
+### 3. What it does to the fins on record
+
+`hydro_model = "lattice-knee"` (opt-in; table v1, corrected lattice, break
+angle from `bladehydro.knee`). 60 kg rider, 8.5 m/s, peak turn force 318 N:
+
+| fin | area mm² | geometric aspect ratio | break: rule / strips | hold: rule / strips | margin to the break at the peak force: rule / strips |
+|---|---|---|---|---|---|
+| gen-1 side as ridden (flat inside) | 6 611 | 2.60 | 12.0° / 7.7° | 0.82 / 0.61 | −3.3° / −7.6° |
+| gen-2 side as shipped (flat inside) | 9 734 | 2.01 | 12.0° / 7.5° | 1.04 / 0.74 | +0.6° / −3.8° |
+| tunnel fin [BW04] | 9 566 | 1.51 | 12.0° / 12.0° | 0.92 / 0.92 | −1.3° / −1.3° |
+| cambered candidate | 10 054 | 1.95 | 11.9° / 6.8° | 1.09 / 0.76 | +1.4° / −3.6° |
+| best fin of the first v1 searches | 10 004 | 1.96 | 12.0° / 8.9° | 1.11 / 0.90 | +1.6° / −1.6° |
+| large low fin (paddle probe) | 15 433 | 1.11 | 16.9° / 15.6° | 1.54 / 1.43 | +7.2° / +5.8° |
+
+- **At equal area the tunnel-shaped fin holds a quarter more than the
+  shipped gen-2 side** (0.92 against 0.74); under the rule the slender one
+  held more (1.04 against 0.92). The rule paid for aspect ratio twice: less
+  induced drag and more hold. (Depth still goes to 135–140 mm in the
+  searches below — induced drag alone is reason enough — but area and
+  fullness now answer to hold.)
+- **The field record reads the same way round.** The gen-1 side, reported
+  as sliding and losing control in the top turn, is at 0.61; the gen-2 side
+  that replaced it and is ridden without that complaint is at 0.74. Both
+  are past their knee at the peak force this rider's sheet asks for — a
+  blade keeps lifting past its knee (the tunnel fin by another 40 % up to
+  24°, at a steep price in drag) — so a hold below 1 is not a fin that
+  cannot turn. But it means the aspiration of 1.15 and the 2° margin gate
+  were numbers in the rule's currency.
+
+### 4. What a search does with it
+
+Six seeds each, 6000 evaluations, neutral aspirations, cambered side foil:
+
+| requirement | area mm² | depth | geometric aspect ratio | camber % | t/c at the base | knee | hold | going straight N | at the working force N | score |
+|---|---|---|---|---|---|---|---|---|---|---|
+| as it was: hold 1.15, margin ≥ 2° — seeds 1, 3, 4 | 11 090 – 11 760 | 138 – 140 | 1.66 – 1.72 | 2.8 – 3.2 | 0.087 – 0.107 | 12.7 – 13.2° | 1.16 – 1.18 | 5.4 – 5.7 | 7.5 – 7.6 | +0.46 … +0.53 |
+| as it was — seeds 0, 2, 5 | 10 510 – 11 000 | 133 – 140 | 1.69 – 1.80 | 2.0 – 2.9 | 0.135 – 0.212 | 16.2 – 17.6° | 1.10 – 1.11 | 5.4 – 5.9 | 7.8 – 7.9 | +0.60 … +0.67 |
+| moved with the shipped gen-2 side: hold 0.82, margin ≥ −2.4° — all six | 8 750 – 9 390 | 135 – 140 | 2.02 – 2.18 | 2.9 – 3.6 | 0.083 – 0.106 | 9.9 – 10.9° | 0.85 – 0.91 | 4.5 – 5.0 | 6.7 – 6.9 | +0.17 … +0.21 |
+
+("Moved with the shipped gen-2 side": that fin loses 0.30 of hold and 4.4°
+of margin when its knee is read off the strips; the aspiration and the gate
+are moved by the same amounts, so the search is asked for what the present
+model thinks it is asking for, measured at the real knee.)
+
+- **Asked for the same reserve as before, the fin grows by an eighth and
+  fills out**: about 11 300 mm² at the same depth, aspect ratio 1.7 instead
+  of 2.0, knee at 13°. Three of the six seeds find it.
+- **The other three buy the knee with section thickness** (t/c 0.14–0.21,
+  swept 50–60 mm): far above the thickest referee section (0.092; 0.12 is
+  running). There table v1 is table v0, and v0's maximum lift keeps rising
+  with thickness. This is the "thickness as a free lever" defect of tier-0
+  coming back through the table; it names the sections to run (3 % camber
+  at t/c 0.16 and 0.20), it is not a fin.
+- **Asked for what the shipped gen-2 side delivers and a little more, all
+  six seeds agree**: 8 750–9 400 mm², depth 135–140, 3–3.5 % camber on t/c
+  0.08–0.11, knee at 10–11°. Hold 0.85–0.91 against the shipped fin's 0.74,
+  4.5–5.0 N going straight against its 15.3 N. The two-valley landscape of
+  the rule is gone here: the spread between seeds is 0.05 in score.
+- None of these is a candidate yet. They rest on a knee criterion with one
+  anchor, on the open half newton at −4.5°, and on sections up to t/c 0.106
+  where the thickest cambered node is 0.092.
+
+### 5. What is open, and what needs a decision
+
+- **Hold needs a new anchor.** With the knee read off the strips, "hold
+  1.15" is no longer what the shipped fins have. Either the aspiration is
+  set relative to a fin that is known to work (the gen-2 side: 0.74), or
+  the peak turn force is revisited (decision D4: at what speed is the
+  hardest turn made). The search results above show both readings.
+- The one-degree knee run on mesh level 5 (four blades).
+- Symmetric sections for the centre fin's knee.
+- Sections thicker than t/c 0.12.
+- The criterion says where the line ends, not what happens after it. How
+  much force is left past the knee, and what it costs, is still the
+  release question.
+
 ## What a fast method cannot do — the rest
 
 - **Post-stall magnitude on a low-aspect-ratio swept blade.** Strip methods get

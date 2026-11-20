@@ -195,7 +195,20 @@ else. The phases below keep their content; this is the sequence.
      the box of the referee's nodes; the sections at t/c 0.05 and 0.12 decide.
      Still no cambered fin to export.
      Zero-lift angle tied to toe: still open.
-   - `[ ]` Fitted separation model for the knee; nonlinear step for stall order.
+   - `[~]` Fitted separation model for the knee: first cut IN, opt-in
+     (2026-11-20, `hydro_model = "lattice-knee"`, `bladehydro.knee`,
+     docs/MODEL-EXTENSION.md "The knee"). The blade leaves its line when its
+     most loaded strip reaches 0.70 of its section's lift at the section's
+     break; 0.70 is fitted on the [BW04] tunnel fin (12°) and then finds the
+     knee of all seven side-blade polars within about a degree
+     (`scripts/knee_survey.py`, `bench/knee/`). The aspect-ratio rule is 4–6°
+     late on every blade slenderer than the tunnel fin: it credited the
+     shipped gen-2 side with hold 1.04 where the strips give 0.74 (gen-1 side
+     as ridden: 0.61). Misses the symmetric centre (7.2° against ~10°; no
+     symmetric referee sections yet). Queued: mesh level 5 in one-degree
+     steps on four blades. **Needs a decision before it can score fins:**
+     what hold is measured against (D11).
+     Still open: nonlinear step for stall order. Original note:
      Now with a reason to go first: `hydro.stall_alpha_deg` (break held at 12°
      above AR_eff 2.5, +8° per unit of aspect ratio below) had no bench below
      AR_eff 2.5 and implies a maximum lift that dips 15 % at its kink. The
@@ -424,6 +437,15 @@ were inflated by the old pivot arm).
   stations, pad kick position), his back-foot position in the carve and in the
   snap, and a bank-angle assumption (30° default?).
 - **D4** Speed band per rider (published anchors in MANOEUVRES.md §4: per-wave average 4.6, typical peak 7, competitive mean max 9–10, fastest 12.5 m/s): design speed and floor (Omar big-wave 8.5 / 6.0?).
+- **D11** *(new 2026-11-20)* What hold is measured against, once the break is
+  read off the blade's own strips ("lattice-knee"). The shipped gen-2 side
+  then reads 0.74 of the peak turn force, the gen-1 side that slid 0.61, a
+  tunnel-shaped fin of the same area 0.92. Options: (a) keep the peak force
+  as it is and set the aspiration relative to a fin known to work (gen-2
+  side = 0.74; "a little more" = 0.82); (b) revisit the peak force itself
+  with D4; (c) score the force available past the knee as well, once there
+  is a model for it. The searches under (a) and under the old number are in
+  docs/MODEL-EXTENSION.md, "The knee".
 - **D6** *(decided 2026-11-19)* No wave-size input, no skill input, no presets:
   the rider sets bank angle (30–55°) and speed band directly and we explain the
   meaning. Presets are a later UX layer. Open sub-point: speed band as two

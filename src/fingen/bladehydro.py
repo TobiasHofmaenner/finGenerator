@@ -10,7 +10,8 @@ and the section table:
   lift_curve       slope and zero-lift angle of the blade's working range, and
                    where its centre of pressure sits;
   trim_drag_n      drag going straight, the blade toed in as it is mounted;
-  drag_at_force_n  drag while it makes a given side force.
+  drag_at_force_n  drag while it makes a given side force;
+  knee             where the blade leaves its lift line (`"lattice-knee"` only).
 
 What changes against tier-0, and why it matters (docs/MODEL-EXTENSION.md):
 profile drag follows the section at the incidence each strip really works at,
@@ -19,9 +20,14 @@ so a flat inside face at its toe angle costs what the CFD says it costs
 foil does not; the lift slope and zero-lift angle carry the planform, the tip
 thickness and the section instead of a formula in four numbers.
 
-What does not change: the knee. The strip coupling has no three-dimensional
-separation onset, so the break angle stays tier-0's (hydro.break_alpha_deg)
-and every solve here is kept on the attached side of it.
+The knee. The strip coupling has no three-dimensional separation onset: run
+to its sections' own breaks it carries the tunnel fin's lift line to 22 deg,
+where the tunnel has it bend at 12-14. Under `"lattice"` and `"lattice-v1"`
+the break angle therefore stays tier-0's (hydro.break_alpha_deg) and every
+solve here is kept on the attached side of it. `"lattice-knee"` reads the
+knee off the strips instead (`knee`, KNEE_FRACTION): the blade leaves its
+line when its most loaded strip reaches a fixed share of what its section
+lifts at the section's own break.
 
 The board is not a perfect mirror. BOARD_MIRROR_STRENGTH weakens the image so
 the lift slope loses about 8–9 %, which is tier-0's reflection factor 1.7 and
@@ -33,6 +39,8 @@ from __future__ import annotations
 
 import functools
 import math
+
+import numpy as np
 
 from fingen import lattice
 from fingen.hydro import RHO_SEAWATER
@@ -49,6 +57,13 @@ NZ, NX = 10, 2
 # clear of the zero-lift kink of a flat inside face.
 _LIN_LO_DEG, _LIN_HI_DEG = 2.0, 6.0
 TRIM_LEEWAY_DEG = 1.0
+# The knee of a blade (`knee`): its most loaded strip at this share of the lift
+# its section has at the section's own break. One fitted number. 0.70 puts the
+# knee of the [BW04] tunnel fin at 12.0 deg on the board mirror — the last
+# tunnel point on its lift line (14 deg is 6 % below it) and tier-0's own
+# anchor. Checked, not fitted, against the eight 3-D polars with a fin file
+# (scripts/knee_survey.py): within about a degree of where each leaves its line.
+KNEE_FRACTION = 0.70
 
 
 @functools.lru_cache(maxsize=256)
@@ -88,6 +103,33 @@ def lift_curve(fin: FinParams, speed: float, table: str = "v0") -> tuple[float, 
     if not math.isfinite(slope_deg) or slope_deg <= 0.0:
         raise ValueError("lattice lift curve is not usable for this blade")
     return math.degrees(slope_deg), _LIN_LO_DEG - lo.cl / slope_deg, hi.x_cp_m * 1e3
+
+
+def knee(fin: FinParams, speed: float, table: str = "v0") -> tuple[float, float]:
+    """(own incidence in degrees, CL) at which the blade leaves its lift line.
+
+    Every strip's lift is followed along its own line through the working
+    range; the knee is the first angle at which one of them reaches
+    KNEE_FRACTION of the lift its section has at the section's own break
+    (`SectionPolar.alpha_break_deg`). A blade that loads its tip reaches that
+    earlier than one that spreads its load, a high aspect ratio earlier than a
+    low one (each degree of incidence loads its strips more), a section with
+    more maximum lift later. What it stands for: on a real blade the line ends
+    before the fully turbulent 2-D section does — transition, spanwise flow on
+    a swept blade, the tip. The share is fitted on one tunnel fin."""
+    lo, _ = point(fin, speed, _LIN_LO_DEG, table)
+    hi, _ = point(fin, speed, _LIN_HI_DEG, table)
+    _, polars = _context(fin, round(speed * 1e3), table)
+    cl_break = np.array([float(p.cl_at(p.alpha_break_deg)) for p in polars["blade"]])
+    span = _LIN_HI_DEG - _LIN_LO_DEG
+    rate = (hi.cl_local - lo.cl_local) / span
+    reach = np.full(len(rate), np.inf)
+    rising = rate > 1e-6
+    reach[rising] = _LIN_LO_DEG + (KNEE_FRACTION * cl_break[rising] - lo.cl_local[rising]) / rate[rising]
+    alpha = float(reach.min())
+    if not math.isfinite(alpha):
+        raise ValueError("lattice lift curve is not usable for this blade")
+    return alpha, lo.cl + (hi.cl - lo.cl) / span * (alpha - _LIN_LO_DEG)
 
 
 def _q_area(fin: FinParams, speed: float) -> float:
