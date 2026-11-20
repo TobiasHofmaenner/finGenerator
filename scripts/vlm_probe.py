@@ -57,12 +57,13 @@ def blade_from_fin(name, fin: FinParams, *, toe=0.0, cant=0.0, **kw) -> Blade:
 
 def solve(blades: list[Blade], speed: float, leeway_deg: float, mirror: bool = True) -> dict:
     return {name: {"cl": r.cl, "cdi": r.cdi, "cl_local": r.cl_local, "z": r.z, "dz": r.dz,
+                   "z_wake": r.z_wake,
                    "x_cp_m": r.x_cp_m, "z_cp_m": r.z_cp_m, "gamma_strip": r.gamma_strip}
             for name, r in lattice.solve(blades, speed, leeway_deg, mirror=mirror).items()}
 
 
 def trefftz_cdi(res: dict, area: float, speed: float) -> float:
-    return lattice.trefftz_cdi(res["gamma_strip"], res["dz"], res["z"], area, speed)
+    return lattice.trefftz_cdi(res["gamma_strip"], res["dz"], res["z_wake"], area, speed)
 
 
 def isolated(fin: FinParams, speed=8.5, nz=16, nx=4) -> dict:

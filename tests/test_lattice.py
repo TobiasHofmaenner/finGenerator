@@ -48,8 +48,8 @@ def test_elliptic_planform_has_unit_span_efficiency():
     b = blade_from_planform("w", z, -0.25 * chord, chord, nz=24, nx=6)   # straight c/4 line
     r = solve([b], 7.0, 4.0)["w"]
     ar = 2.0 * 100.0**2 / float(np.trapezoid(chord, z))
-    e = r.cl**2 / (math.pi * ar * trefftz_cdi(r.gamma_strip, r.dz, r.z, b.area, 7.0))
-    assert 0.97 < e < 1.04
+    e = r.cl**2 / (math.pi * ar * trefftz_cdi(r.gamma_strip, r.dz, r.z_wake, b.area, 7.0))
+    assert 0.99 < e < 1.003
 
 
 def test_mirror_is_the_other_half_of_the_wing():
@@ -184,18 +184,53 @@ def _bw04():
 
 def test_viscous_polar_reproduces_the_tunnel_drag_in_the_linear_range():
     # Brandner & Walker, digitised Figure 2 (+-0.02 on CD): CD 0.030 / 0.035 /
-    # 0.055 / 0.09 at 0 / 4 / 8 / 12 deg. Tier-0's flat-plate cd0 has no notion of
+    # 0.055 / 0.09 at 0 / 4 / 8 / 12 deg, where their stated lift line (0.05 per
+    # deg from -3.5 deg) gives CL 0.175 / 0.375 / 0.575 / 0.775. Drag is compared
+    # at the tunnel's LIFT: a fin that lifts more at the same angle also drags
+    # more, and on the full mirror the model lifts 15 % more than the tunnel
+    # (its wall is no perfect mirror). Tier-0's flat-plate cd0 has no notion of
     # what a flat inside face costs at low incidence; the section table does.
+    from fingen.bladehydro import BOARD_MIRROR_STRENGTH
     from fingen.lattice import viscous_polar
 
-    rows = viscous_polar(_bw04(), 7.0, [0.0, 4.0, 8.0, 12.0])
-    for (_, loads, ok), cd_meas in zip(rows, (0.030, 0.035, 0.055, 0.090), strict=True):
-        assert ok
-        assert loads.cd == pytest.approx(cd_meas, abs=0.008)
-    # lift keeps the tunnel's slope within the known mirror/wall offset (model high)
-    slope = (rows[2][1].cl - rows[0][1].cl) / 8.0
-    assert 0.050 < slope < 0.066
-    assert not rows[3][1].separated.any()                   # no strip at its break at 12 deg
+    angles = [-1.0, 0.0, 4.0, 8.0, 12.0, 14.0]
+    for strength, tol in ((BOARD_MIRROR_STRENGTH, 0.004), (1.0, 0.012)):
+        rows = viscous_polar(_bw04(), 7.0, angles, mirror_strength=strength)
+        assert all(ok for _, _, ok in rows)
+        cl = [loads.cl for _, loads, _ in rows]
+        cd = [loads.cd for _, loads, _ in rows]
+        for cl_meas, cd_meas in ((0.175, 0.030), (0.375, 0.035), (0.575, 0.055), (0.775, 0.090)):
+            assert float(np.interp(cl_meas, cl, cd)) == pytest.approx(cd_meas, abs=tol)
+    # with the weakened image the lift line is the tunnel's as well
+    rows = viscous_polar(_bw04(), 7.0, [0.0, 8.0, 12.0], mirror_strength=BOARD_MIRROR_STRENGTH)
+    assert (rows[1][1].cl - rows[0][1].cl) / 8.0 == pytest.approx(0.050, rel=0.08)
+    # on the full mirror it keeps the known mirror/wall offset (model high)
+    rows = viscous_polar(_bw04(), 7.0, [0.0, 8.0, 12.0])
+    assert 0.050 < (rows[1][1].cl - rows[0][1].cl) / 8.0 < 0.066
+    assert not rows[2][1].separated.any()                   # no strip at its break at 12 deg
+
+
+def test_induced_drag_is_read_in_the_far_wake():
+    # A planar wake cannot beat the elliptic loading: CL^2 / (pi AR CDi) <= 1. The
+    # force sum on swept bound legs reads 10-18 % less drag than that bound allows.
+    from fingen.lattice import solve_viscous, strip_sections
+
+    fin = _bw04()
+    b = blade_from_fin("blade", fin)
+    loads = solve_viscous([b], {"blade": strip_sections(fin, b, 7.0)}, 7.0, 8.0).loads["blade"]
+    ar = 2.0 * (float(np.sum(b.dz)) ** 2) / b.area
+    assert 0.97 < loads.cl**2 / (math.pi * ar * loads.cd_induced) <= 1.0
+    assert loads.cl**2 / (math.pi * ar * loads.cd_induced_near) > 1.08
+    assert loads.cd == pytest.approx(loads.cd_induced + loads.cd_profile)
+
+
+def test_ten_strips_carry_the_fine_lattice_lift():
+    # Control points at the middle of each strip's clustering-angle step: the lift
+    # of a coarse lattice is the fine lattice's within half a percent.
+    fin = _bw04()
+    coarse = solve([blade_from_fin("b", fin, nz=10, nx=2)], 7.0, 6.0)["b"].cl
+    fine = solve([blade_from_fin("b", fin, nz=40, nx=4)], 7.0, 6.0)["b"].cl
+    assert coarse == pytest.approx(fine, rel=0.006)
 
 
 def test_viscous_lattice_sees_the_flat_inside_face_at_the_toe_angle():

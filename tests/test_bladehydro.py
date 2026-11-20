@@ -123,7 +123,7 @@ def test_section_table_v1_prices_a_thin_cambered_blade_on_the_edge_of_its_range(
     v0 = bladehydro.trim_drag_n(cand, SPEED, 3.5)
     v1 = bladehydro.trim_drag_n(cand, SPEED, 3.5, "v1")
     assert v0 == pytest.approx(5.4, abs=0.3)
-    assert 6.5 < v1 < 9.0
+    assert 6.0 < v1 < 9.0
     # the thicker 3 % blade keeps most of its range and moves by under a newton
     twin = _cambered(_fin("side-shipped-gen2.json"))
     assert 0.3 < (bladehydro.trim_drag_n(twin, SPEED, 3.5, "v1")
@@ -141,4 +141,4 @@ def test_evaluate_reads_the_table_its_model_names():
     assert e0.margins["trim_drag_n"] == pytest.approx(bladehydro.trim_drag_n(cand, SPEED, 3.5))
     assert e1.margins["trim_drag_n"] == pytest.approx(
         bladehydro.trim_drag_n(cand, SPEED, 3.5, "v1"))
-    assert e1.margins["trim_drag_n"] > e0.margins["trim_drag_n"] + 1.0
+    assert e1.margins["trim_drag_n"] > e0.margins["trim_drag_n"] + 0.7

@@ -783,13 +783,14 @@ log layer, y+ 12–162, mean 74):
 | 0 | 5.8 | 6.0 | 5.6 | 5.4 | 5.6 |
 | +4 | 10.2 | – | 11.0 (C_L 0.461 against 0.410) | 9.9 | 10.1 |
 
-† at the 800-iteration cap: the flow is at the edge of its attached range
-and does not settle.
+† at the 800-iteration cap. (Corrected 2026-11-20: the residuals had not met
+their criterion, but the forces are steady, within 1.5 % over the last 200
+iterations. These are converged values.)
 
 One refinement of the surface takes 1.5–1.8 N off the level-2 polar at the
 negative angles and leaves 0° where it was. What remains between the 3-D
 polar and the model with referee sections is 0.5 N at −3.5° and 0.7 N at
-−4.5°, on runs that do not settle. So:
+−4.5°. So:
 
 - **The level-2 surface is too coarse at the nose of a cambered blade run
   below its zero-lift angle.** The frozen recipe was converged on a symmetric
@@ -798,6 +799,9 @@ polar and the model with referee sections is 0.5 N at −3.5° and 0.7 N at
 - **Level-2 and level-3 polars of cambered fins read high below about −3°**
   and are not a referee for their drag going straight. Level 5 is, to about
   half a newton per fin, and it agrees with the lattice on referee sections.
+  (2026-11-20: weaker than this reads. Its total is made of friction read a
+  third low and pressure drag read high; see "What level 5's drag is made
+  of".)
 - At +4° level 5 carries 12 % more lift than level 2 (0.461 against 0.410;
   the lattice has 0.43), which is the lift the coarse nose was losing.
 
@@ -979,7 +983,9 @@ induced drag near zero lift), the lift columns move.
 - **Drag at 0° within 3 %; at +4° the lattice is 8 % low**, of which about
   5 % is its near-field induced drag (a far-wake evaluation gives 10.7 N;
   the near-field sum on 10 × 2 panels under-reads induced drag by about a
-  tenth, noted in `lattice.trefftz_cdi`).
+  tenth, noted in `lattice.trefftz_cdi`). (Fixed 2026-11-20, "The lattice:
+  control points and induced drag": the deficit was 17 %, and +4° is now
+  within 3 %.)
 - **The flat inside face reads 13.3 N going straight on level 5**, 13.7 N
   on level 2 (`bench/cambered-candidate/mesh-level-5/`): its separation is
   fixed by the corner of the face and the mesh does not move it. The lattice
@@ -989,8 +995,8 @@ induced drag near zero lift), the lift columns move.
   says 8.8–10.2 N.
 - **The best fin of the v1 searches costs 6.1 N going straight on level 5**
   (`bench/cambered-candidate/mesh-level-5-v1-neutral/`; v1: 5.5 N). From
-  −3.5° to 0° model and CFD agree within 3 %; at −4.5° the CFD does not
-  settle and reads 6.8 N against 5.6. Against the candidate at the same hold
+  −3.5° to 0° model and CFD agree within 3 %; at −4.5° the CFD reads 6.8 N
+  against 5.6. Against the candidate at the same hold
   that is 1.6 N per fin from the thicker section (7.7 → 6.1), where the
   model had 1.0 N: the direction v1 found is right.
 - **Between the nodes v1 is about a newton too kind.** Both blades have
@@ -999,6 +1005,10 @@ induced drag near zero lift), the lift columns move.
   polar says the range stays short for longer (candidate 9.4 N at −4.5°,
   v1 7.3, the plain blend 10.1). The candidate costs 7.7 N going straight,
   not 6.5. Two sections at t/c 0.080 are queued to measure the middle.
+  (2026-11-20: the 4.5 % / t/c 0.092 section came back attached to −6°, and
+  the best v1 fin, built from it, shows the same excess at −4.5° on level 5.
+  This is no longer a statement about v1 between its nodes; whether level 5
+  or the referee is nearer at −4.5° is open, see the next section.)
 
 ### What the search does on v1
 
@@ -1043,7 +1053,8 @@ evaluations, corrected frontier rule), and every earlier optimum rescored:
 - **The decisive node for the current optimum is not in yet.** It sits at
   4.2 % camber on t/c 0.09; v1's ends there come from the plane through the
   other three cambered nodes (lower end −5.5°). The 4.5 % / t/c 0.092
-  section is the next one to finish.
+  section is the next one to finish. (In since 2026-11-20: attached from −6°
+  to +12°.)
 - Below t/c 0.070, above 0.092, below 3 % camber and away from Re 5.7e5 the
   corrections are held at the nearest node; the third batch (t/c 0.05, 0.08
   and 0.12, 1 and 2 % camber, Re 2.8e5) and the quarter-degree edge pass
@@ -1063,10 +1074,193 @@ evaluations, corrected frontier rule), and every earlier optimum rescored:
   about ±1°.
 - **Induced drag.** The lattice's near-field sum is about a tenth low in
   induced drag. Nothing at the working load (0.2 N); 2 N at the peak force.
+  (Fixed 2026-11-20; it was 17 % and half a newton at the working force.)
 - **The flat-inside family** has one RANS section (t/c 0.092); its level is
   held for every thickness, and the lattice over-reads the shipped fin's
   drag going straight by 2 N against level 5. Three more flat sections are
   in the main plan.
+
+## Two more referee sections, what level 5's drag is made of, and the lattice's induced drag (2026-11-20)
+
+### 1. The last two thin sections
+
+`bench/section-tables/thin-cambered/` is complete (`scripts/section_edges.py`):
+
+| section (Re 5.7e5) | settled from … to | lower end between | knee between | table v0: lower end / knee |
+|---|---|---|---|---|
+| 2 % camber, t/c 0.070 | −4.5° … +6° | −4.5 and −6° | +6 and +8° | −5.5° / +9.5° |
+| 3 % camber, t/c 0.070 | −3.5° … +8° | −3.5 and −4.5° | +8 and +10° | −5.25° / +10.0° |
+| 4.5 % camber, t/c 0.070 | −3.5° … +8° | −3.75 and −4.0° (edge pass) | +8 and +10° | −4.5° / +10.5° |
+| 3 % camber, t/c 0.092 | −6° … +10° | −6 and −8° | +10 and +12° | −7.25° / +12.0° |
+| 4.5 % camber, t/c 0.092 | −6° … +12° | −6 and −8° | +12 and +14° | −6.25° / +10.5° |
+
+- **4.5 % camber on t/c 0.092 is attached from −6° to +12°**: cd 0.0137 at
+  −2.5°, 0.0156 at −4.5°, 0.0178 at −6°, cl 1.49 at +12°. That is the
+  section the best fin of the v1 searches is built from. It works at −2.5 to
+  −4.5° going straight, a degree and a half inside the range.
+- Thickness moves the lower end by about 2.5° between t/c 0.070 and 0.092;
+  camber between 3 and 4.5 % hardly moves it. The knee moves with both.
+- With five cambered nodes a plane no longer passes within 0.4° of their
+  ends. v1 now adds to the plane what each node still misses, spread to its
+  neighbourhood by inverse-square distance (one unit = 0.02 in t/c, 1.5 % in
+  camber, a factor two in Reynolds number). At a node v1 is that node: ends
+  within 0.2° (the table's grid), lift within 0.008, drag 0.90–1.19 of the
+  referee inside the range. The one exception is the last sample before an
+  end (up to 1.4): v1's rise toward an end starts earlier than the referee's.
+  `bench/section-tables/table-v1-nodes.md`.
+
+### 2. What level 5's drag is made of
+
+The best fin of the v1 searches read 6.8 N at −4.5° on level 5 where the
+model has 5.6 N, and the referee section says the blade is well inside its
+range there. To see what the 3-D number consists of, the stored cases were
+sampled on the fin's surface (`finGenerator-cfd/scripts/sample_surface.sh`:
+wall shear stress and pressure per face) and split into pressure and
+friction drag on the lattice's own strips
+(`finGenerator-cfd/scripts/surface_split.py`; tables in
+`bench/cambered-candidate/mesh-level-5-v1-neutral/surface-split.md`).
+
+**The rows marked as capped are converged.** They stopped at 800 iterations
+because the residuals had not met their criterion; the forces are steady:
+within 0.01 % over the last 200 iterations on this fin and on the candidate
+at −4.5°, within 0.3 % on the flat-inside fin, within 1.5 % on the 3 %
+cambered fin at −4.5° and +8°. Earlier notes call these rows unsettled; that
+was read off the iteration count and is wrong.
+
+| own incidence ° | level 5: drag N = pressure + friction | lattice, table v1: drag N = induced + profile |
+|---|---|---|
+| −4.5 | 6.84 = 4.71 + 2.13 | 5.65 = 0.00 + 5.64 |
+| −3.5 | 5.50 = 3.23 + 2.27 | 5.45 = 0.08 + 5.37 |
+| −2.5 | 5.33 = 2.85 + 2.48 | 5.59 = 0.40 + 5.19 |
+
+The same split on the referee's own cases
+(`finGenerator-cfd/scripts/section_surface.py`), and the 3-D strip at 73 mm
+of span (chord 74 mm, t/c 0.091, Re 6.0e5) beside the referee's 4.5 % /
+t/c 0.092 section at the incidence the lattice gives that strip:
+
+| section incidence ° | level 5 strip: cd = pressure + friction | referee section: cd = pressure + friction |
+|---|---|---|
+| −3.2 (fin at −2.5°) | 0.0119 = 0.0051 + 0.0068 | 0.0140 = 0.0044 + 0.0096 |
+| −3.8 (fin at −3.5°) | 0.0117 = 0.0056 + 0.0061 | 0.0146 = 0.0051 + 0.0095 |
+| −4.4 (fin at −4.5°) | 0.0155 = 0.0100 + 0.0055 | 0.0155 = 0.0061 + 0.0094 |
+
+(The referee's split is sampled at −2.5, −4.5 and −6° — friction 0.0097,
+0.0094, 0.0085, pressure 0.0040, 0.0062, 0.0093 — and interpolated.)
+
+- **Level 5 reads friction 30–40 % low**, at every strip and every angle:
+  0.0055–0.0077 against the referee's 0.0094–0.0097. Its first cell is about
+  as tall as the boundary layer is thick over the forward third of the
+  blade; the wall function has nothing to stand on there.
+- **It reads pressure drag high**, mostly on the two strips nearest the
+  base (0.4–0.6 N more than the model at all three angles), and at −4.5°
+  along the whole span.
+- **Between −2.5° and 0° the two cancel**, and the total agrees with the
+  model within 5 %. That agreement is real as far as it goes — lift, induced
+  drag and the order of the fins (flat inside far above cambered, thin
+  cambered above thick cambered) do not depend on it — but level 5 is not
+  an independent referee for the last 5–10 % of a cambered fin's drag.
+- **At −4.5° both show the same thing and differ in size.** Toward the
+  lower end of the range the pressure part grows and the friction part
+  falls before any flow reverses: on the referee section (no reversed shear
+  at −4.5 or −6°; suction spike −3.3 and −4.7 at 0.5 % of chord) and on
+  the 3-D fin (reversed shear on under 5 % of the inside face of the two
+  outermost strips only; spike −2.7 at the base). On level 5 the pressure
+  part rises about twice as fast. Either its surface — three cells across
+  the nose radius — loses nose suction, or the referee is generous at this
+  end; tunnel polars of comparable 9 % sections put the corner at or up to
+  a degree earlier than the referee does ("What is provisional in v1").
+  The 2-D check on the 3-D recipe (`bench/section-tables/mesh-recipe/`)
+  showed wall-function cells of this size ending the range early, which
+  favours the first reading without proving it.
+- **So the drag going straight of the best fin is 5.6 N by the model and
+  6.1 N by level 5, and which is nearer is open.** Two controls are queued
+  behind the edge pass: three sections again around their lower ends with
+  the referee's surface one level finer (chord/1280 at the nose), and the
+  4.5 % / t/c 0.092 section with wall functions on level 5's cells at the
+  Reynolds number of a fin's base at 8.5 m/s (9.7e5), beside a resolved
+  partner at that Reynolds number.
+
+### 3. The lattice: control points and induced drag
+
+Two errors in the lattice itself, found while chasing the +4° rows (model
+8–9 % below level 5):
+
+- **Induced drag was read from the force on the bound legs.** On a swept
+  blade that sum is 10–18 % below what the wake carries, at any lattice
+  density: it gave span efficiencies of 1.11–1.21, and a planar wake cannot
+  exceed 1. `lattice.far_wake_drag` reads it in the far wake instead, for
+  any number of placed blades and a partial image; `solve_viscous` now uses
+  it (`cd_induced`; the old number stays as `cd_induced_near`).
+- **The control points sat at the middle of each strip's width.** The strips
+  are clustered toward the tip in equal steps of an angle; the control
+  point belongs at the middle of the angle step. With that, ten strips carry
+  the fine lattice's lift within 0.3 % (it was 2.8 % high and converged
+  slowly) and its far-wake drag within 0.3 %. Textbook checks
+  (`scripts/vlm_probe.py`): rectangular wings of aspect ratio 2 / 4 / 6
+  have slopes 2.47 / 3.61 / 4.21 per radian against published 2.47 / 3.6 /
+  4.2; the elliptic planform has span efficiency 0.99.
+
+| best fin of the v1 searches at +4°, inviscid | C_L | induced drag N |
+|---|---|---|
+| 10 × 2 panels, as it was (strip-middle control points, force sum) | 0.547 | 7.45 |
+| 10 × 2 panels, now | 0.531 | 8.46 |
+| 40 × 4 panels, now | 0.532 | 8.48 |
+
+Against the tunnel ([BW04], digitised to ±0.02 in C_D) the comparison has to
+be made at the tunnel's lift, not its angle: on the perfect mirror the model
+lifts 15 % more than the tunnel at the same angle, and the old test passed
+at equal angle because that extra lift made up for the missing induced
+drag. With the weakened image of the board model (0.85) the lift line is the
+tunnel's within 5 %, and at the tunnel's lift:
+
+| tunnel C_L | 0.175 | 0.375 | 0.575 | 0.775 |
+|---|---|---|---|---|
+| tunnel C_D | 0.030 | 0.035 | 0.055 | 0.090 |
+| model, far wake | 0.0303 | 0.0366 | 0.0564 | 0.0901 |
+| model, force sum (as it was) | 0.0299 | 0.0345 | 0.0515 | 0.0809 |
+
+Against level 5 (`scripts/lattice_vs_polar.py … --table=v1`, perfect mirror):
+
+| own incidence ° | 3 % camber, shipped planform: drag N CFD / model | candidate: CFD / model | best v1 fin: CFD / model |
+|---|---|---|---|
+| −4.5 | 7.0 / 5.5 | 9.4 / 7.0 | 6.8 / 5.6 |
+| −3.5 | 5.4 / 4.8 | 7.1 / 6.0 | 5.5 / 5.5 |
+| −2.5 | 4.8 / 4.6 | 6.0 / 5.8 | 5.3 / 5.6 |
+| 0 | 5.6 / 5.7 | 7.3 / 7.4 | 7.1 / 7.3 |
+| +4 | 11.0 / 10.7 | 14.0 / 13.9 | 13.9 / 13.8 |
+
+The loaded rows are within 3 % now (they were 8–9 % low). Lift is 0.005 to
+0.011 below level 5 from 0° to +4° where it had been within 0.007 either
+way: the old agreement contained the lattice's 2.8 %.
+
+What this does to every earlier number from the `lattice` and `lattice-v1`
+models: a fin holds 2.8 % less than they said and pays about half a newton
+more at the working force (the earlier best: 7.3 N against 6.8). All
+earlier optima sit 2–3 % short of their hold requirement on the corrected
+model.
+
+### 4. What the search does on the corrected model
+
+Six neutral searches, 6000 evaluations, table v1 with five cambered nodes:
+
+| seeds | area mm² | depth | camber % | t/c root × tip factor | AR_eff | going straight N | at the working force N | hold | score |
+|---|---|---|---|---|---|---|---|---|---|
+| 2 | 10 720 | 140 | 4.0 | 0.119 × 0.53 | 3.1 | 6.3 | 7.6 | 1.14 | +0.54 |
+| 0, 1, 3, 4, 5 | 12 520 – 12 960 | 132 – 133 | 2.3 – 3.0 | 0.061 – 0.069 × 0.83 – 1.18 | 2.3 – 2.4 | 6.3 – 6.5 | 7.9 | 1.14 | +0.67 |
+
+- **Both answers have left the referee's nodes.** The better one puts t/c
+  0.12 at the base and thins to 0.063 at the tip; the other five run t/c
+  0.06–0.07 with 2–3 % camber. The cambered nodes span t/c 0.070–0.092 and
+  2–4.5 % camber; outside that box v1 holds its corrections at the box's
+  edge while v0's shapes keep changing with thickness. The search has gone
+  to where the table is least checked, on both sides at once.
+- That is the result to act on, not a candidate: the third 2-D batch
+  (t/c 0.05 and 0.12, 1 % camber, Re 2.8e5; running) puts nodes exactly
+  there. Scores are higher than on the earlier model (+0.23 before) because
+  the same aspirations now have to be met with less lift and more induced
+  drag.
+- Five of six seeds end in the worse valley. The search's robustness on v1
+  is unchanged and still an open item.
 
 ## What a fast method cannot do — the rest
 

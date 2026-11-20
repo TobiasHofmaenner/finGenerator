@@ -38,6 +38,30 @@ for a loaded section at 6°.
 **Frozen recipe: `mesh_level=2` for polar production** (L3 confirms it at
 twice the cost; use level 3 for drag-sensitive/validation studies).
 
+### What the ladder did not cover (2026-11-20)
+
+The ladder converged a symmetric fin at +6°, and levels 2 and 3 share their
+surface cells. Two things it could not see, both found on cambered side fins
+run below their zero-lift angle (`bench/cambered-candidate/`,
+`bench/section-tables/mesh-recipe/`, `docs/MODEL-EXTENSION.md`):
+
+- **Level 2 and 3 read a cambered fin's drag high below about −3° of own
+  incidence** (by 1.5–2.6 N per fin at 8.5 m/s): the nose is under-resolved
+  and the attached range ends about a degree early. Use `mesh_level=5`
+  (level 2 with one more surface refinement: base/160 on the faces, base/320
+  at the nose and trailing edge, 550 000 cells, first cell still in the log
+  layer) for a cambered fin's drag going straight.
+- **A wall-function total can agree for the wrong reasons.** On level 5 the
+  friction part of the drag is 30–40 % below a resolved-wall section's and
+  the pressure part above it; near zero lift the two cancel within 5 %. Read
+  lift, induced drag and the order of fins off these polars; not the last
+  10 % of drag, and not where an attached range ends. Split a case with
+  `finGenerator-cfd/scripts/sample_surface.sh` and `surface_split.py`.
+- **A row at the iteration cap is not an unsettled row.** The cap counts
+  residuals. Check the force history (`postProcessing/forceCoeffs`): the
+  capped level-5 rows are steady within 0.01–1.5 % over their last 200
+  iterations.
+
 ## Bugs the ladder caught on the way (all fixed, all committed)
 
 1. **Root leak** — fin base flush with the boundary left a snappy gap;

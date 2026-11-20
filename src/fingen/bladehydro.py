@@ -42,7 +42,8 @@ from fingen.params import FinParams
 
 BOARD_MIRROR_STRENGTH = 0.85
 # Lattice resolution inside the optimizer loop: 10 strips x 2 chordwise panels
-# is within ~1 % of the converged lift slope (tests/test_lattice.py).
+# carry the fine lattice's lift and far-wake drag within half a percent
+# (tests/test_lattice.py).
 NZ, NX = 10, 2
 # Two own-incidences that bracket the working range of every blade and stay
 # clear of the zero-lift kink of a flat inside face.

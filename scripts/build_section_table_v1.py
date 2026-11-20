@@ -26,10 +26,12 @@ toward its knee; the RANS sections hold their line almost to the stall).
 Those seven are measured at every finished RANS section (`features`, the same
 definition on both sources: the lower end is where cd passes 1.5 x its
 minimum below the minimum, the upper end where it passes 3 x above it) and
-carried to the rest of the grid by a least-squares plane in thickness, camber
-and log Reynolds number per foil family, using only the directions the nodes
-actually span and held constant outside their bounding box. A family with no
-finished section keeps v0 unchanged.
+carried to the rest of the grid per foil family: a least-squares plane in
+thickness, camber and log Reynolds number (only the directions the nodes
+actually span), plus what each node still misses, spread to its neighbourhood
+by inverse-square distance. At a node v1 is therefore that node; between them
+it follows the plane; outside their bounding box it is held at the box's
+edge. A family with no finished section keeps v0 unchanged.
 
 v1 also ships on finer grids than v0 (t/c in steps of 0.005, camber in steps
 of 0.5 %), filled from v0 by interpolation WITH THE ENDS ALIGNED
@@ -37,9 +39,9 @@ of 0.5 %), filled from v0 by interpolation WITH THE ENDS ALIGNED
 nodes; on v0's grid (t/c 0.07 and 0.09 are neighbours, their lower ends two
 degrees apart) that turns one cliff into two half-height steps, and a search
 then parks on a grid node. On the fine grid neighbours differ by half a
-degree. The meta block records nodes, planes,
-residuals and the box, so a reader of the table can see what is measured and
-what is carried.
+degree. The meta block records nodes, planes, what the planes miss at each
+node, and the box, so a reader of the table can see what is measured and what
+is carried.
 
 Rows that did not settle within the iteration cap are used to locate an end
 (they say the flow has separated) and for the drag level BELOW the lower end,
@@ -72,6 +74,9 @@ CORRECTIONS = ("d_lower", "d_upper", "log_level", "log_level_below", "slope", "d
 NEUTRAL = {"d_lower": 0.0, "d_upper": 0.0, "log_level": 0.0, "log_level_below": 0.0,
            "slope": 1.0, "d_alpha0": 0.0, "retention": 1.0}
 BELOW_SPAN_DEG = 3.0                # rows this far below the lower end set the level there
+# One step of the referee's node spacing in t/c, camber and log10 Re: the unit in which a
+# node's distance from a table entry is counted when its remainder is spread.
+NODE_REACH = np.array([0.02, 0.015, np.log10(2.0)])
 
 
 def _crossing(a: np.ndarray, y: np.ndarray, k0: int, step: int, limit: float) -> float:
@@ -257,22 +262,27 @@ def load_nodes(v0) -> list[dict]:
 
 
 def fit_family(nodes: list[dict]) -> dict:
-    """Least-squares plane of each correction over (t/c, camber, log Re), using only
-    the directions the nodes span; evaluation is clamped to their bounding box."""
+    """Each correction over (t/c, camber, log Re): a least-squares plane in the directions
+    the nodes span, plus what every node still misses, spread to its neighbourhood
+    (`corrections`). At a node the result is that node's own value — v1 reproduces the
+    referee where it has been asked — and away from the nodes it falls back to the plane.
+    Evaluation is clamped to the nodes' bounding box."""
     x = np.array([[n["tc"], n["camber"], np.log10(n["re"])] for n in nodes])
     lo, hi = x.min(axis=0), x.max(axis=0)
     used = [j for j in range(3) if hi[j] - lo[j] > 1e-9]
     while len(used) + 1 > len(nodes):                 # fewer nodes than terms: drop the last
         used.pop()
     design = np.column_stack([np.ones(len(nodes))] + [x[:, j] - x[:, j].mean() for j in used])
-    planes, resid = {}, {}
+    planes, resid, left = {}, {}, {}
     for key in CORRECTIONS:
         y = np.array([n["corr"][key] for n in nodes])
         coef, *_ = np.linalg.lstsq(design, y, rcond=None)
         planes[key] = coef.tolist()
+        left[key] = (y - design @ coef).tolist()
         resid[key] = float(np.abs(design @ coef - y).max())
     return {"lo": lo.tolist(), "hi": hi.tolist(), "mean": x.mean(axis=0).tolist(), "used": used,
-            "planes": planes, "max_residual": resid, "nodes": [n["name"] for n in nodes]}
+            "planes": planes, "max_residual": resid, "nodes": [n["name"] for n in nodes],
+            "x": x.tolist(), "left": left}
 
 
 def corrections(fit: dict | None, tc: float, camber: float, re: float) -> dict:
@@ -280,7 +290,12 @@ def corrections(fit: dict | None, tc: float, camber: float, re: float) -> dict:
         return dict(NEUTRAL)
     x = np.clip(np.array([tc, camber, np.log10(re)]), fit["lo"], fit["hi"])
     row = np.array([1.0] + [x[j] - fit["mean"][j] for j in fit["used"]])
-    return {key: float(row @ np.array(fit["planes"][key])) for key in CORRECTIONS}
+    # inverse-distance weights of the nodes, distances in units of NODE_REACH
+    d2 = (((np.array(fit["x"]) - x) / NODE_REACH) ** 2).sum(axis=1)
+    w = np.where(d2 < 1e-12, 1.0, 0.0) if (d2 < 1e-12).any() else 1.0 / d2
+    w = w / w.sum()
+    return {key: float(row @ np.array(fit["planes"][key]) + w @ np.array(fit["left"][key]))
+            for key in CORRECTIONS}
 
 
 def build(v0, fits: dict) -> dict:
@@ -336,8 +351,9 @@ def report(nodes: list[dict], fits: dict, v0) -> str:
     for fam, fit in fits.items():
         lines += ["", f"{fam}: {len(fit['nodes'])} nodes, plane over "
                       f"{[('t/c', 'camber', 'log Re')[j] for j in fit['used']] or 'a constant'}; "
-                      f"largest residual " + ", ".join(f"{k} {v:.3f}" for k, v in
-                                                       fit["max_residual"].items())]
+                      f"the plane alone misses a node by at most "
+                      + ", ".join(f"{k} {v:.3f}" for k, v in fit["max_residual"].items())
+                      + " (spread back in around each node)"]
     return "\n".join(lines)
 
 

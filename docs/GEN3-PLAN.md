@@ -125,6 +125,24 @@ else. The phases below keep their content; this is the sequence.
      queued (`~/bench-results/gen3edge`): quarter-degree edge pass, and
      sections at 1–2 % camber, t/c 0.05 and 0.12, and Re 2.8e5 on a thin one.
      Open: no measured polar behind the referee's lower end yet.
+     2026-11-20: thin-cambered batch complete — 4.5 % camber on t/c 0.092 is
+     attached from −6° to +12°, 2 % on t/c 0.070 from −4.5° to +6°. **Table v1
+     is in** (`scripts/build_section_table_v1.py`, `hydro_model="lattice-v1"`):
+     v0 warped onto the referee's sections, exact at its five cambered nodes,
+     held at the edge of their box outside it (t/c 0.070–0.092, camber
+     2–4.5 %, Re 5.7e5). Running: the edge pass and the third batch. Queued
+     behind them (`~/bench-results/gen3ctl`): the referee one surface level
+     finer around three lower ends, and mesh level 5's cells with wall
+     functions in 2-D on the 4.5 % / t/c 0.092 section.
+   - `[x]` Lattice corrected 2026-11-20 (docs/MODEL-EXTENSION.md, "The
+     lattice: control points and induced drag"): control points at the
+     middle of each strip's clustering-angle step (lift of ten strips within
+     0.3 % of the fine lattice; it was 2.8 % high), induced drag read in the
+     far wake (`lattice.far_wake_drag`; the force sum on the bound legs was
+     17 % low). The [BW04] drag polar at the tunnel's lift is matched within
+     0.002 with the board mirror; level-5 polars at +4° within 3 %. Every
+     fin holds 2.8 % less and pays about 0.5 N more at the working force
+     than the `lattice` models said before.
    - `[!]` Knee test: resolved-wall 3-D runs DIVERGE within 40 iterations on
      the gen-2 side (59 % layer coverage) and on the [BW04] replica (78 %),
      gentle start included. Parked as its own task: continuation from a low
@@ -160,11 +178,22 @@ else. The phases below keep their content; this is the sequence.
      on mesh level 5 (one more surface refinement) the 3 % camber fin drops
      from 6.9 to 5.4 N at −3.5°, within 0.5 N of the lattice with referee
      sections (`bench/cambered-candidate/mesh-level-5/`). Level 5 is the
-     recipe for a cambered fin's drag going straight. A search with
+     recipe for a cambered fin's drag going straight (2026-11-20: the best
+     3-D mesh there is, not a referee for the last 10 % — its friction is a
+     third low and its pressure drag high, and at −4.5° it reads 1.2–2.4 N
+     above the model on fins the 2-D referee has inside their range;
+     `bench/cambered-candidate/mesh-level-5-v1-neutral/surface-split.md`).
+     A search with
      referee sections goes to ~11 800 mm², depth 121, camber 2.3–2.6 %,
      6.1 N — outside the referee's nodes and pinned to its −3.5° sample, so
      it names the sections to run, not a fin. No cambered fin is exported
      before table v1.
+     2026-11-20, on table v1 and the corrected lattice: six neutral searches
+     end either on 10 700 mm², depth 140, 4 % camber with t/c 0.12 at the
+     base thinning to 0.06 at the tip (6.3 N going straight), or on
+     12 500–13 000 mm² with t/c 0.06–0.07 and 2–3 % camber. Both are outside
+     the box of the referee's nodes; the sections at t/c 0.05 and 0.12 decide.
+     Still no cambered fin to export.
      Zero-lift angle tied to toe: still open.
    - `[ ]` Fitted separation model for the knee; nonlinear step for stall order.
      Now with a reason to go first: `hydro.stall_alpha_deg` (break held at 12°

@@ -106,10 +106,17 @@ class Blade:
     area: float             # reference (planform) area, m²
     xq_local: np.ndarray    # (n,) chordwise position of each bound-leg midpoint, blade frame
     depth: float            # blade depth, m
+    cp_frac: np.ndarray     # (nz,) where across each strip its control points sit, 0 inboard … 1
 
     @property
     def n_panels(self) -> int:
         return len(self.strip)
+
+    @property
+    def z_cp(self) -> np.ndarray:
+        """(nz,) local span station of each strip's control points — where the
+        far wake of that strip is read as well."""
+        return np.concatenate([[0.0], np.cumsum(self.dz)[:-1]]) + self.cp_frac * self.dz
 
 
 def _rot(toe_deg: float, cant_deg: float) -> np.ndarray:
@@ -129,7 +136,11 @@ def blade_from_planform(name: str, z_mm: np.ndarray, x_le_mm: np.ndarray,
                         xy_mm: tuple[float, float] = (0.0, 0.0)) -> Blade:
     """Lattice on a planform given as dense (z, x_le, chord) arrays in mm.
 
-    Strips are clustered toward the tip (z = z_tip·sin θ). `x_ref_mm` is the
+    Strips are clustered toward the tip (z = z_tip·sin θ, θ in equal steps) and
+    every strip's control points sit at the middle of its θ step, not of its
+    width: with that the lift and the far-wake drag are within half a percent
+    of their fine-lattice values at ten strips (at the strip's middle the lift
+    is 2–3 % high and converges slowly). `x_ref_mm` is the
     chordwise point the blade is placed about (the base centre for a fin).
     `alpha0_deg` is the root section's zero-lift angle; `alpha0_tip_scale` its
     multiplier at the tip (linear in between). hand="left" mirrors the blade
@@ -144,10 +155,13 @@ def blade_from_planform(name: str, z_mm: np.ndarray, x_le_mm: np.ndarray,
     if not live.any():
         raise ValueError("planform has no chord above the lattice minimum")
     z_tip = float(z_mm[live][-1])
-    ze = z_tip * np.sin(0.5 * math.pi * np.arange(nz + 1) / nz)
+    theta = 0.5 * math.pi * np.arange(nz + 1) / nz
+    ze = z_tip * np.sin(theta)
     xle = np.interp(ze, z_mm, x_le_mm) - x_ref_mm
     c = np.interp(ze, z_mm, chord_mm)
     zc = 0.5 * (ze[:-1] + ze[1:])
+    zq = z_tip * np.sin(0.5 * (theta[:-1] + theta[1:]))
+    t = (zq - ze[:-1]) / (ze[1:] - ze[:-1])
     zero = np.zeros(nz)
     pts: dict[str, list[np.ndarray]] = {k: [] for k in ("A", "B", "ATE", "BTE", "CP")}
     strip, xq = [], []
@@ -158,7 +172,8 @@ def blade_from_planform(name: str, z_mm: np.ndarray, x_le_mm: np.ndarray,
         pts["ATE"].append(np.column_stack([xle[:-1] + c[:-1], zero, ze[:-1]]))
         pts["BTE"].append(np.column_stack([xle[1:] + c[1:], zero, ze[1:]]))
         x_mid, c_mid = 0.5 * (xle[:-1] + xle[1:]), 0.5 * (c[:-1] + c[1:])
-        pts["CP"].append(np.column_stack([x_mid + fc * c_mid, zero, zc]))
+        pts["CP"].append(np.column_stack(
+            [(1.0 - t) * (xle[:-1] + fc * c[:-1]) + t * (xle[1:] + fc * c[1:]), zero, zq]))
         strip.append(np.arange(nz))
         xq.append(x_mid + fb * c_mid)
     sgn = 1.0 if hand == "right" else -1.0
@@ -172,7 +187,7 @@ def blade_from_planform(name: str, z_mm: np.ndarray, x_le_mm: np.ndarray,
                  normal=np.tile(rot @ np.array([0.0, sgn, 0.0]), (len(strip_idx), 1)),
                  camber=a0[strip_idx], strip=strip_idx, z_mid=zc * 1e-3,
                  dz=np.diff(ze) * 1e-3, chord=0.5 * (c[:-1] + c[1:]) * 1e-3, area=area,
-                 xq_local=np.concatenate(xq) * 1e-3, depth=float(z_mm[-1]) * 1e-3)
+                 xq_local=np.concatenate(xq) * 1e-3, depth=float(z_mm[-1]) * 1e-3, cp_frac=t)
 
 
 def blade_from_fin(name: str, fin: FinParams, **kw) -> Blade:
@@ -218,6 +233,7 @@ class BladeLoads:
     cdi: float                # near-field force along the flow / (q·S); indicative only
     cl_local: np.ndarray      # (nz,) strip lift / (q · strip chord · strip width)
     z: np.ndarray             # (nz,) strip stations, m
+    z_wake: np.ndarray        # (nz,) control stations, m: read the far wake here (`trefftz_cdi`)
     dz: np.ndarray            # (nz,) strip widths, m
     gamma_strip: np.ndarray   # (nz,) circulation per strip, m²/s
     x_cp_m: float             # chordwise centre of pressure, blade frame (base centre = 0)
@@ -272,7 +288,7 @@ def solve(blades: list[Blade], speed: float, leeway_deg: float, *,
         ok = abs(total) > 1e-12
         out[b.name] = BladeLoads(
             cl=total / (q * b.area), cdi=float((f @ d).sum()) / (q * b.area),
-            cl_local=strip_lift / (q * b.chord * b.dz), z=b.z_mid, dz=b.dz,
+            cl_local=strip_lift / (q * b.chord * b.dz), z=b.z_mid, z_wake=b.z_cp, dz=b.dz,
             gamma_strip=np.bincount(b.strip, weights=g, minlength=nz),
             x_cp_m=float((lift * b.xq_local).sum() / total) if ok else float("nan"),
             z_cp_m=float((strip_lift * b.z_mid).sum() / total) if ok else float("nan"))
@@ -286,14 +302,49 @@ def trefftz_cdi(gamma_strip: np.ndarray, dz: np.ndarray, z: np.ndarray, area: fl
 
     The strip circulations are a step function of span; every step sheds a line
     vortex, the image sheds its mirror, and the drag is (ρ/2)·Σ Γ·w·Δz with w the
-    wake-plane normal velocity. Exact for the lattice, unlike the near-field
-    force sum (`BladeLoads.cdi`), and the right number for a span efficiency."""
+    wake-plane normal velocity at the stations `z` — pass the control stations
+    (`BladeLoads.z_wake`), not the strip middles. Unlike the near-field force
+    sum (`BladeLoads.cdi`) this is the right number for a span efficiency;
+    `far_wake_drag` is the same reading for placed blades and a partial image."""
     ze = np.cumsum(dz)                    # edges that shed (the root edge carries none)
     jump = np.concatenate([np.diff(gamma_strip), [-gamma_strip[-1]]])
     kern = 1.0 / (z[:, None] - ze[None, :]) - 1.0 / (z[:, None] + ze[None, :])
     w = (jump[None, :] * kern).sum(1) / (2.0 * math.pi)
     drag = 0.5 * RHO_SEAWATER * abs(float((gamma_strip * w * dz).sum()))
     return drag / (0.5 * RHO_SEAWATER * speed**2 * area)
+
+
+def far_wake_drag(gamma: np.ndarray, ATE: np.ndarray, BTE: np.ndarray, d: np.ndarray,
+                  frac: np.ndarray | float = 0.5, *,
+                  mirror: bool = True, mirror_strength: float = 1.0) -> np.ndarray:
+    """Induced drag [N] of every panel's share of the wake, read in the far wake.
+
+    Far downstream each horseshoe is a pair of line vortices along the flow `d`:
+    +Γ through its outboard trailing-edge point, −Γ through the inboard one (the
+    image pair reversed, weakened by `mirror_strength`). The drag is
+    −(ρ/2)·Σ Γ·(v·n)·Δs over the wake's trace, with v the velocity all those
+    lines induce at one point of each panel's piece of the trace — `frac` of the
+    way across it, the blade's `cp_frac` for a tip-clustered lattice — and
+    n·Δs = d × (BTE − ATE). This is `trefftz_cdi` for any number of placed
+    blades and a partial image. The force sum on the bound legs, which it
+    replaces, reads 10–18 % less drag on a swept blade at any lattice density.
+    The total is the system's induced drag; its split between blades follows
+    whose wake carries it."""
+    def across(v: np.ndarray) -> np.ndarray:
+        return v - (v @ d)[..., None] * d
+
+    frac = np.broadcast_to(np.asarray(frac, dtype=float), gamma.shape)[:, None]
+    mid = across(ATE + frac * (BTE - ATE))
+
+    def velocity(through: np.ndarray, sign: float) -> np.ndarray:
+        r = mid[:, None, :] - across(through)[None, :, :]
+        return ((sign * gamma)[None, :, None] * np.cross(d, r)
+                / (r * r).sum(-1)[..., None]).sum(1) / (2.0 * math.pi)
+
+    v = velocity(BTE, 1.0) + velocity(ATE, -1.0)
+    if mirror:
+        v = v + mirror_strength * (velocity(ATE * _MIRROR, 1.0) + velocity(BTE * _MIRROR, -1.0))
+    return -0.5 * RHO_SEAWATER * gamma * (v * np.cross(d, BTE - ATE)).sum(-1)
 
 
 @dataclass(frozen=True)
@@ -326,7 +377,7 @@ def isolated(fin: FinParams, speed: float = 7.0, *, nz: int = 12, nx: int = 3,
     d_cl = r1.cl - r0.cl
     slope = d_cl / math.radians(probe_deg)
     ar_full = 2.0 * fin.outline.depth**2 / metrics(fin.outline).area
-    cdi = trefftz_cdi(r1.gamma_strip - r0.gamma_strip, b.dz, b.z_mid, b.area, speed)
+    cdi = trefftz_cdi(r1.gamma_strip - r0.gamma_strip, b.dz, b.z_cp, b.area, speed)
     shape = (r1.cl_local - r0.cl_local) / d_cl
     k = int(np.argmax(shape))
     depth = fin.outline.depth * 1e-3
@@ -361,7 +412,8 @@ class ViscousLoads:
 
     cl: float                   # force across the flow, in the board plane, / (q·S)
     cd: float                   # induced + profile, along the flow
-    cd_induced: float           # near-field, indicative
+    cd_induced: float           # from the far wake (`far_wake_drag`)
+    cd_induced_near: float      # force sum on the bound legs; 10–18 % low on a swept blade
     cd_profile: float           # from the section table at each strip's incidence
     cl_local: np.ndarray        # (nz,) strip lift along the blade normal / (q · c · dz)
     alpha_eff_deg: np.ndarray   # (nz,) section incidence each strip works at
@@ -478,6 +530,8 @@ def solve_viscous(blades: list[Blade], polars: dict[str, list[SectionPolar]], sp
     v_local = v_inf + (mid * gamma[None, :, None]).sum(1)
     force = RHO_SEAWATER * gamma[:, None] * np.cross(v_local, B - A)
     lift_dir = np.array([-math.sin(beta), math.cos(beta), 0.0])
+    wake = far_wake_drag(gamma, ATE, BTE, d, np.concatenate([b.cp_frac[b.strip] for b in blades]),
+                         mirror=mirror, mirror_strength=mirror_strength)
     a_deg = np.degrees(a_eff)
     cd_k = np.array([float(p.cd_at(a)) for p, a in zip(pol, a_deg, strict=True)])
     sep = np.array([a > p.alpha_break_deg for p, a in zip(pol, a_deg, strict=True)])
@@ -490,10 +544,11 @@ def solve_viscous(blades: list[Blade], polars: dict[str, list[SectionPolar]], sp
         strip_lift = np.bincount(b.strip, weights=lift, minlength=nz)
         total = float(lift.sum())
         ok = abs(total) > 1e-12
-        cdi = float((f @ d).sum()) / (q * b.area)
+        cdi = float(wake[i0:i0 + n].sum()) / (q * b.area)
         cdp = float((cd_k[o:o + nz] * b.chord * b.dz).sum()) / b.area
         out[b.name] = ViscousLoads(
-            cl=total / (q * b.area), cd=cdi + cdp, cd_induced=cdi, cd_profile=cdp,
+            cl=total / (q * b.area), cd=cdi + cdp, cd_induced=cdi,
+            cd_induced_near=float((f @ d).sum()) / (q * b.area), cd_profile=cdp,
             cl_local=cl_k[o:o + nz].copy(), alpha_eff_deg=a_deg[o:o + nz].copy(),
             separated=sep[o:o + nz].copy(), z=b.z_mid,
             x_cp_m=float((lift * b.xq_local).sum() / total) if ok else float("nan"),
@@ -504,14 +559,16 @@ def solve_viscous(blades: list[Blade], polars: dict[str, list[SectionPolar]], sp
 
 
 def viscous_polar(fin: FinParams, speed: float, angles_deg, *, nz: int = 12, nx: int = 3,
-                  table: str = "v0") -> list[tuple[float, ViscousLoads, bool]]:
+                  table: str = "v0", mirror_strength: float = 1.0,
+                  ) -> list[tuple[float, ViscousLoads, bool]]:
     """Polar of one blade alone on the mirror: (angle, loads, converged) per angle,
     each angle warm-started from the one before."""
     b = blade_from_fin("blade", fin, nz=nz, nx=nx)
     pol = {"blade": strip_sections(fin, b, speed, table)}
     rows, warm = [], None
     for a in angles_deg:
-        sol = solve_viscous([b], pol, speed, float(a), decamber0=warm)
+        sol = solve_viscous([b], pol, speed, float(a), decamber0=warm,
+                            mirror_strength=mirror_strength)
         warm = sol.decamber
         rows.append((float(a), sol.loads["blade"], sol.converged))
     return rows

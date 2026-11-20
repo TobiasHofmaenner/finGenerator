@@ -1,20 +1,20 @@
 # Mesh level 5 on the best fin of the first table-v1 searches (2026-11-20)
 
-The blade three of six neutral searches on section table v1 ended on (`docs/MODEL-EXTENSION.md`, "Section table v1"): 10 004 mm², depth 140 mm, base 104 mm, 4.2 % camber on t/c 0.089 at the root and 0.093 at the tip (`fins/side-v1-neutral.json`). The model reads it at 5.5 N going straight with hold 1.14. Same mesh and driver as `../mesh-level-5/`; lattice columns from `scripts/lattice_vs_polar.py <this folder> --table=v1` (perfect mirror).
+The blade three of six neutral searches on section table v1 ended on (`docs/MODEL-EXTENSION.md`, "Section table v1"): 10 004 mm², depth 140 mm, base 104 mm, 4.2 % camber on t/c 0.089 at the root and 0.093 at the tip (`fins/side-v1-neutral.json`). Same mesh and driver as `../mesh-level-5/`; lattice columns from `scripts/lattice_vs_polar.py <this folder> --table=v1` (perfect mirror), with the lattice as corrected on 2026-11-20 (control points, far-wake induced drag) and table v1 with five cambered nodes.
 
 | own incidence ° | level 5: C_L, drag N | lattice, table v1: C_L, drag N | lattice, table v0 N |
 |---|---|---|---|
-| −4.5 | −0.010, 6.8 † | −0.009, 5.6 | 5.0 |
-| −3.5 | +0.058, 5.5 | +0.056, 5.3 | 4.9 |
-| −2.5 | +0.123, 5.3 | +0.121, 5.4 | 5.0 |
-| 0 | +0.285, 7.1 | +0.286, 6.9 | 6.6 |
-| +4 | +0.539, 13.9 | +0.546, 12.6 | 12.3 |
-| going straight (mean of −2.5 and −4.5) | **6.1** | 5.5 | 5.0 |
+| −4.5 | −0.010, 6.8 † | −0.012, 5.6 | 5.0 |
+| −3.5 | +0.058, 5.5 | +0.052, 5.5 | 4.9 |
+| −2.5 | +0.123, 5.3 | +0.115, 5.6 | 5.1 |
+| 0 | +0.285, 7.1 | +0.275, 7.3 | 6.9 |
+| +4 | +0.539, 13.9 | +0.528, 13.8 | 13.4 |
+| going straight (mean of −2.5 and −4.5) | **6.1** | 5.6 | 5.0 |
 
-† at the 800-iteration cap.
+† stopped at the 800-iteration cap on its residuals; the force is steady within 0.01 % over the last 200 iterations. A converged value.
 
 ## Reading
 
-- **The thicker section does what the model said, and a little more.** 6.1 N going straight against 7.7 N for the candidate on t/c 0.074 at the same hold (1.14): 1.6 N per fin from thickness, where the model had 1.0 N (5.5 against 6.5).
-- **From −3.5° to 0° the model is within 3 %**, lift within 0.002. At −4.5° the CFD does not settle and reads 1.2 N more: on all three cambered blades run on this mesh the fin is at the edge of its attached range at −4.5°, a little earlier than table v1 has it. The 4.5 % / t/c 0.092 referee section, which decides v1's lower end here, has not finished.
-- **+4°: lift within 0.007, drag 9 % low** — the lattice's near-field induced drag again.
+- **The thicker section does what the model said.** 6.1 N going straight against 7.7 N for the candidate on t/c 0.074 at the same hold: 1.6 N per fin from thickness, where the model has 0.8 N (5.6 against 6.4).
+- **From −3.5° to +4° the model is within 5 %**, lift within 0.011 (model lower).
+- **At −4.5° level 5 reads 1.2 N more than the model, and which is nearer is open.** The referee's 4.5 % / t/c 0.092 section is attached from −6° to +12°, so by the 2-D referee this blade is a degree and a half inside its range at −4.5°. `surface-split.md` shows what the 3-D number is made of: friction a third below the referee's, pressure drag above it and rising twice as fast toward −4.5°, no reversed flow. Either the level-5 surface loses suction at the nose (three cells across its radius), or the referee is generous at this end. Two 2-D controls are queued (`bench/section-tables/README.md`).
