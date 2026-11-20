@@ -178,3 +178,30 @@ def test_lattice_knee_model_moves_hold_and_nothing_below_the_knee():
     assert kn.margins["trim_drag_n"] == pytest.approx(v1.margins["trim_drag_n"])
     assert kn.margins["hold_ratio"] < 0.8 * v1.margins["hold_ratio"]
     assert kn.margins["margin_peak_deg"] < v1.margins["margin_peak_deg"] - 3.0
+
+
+def test_hold_floor_under_the_strip_knee_is_the_gen2_sides_level():
+    # Decision D11: where the knee is read off the strips, hold is anchored on fins
+    # of known behaviour. The gen-2 side (it holds) defines the floor; the gen-1
+    # side that slid is below it. The gate in degrees, set against the 12 deg
+    # rule, does not apply there.
+    from fingen.optimize import HOLD_ASPIRATION_KNEE, HOLD_FLOOR_KNEE
+
+    knee = _rider(hydro_model="lattice-knee", scoring="frontier", peak_margin_min_deg=2.0)
+    gen2 = evaluate(_fin("side-shipped-gen2.json"), knee)
+    gen1 = evaluate(_fin("side-asridden-gen1.json"), knee)
+    assert HOLD_FLOOR_KNEE <= gen2.margins["hold_ratio"] < HOLD_FLOOR_KNEE + 0.03
+    assert "hold_min" not in gen2.penalties and "peak_margin" not in gen2.penalties
+    assert gen1.margins["hold_ratio"] < HOLD_FLOOR_KNEE - 0.08
+    assert gen1.penalties["hold_min"] > 0.1 and not gen1.feasible
+    assert any("below the floor" in issue for issue in gen1.issues)
+    assert not any("will slide" in issue for issue in gen2.issues)
+    assert knee.resolved_aspirations()["hold"] == HOLD_ASPIRATION_KNEE
+    # the rider's own numbers still win, and the other models keep theirs
+    own = _rider(hydro_model="lattice-knee", scoring="frontier", hold_min=0.9,
+                 aspirations={"hold": 1.0})
+    assert "hold_min" in evaluate(_fin("side-shipped-gen2.json"), own).penalties
+    assert own.resolved_aspirations()["hold"] == 1.0
+    rule = _rider(hydro_model="lattice-v1", scoring="frontier", peak_margin_min_deg=2.0)
+    assert rule.resolved_hold_min() is None and rule.resolved_aspirations()["hold"] == 1.15
+    assert "peak_margin" in evaluate(_fin("side-shipped-gen2.json"), rule).penalties

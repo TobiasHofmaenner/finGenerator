@@ -453,7 +453,7 @@ were inflated by the old pivot arm).
   stations, pad kick position), his back-foot position in the carve and in the
   snap, and a bank-angle assumption (30° default?).
 - **D4** Speed band per rider (published anchors in MANOEUVRES.md §4: per-wave average 4.6, typical peak 7, competitive mean max 9–10, fastest 12.5 m/s): design speed and floor (Omar big-wave 8.5 / 6.0?).
-- **D11** *(new 2026-11-20)* What hold is measured against, once the break is
+- **D11** *(decided 2026-11-20, see the end of this item)* What hold is measured against, once the break is
   read off the blade's own strips ("lattice-knee"). The shipped gen-2 side
   then reads 0.74 of the peak turn force, the gen-1 side that slid 0.61, a
   tunnel-shaped fin of the same area 0.92. Options: (a) keep the peak force
@@ -473,6 +473,17 @@ were inflated by the old pivot arm).
   0.7 on this measure. The number itself is a convention (assumed lean and
   speed; lift continues past the knee); the order of fins and these anchors
   are not.
+  **Decided: (a), anchored on the gen-2 side.** Where the knee is read off the
+  strips, the floor on hold is the gen-2 side's level and a search aims a
+  little above it: `optimize.HOLD_FLOOR_KNEE = 0.72` (the gen-2 side reads
+  0.729; agreed as "0.73, gen 2's level" and set a hair under it so that fin
+  itself passes) and `HOLD_ASPIRATION_KNEE = 0.80`. `RiderSpec.hold_min`
+  overrides the floor. Under those models the gate in degrees
+  (`peak_margin_min_deg`, set against the 12° rule) does not apply. There is
+  no reason to go lower: at hold 0.85–0.90 the searches still reach 4.6–4.8 N
+  going straight against the gen-2 side's 15 N. For the field test: a ladder
+  of three fins that differ only in hold (about 0.65 / 0.75 / 0.85) would
+  calibrate the floor directly. (b) stays open with D4.
 - **D6** *(decided 2026-11-19)* No wave-size input, no skill input, no presets:
   the rider sets bank angle (30–55°) and speed band directly and we explain the
   meaning. Presets are a later UX layer. Open sub-point: speed band as two

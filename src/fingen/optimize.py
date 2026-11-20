@@ -288,6 +288,13 @@ class RiderSpec:
     # is the absolute floor the rank cannot express. A candidate default for
     # gen 3; opt-in now so existing riders' numbers do not move.
     peak_margin_min_deg: float | None = None
+    # Floor on hold (force at the break over the peak turn force): the same
+    # reserve as the peak margin, in the units it is scored in. None = the
+    # model's own floor: HOLD_FLOOR_KNEE where the knee is read off the strips
+    # (spider.STRIP_KNEE), none otherwise. Under those models this floor
+    # REPLACES peak_margin_min_deg, which was set in degrees against the 12 deg
+    # break rule and has no meaning against a knee at 7 (decision D11).
+    hold_min: float | None = None
     spider_targets: dict[str, float] | None = None
     practical_corridor: bool = True
     # Which hydrodynamics score the blade (spider.HYDRO_MODELS). "tier0" is the
@@ -300,8 +307,10 @@ class RiderSpec:
     # range, drag level, lift slope). "lattice-knee" is lattice-v1 with the
     # break angle read off the blade's own strips (bladehydro.knee) instead of
     # the aspect-ratio rule: hold and the peak margin then depend on how the
-    # planform spreads its load and on what its sections can lift. Opt-in until
-    # a before/after on every rider spec is accepted.
+    # planform spreads its load and on what its sections can lift. Hold is then
+    # on its own scale, anchored on fins of known behaviour (HOLD_FLOOR_KNEE,
+    # HOLD_ASPIRATION_KNEE, `hold_min`). Opt-in until a before/after on every
+    # rider spec is accepted.
     hydro_model: str = "tier0"
     # Foil family of the SIDE blade (SIDE_FOILS). "flat_inside" is the classic
     # flat foil every shipped set uses. "cambered" searches a conventional
@@ -346,8 +355,18 @@ class RiderSpec:
         return self.speed_ms if self.speed_ms is not None else _SKILL_SPEED_MS[self.skill]
 
     def resolved_aspirations(self) -> dict[str, float]:
-        """DEFAULT_ASPIRATIONS with the rider's own merged over them."""
-        return {**DEFAULT_ASPIRATIONS, **(self.aspirations or {})}
+        """DEFAULT_ASPIRATIONS with the rider's own merged over them. Where the
+        knee is read off the strips, hold is on its own scale (D11)."""
+        base = dict(DEFAULT_ASPIRATIONS)
+        if self.hydro_model in spider.STRIP_KNEE:
+            base["hold"] = HOLD_ASPIRATION_KNEE
+        return {**base, **(self.aspirations or {})}
+
+    def resolved_hold_min(self) -> float | None:
+        """The floor on hold this rider's fin must clear, or None."""
+        if self.hold_min is not None:
+            return self.hold_min
+        return HOLD_FLOOR_KNEE if self.hydro_model in spider.STRIP_KNEE else None
 
     def resolved_targets(self, *, rear_member: bool = False) -> dict[str, float]:
         """Derived defaults with any explicit override merged over them.
@@ -547,6 +566,16 @@ DEFAULT_ASPIRATIONS = {
     "hold": 1.15,                 # max side force / peak turn force
 }
 GOODS = tuple(DEFAULT_ASPIRATIONS)
+# Decision D11 (2026-11-20). Where the knee is read off the strips
+# (spider.STRIP_KNEE), hold is anchored on fins of known behaviour, not on 1.0:
+# on that measure the gen-2 side reads 0.729 for its 60 kg rider (it holds), the
+# gen-1 side that slid 0.60, and a commercial medium thruster fin 0.67-0.86 over
+# the weight band size charts sell it for (scripts/hold_anchor.py,
+# bench/knee/hold-anchor.md). The number is a convention — lean and speed of the
+# design turn are assumed, and a blade keeps lifting past its knee; the order of
+# those fins is not.
+HOLD_FLOOR_KNEE = 0.72            # the gen-2 side's level: nothing goes below it
+HOLD_ASPIRATION_KNEE = 0.80       # what a search aims for when nothing is said
 TASTES = ("yaw_stiffness_nm_rad", "roll_damping_nm_s")
 
 
@@ -672,9 +701,13 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     cl_peak = sheet.force_peak_n / (q * area * 1e-6)
     alpha_peak = math.degrees(cl_peak / slope) + a_zero
     margin_peak = a_break - alpha_peak
-    if rider.peak_margin_min_deg is not None and margin_peak < rider.peak_margin_min_deg:
-        penalties["peak_margin"] = ((rider.peak_margin_min_deg - margin_peak)
-                                    / max(rider.peak_margin_min_deg, 1e-9))
+    # The gate in degrees belongs to the break rule; under the strip knee the
+    # floor on hold takes its place (below, once hold is known).
+    knee_model = rider.hydro_model in spider.STRIP_KNEE
+    margin_gate = None if knee_model else rider.peak_margin_min_deg
+    if margin_gate is not None and margin_peak < margin_gate:
+        penalties["peak_margin"] = ((margin_gate - margin_peak)
+                                    / max(margin_gate, 1e-9))
     # A designed REAR/center member (thruster/2+1) sits in the forward pair's
     # downwash: derate its produced side force by the measured Falk factor
     # (interference_factor) — at the break angle for the capacity gate here, at
@@ -874,6 +907,12 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     if rider.scoring == "frontier":
         distance, shortfalls = frontier_achievement(goods, tastes, rider, rear_member)
 
+    hold_min = rider.resolved_hold_min()
+    if hold_min is not None and goods["hold"] < hold_min:
+        penalties["hold_min"] = (hold_min - goods["hold"]) / hold_min
+        penalty_sum = float(sum(penalties.values()))
+        feasible = False
+
     objective = distance + PENALTY_WEIGHT * penalty_sum
     margins = {
         "trim_drag_n": goods["trim_drag_n"],
@@ -909,10 +948,13 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
         "roll_set_damping_nm_s": roll_set.roll_damping_nm_s,
     }
     issues = check_anchor(fin, sheet, span_worst)   # SAME number as the soft gate
-    if rider.peak_margin_min_deg is not None and margin_peak < rider.peak_margin_min_deg:
+    if margin_gate is not None and margin_peak < margin_gate:
         issues.append(f"peak-turn margin {margin_peak:.1f} deg < required "
-                      f"{rider.peak_margin_min_deg:.1f} deg")
-    if margin_peak < 0.0:
+                      f"{margin_gate:.1f} deg")
+    if hold_min is not None and goods["hold"] < hold_min:
+        issues.append(f"hold {goods['hold']:.2f} of the peak turn force is below the "
+                      f"floor {hold_min:.2f}")
+    if margin_peak < 0.0 and not knee_model:
         # Informational, not a gate (the hold axis already prices it): the
         # peak turn demands more angle than the section has before its break.
         issues.append(f"peak turn ({sheet.force_peak_n:.0f} N) needs {alpha_peak:.1f} deg, "

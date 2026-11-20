@@ -1392,6 +1392,13 @@ model thinks it is asking for, measured at the real knee.)
   set relative to a fin that is known to work (the gen-2 side: 0.74), or
   the peak turn force is revisited (decision D4: at what speed is the
   hardest turn made). The search results above show both readings.
+  **Decided 2026-11-20 (D11):** anchored on the gen-2 side. A second anchor
+  agrees with it: a commercial medium thruster fin reads 0.82–0.86 for a 65 kg
+  rider and 0.67–0.70 for an 80 kg rider, the band size charts sell it for
+  (`scripts/hold_anchor.py`, `bench/knee/hold-anchor.md`); the gen-2 side
+  reads 0.73 for its 60 kg rider, the gen-1 side that slid 0.60. Under
+  `"lattice-knee"` the floor is `HOLD_FLOOR_KNEE = 0.72` and the aspiration
+  `HOLD_ASPIRATION_KNEE = 0.80`; the gate in degrees does not apply there.
 - The one-degree knee run on mesh level 5 (four blades).
 - Symmetric sections for the centre fin's knee.
 - Sections thicker than t/c 0.12.
@@ -1541,6 +1548,19 @@ Level 5, perfect mirror, drag in N (lattice on the rebuilt v1 / CFD):
   row next to it, and one seed went to zero camber for it (knee 18°). v1 now
   carries a camber-free row of the cambered family's own
   (`cambered_zero_row` in the table's meta, read by `fingen.sections`).
+
+**With the decision on hold (D11, the same day):** floor 0.72 (the gen-2
+side's level), target 0.80, the gate in degrees not applied. Six seeds of six
+agree:
+
+| | area mm² | depth mm | camber % | t/c | knee ° | going straight N | at the working force N | hold |
+|---|---|---|---|---|---|---|---|---|
+| six seeds | 7 050–8 850 | 135–140 | 3.0–4.7 | 0.093–0.132 | 9.0–10.8 | 4.4–4.5 | 6.4–6.6 | 0.78–0.86 |
+
+The six are the same fin in what is scored and not the same fin in shape:
+area differs by a quarter, yaw stiffness by ±10 % (227–275 N m/rad), roll
+damping by ±11 % (0.39–0.49 N m s). On this part of the frontier looseness
+and roll feel are free to choose — which is what a rider's taste is for.
 
 ### 6. The referee itself moves with its nose resolution (open)
 
