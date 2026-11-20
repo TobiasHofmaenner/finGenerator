@@ -534,12 +534,14 @@ working leeway and not for the last degree before −4.5° or past the knee
 
 ## D — decisions needed from Tobias
 
-- **D12** *(new 2026-11-20)* What the quiz shows for the four setups
-  generation 3 cannot design yet (Phase 2b). Today it offers all five.
-  Options: (a) show them, not selectable, marked "not yet"; (b) leave them
-  selectable with a note that only the thruster's side fin is designed for
-  now; (c) hide them. Proposed: (a) — "if it is not possible we rather not
-  offer the lever", and a reviewer sees what is coming.
+- **D12** *(decided 2026-11-20)* What the quiz shows for the four setups
+  generation 3 cannot design yet (Phase 2b). **Decided: leave it as it is.**
+  The quiz keeps offering all five and its "Fins" page keeps describing what
+  each setup gets: the site is a preview, nobody can start a search from it,
+  and when generation 3 is complete the page is close to what it should say.
+  The condition that goes with it: **before Calculate is switched on**
+  (`TFINS_QUIZ_CALCULATE` in T-FINS-web), every setup the quiz offers must be
+  one the optimizer can design, or be taken out of the quiz at that moment.
 
 - **D1** Lever survivors (after 0.2). `release`: keep the *concept* (it is the
   snap's release/re-grip physics) but offer it only once 0.1b gives a measured
