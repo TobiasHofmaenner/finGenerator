@@ -128,7 +128,8 @@ def knee(fin: FinParams, speed: float, table: str = "v0") -> tuple[float, float]
     rate = (hi.cl_local - lo.cl_local) / span
     reach = np.full(len(rate), np.inf)
     rising = rate > 1e-6
-    reach[rising] = _LIN_LO_DEG + (KNEE_FRACTION * cl_break[rising] - lo.cl_local[rising]) / rate[rising]
+    reach[rising] = _LIN_LO_DEG + ((KNEE_FRACTION * cl_break[rising] - lo.cl_local[rising])
+                                   / rate[rising])
     alpha = float(reach.min())
     if not math.isfinite(alpha):
         raise ValueError("lattice lift curve is not usable for this blade")
