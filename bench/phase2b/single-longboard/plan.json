@@ -1,0 +1,23 @@
+{
+ "speed": 5.0,
+ "mesh_level": 5,
+ "end_time": 800,
+ "fin": "fins/single-longboard.json",
+ "variants": [
+  {
+   "name": "single-longboard-L5",
+   "angles": [
+    0,
+    4,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    14
+   ]
+  }
+ ]
+}

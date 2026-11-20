@@ -85,6 +85,7 @@ def strip_knee(fin: FinParams, speed: float, fraction: float, mirror: float,
 
 def cases() -> list[tuple[str, FinParams, float, tuple[np.ndarray, np.ndarray]]]:
     shipped = _fin("mount/fins/side-shipped-gen2.json")
+    centre = _fin("mount/fins/centre-ridden-gen1.json")
     cam3 = dataclasses.replace(shipped, foil=dataclasses.replace(
         shipped.foil, family=FoilFamily.CAMBERED, camber_ratio=0.03, camber_position=0.4))
     return [
@@ -115,6 +116,16 @@ def cases() -> list[tuple[str, FinParams, float, tuple[np.ndarray, np.ndarray]]]
         ("gen-1 centre as ridden, symmetric, mesh level 5, one-degree steps",
          _fin("mount/fins/centre-ridden-gen1.json"), 8.5,
          _polar("knee/one-degree/results-L5centre.json", "centre-gen1-L5")),
+        # blades for the other setups, mesh level 5 (bench/phase2b)
+        ("longboard single (stand-in, 240 mm, raked 45°), symmetric t/c 0.08, mesh level 5",
+         _fin("phase2b/single-longboard/fins/single-longboard.json"), 5.0,
+         _polar("phase2b/single-longboard/results.json", "single-longboard-L5")),
+        ("gen-1 centre with t/c 0.09 instead of 0.046, mesh level 5", dataclasses.replace(centre, foil=dataclasses.replace(
+            centre.foil, thickness_ratio=0.09)), 8.5,
+         _polar("phase2b/centre-thick/results.json", "centre-gen1-tc090-L5")),
+        ("twin keel (stand-in, 95 mm deep), flat inside t/c 0.10, mesh level 5",
+         _fin("phase2b/twin-keel/fins/twin-keel.json"), 7.0,
+         _polar("phase2b/twin-keel/results.json", "twin-keel-L5")),
     ]
 
 

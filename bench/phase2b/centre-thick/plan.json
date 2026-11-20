@@ -1,0 +1,27 @@
+{
+ "speed": 8.5,
+ "mesh_level": 5,
+ "end_time": 800,
+ "fin": "fins/centre-ridden-gen1.json",
+ "variants": [
+  {
+   "name": "centre-gen1-tc090-L5",
+   "angles": [
+    0,
+    4,
+    6,
+    8,
+    9,
+    10,
+    11,
+    12,
+    14
+   ],
+   "patch": {
+    "foil": {
+     "thickness_ratio": 0.09
+    }
+   }
+  }
+ ]
+}
