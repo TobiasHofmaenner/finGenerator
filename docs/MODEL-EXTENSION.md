@@ -987,6 +987,12 @@ induced drag near zero lift), the lift columns move.
   for this family — one section, taken at its minimum — makes 0° worse (9.9
   against 8.2 N). So by this mesh camber saves 5.6–7.4 N per fin; the model
   says 8.8–10.2 N.
+- **The best fin of the v1 searches costs 6.1 N going straight on level 5**
+  (`bench/cambered-candidate/mesh-level-5-v1-neutral/`; v1: 5.5 N). From
+  −3.5° to 0° model and CFD agree within 3 %; at −4.5° the CFD does not
+  settle and reads 6.8 N against 5.6. Against the candidate at the same hold
+  that is 1.6 N per fin from the thicker section (7.7 → 6.1), where the
+  model had 1.0 N: the direction v1 found is right.
 - **Between the nodes v1 is about a newton too kind.** Both blades have
   their sections between t/c 0.070 and 0.092. v1 moves the lower end of the
   attached range evenly with thickness between those two nodes; the 3-D
@@ -1017,8 +1023,8 @@ evaluations, corrected frontier rule), and every earlier optimum rescored:
   0.09 from root to tip (v0's optima: 0.076–0.089 at the root, thicker toward
   the tip). Thickness is what keeps the lower end of the attached range
   clear of the −4.5° the fin sees going straight; v1 prices it. 5.5 N going
-  straight, hold 1.14, where v0 had promised 5.0–5.4. Its level-5 polar is
-  queued.
+  straight, hold 1.14, where v0 had promised 5.0–5.4. Its level-5 polar
+  reads 6.1 N (above).
 - **The move to more area and less camber was the blend plus the missing
   nodes, not the fin.** Those optima have sections thinner than any node; on
   v1 they cost 6.8–8.5 N.

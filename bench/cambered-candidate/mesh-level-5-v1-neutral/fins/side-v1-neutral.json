@@ -1,0 +1,45 @@
+{
+ "fin": {
+  "outline": {
+   "depth": 139.99714503284935,
+   "base": 104.11161901173813,
+   "sweep": 29.602863451250155,
+   "tip_width_ratio": 0.36898779768161394,
+   "le_fullness": 0.4487600501058858,
+   "te_shape": 0.6954974167121115,
+   "le_dx": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "te_dx": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "foil": {
+   "family": "cambered",
+   "thickness_ratio": 0.0887639526221578,
+   "camber_ratio": 0.04179638588097642,
+   "camber_position": 0.4,
+   "te_thickness": 0.7
+  },
+  "thickness_tip_factor": 1.0439325364900638,
+  "grooves": {
+   "count": 0,
+   "length": 60.0,
+   "pitch": 6.0,
+   "width": 3.0,
+   "depth_ratio": 0.35,
+   "span_start": 0.45,
+   "surface": "outer"
+  }
+ }
+}

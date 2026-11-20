@@ -47,4 +47,4 @@ The flat-inside foil on the same planform (the shipped gen-2 side fin):
 - **So the saving from camber is 5.6–7.4 N per fin by this mesh** (13.3 N against 7.7 and 5.9), where the model says 8.8–10.2 N: it is about a newton too kind to these two cambered blades and two newtons too hard on the flat one.
 - **Going straight, the candidate costs 7.7 N.** Table v1 reads 6.5 N, the plain blend of RANS / table ratios 7.9 N, table v0 5.4 N. Both blades here have their sections between the two thicknesses the 2-D referee has run (t/c 0.070 and 0.092); v1 moves the lower end of the attached range evenly between them, and these polars say it stays early for longer. Sections at t/c 0.080 are queued.
 
-The best fin of the table-v1 searches is running on the same mesh (`../mesh-level-5-v1-neutral/` when it lands).
+The best fin of the table-v1 searches on the same mesh: `../mesh-level-5-v1-neutral/` (6.1 N going straight).
