@@ -8,7 +8,7 @@ The referee for `fingen.sections` (table v0: NeuralFoil, boundary layer tripped)
 | `thin-cambered/` | cambered at t/c 0.07 (2 / 3 / 4.5 %) and 4.5 % at t/c 0.092 — the corner a camber-free search goes to | finished, with quarter- to half-degree steps added at both ends of each range (edge pass, `plan-edge.json`) |
 | `mesh-recipe/` | three of those sections again on the 3-D fin recipe (wall functions, surface cells chord/80 … chord/640): how much of a 3-D polar is the mesh | finished |
 | `third-batch/` | 4.5 and 3 % camber at t/c 0.08, 2 and 3 % at t/c 0.05, 1 % at t/c 0.07, 3 % at t/c 0.12, 3 % at t/c 0.07 at Re 2.8e5; half-degree steps toward the lower end, one-degree steps toward the knee | finished |
-| controls (running) | the referee one surface level finer (chord/1280 at the nose) around the lower ends of three sections; the 4.5 % / t/c 0.092 section at Re 9.7e5 with wall functions on mesh level 5's cells, beside a resolved partner | – |
+| `controls/` | the referee one surface level finer (c/1280) around the lower ends of three sections; the 4.5 % / t/c 0.092 section at Re 9.7e5 resolved, and with wall functions on the cells of 3-D mesh levels 5 and 4. NOT read by the table builder | finished 2026-11-20; a check one level finer again is running |
 | `table-v1-nodes.md` | section table v1 against every finished section (written by `scripts/build_section_table_v1.py --report=…`) | twelve cambered nodes at eleven sections, one flat-inside |
 
 Each `results.json` is a snapshot of a running or finished job and is replaced as sections finish. Read them with
@@ -65,3 +65,13 @@ The builder now fits the two ends as the referee has them (a plane in thickness 
 **Between its sections** the table is known as well as leaving one out says: predicted from the other eleven, a section's lower end is off by 0.40° rms and its upper end by 0.43° rms. The largest misses are the box's corners — the upper end of t/c 0.12 comes out 1.3° early (v0's thickness trend flattens where the referee's does not), the lower end of 4.5 % / t/c 0.092 1.1° early.
 
 **What the warp does not carry**: inside the range the referee's drag rises with lift earlier than v0's, so v1 reads 6–14 % low at +4…+6°; and the referee's drag stays flat right up to the cliff where v0 creeps up, so v1 reads 9–19 % high in the last half degree before the lower end.
+
+## The controls (2026-11-20)
+
+`controls/results.json`; reading in `docs/MODEL-EXTENSION.md`, "Twelve cambered sections…", section 6.
+
+- **Wall functions on level-5 cells separate early.** 4.5 % / t/c 0.092 at Re 9.7e5: drag coefficient 0.0276 at −4.5° against 0.0145 with the resolved wall (and a quarter to a third less drag where attached). The level-5 3-D polars' excess at −4.5° is this.
+- **The referee's lower ends are not converged.** One level finer at the surface, the two thin sections stay attached 0.25–1.5° further and the 4.5 % / t/c 0.092 section lets go 0.7–2.2° earlier (separated at −6.0°; the referee has −6.7°). About ± 1° on every lower end in the table above, and less dependence on thickness than it shows.
+- **Reynolds number 9.7e5** on the referee recipe: upper end unchanged (11.2°), lower end 0.4° further out, minimum drag 7 % lower.
+
+Until the finer check says which recipe is converged, the lower ends in table v1 are good to about a degree, and no further sections are run on c/640.

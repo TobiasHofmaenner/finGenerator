@@ -147,9 +147,16 @@ else. The phases below keep their content; this is the sequence.
      angles, and a report that reads the shipped file through the library
      with a leave-one-out column (ends known to 0.4° rms between sections).
      The candidate's drag at −4.5° went from 6.3 to 8.7 N (level 5: 9.4).
-     **Open: the referee's lower end is not mesh-converged** — first control
-     row: 3 % / t/c 0.070 at −4.5° is attached on a nose one level finer
-     (cd 0.0152) and separated on the referee's (0.0322).
+     **Controls in (`bench/section-tables/controls/`):** (1) the level-5 3-D
+     polars' excess at −4.5° is their wall functions: the same cells in 2-D
+     separate between −3.5° and −4.5° on a section the resolved wall holds to
+     −7° (cd 0.0276 against 0.0145 at −4.5°). (2) **The referee's lower ends
+     are not converged**: one surface level finer, thin sections stay attached
+     0.25–1.5° further and 4.5 % / t/c 0.092 lets go 0.7–2.2° earlier — about
+     ± 1° on every lower end in v1, and less dependence on thickness. (3) Re
+     9.7e5: upper end unchanged, lower end 0.4° out. Running: one level finer
+     again (`gen3mesh`); then the recipe is fixed, the table's sections rerun
+     on it and v1 rebuilt. The thick sections and the main tables wait.
    - `[x]` Lattice corrected 2026-11-20 (docs/MODEL-EXTENSION.md, "The
      lattice: control points and induced drag"): control points at the
      middle of each strip's clustering-angle step (lift of ten strips within

@@ -1562,37 +1562,85 @@ area differs by a quarter, yaw stiffness by ±10 % (227–275 N m/rad), roll
 damping by ±11 % (0.39–0.49 N m s). On this part of the frontier looseness
 and roll feel are free to choose — which is what a rider's taste is for.
 
-### 6. The referee itself moves with its nose resolution (open)
+### 6. The controls: the 3-D mesh separates early, and the referee's lower ends are not converged
 
-The first control rows (`~/bench-results/gen3ctl`, the same sections with the
-surface one level finer, c/1280 instead of c/640):
+Record: `bench/section-tables/controls/` (`~/bench-results/gen3ctl`). Three
+questions, three answers. A star marks a run that did not settle.
 
-| section | own incidence | referee (c/640): cl, cd | finer (c/1280): cl, cd |
+**(a) What do the 3-D mesh's cells read in 2-D?** 4.5 % camber on t/c 0.092
+at Re 9.7e5 (a fin's root at 8.5 m/s), resolved wall against wall functions on
+the surface cells of mesh level 5 and of level 4; drag coefficient:
+
+| own incidence | resolved wall | wall functions, level-5 cells | wall functions, level-4 cells |
+|---|---|---|---|
+| +4° | 0.0183 | 0.0145 | 0.0236 (lift 0.75 against 0.95) |
+| 0° | 0.0140 | 0.0094 | 0.0126 |
+| −2.5° | 0.0127 | 0.0098 | 0.0135 |
+| −3.5° | 0.0131 | 0.0130 | 0.0174 |
+| −4.5° | 0.0145 | 0.0276 | 0.0342* |
+| −6° | 0.0161 | 0.0575* | 0.0618* |
+
+- On level-5 cells the section has a quarter to a third less drag where it
+  is attached, and its inside face lets go between −3.5° and −4.5°, where the
+  resolved wall holds to −7°. At −4.5° it reads 1.9 × the resolved drag.
+- **That is the gap of the level-5 3-D polars at −4.5°** on the two blades
+  whose sections the referee has attached (6.8–7.0 N against the model's
+  5.3–5.6 N): the wall-function mesh separates early. The model stands
+  there, as far as the referee's own lower end does — see (b).
+- It also says again why level 5 and the model agree within 5 % from −2.5°
+  to +4°: in level 5 a friction deficit and a pressure excess cancel.
+
+**(b) Is the referee converged at the nose?** The same sections with the
+surface one level finer (c/1280 against c/640); lift and drag coefficient:
+
+| section | own incidence | referee (c/640) | finer (c/1280) |
 |---|---|---|---|
 | 3 % / t/c 0.070 | −2.5° | +0.065, 0.0129 | +0.046, 0.0125 |
 | | −4.0° | −0.098, 0.0150 | −0.117, 0.0140 |
-| | −4.5° | −0.155, 0.0322 (not settled) | −0.171, 0.0152 (settled) |
-| | −6.0° | −0.231, 0.0501 (not settled) | −0.216, 0.0471 (not settled) |
-| 4.5 % / t/c 0.070 | −2.5° | +0.235, 0.0136 | +0.211, 0.0131 |
-| | −3.5° | +0.124, 0.0154 | +0.101, 0.0141 |
-| | −4.0° | +0.048, 0.0305 (not settled) | +0.046, 0.0154 (settled) |
+| | −4.5° | −0.155, 0.0322* | −0.171, 0.0152 |
+| | −6.0° | −0.231, 0.0501* | −0.216, 0.0471* |
+| | +8.0° | +1.126, 0.0340 | +1.138, 0.0262 |
+| 4.5 % / t/c 0.070 | −3.5° | +0.124, 0.0154 | +0.101, 0.0141 |
+| | −4.0° | +0.048, 0.0305* | +0.046, 0.0154 |
+| | −4.5° | −0.044, 0.0447* | −0.108, 0.0419* |
+| 4.5 % / t/c 0.092 | −4.5° | +0.020, 0.0156 | −0.006, 0.0145 |
+| | −6.0° | −0.144, 0.0178 | −0.157, 0.0415* |
+| | −7.0° | −0.246, 0.0231 | −0.191, 0.0690* |
 
-- On the finer mesh both thin sections are **still attached where the referee
-  has them separated**: their lower ends lie at least 0.2° further out.
-- The lift is **0.02 lower at every attached angle** (0.2° of zero-lift
-  angle), and the drag inside the range 3–9 % lower. A constant shift in lift
-  says the two meshes do not carry quite the same nose.
-- So the referee recipe is not converged at the nose, and the direction is
-  that a coarser nose separates earlier. Table v1 reproduces the referee as
-  it stands; its lower ends for thin sections are therefore on the cautious
-  side by an amount not yet known. The same direction would explain why the
-  3-D level-5 mesh (far coarser at the nose) reads more drag at −4.5° than
-  the model on sections the referee has attached — but that is not shown yet.
+- **No.** On the finer mesh the two thin sections stay attached further
+  (lower end beyond −4.5° instead of −4.3°; between −4.0° and −4.5° instead
+  of −3.8°), and the thicker one lets go EARLIER: separated at −6.0°, where
+  the referee holds it to −7.0°. Its lower end lies between −4.5° and −6.0°,
+  not at −6.7°.
+- The referee's lower ends therefore carry about ± 1° from its own mesh, and
+  the finer mesh has them depend much less on thickness: for 4.5 % camber
+  about −4.2° at t/c 0.070 and about −5.2° at 0.092, where the referee has
+  −3.8° and −6.7°. The leave-one-out of section 3 had already singled this
+  section out (predicted −5.6° from the other eleven), and the tunnel polars
+  of 9 % sections quoted under "What is provisional in v1" have the corner at
+  −4.5° to −5.2°.
+- Inside the range the finer mesh has 3–9 % less drag and 0.02 less lift at
+  every angle (0.2° of zero-lift angle); at +8° on the thin section 23 %
+  less drag, so the upper end is not converged either.
 
-Queued behind the controls (`~/bench-results/gen3mesh`): one level finer again
-(c/2560) on the 3 % / t/c 0.070 section and on 4.5 % / t/c 0.092, and more
-angles at c/1280 to bracket both ends. The thick sections and the main tables
-are on hold until this says which recipe they should be run on.
+**(c) What does Reynolds number do above 5.7e5?** The 4.5 % / t/c 0.092
+section at 9.7e5 on the referee recipe: upper end 11.2° (11.2° at 5.7e5),
+lower end −7.0° (−6.7°), minimum drag 7 % lower. The table, which keeps the
+ends above 5.7e5, had predicted exactly that upper end and the lower end
+0.4° short. Subject to (b): this is the recipe that is not converged there.
+
+**Where this leaves the −4.5° question.** For the 3-D mesh it is answered: at
+that angle level 5 is wrong by its wall functions. For the referee it is
+not: a fin on t/c 0.09–0.11 toed in 3.5° works at −2.5° to −4.5°, and with the
+finer mesh's lower end between −4.5° and −6.0° its margin is 0 to 1.5°, not
+the 2° table v1 gives it. Thin sections have more room than v1 says, thick
+ones less.
+
+Running (`~/bench-results/gen3mesh`): one level finer again (c/2560) on the
+3 % / t/c 0.070 section and on 4.5 % / t/c 0.092, and more angles at c/1280 to
+bracket both ends. That fixes the recipe; the sections the table rests on are
+then rerun on it before v1 is rebuilt. The thick sections and the main tables
+wait for it.
 
 ## What a fast method cannot do — the rest
 

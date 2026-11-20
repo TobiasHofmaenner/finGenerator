@@ -1,0 +1,133 @@
+{
+ "domain_chords": 20,
+ "wall": "resolved",
+ "end_time": 3000,
+ "stop_when_converged": true,
+ "sections": [
+  {
+   "name": "camb3-tc070-re570k-lv7",
+   "family": "cambered",
+   "thickness_ratio": 0.07,
+   "te_thickness": 1.2,
+   "chord": 0.12,
+   "re": 570000.0,
+   "angles": [
+    -2.5,
+    -3.5,
+    -4.0,
+    -4.5,
+    -6.0,
+    0.0,
+    8.0
+   ],
+   "camber_ratio": 0.03,
+   "camber_position": 0.4,
+   "surface_level": 7
+  },
+  {
+   "name": "camb45-tc070-re570k-lv7",
+   "family": "cambered",
+   "thickness_ratio": 0.07,
+   "te_thickness": 1.2,
+   "chord": 0.12,
+   "re": 570000.0,
+   "angles": [
+    -2.5,
+    -3.5,
+    -4.0,
+    -4.5,
+    -6.0
+   ],
+   "camber_ratio": 0.045,
+   "camber_position": 0.4,
+   "surface_level": 7
+  },
+  {
+   "name": "camb45-tc092-re570k-lv7",
+   "family": "cambered",
+   "thickness_ratio": 0.092,
+   "te_thickness": 1.2,
+   "chord": 0.12,
+   "re": 570000.0,
+   "angles": [
+    -2.5,
+    -4.5,
+    -6.0,
+    -7.0,
+    -8.0
+   ],
+   "camber_ratio": 0.045,
+   "camber_position": 0.4,
+   "surface_level": 7
+  },
+  {
+   "name": "camb45-tc092-re970k",
+   "family": "cambered",
+   "thickness_ratio": 0.092,
+   "te_thickness": 1.2,
+   "chord": 0.12,
+   "re": 970000.0,
+   "angles": [
+    0,
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    -1,
+    -2.5,
+    -3.5,
+    -4.5,
+    -6,
+    -7,
+    -8,
+    -10
+   ],
+   "camber_ratio": 0.045,
+   "camber_position": 0.4
+  },
+  {
+   "name": "camb45-tc092-re970k-wf-lv5",
+   "family": "cambered",
+   "thickness_ratio": 0.092,
+   "te_thickness": 1.2,
+   "chord": 0.12,
+   "re": 970000.0,
+   "angles": [
+    0,
+    4,
+    -2.5,
+    -3.5,
+    -4.5,
+    -6
+   ],
+   "camber_ratio": 0.045,
+   "camber_position": 0.4,
+   "wall": "wf",
+   "surface_level": 5
+  },
+  {
+   "name": "camb45-tc092-re970k-wf-lv4",
+   "family": "cambered",
+   "thickness_ratio": 0.092,
+   "te_thickness": 1.2,
+   "chord": 0.12,
+   "re": 970000.0,
+   "angles": [
+    0,
+    4,
+    -2.5,
+    -3.5,
+    -4.5,
+    -6
+   ],
+   "camber_ratio": 0.045,
+   "camber_position": 0.4,
+   "wall": "wf",
+   "surface_level": 4
+  }
+ ]
+}
