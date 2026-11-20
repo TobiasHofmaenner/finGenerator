@@ -205,3 +205,26 @@ def test_hold_floor_under_the_strip_knee_is_the_gen2_sides_level():
     rule = _rider(hydro_model="lattice-v1", scoring="frontier", peak_margin_min_deg=2.0)
     assert rule.resolved_hold_min() is None and rule.resolved_aspirations()["hold"] == 1.15
     assert "peak_margin" in evaluate(_fin("side-shipped-gen2.json"), rule).penalties
+
+
+def test_lean_angle_given_directly_is_the_skill_levels_own():
+    # GEN3-PLAN 1.0: the rider sets lean angle and speed, not a skill label. A lean
+    # angle that happens to be a level's own must give exactly that level's fin
+    # loads; one between two levels lies between them.
+    from fingen.optimize import _P_DESIGN_RAD_S, design_roll_rate_rad_s
+
+    side = _fin("side-shipped-gen2.json")
+    by_skill = evaluate(side, _rider(scoring="frontier"))                  # PRO = 55 deg
+    direct = dataclasses.replace(_rider(scoring="frontier"), skill=Skill.CRUISER, bank_deg=55.0)
+    by_angle = evaluate(side, direct)
+    assert direct.bank == 55.0 and _rider().bank == 55.0
+    for key in ("hold_ratio", "stress_sf", "stress_sf_roll", "trim_drag_n", "alpha_peak_deg"):
+        assert by_angle.margins[key] == pytest.approx(by_skill.margins[key]), key
+    for skill, rate in _P_DESIGN_RAD_S.items():
+        assert design_roll_rate_rad_s(skill.value) == pytest.approx(rate)
+    between = evaluate(side, dataclasses.replace(direct, bank_deg=44.0))
+    softer = evaluate(side, dataclasses.replace(direct, bank_deg=40.0))
+    holds = [e.margins["hold_ratio"] for e in (softer, between, by_angle)]
+    assert holds[0] > holds[1] > holds[2]
+    with pytest.raises(ValueError, match="bank_deg"):
+        _rider(bank_deg=70.0)

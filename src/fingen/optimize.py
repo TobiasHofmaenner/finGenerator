@@ -153,6 +153,19 @@ _STABILITY_SKILL_BASE = {
 }
 
 
+# The lean angles the model is used at: the four skill levels span them.
+BANK_RANGE_DEG = (Skill.CRUISER.value, Skill.PRO.value)
+
+
+def design_roll_rate_rad_s(bank_deg: float) -> float:
+    """Design roll rate for the roll-augmented stress case at a lean angle: the
+    skill table's four values (_P_DESIGN_RAD_S) joined by straight lines, so a
+    lean angle given directly lands on the table at 30 / 40 / 48 / 55 deg."""
+    levels = sorted(_P_DESIGN_RAD_S, key=lambda s: s.value)
+    return float(np.interp(bank_deg, [s.value for s in levels],
+                           [_P_DESIGN_RAD_S[s] for s in levels]))
+
+
 def _skill_norm(skill: Skill) -> float:
     """Skill on 0..1 from its design bank angle (CRUISER 0 … PRO 1)."""
     return (skill.value - Skill.CRUISER.value) / (Skill.PRO.value - Skill.CRUISER.value)
@@ -231,6 +244,13 @@ class RiderSpec:
     weight_kg: float
     skill: Skill = Skill.INTERMEDIATE
     speed_ms: float | None = None
+    # The design turn's lean angle in degrees, given directly (GEN3-PLAN 1.0:
+    # the rider sets lean angle and speed, not a skill label). It sets the peak
+    # turn force, m g tan(lean) x the fin's share, and the roll rate of the
+    # structural case. None = the skill level's (30 / 40 / 48 / 55 deg), which
+    # is how every existing rider file reads. With `bank_deg` and `speed_ms`
+    # both given, `skill` is not read by frontier scoring at all.
+    bank_deg: float | None = None
     config: FinConfig = FinConfig.THRUSTER
     material: str = "pet-cf"
     # The rider's BOARD mounting system. Not cosmetic: it sets the base-chord
@@ -332,6 +352,9 @@ class RiderSpec:
     def __post_init__(self) -> None:
         if not 30.0 <= self.weight_kg <= 160.0:
             raise ValueError(f"weight_kg {self.weight_kg} outside 30-160 kg")
+        lo, hi = BANK_RANGE_DEG
+        if self.bank_deg is not None and not lo <= self.bank_deg <= hi:
+            raise ValueError(f"bank_deg {self.bank_deg} outside {lo:g}-{hi:g} deg")
         if self.hydro_model not in spider.HYDRO_MODELS:
             raise ValueError(f"hydro_model {self.hydro_model!r} not in {spider.HYDRO_MODELS}")
         if self.side_foil not in SIDE_FOILS:
@@ -353,6 +376,11 @@ class RiderSpec:
     def speed(self) -> float:
         """Resolved design riding speed (m/s)."""
         return self.speed_ms if self.speed_ms is not None else _SKILL_SPEED_MS[self.skill]
+
+    @property
+    def bank(self) -> float:
+        """Resolved lean angle of the design turn (deg)."""
+        return self.bank_deg if self.bank_deg is not None else self.skill.value
 
     def resolved_aspirations(self) -> dict[str, float]:
         """DEFAULT_ASPIRATIONS with the rider's own merged over them. Where the
@@ -660,7 +688,8 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
                                 config=rider.config, material=rider.material,
                                 tabs=rider.tabs,
                                 member="center" if rear_member else "dominant",
-                                area_max_factor=rider.area_max_factor)
+                                area_max_factor=rider.area_max_factor,
+                                bank_deg=rider.bank_deg)
 
     penalties: dict[str, float] = {}
     m = metrics(fin.outline)
@@ -751,7 +780,7 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     # roll-augmented case (#23) adds the rider's skill-scaled roll rate on top of
     # the steady peak; the gate takes the WORSE of steady-only and combined.
     flex = flex_report(fin, sheet.force_peak_n, speed, material=rider.material,
-                       p_design_rad_s=_P_DESIGN_RAD_S[rider.skill])
+                       p_design_rad_s=design_roll_rate_rad_s(rider.bank))
     # ONE STRESS NUMBER, TWO THRESHOLDS. The soft gate here and the hard gate in
     # sizing.check_anchor must read the SAME quantity or the two walls cross:
     # they did, and an audit found 26 fins in a 17k-fin search that evaluate
@@ -966,7 +995,7 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     if stress_sf_roll < rider.stress_sf_min:
         issues.append(f"roll-augmented bending SF {stress_sf_roll:.2f} < "
                       f"{rider.stress_sf_min:.2f} "
-                      f"(p_design {_P_DESIGN_RAD_S[rider.skill]:.1f} rad/s)")
+                      f"(p_design {design_roll_rate_rad_s(rider.bank):.1f} rad/s)")
     if rider.tab_sf_min is not None and tab_sf < rider.tab_sf_min:
         issues.append(f"tab SF {tab_sf:.2f} < {rider.tab_sf_min:.2f} at the "
                       f"combined load ({fin.tabs.system.value})")
@@ -1839,7 +1868,9 @@ def render_result_card(result: OptimizationResult, path: str | Path) -> Path:
     rider = result.rider
     fig = plt.figure(figsize=(12.5, 9.0), facecolor=_BG)
     fig.suptitle(
-        f"fingen optimize  ·  {rider.weight_kg:.0f} kg {rider.skill.name.lower()}"
+        f"fingen optimize  ·  {rider.weight_kg:.0f} kg "
+        + (rider.skill.name.lower() if rider.bank_deg is None else f"{rider.bank:.0f} deg lean")
+        +
         f"  ·  {rider.config.value}  ·  {rider.material}"
         f"  ·  {rider.speed:.1f} m/s",
         color=_INK, fontsize=13, family="monospace")

@@ -313,7 +313,8 @@ def anchor(rider_mass_kg: float, skill: Skill = Skill.INTERMEDIATE,
            material: str = "pet-cf",
            tabs: TabSystem = TabSystem.NONE,
            member: str = "dominant",
-           area_max_factor: float | None = None) -> AnchorSheet:
+           area_max_factor: float | None = None,
+           bank_deg: float | None = None) -> AnchorSheet:
     """Answer the absolute questions first (design_speed default: measured
     mean riding speed [Forsyth24]).
 
@@ -330,7 +331,10 @@ def anchor(rider_mass_kg: float, skill: Skill = Skill.INTERMEDIATE,
     if member not in ("dominant", "center"):
         raise ValueError(f"member {member!r} not in ('dominant', 'center')")
     m_total = rider_mass_kg + BOARD_MASS_KG
-    f_lateral = m_total * G * math.tan(math.radians(skill.value))
+    # The lean angle of the design turn: given directly (the generation-3
+    # input), or the skill level's (30/40/48/55 deg).
+    bank = skill.value if bank_deg is None else bank_deg
+    f_lateral = m_total * G * math.tan(math.radians(bank))
     share = (CONFIG_CENTER_SHARE.get(config, CONFIG_DOMINANT_SHARE[config])
              if member == "center" else CONFIG_DOMINANT_SHARE[config])
     # Transient peak (structure sizing): coordinated-turn closure, physical.

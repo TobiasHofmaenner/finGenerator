@@ -268,6 +268,17 @@ Already done from Phase 0: 0.1 frontiers (both riders), 0.4 manoeuvre
 catalogue, 0.5 model reach. 0.2 lever audit waits for B2 (its draft ranges
 were inflated by the old pivot arm).
 
+**Lever audit, first cut on the present scoring (2026-11-20, `bench/levers/`,
+one rider: 60 kg, 55° at 8.5 m/s).** The two drags are results, not levers
+(they move by a third of a felt step at most over every sensible setting).
+Hold is cheap in drag (0.72 → 1.10 for a quarter of a step). The two tastes
+are real levers (yaw stiffness 0.6–1.5 × the baseline, roll damping
+0.45–1.6 ×; the fin changes visibly), free within ± 20–25 %, and tied to
+each other and to hold through the size of the fin. Consequence for the
+rider inputs (1.0, 1.5): ask for hold and for the feel; show the drags as
+what comes out. **Also in:** `RiderSpec.bank_deg`, the lean angle of the
+design turn given directly (1.0), with `skill` kept for existing rider files.
+
 ## Phase 0 — evidence before design (no model change)
 
 - `[~]` **0.1 Frontier characterisation.** Sample the feasible shell for Omar
