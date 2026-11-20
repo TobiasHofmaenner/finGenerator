@@ -368,6 +368,28 @@ design turn given directly (1.0), with `skill` kept for existing rider files.
   and become global constants, or functions of the design point if the field
   data says so. `area_max_factor`, `practical_corridor` stay developer
   switches. Web quiz follows `docs/INPUTS.md` later (UX, not this package).
+  **State 2026-11-20.** In the library: `RiderSpec.bank_deg` (lean angle
+  direct; `speed_ms` was already direct), `hold_min` and the strip-knee floor
+  and aspiration (D11). The web quiz now asks exactly these inputs
+  (T-FINS-web, branch `quiz-wizard`, `fins/quiz.py`): facts → lean angle and
+  speed → grip in reserve → tail and roll feel. **The quiz is kept in step
+  with this list**: when an item here changes what a rider can choose, the
+  quiz changes in the same piece of work. Not built yet, and what the quiz
+  already sends: the two tastes as MULTIPLES of the balanced fin's own yaw
+  stiffness and roll damping (`{"tastes": {"yaw_stiffness_nm_rad": 0.8,
+  "roll_damping_nm_s": 1.0}}` beside the rider). Turning them into bands
+  takes the balanced search first, then a second search with the band — item
+  1.7. Open from the plan above: the speed floor as a second input (waits for
+  D4), the finish as a logged modifier, `docs/INPUTS.md`.
+- `[ ]` **1.7 Tastes relative to the balanced fin.** `optimize` wrapper for a
+  rider with taste multiples: search the balanced fin (no bands), read its
+  yaw stiffness and roll damping, set `taste_bands` from the multiples
+  (looser: an upper bound, stiffer: a lower bound, as in `bench/levers/`), and
+  search again only if a multiple is off 1. The result reports both fins and,
+  per good, the shortfalls in felt steps (`margins.shortfall_*`), which is
+  what the quiz's result page draws. The reachable range is not the same for
+  every rider (the quiz offers 0.6–1.5 × and 0.45–1.6 ×, from one rider):
+  report when a band was not reached.
 - `[ ]` **1.1 Physical-unit axes.** Replace `_normalize` (fleet rank) with
   per-axis physical scales: trim drag and turn-load drag in N relative to the
   rider's estimated board drag; L/D at work and at peak; hold as
