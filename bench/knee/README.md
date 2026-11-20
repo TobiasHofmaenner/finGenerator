@@ -12,3 +12,7 @@ Question: tier-0 holds every blade of effective aspect ratio above 2.5 on its li
 - All of these polars are wall-function RANS in 4° steps: brackets, and soft in the direction of an early knee (the tunnel fin's replica is 5 % below its line at about 12°, the tunnel itself at about 13.6°). A level-5 run in one-degree steps on four blades, the tunnel replica among them, is queued (`~/bench-results/gen3ladder`, plans `plan-knee-*.json`).
 
 In the model this is `hydro_model = "lattice-knee"` (opt-in): hold and the peak margin are then read at the strip knee. What it does to the fins on record and to a search: `docs/MODEL-EXTENSION.md`, "The knee".
+
+## What hold can be anchored on
+
+`hold-anchor.md` (`uv run python scripts/hold_anchor.py --md=bench/knee/hold-anchor.md`): hold read at the strip knee for three fins of known behaviour, over riders of 60–90 kg. A commercial medium thruster fin (the [BW04] shape, 9 566 mm² = 14.8 sq in; size charts sell a medium for about 65–80 kg) reads 0.82–0.86 at 65 kg and 0.67–0.70 at 80 kg. The gen-2 side for its 60 kg rider reads 0.73, the gen-1 side that slid 0.60 — what the commercial medium reads for a 90 kg rider. The gen-2 side has less hold than the commercial fin of the same area because it is slenderer and leaves its line 4–5° earlier. Size-chart figures are as relayed by retailers, not from the makers' own pages.

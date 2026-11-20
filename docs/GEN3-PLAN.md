@@ -462,6 +462,17 @@ were inflated by the old pivot arm).
   with D4; (c) score the force available past the knee as well, once there
   is a model for it. The searches under (a) and under the old number are in
   docs/MODEL-EXTENSION.md, "The knee".
+  2026-11-20, later — a second anchor (`scripts/hold_anchor.py`,
+  `bench/knee/hold-anchor.md`; rebuilt table, gen-2 side 0.73, gen-1 0.60): a
+  commercial medium thruster fin (the [BW04] shape, 14.8 sq in) reads 0.82–0.86
+  for a 65 kg rider and 0.67–0.70 for an 80 kg rider, the two ends of the
+  weight band size charts sell a medium for, and hardly depends on level
+  (lean and speed rise together). Gen 2 for its 60 kg rider sits where that
+  fin sits for a 75–80 kg rider; gen 1 where it sits for a 90 kg rider, a
+  size too small by the charts. Three facts, one picture: the floor is near
+  0.7 on this measure. The number itself is a convention (assumed lean and
+  speed; lift continues past the knee); the order of fins and these anchors
+  are not.
 - **D6** *(decided 2026-11-19)* No wave-size input, no skill input, no presets:
   the rider sets bank angle (30–55°) and speed band directly and we explain the
   meaning. Presets are a later UX layer. Open sub-point: speed band as two
