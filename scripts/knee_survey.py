@@ -63,7 +63,8 @@ def polar_knee(a: np.ndarray, cl: np.ndarray, drop: float = 0.05) -> tuple[str, 
     for k in range(1, len(a)):
         if a[k] > 6.0 and dep[k] < -drop:
             inside = a[k - 1] + (a[k] - a[k - 1]) * (-drop - dep[k - 1]) / (dep[k] - dep[k - 1])
-            return f"{a[k - 1]:.0f}–{a[k]:.0f} (≈ {inside:.0f})", float(cl.max())
+            digits = 1 if a[k] - a[k - 1] < 2.0 else 0     # one-degree steps resolve a tenth
+            return f"{a[k - 1]:.0f}–{a[k]:.0f} (≈ {inside:.{digits}f})", float(cl.max())
     return "not within the polar", float(cl.max())
 
 
@@ -103,6 +104,17 @@ def cases() -> list[tuple[str, FinParams, float, tuple[np.ndarray, np.ndarray]]]
          _polar("mount/centre-ridden-gen1-verify-polar.json")),
         ("large low fin (paddle probe), 3.5 % camber", _fin("paddle-probe/fins/side-paddle-probe.json"), 8.5,
          _polar("paddle-probe/results.json", "paddle-probe")),
+        # mesh level 5 in one-degree steps around the knee (bench/knee/one-degree)
+        ("tunnel fin [BW04], mesh level 5, one-degree steps", bw04(), 7.0,
+         _polar("knee/one-degree/results-L5bw04.json", "bw04-L5")),
+        ("gen-2 side as shipped, mesh level 5, one-degree steps", shipped, 8.5,
+         _polar("knee/one-degree/results-L5.json", "flat-inside-L5")),
+        ("best v1-model side (4.2 % camber, t/c 0.089), mesh level 5, one-degree steps",
+         _fin("cambered-candidate/mesh-level-5-v1-neutral/fins/side-v1-neutral.json"), 8.5,
+         _polar("knee/one-degree/results-L5v1.json", "v1-neutral-L5")),
+        ("gen-1 centre as ridden, symmetric, mesh level 5, one-degree steps",
+         _fin("mount/fins/centre-ridden-gen1.json"), 8.5,
+         _polar("knee/one-degree/results-L5centre.json", "centre-gen1-L5")),
     ]
 
 

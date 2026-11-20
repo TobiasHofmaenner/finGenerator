@@ -1319,9 +1319,8 @@ knee is a bracket; perfect mirror on the model side, as in the CFD):
   section stalls differently. For now the criterion is for side blades.
 - Soft spots: one tunnel fin fixes the number; the polars are coarse in
   angle and wall-function runs tend to bend early (the tunnel fin's replica
-  is 5 % down at about 12°, the tunnel itself at about 13.6°). A level-5 run
-  in one-degree steps on four blades, the tunnel replica among them, is
-  queued behind the 2-D controls.
+  is 5 % down at about 12°, the tunnel itself at about 13.6°). The level-5
+  run in one-degree steps on four blades is in: section 6.
 
 ### 3. What it does to the fins on record
 
@@ -1399,12 +1398,50 @@ model thinks it is asking for, measured at the real knee.)
   reads 0.73 for its 60 kg rider, the gen-1 side that slid 0.60. Under
   `"lattice-knee"` the floor is `HOLD_FLOOR_KNEE = 0.72` and the aspiration
   `HOLD_ASPIRATION_KNEE = 0.80`; the gate in degrees does not apply there.
-- The one-degree knee run on mesh level 5 (four blades).
+- ~~The one-degree knee run on mesh level 5 (four blades).~~ Done: section 6.
 - Symmetric sections for the centre fin's knee.
 - Sections thicker than t/c 0.12.
 - The criterion says where the line ends, not what happens after it. How
   much force is left past the knee, and what it costs, is still the
   release question.
+
+### 6. One-degree steps on four blades: the criterion ranks them right and sits a degree early
+
+`bench/knee/one-degree/` (mesh level 5, a symmetry plane at the base; the
+criterion on the same perfect mirror, table v1 as rebuilt, share 0.715):
+
+| blade | last row on its line | next row | 5 % below at | strip criterion | C_L at the last row on the line: CFD / criterion |
+|---|---|---|---|---|---|
+| tunnel fin [BW04] | 12° (−1.9 %) | 13°: −8.2 % | 12.5° | 11.4° | 0.886 / 0.86 |
+| gen-2 side, flat inside | 8° (−2.1 %) | 9°: −7.3 % | 8.6° | 7.0° | 0.721 / 0.67 |
+| best table-v1 side, 4.2 % camber | 8° (−1.7 %) | 9°: −7.0 % | 8.6° | 7.5° | 0.780 / 0.74 |
+| gen-1 centre, symmetric | 8° (−1.5 %) | 9°: −4.1 %, 12°: −7.6 % | 9.9° | 7.3° | 0.447 / 0.41 |
+
+- **A side blade breaks inside one degree.** Within 2 % of its line at one
+  angle, 7–8 % below at the next, and every row past it runs to the
+  iteration cap. The 4° polars could not show this.
+- **The ranking holds.** The tunnel fin breaks 4.0° later than either
+  slender side in the CFD, 4.4° and 3.9° later by the criterion. The
+  criterion separates the flat-inside side from the cambered one by 0.5°
+  where the CFD has them level.
+- **The level is early by 1.1–1.6°, evenly, and the lift at the knee 3–7 %
+  low.** That is the fit, not the form: the share puts the tunnel fin at
+  12.0° on the board mirror, which is 11.4° on the perfect mirror these
+  runs and a tunnel wall have. 0.745–0.785 would put the three blades on
+  their last attached row. The share stays where the tunnel put it: the
+  hold floor is what the gen-2 side reads with it (D11), so a common shift
+  moves floor and blades together, and level 5 is itself early (13 % below
+  the line at 14°, where the tunnel is 6 % below).
+- **The centre has no knee of this kind.** Onset is about where the
+  criterion has it, but its thin symmetric section lets go gradually and
+  the lift keeps climbing at about 80 % of the slope. Hold for a centre fin
+  needs its own reading (plan Phase 2).
+- **Below the knee the lattice on table v1 carries these rows**: lift
+  within 2 % from 4° up to the knee on all three side blades, drag at
+  turning load (7–11°) within 1–5 %. At low incidence the flat-inside
+  blades read 11–25 % more drag than level 5 and the cambered one within
+  4 % down to −3.5°; level 5's friction is a third low, so that gap is not
+  all the model's.
 
 ## Twelve cambered sections, and a table read the way the model reads it (2026-11-20)
 

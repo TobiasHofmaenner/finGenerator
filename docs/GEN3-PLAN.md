@@ -228,9 +228,15 @@ else. The phases below keep their content; this is the sequence.
      late on every blade slenderer than the tunnel fin: it credited the
      shipped gen-2 side with hold 1.04 where the strips give 0.74 (gen-1 side
      as ridden: 0.61). Misses the symmetric centre (7.2° against ~10°; no
-     symmetric referee sections yet). Queued: mesh level 5 in one-degree
-     steps on four blades. **Needs a decision before it can score fins:**
-     what hold is measured against (D11).
+     symmetric referee sections yet). Mesh level 5 in one-degree steps on
+     four blades (2026-11-20, `bench/knee/one-degree/`): a side blade breaks
+     inside one degree; the criterion ranks the three side blades as the CFD
+     does (within 0.5°) and sits 1.1–1.6° early on all of them, lift at the
+     knee 3–7 % low — the share is fitted on the board mirror; left as is,
+     the hold floor moves with it. The centre lets go gradually and keeps
+     most of its slope: its hold needs its own reading (Phase 2). Below the
+     knee the lattice carries lift within 2 % and drag at turning load
+     within 1–5 %. **Decided (D11):** what hold is measured against.
      Still open: nonlinear step for stall order. Original note:
      Now with a reason to go first: `hydro.stall_alpha_deg` (break held at 12°
      above AR_eff 2.5, +8° per unit of aspect ratio below) had no bench below
@@ -474,6 +480,11 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   sections of the symmetric family on the settled mesh recipe (t/c 0.05–0.12,
   two Reynolds numbers), folded into table v1; then the strip knee re-read on
   the gen-1 centre polar and refitted or split by family if it still misses.
+  The one-degree polar of that centre (`bench/knee/one-degree/`) shows what
+  the reading has to be: its section lets go gradually from 8° and the lift
+  keeps climbing at about 80 % of the slope, so a symmetric blade has an
+  onset and a slower line after it, not a break. Hold for it is to be
+  defined on that, not on the side blade's knee.
 - `[ ]` **2b.2 Twin.** (a) Set CFD of a twin (two keel-type side fins at
   production toe and cant) over leeway at two speeds, per-fin forces: the load
   share, the toe at which the pair makes no net side force going straight,

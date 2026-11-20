@@ -10,3 +10,7 @@
 | gen-1 side as ridden, flat inside | 2.60 | 8–12 (≈ 8) | 12.0 | 7.1 / 7.5 | 1.15 / 0.81 | 0.96 |
 | gen-1 centre as ridden, symmetric | 1.53 | 8–12 (≈ 10) | 12.0 | 7.3 / 7.7 | 0.65 / 0.41 | 0.58 |
 | large low fin (paddle probe), 3.5 % camber | 1.11 | 12–16 (≈ 14) | 16.9 | 13.4 / 14.7 | 0.89 / 0.78 | 0.85 |
+| tunnel fin [BW04], mesh level 5, one-degree steps | 1.51 | 12–13 (≈ 12.5) | 12.0 | 11.4 / 12.0 | 0.85 / 0.86 | 0.89 |
+| gen-2 side as shipped, mesh level 5, one-degree steps | 2.01 | 8–9 (≈ 8.6) | 12.0 | 7.0 / 7.4 | 1.01 / 0.67 | 0.83 |
+| best v1-model side (4.2 % camber, t/c 0.089), mesh level 5, one-degree steps | 1.96 | 8–9 (≈ 8.6) | 12.0 | 7.5 / 7.9 | 1.01 / 0.74 | 0.92 |
+| gen-1 centre as ridden, symmetric, mesh level 5, one-degree steps | 1.53 | 9–10 (≈ 9.9) | 12.0 | 7.3 / 7.7 | 0.65 / 0.41 | 0.63 |

@@ -1,0 +1,22 @@
+{
+ "speed": 7.0,
+ "mesh_level": 5,
+ "end_time": 800,
+ "fin": "fins/bw04-replica.json",
+ "variants": [
+  {
+   "name": "bw04-L5",
+   "angles": [
+    0,
+    4,
+    8,
+    10,
+    11,
+    12,
+    13,
+    14,
+    16
+   ]
+  }
+ ]
+}
