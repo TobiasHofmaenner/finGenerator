@@ -134,6 +134,22 @@ else. The phases below keep their content; this is the sequence.
      behind them (`~/bench-results/gen3ctl`): the referee one surface level
      finer around three lower ends, and mesh level 5's cells with wall
      functions in 2-D on the 4.5 % / t/c 0.092 section.
+     2026-11-20, later: edge pass and third batch in — **twelve cambered
+     sections** (t/c 0.05–0.12, camber 1–4.5 %, one of them at Re 2.8e5).
+     Both ends move a degree per 0.01 of t/c, hardly with Reynolds number.
+     The v1 of the day before passed a blind check on the seven new sections
+     (10 of 14 ends inside the referee's bracket). Rebuilding showed that the
+     shipped file did not reproduce its own sections once a second Reynolds
+     number was in, and that above Re 5.7e5 it followed v0's trend (root
+     strips read 0.5–1° too wide). **Builder reworked**: ends fitted as the
+     referee has them, Reynolds number apart, the cliff below the lower end
+     as a mark of its own, half-octave Reynolds numbers and quarter-degree
+     angles, and a report that reads the shipped file through the library
+     with a leave-one-out column (ends known to 0.4° rms between sections).
+     The candidate's drag at −4.5° went from 6.3 to 8.7 N (level 5: 9.4).
+     **Open: the referee's lower end is not mesh-converged** — first control
+     row: 3 % / t/c 0.070 at −4.5° is attached on a nose one level finer
+     (cd 0.0152) and separated on the referee's (0.0322).
    - `[x]` Lattice corrected 2026-11-20 (docs/MODEL-EXTENSION.md, "The
      lattice: control points and induced drag"): control points at the
      middle of each strip's clustering-angle step (lift of ten strips within

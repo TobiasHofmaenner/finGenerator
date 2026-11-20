@@ -58,12 +58,15 @@ NZ, NX = 10, 2
 _LIN_LO_DEG, _LIN_HI_DEG = 2.0, 6.0
 TRIM_LEEWAY_DEG = 1.0
 # The knee of a blade (`knee`): its most loaded strip at this share of the lift
-# its section has at the section's own break. One fitted number. 0.70 puts the
+# its section has at the section's own break. One fitted number. 0.715 puts the
 # knee of the [BW04] tunnel fin at 12.0 deg on the board mirror — the last
 # tunnel point on its lift line (14 deg is 6 % below it) and tier-0's own
 # anchor. Checked, not fitted, against the eight 3-D polars with a fin file
 # (scripts/knee_survey.py): within about a degree of where each leaves its line.
-KNEE_FRACTION = 0.70
+# The number belongs to the section table it was fitted on (v1 of 2026-11-20,
+# quarter-degree angles; 0.70 on the half-degree table before it): refit it
+# with scripts/knee_survey.py --fraction= when the table is rebuilt.
+KNEE_FRACTION = 0.715
 
 
 @functools.lru_cache(maxsize=256)

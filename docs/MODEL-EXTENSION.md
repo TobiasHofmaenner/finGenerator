@@ -1060,6 +1060,8 @@ evaluations, corrected frontier rule), and every earlier optimum rescored:
   and 0.12, 1 and 2 % camber, Re 2.8e5) and the quarter-degree edge pass
   replace that. The symmetric family has no finished section and is v0
   unchanged.
+  (In since 2026-11-20: twelve cambered sections, and the builder reworked —
+  "Twelve cambered sections, and a table read the way the model reads it".)
 - The ends are located inside 1–2° sampling brackets by linear
   interpolation of the drag.
 - **The referee's lower end against measurements.** Tabulated UIUC low-speed
@@ -1396,6 +1398,181 @@ model thinks it is asking for, measured at the real knee.)
 - The criterion says where the line ends, not what happens after it. How
   much force is left past the knee, and what it costs, is still the
   release question.
+
+## Twelve cambered sections, and a table read the way the model reads it (2026-11-20)
+
+Record: `bench/section-tables/README.md` ("Twelve cambered sections"),
+`bench/section-tables/table-v1-nodes.md`, `scripts/build_section_table_v1.py`.
+
+### 1. What the seven new sections say
+
+The edge pass put quarter- to half-degree steps at both ends of the four thin
+sections; the third batch added t/c 0.05 (2 and 3 % camber), 0.08 (3 and
+4.5 %), 0.12 (3 %), 1 % camber at t/c 0.07, and the 3 % / t/c 0.07 section
+again at Re 2.8e5.
+
+- Both ends of the attached range move about a degree per 0.01 of t/c, evenly
+  from 0.05 to 0.12 (3 % camber: lower end −2.8 → −8.6°, upper end +6.3 →
+  +12.8°). Camber moves the upper end by 0.75° per percent and the lower end
+  by 0.35° per percent the other way.
+- Reynolds number hardly moves them: 0.2° and 0.1° between 2.8e5 and 5.7e5,
+  where table v0 has 0.6° and 0.9°. The minimum drag falls by 9 %.
+- Below the lower end the drag jumps from 1.2–1.7 × its minimum to 2.3–5 ×
+  within one step of the rows. Table v0 takes a degree for that.
+
+**The blind check.** Before the new sections were used, the v1 of the day
+before (five cambered sections) was asked for their ends: ten of fourteen
+inside the referee's bracket, four 0.25–0.5° outside (v0: five inside).
+
+### 2. Two faults in how v1 was carried between its sections
+
+Rebuilt on twelve sections with the method of the day before, v1 read the
+4.5 % / t/c 0.070 section with its lower end at −4.25° (referee −3.8°) and
+its drag at −4.5° at 0.028 (referee 0.045). The builder's own report said
+−3.76°. The report checked the builder's formula at the section; the model
+reads the shipped file through `sections.polar`.
+
+1. **The file did not contain the referee's Reynolds number.** v0's grid has
+   4e5 and 8e5, and 5.7e5 is read as the plain mean of the two. While every
+   section was at 5.7e5 the correction was the same at both grid values and
+   the mean came out right. With one section at 2.8e5, Reynolds number became
+   a direction the corrections vary in, the correction at 4e5 a blend of all
+   twelve sections', and the mean wrong.
+2. **Above 5.7e5 the ends followed v0's Reynolds-number trend**, three times
+   the measured one or more. The root strips of a fin are at 8e5–9.5e5 at
+   8.5 m/s: their attached range was read 0.5–1° too wide, in every v1 so far.
+
+Both lower the drag the model reads at −4.5° for a blade whose root sections
+are near their lower end — the cambered candidate.
+
+### 3. The builder now
+
+- The two ends are fitted **as the referee has them**. A plane in thickness
+  and camber misses the referee's upper ends by 0.20° rms and their distance
+  from v0 by 0.57°: v0's ends are irregular, the referee's are not. Each
+  section's remainder is spread to its neighbourhood as before, so at a
+  section v1 is that section.
+- **Reynolds number apart.** Its trend is read where a section was run at
+  more than one and applied on top; outside the measured range the ends stay
+  where they were last measured. In thickness and camber, outside the
+  sections' box, v0's trend carries on from the box's edge as before.
+- **The cliff is a mark of its own**: the angle where the drag passes 2.5 ×
+  its minimum moves with the lower end, so v1's rise below the lower end is
+  as steep as the referee's rows resolve it.
+- **Finer grids**: Reynolds number in half octaves (5.7e5 is on the grid),
+  angles in quarter degrees from −10 to +14°. The file is 2.7 MB.
+- **The report reads the shipped file through the library**, and adds for
+  every section the ends a table built without it predicts.
+
+Read through the library, v1 now has every upper end within 0.02° of the
+referee, every lower end within 0.05° (4.5 % / t/c 0.092: 0.2°, it lies
+between two thickness nodes), and the rows past the cliff within 20 % (v0:
+40–60 % low).
+
+**How well the table is known between its sections**: leaving one out, its
+lower end is predicted within 0.40° rms and its upper end within 0.43° rms.
+The largest misses are at the corners of the box: the upper end of t/c 0.12
+comes out 1.3° early — v0's thickness trend flattens above 0.09 where the
+referee's does not, which is the trend v1 still follows above 0.12 — and the
+lower end of 4.5 % / t/c 0.092 1.1° early.
+
+**What the warp does not carry.** Inside the range the referee's drag rises
+with lift earlier than v0's: v1 reads 6–14 % low at +4…+6°, about 3–5 % of a
+blade's drag at the working force. And the referee's drag stays flat right up
+to the cliff where v0 creeps up: v1 reads 9–19 % high in the last half degree
+before the lower end.
+
+The knee share was refitted on the new table (`KNEE_FRACTION` 0.70 → 0.715;
+the section's break is now read on quarter degrees): the tunnel fin stays at
+12.0° on the board mirror and the survey moves by 0.5° at most
+(`bench/knee/survey.md`).
+
+### 4. Against the finer 3-D mesh, again
+
+Level 5, perfect mirror, drag in N (lattice on the rebuilt v1 / CFD):
+
+| own incidence | 3 % camber on the shipped planform (t/c 0.092) | cambered candidate (4.3 %, t/c 0.074) | best fin of the first v1 searches (4.2 %, t/c 0.089) | flat inside, shipped |
+|---|---|---|---|---|
+| −4.5° | 5.3 / 7.0 | 8.7 / 9.4 | 5.6 / 6.8 | 17.6 / 15.8 |
+| −3.5° | 4.7 / 5.4 | 6.1 / 7.1 | 5.4 / 5.5 | 15.0 / 13.0 |
+| −2.5° | 4.6 / 4.8 | 5.9 / 6.0 | 5.6 / 5.3 | 12.7 / 10.8 |
+| 0° | 5.7 / 5.6 | 7.3 / 7.3 | 7.3 / 7.1 | 10.1 / 8.2 |
+| +4° | 10.7 / 11.0 | 13.8 / 14.0 | 13.7 / 13.9 | 13.1 / 11.8 |
+
+- **The candidate at −4.5° went from 6.3 to 8.7 N** (CFD 9.4): its sections
+  are past their lower end there, and the table had hidden it. Going straight
+  on the board mirror the model now has it at 7.3 N (it was 6.4; level 5:
+  7.7).
+- **The two blades on thicker sections are unchanged** at 5.3 and 5.6 N
+  against 7.0 and 6.8: the referee has t/c 0.09 inside its range at −4.5°.
+  That part of the gap is between the referee and the 3-D mesh, not in the
+  table.
+- From −2.5° to +4° lattice and level 5 agree within 5 % on all three
+  cambered blades. The flat-inside blade is 11–24 % high throughout: one
+  referee section, its level held for every thickness.
+
+### 5. What the search does on the rebuilt table
+
+`lattice-knee`, six seeds per setting, 6 000 evaluations each (the settings of
+"The knee", section 4):
+
+| requirement | seeds agreeing | area mm² | depth mm | camber % | t/c | knee ° | going straight N | at the working force N | hold |
+|---|---|---|---|---|---|---|---|---|---|
+| moved with gen 2 (hold 0.82, margin ≥ −2.4°) | 4 of 6 | 8 100–9 300 | 137–139 | 3.1–4.3 | 0.088–0.109 | 9.7–10.7 | 4.6–4.8 | 6.7–6.8 | 0.85–0.90 |
+| as before (hold 1.15, margin ≥ 2°) | 2 of 6 | 8 840–8 990 | 138–139 | 4.5–4.6 | 0.109 | 13.1–13.2 | 5.3 | 7.2 | 1.14 |
+
+- **The fin for the requirement moved with gen 2 did not change** with the
+  table: on the table before it was 8 750–9 390 mm², 2.9–3.6 % camber, t/c
+  0.083–0.106, 4.5–5.0 N going straight.
+- **The fin for the old requirement shrank from 11 100–11 800 mm² to about
+  8 900 mm²**, and went from 3 % to 4.5 % camber. The rebuilt table gives a
+  4.5 % section of t/c 0.11 more lift at its break than the old one did
+  (upper end +0.75° per percent of camber, +0.95° per 0.01 of t/c), so less
+  area carries the same force to the knee. It sits on the most cambered
+  section measured and close to the thickest: a corner of the box again.
+- **The seeds that do not agree** go where nothing is measured: t/c 0.13–0.21
+  at the root (three seeds of the old requirement, one of the new), or 50–60°
+  of sweep with a knee at 15–20° (two and one). All of them score worse than
+  the fins in the table. Sections of t/c 0.16 and 0.20 are planned; the strip
+  criterion has no measured swept blade behind it.
+- **A seam in the table, found by a seed and closed.** A cambered foil with
+  exactly zero camber was read from the symmetric family's block, which has
+  no referee section and is v0 unchanged: its knee sat 2–3° above the 0.5 %
+  row next to it, and one seed went to zero camber for it (knee 18°). v1 now
+  carries a camber-free row of the cambered family's own
+  (`cambered_zero_row` in the table's meta, read by `fingen.sections`).
+
+### 6. The referee itself moves with its nose resolution (open)
+
+The first control rows (`~/bench-results/gen3ctl`, the same sections with the
+surface one level finer, c/1280 instead of c/640):
+
+| section | own incidence | referee (c/640): cl, cd | finer (c/1280): cl, cd |
+|---|---|---|---|
+| 3 % / t/c 0.070 | −2.5° | +0.065, 0.0129 | +0.046, 0.0125 |
+| | −4.0° | −0.098, 0.0150 | −0.117, 0.0140 |
+| | −4.5° | −0.155, 0.0322 (not settled) | −0.171, 0.0152 (settled) |
+| | −6.0° | −0.231, 0.0501 (not settled) | −0.216, 0.0471 (not settled) |
+| 4.5 % / t/c 0.070 | −2.5° | +0.235, 0.0136 | +0.211, 0.0131 |
+| | −3.5° | +0.124, 0.0154 | +0.101, 0.0141 |
+| | −4.0° | +0.048, 0.0305 (not settled) | +0.046, 0.0154 (settled) |
+
+- On the finer mesh both thin sections are **still attached where the referee
+  has them separated**: their lower ends lie at least 0.2° further out.
+- The lift is **0.02 lower at every attached angle** (0.2° of zero-lift
+  angle), and the drag inside the range 3–9 % lower. A constant shift in lift
+  says the two meshes do not carry quite the same nose.
+- So the referee recipe is not converged at the nose, and the direction is
+  that a coarser nose separates earlier. Table v1 reproduces the referee as
+  it stands; its lower ends for thin sections are therefore on the cautious
+  side by an amount not yet known. The same direction would explain why the
+  3-D level-5 mesh (far coarser at the nose) reads more drag at −4.5° than
+  the model on sections the referee has attached — but that is not shown yet.
+
+Queued behind the controls (`~/bench-results/gen3mesh`): one level finer again
+(c/2560) on the 3 % / t/c 0.070 section and on 4.5 % / t/c 0.092, and more
+angles at c/1280 to bracket both ends. The thick sections and the main tables
+are on hold until this says which recipe they should be run on.
 
 ## What a fast method cannot do — the rest
 

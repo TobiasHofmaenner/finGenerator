@@ -48,3 +48,16 @@ The flat-inside foil on the same planform (the shipped gen-2 side fin):
 - **So the saving from camber is 5.6–7.4 N per fin by this mesh** (13.3 N against 7.7 and 5.9), where the model says 8.9–10.2 N.
 
 The best fin of the table-v1 searches on the same mesh: `../mesh-level-5-v1-neutral/` (6.1 N going straight).
+
+## On the rebuilt table (2026-11-20, later)
+
+Table v1 was rebuilt on twelve cambered sections the same day (`docs/MODEL-EXTENSION.md`, "Twelve cambered sections, and a table read the way the model reads it"). The lattice columns above are the five-section table. On the rebuilt one, lattice drag in N at −4.5 / −3.5 / −2.5 / 0 / +4°:
+
+| blade | lattice, rebuilt v1 | level 5 |
+|---|---|---|
+| 3 % camber on the shipped planform | 5.3 / 4.7 / 4.6 / 5.7 / 10.7 (+8°: 19.6) | 7.0 / 5.4 / 4.8 / 5.6 / 11.0 (+8°: 22.3) |
+| flat inside, shipped | 17.6 / 15.0 / 12.7 / 10.1 / 13.1 | 15.8 / 13.0 / 10.8 / 8.2 / 11.8 |
+| cambered candidate (`../mesh-level-5-candidate/`) | 8.7 / 6.1 / 5.9 / 7.3 / 13.8 | 9.4 / 7.1 / 6.0 / 7.3 / 14.0 |
+
+- **The candidate's −4.5° row closed from 7.0 to 8.7 N** (level 5: 9.4): above Re 5.7e5 the five-section table had followed v0's Reynolds-number trend and read the root strips' attached range 0.5–1° too wide.
+- The 3 % blade's −4.5° row did not move (5.3 against 7.0 N). The referee has t/c 0.092 attached there — and the first control rows say the referee's own lower end moves outward with a finer nose, which is the direction that would make level 5, far coarser at the nose, read high. Not shown yet; `docs/MODEL-EXTENSION.md`, section 6 of the same chapter.

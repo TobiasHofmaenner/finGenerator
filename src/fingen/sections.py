@@ -172,7 +172,11 @@ def _polar(family: FoilFamily, tc_key: int, re_key: int, camber_key: int,
     t = _table(table)
     tc, log_re, camber = tc_key * 1e-4, re_key * 1e-3, camber_key * 1e-4
     b_re = _bracket(t["log_re"], log_re)
-    if family is FoilFamily.CAMBERED and camber > 0.0:
+    # A table whose cambered block has a camber-free row of its own (v1: see
+    # scripts/build_section_table_v1.py) is read there for the whole cambered
+    # family; otherwise a cambered foil without camber is the symmetric one.
+    own_row = t["meta"].get("cambered_zero_row") == "own"
+    if family is FoilFamily.CAMBERED and (camber > 0.0 or own_row):
         br = [_bracket(t["tc_cambered"], tc), _bracket(t["camber"], camber), b_re]
         key = "cambered"
     else:
@@ -188,8 +192,9 @@ def polar(family: FoilFamily, thickness_ratio: float, reynolds: float,
           camber_ratio: float = 0.0, table: str = "v0") -> SectionPolar:
     """Section polar of one of fingen's foil families, from the shipped `table`.
 
-    `camber_ratio` is read for FoilFamily.CAMBERED only (camber at 40 % chord; a
-    cambered foil with zero camber is the symmetric one). A FLAT_INSIDE foil's
+    `camber_ratio` is read for FoilFamily.CAMBERED only (camber at 40 % chord; in
+    table v0 a cambered foil with zero camber is the symmetric one, table v1
+    carries a camber-free row of the cambered family's own). A FLAT_INSIDE foil's
     camber follows from its thickness. Values outside the table are clamped to
     its edge and flagged in `SectionPolar.clipped`. Cached on rounded inputs."""
     if reynolds <= 0.0:
