@@ -455,6 +455,62 @@ design turn given directly (1.0), with `skill` kept for existing rider files.
   deflection at peak load as a monotone good or a band; otherwise the flex
   gates alone decide thickness. Blocked on field result.
 
+## Phase 2b — the other four fin configurations (added 2026-11-20)
+
+The quiz offers five setups. Generation 3 as it stands can design ONE blade
+of one of them: the side fin of a thruster. Everything in B2 and Phase 1 (the
+lattice checks, the 3-D polars, the strip knee, the hold anchor, the lever
+audit) was done on thruster side fins; the thruster's own centre is Phase 2.
+
+| setup | what the library does today | what is missing before it can be offered |
+|---|---|---|
+| thruster | side fin: the full generation-3 path. Centre: generation-2 logic (the speed-target defect) | Phase 2 |
+| twin | the side fin by the same path, with an ASSUMED load share (0.75); no set run, no anchor for hold | 2b.2 |
+| quad | the front fin as if it were a thruster side with an assumed share (0.45); the rear fin is not designed; interference is the thruster centre's, borrowed | 2b.3 |
+| single | a symmetric blade on section table v0 (no referee section), and a strip knee that misses the one symmetric blade it was tried on (7.3° against about 10°) | 2b.1, 2b.4 |
+| 2 + 1 | sized as if the small side fin were the dominant one; the centre, which carries the turn, is left at the template | 2b.5 |
+
+- `[ ]` **2b.1 Symmetric sections** (shared with Phase 2). 2-D referee
+  sections of the symmetric family on the settled mesh recipe (t/c 0.05–0.12,
+  two Reynolds numbers), folded into table v1; then the strip knee re-read on
+  the gen-1 centre polar and refitted or split by family if it still misses.
+- `[ ]` **2b.2 Twin.** (a) Set CFD of a twin (two keel-type side fins at
+  production toe and cant) over leeway at two speeds, per-fin forces: the load
+  share, the toe at which the pair makes no net side force going straight,
+  what the two fins do to each other across the board. (b) Isolated 3-D polar
+  of that fin on mesh level 5 in one-degree steps through its knee: the strip
+  criterion has one low-aspect check so far (the paddle probe). (c) Hold
+  anchor: commercial twin templates on the measure over their size-chart
+  band. (d) `lattice.set_blades` for the twin against (a).
+- `[ ]` **2b.3 Quad.** (a) Validation first: our set CFD on the commercial
+  4-fin configuration of [Falk20] against its per-fin forces
+  (`bench/falk/falk20_perfin_forces.csv`). (b) Our own quad over leeway at two
+  speeds and two rear positions, per-fin forces: what the rear fin sees behind
+  the front fin on the same rail, and the split between them. (c) The lattice
+  quad against (a) and (b). (d) The rear fin as a designed member: its own
+  load share, its incidence in the front fin's wash, its own toe and cant.
+  (e) Hold for a rail pair, defined on the pair.
+- `[ ]` **2b.4 Single.** (a) Isolated 3-D polars of a deep single (the
+  reference fleet's 240 mm longboard fin) and of a shortboard-size single,
+  4–7 m/s, one-degree steps through the knee. (b) The load case: lean and
+  speed of a single-fin turn, with the fin carrying everything; the
+  structural case of a deep fin in a US box. (c) Hold anchor: commercial
+  singles on the measure.
+- `[ ]` **2b.5 2 + 1.** (a) The member roles put right: the centre is the
+  dominant fin, the sides the small ones (`family_for_config`,
+  `sizing.anchor`). (b) Set CFD of a 2 + 1 over leeway, per-fin forces: the
+  split. (c) The centre itself comes from 2b.4.
+- `[ ]` **2b.6 Lever audit per configuration.** `bench/levers/` repeated for
+  one rider of each setup before the quiz offers it: the trades, and the
+  ranges of the two tastes, are not the thruster's.
+
+Order: twin (the side-fin path applies; it lacks only its set run and its
+anchor), quad (published per-fin data to validate against), single, 2 + 1.
+The 2-D sections wait for the mesh recipe (`gen3mesh`); the set runs use the
+wall-function recipe of the mount study, which is good for load shares at
+working leeway and not for the last degree before −4.5° or past the knee
+(docs/MODEL-EXTENSION.md, the controls).
+
 ## Phase 3 — validation and release
 
 - `[ ]` **3.1 CFD spot checks** on the new winners for Omar's two specs
@@ -477,6 +533,13 @@ design turn given directly (1.0), with `skill` kept for existing rider files.
   big-wave session; quads (rear spacing, Falk20).
 
 ## D — decisions needed from Tobias
+
+- **D12** *(new 2026-11-20)* What the quiz shows for the four setups
+  generation 3 cannot design yet (Phase 2b). Today it offers all five.
+  Options: (a) show them, not selectable, marked "not yet"; (b) leave them
+  selectable with a note that only the thruster's side fin is designed for
+  now; (c) hide them. Proposed: (a) — "if it is not possible we rather not
+  offer the lever", and a reviewer sees what is coming.
 
 - **D1** Lever survivors (after 0.2). `release`: keep the *concept* (it is the
   snap's release/re-grip physics) but offer it only once 0.1b gives a measured
