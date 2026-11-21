@@ -642,315 +642,6 @@
    "complete": true,
    "machine": "laptop"
   },
-  "camb45-tc092-re140k": {
-   "spec": {
-    "name": "camb45-tc092-re140k",
-    "family": "cambered",
-    "thickness_ratio": 0.092,
-    "camber_ratio": 0.045,
-    "camber_position": 0.4,
-    "te_thickness": 1.2,
-    "chord": 0.12,
-    "re": 140000.0,
-    "nose_level": 9,
-    "outline_points": 400,
-    "smooth_nose": true,
-    "stl_tolerance": 1e-06,
-    "stl_angle": 0.02,
-    "angles": [
-     -3.5,
-     -2.5,
-     -1.0,
-     0.0,
-     2.0,
-     4.0,
-     6.0,
-     8.0
-    ],
-    "march": [
-     {
-      "from": -4.0,
-      "step": -0.5,
-      "to": -16.0,
-      "past": 3
-     },
-     {
-      "from": 9.0,
-      "step": 0.5,
-      "to": 20.0
-     }
-    ]
-   },
-   "rows": [
-    {
-     "alpha": -6.5,
-     "cl": -0.13537790369166666,
-     "cd": 0.06453856983333334,
-     "iters": 3000.0,
-     "settled": false,
-     "yplus_min": 0.05950377,
-     "yplus_max": 6.142283,
-     "wall_s": 749.5
-    },
-    {
-     "alpha": -6.0,
-     "cl": -0.178923409667,
-     "cd": 0.06290720193333334,
-     "iters": 3000.0,
-     "settled": false,
-     "yplus_min": 0.0850845,
-     "yplus_max": 6.463682,
-     "wall_s": 669.3
-    },
-    {
-     "alpha": -5.5,
-     "cl": -0.12612804746666667,
-     "cd": 0.052593814083333336,
-     "iters": 3000.0,
-     "settled": false,
-     "yplus_min": 0.07803244,
-     "yplus_max": 5.826483,
-     "wall_s": 560.1
-    },
-    {
-     "alpha": -5.25,
-     "cl": -0.09517776651666666,
-     "cd": 0.045814252166666666,
-     "iters": 3000.0,
-     "settled": false,
-     "yplus_min": 0.0321526,
-     "yplus_max": 5.709328,
-     "wall_s": 728.3
-    },
-    {
-     "alpha": -5.0,
-     "cl": -0.05443838327777777,
-     "cd": 0.021662629944444442,
-     "iters": 900.0,
-     "settled": true,
-     "yplus_min": 0.06641508,
-     "yplus_max": 5.837235,
-     "wall_s": 183.1
-    },
-    {
-     "alpha": -4.5,
-     "cl": -0.0015126784166666666,
-     "cd": 0.019763816444444443,
-     "iters": 900.0,
-     "settled": true,
-     "yplus_min": 0.1156811,
-     "yplus_max": 6.009681,
-     "wall_s": 176.0
-    },
-    {
-     "alpha": -4.0,
-     "cl": 0.052079864833333336,
-     "cd": 0.01883514575,
-     "iters": 600.0,
-     "settled": true,
-     "yplus_min": 0.0954855,
-     "yplus_max": 6.129768,
-     "wall_s": 117.2
-    },
-    {
-     "alpha": -3.5,
-     "cl": 0.10560649083333334,
-     "cd": 0.01824389716666667,
-     "iters": 600.0,
-     "settled": true,
-     "yplus_min": 0.06369914,
-     "yplus_max": 6.23263,
-     "wall_s": 499.8
-    },
-    {
-     "alpha": -2.5,
-     "cl": 0.21224385916666666,
-     "cd": 0.017633292249999998,
-     "iters": 600.0,
-     "settled": true,
-     "yplus_min": 0.2835949,
-     "yplus_max": 6.42355,
-     "wall_s": 123.5
-    },
-    {
-     "alpha": -1.0,
-     "cl": 0.37015337916666663,
-     "cd": 0.017613684583333334,
-     "iters": 600.0,
-     "settled": true,
-     "yplus_min": 0.3731099,
-     "yplus_max": 6.693973,
-     "wall_s": 120.0
-    },
-    {
-     "alpha": 0.0,
-     "cl": 0.4733843275,
-     "cd": 0.018009178249999997,
-     "iters": 600.0,
-     "settled": true,
-     "yplus_min": 0.3578497,
-     "yplus_max": 6.850607,
-     "wall_s": 123.5
-    },
-    {
-     "alpha": 2.0,
-     "cl": 0.6723091033333334,
-     "cd": 0.01967112366666667,
-     "iters": 600.0,
-     "settled": true,
-     "yplus_min": 0.1230322,
-     "yplus_max": 7.158815,
-     "wall_s": 121.1
-    },
-    {
-     "alpha": 4.0,
-     "cl": 0.8637808841666667,
-     "cd": 0.02240098466666667,
-     "iters": 600.0,
-     "settled": true,
-     "yplus_min": 0.0650706,
-     "yplus_max": 7.453224,
-     "wall_s": 119.6
-    },
-    {
-     "alpha": 6.0,
-     "cl": 1.0455052333333335,
-     "cd": 0.02648630461111111,
-     "iters": 900.0,
-     "settled": true,
-     "yplus_min": 0.05324785,
-     "yplus_max": 7.740248,
-     "wall_s": 187.5
-    },
-    {
-     "alpha": 8.0,
-     "cl": 1.2000985555555557,
-     "cd": 0.03230372716666667,
-     "iters": 900.0,
-     "settled": true,
-     "yplus_min": 0.02348491,
-     "yplus_max": 8.043438,
-     "wall_s": 194.5
-    },
-    {
-     "alpha": 9.0,
-     "cl": 1.2638820125,
-     "cd": 0.036321641125,
-     "iters": 1200.0,
-     "settled": true,
-     "yplus_min": 0.04323869,
-     "yplus_max": 8.224667,
-     "wall_s": 291.8
-    },
-    {
-     "alpha": 9.5,
-     "cl": 1.2915691333333332,
-     "cd": 0.0387346913,
-     "iters": 1500.0,
-     "settled": true,
-     "yplus_min": 0.02488901,
-     "yplus_max": 8.319844,
-     "wall_s": 367.9
-    },
-    {
-     "alpha": 10.0,
-     "cl": 1.3147744533333334,
-     "cd": 0.041437076,
-     "iters": 1500.0,
-     "settled": true,
-     "yplus_min": 0.02073959,
-     "yplus_max": 8.41476,
-     "wall_s": 369.6
-    },
-    {
-     "alpha": 10.5,
-     "cl": 1.33398228,
-     "cd": 0.04457651483333333,
-     "iters": 1500.0,
-     "settled": true,
-     "yplus_min": 0.0457517,
-     "yplus_max": 8.513004,
-     "wall_s": 361.5
-    },
-    {
-     "alpha": 11.0,
-     "cl": 1.3508353055555555,
-     "cd": 0.04838845388888889,
-     "iters": 1800.0,
-     "settled": true,
-     "yplus_min": 0.05316349,
-     "yplus_max": 8.671097,
-     "wall_s": 437.8
-    },
-    {
-     "alpha": 11.25,
-     "cl": 1.3626735700000001,
-     "cd": 0.050851160533333335,
-     "iters": 3000.0,
-     "settled": false,
-     "yplus_min": 0.02582984,
-     "yplus_max": 8.743532,
-     "wall_s": 715.6
-    },
-    {
-     "alpha": 11.5,
-     "cl": 1.3726134266666665,
-     "cd": 0.05371770005,
-     "iters": 3000.0,
-     "settled": false,
-     "yplus_min": 0.05748158,
-     "yplus_max": 8.556302,
-     "wall_s": 721.9
-    },
-    {
-     "alpha": 12.0,
-     "cl": 1.37664842,
-     "cd": 0.059989179633333334,
-     "iters": 3000.0,
-     "settled": false,
-     "yplus_min": 0.06811172,
-     "yplus_max": 9.381864,
-     "wall_s": 721.1
-    }
-   ],
-   "mesh": {
-    "u_inf": 1.2249999999999999,
-    "span": 0.012,
-    "cell": 0.012,
-    "surface_cell": 2.34375e-05,
-    "n_layers": 10,
-    "first_layer": 3.303693628203335e-05,
-    "bg_cells": 8652,
-    "resolved": true,
-    "outline": {
-     "points": 400,
-     "smooth_nose": true,
-     "tolerance": 1e-06,
-     "angle": 0.02
-    },
-    "nose_bands": [
-     [
-      0.02,
-      9
-     ],
-     [
-      0.04,
-      8
-     ],
-     [
-      0.08,
-      7
-     ],
-     [
-      0.16,
-      6
-     ]
-    ],
-    "cells": 65232
-   },
-   "complete": true,
-   "machine": "laptop"
-  },
   "camb3-tc070-re570k": {
    "spec": {
     "name": "camb3-tc070-re570k",
@@ -2784,6 +2475,76 @@
      "yplus_min": 0.01614525,
      "yplus_max": 13.17273,
      "wall_s": 724.5
+    },
+    {
+     "alpha": 12.5,
+     "cl": 1.5134248194444444,
+     "cd": 0.03883651313888889,
+     "iters": 1800.0,
+     "settled": true,
+     "yplus_min": 0.01037048,
+     "yplus_max": 13.29194,
+     "wall_s": 911.7
+    },
+    {
+     "alpha": 13.0,
+     "cl": 1.537614361111111,
+     "cd": 0.041701198555555555,
+     "iters": 1800.0,
+     "settled": true,
+     "yplus_min": 0.03452533,
+     "yplus_max": 13.36127,
+     "wall_s": 899.2
+    },
+    {
+     "alpha": 13.5,
+     "cl": 1.5534597285714284,
+     "cd": 0.04483278845238095,
+     "iters": 2100.0,
+     "settled": true,
+     "yplus_min": 0.03984002,
+     "yplus_max": 13.51342,
+     "wall_s": 1078.4
+    },
+    {
+     "alpha": 14.0,
+     "cl": 1.5653675018518518,
+     "cd": 0.04870070114814815,
+     "iters": 2700.0,
+     "settled": true,
+     "yplus_min": 0.01527326,
+     "yplus_max": 13.63809,
+     "wall_s": 1335.8
+    },
+    {
+     "alpha": 14.25,
+     "cl": 1.56732641,
+     "cd": 0.05090157196666666,
+     "iters": 3000.0,
+     "settled": true,
+     "yplus_min": 0.03259199,
+     "yplus_max": 17.10991,
+     "wall_s": 1455.8
+    },
+    {
+     "alpha": 14.5,
+     "cl": 1.568866715,
+     "cd": 0.05345721623333334,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.025249,
+     "yplus_max": 13.7881,
+     "wall_s": 1326.6
+    },
+    {
+     "alpha": 15.0,
+     "cl": 1.101784499185,
+     "cd": 0.23191007226666666,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.04744098,
+     "yplus_max": 20.05971,
+     "wall_s": 1507.2
     }
    ],
    "mesh": {
@@ -2823,7 +2584,7 @@
     "layers_pct": 99.9,
     "cells": 68590
    },
-   "complete": false,
+   "complete": true,
    "machine": "laptop"
   },
   "sym-tc046-re570k": {
@@ -3262,6 +3023,16 @@
    },
    "rows": [
     {
+     "alpha": -8.5,
+     "cl": -0.5596184407966667,
+     "cd": 0.08307480262166667,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.03912907,
+     "yplus_max": 9.688854,
+     "wall_s": 1241.9
+    },
+    {
      "alpha": -8.0,
      "cl": -0.5034524296943333,
      "cd": 0.08783097195433334,
@@ -3280,6 +3051,16 @@
      "yplus_min": 0.056639,
      "yplus_max": 19.8105,
      "wall_s": 1158.4
+    },
+    {
+     "alpha": -7.25,
+     "cl": -0.4520485927883333,
+     "cd": 0.06025261600666667,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.01800654,
+     "yplus_max": 9.020922,
+     "wall_s": 1176.0
     },
     {
      "alpha": -7.0,
@@ -3410,6 +3191,96 @@
      "yplus_min": 0.1562791,
      "yplus_max": 12.36316,
      "wall_s": 223.4
+    },
+    {
+     "alpha": 7.0,
+     "cl": 0.96828341,
+     "cd": 0.020658389333333336,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.1411143,
+     "yplus_max": 12.46925,
+     "wall_s": 348.7
+    },
+    {
+     "alpha": 7.5,
+     "cl": 1.0167031611111113,
+     "cd": 0.021939963111111113,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.07120673,
+     "yplus_max": 12.52597,
+     "wall_s": 353.7
+    },
+    {
+     "alpha": 8.0,
+     "cl": 1.0634141722222221,
+     "cd": 0.023418042833333333,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.07139754,
+     "yplus_max": 12.58796,
+     "wall_s": 346.7
+    },
+    {
+     "alpha": 8.5,
+     "cl": 1.107914738888889,
+     "cd": 0.025190645055555554,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.06071418,
+     "yplus_max": 12.65421,
+     "wall_s": 375.9
+    },
+    {
+     "alpha": 9.0,
+     "cl": 1.150471588888889,
+     "cd": 0.02739213811111111,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.1025047,
+     "yplus_max": 12.72817,
+     "wall_s": 350.1
+    },
+    {
+     "alpha": 9.5,
+     "cl": 1.1843791291666668,
+     "cd": 0.030951124583333333,
+     "iters": 1200.0,
+     "settled": true,
+     "yplus_min": 0.0771575,
+     "yplus_max": 12.845,
+     "wall_s": 467.6
+    },
+    {
+     "alpha": 9.75,
+     "cl": 0.9591270807433333,
+     "cd": 0.03906821731833333,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.03540362,
+     "yplus_max": 13.34011,
+     "wall_s": 1214.2
+    },
+    {
+     "alpha": 10.0,
+     "cl": 1.0480206904783333,
+     "cd": 0.12228851595216668,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.04340148,
+     "yplus_max": 13.35852,
+     "wall_s": 1008.9
+    },
+    {
+     "alpha": 10.5,
+     "cl": 1.0116804423833334,
+     "cd": 0.11799465041833335,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.0880677,
+     "yplus_max": 12.50689,
+     "wall_s": 1222.8
     }
    ],
    "mesh": {
@@ -3449,7 +3320,7 @@
     "layers_pct": 99.8,
     "cells": 68015
    },
-   "complete": false,
+   "complete": true,
    "machine": "laptop"
   },
   "camb45-tc080-re570k": {
@@ -3492,6 +3363,66 @@
     ]
    },
    "rows": [
+    {
+     "alpha": -8.0,
+     "cl": -0.3056132669061621,
+     "cd": 0.08851774192383334,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.02505913,
+     "yplus_max": 21.7515,
+     "wall_s": 1353.3
+    },
+    {
+     "alpha": -7.5,
+     "cl": -0.10153753104850001,
+     "cd": 0.055780290314650004,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.03194575,
+     "yplus_max": 14.01998,
+     "wall_s": 1546.5
+    },
+    {
+     "alpha": -7.0,
+     "cl": -0.12482408805783334,
+     "cd": 0.052541129414816666,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.1222089,
+     "yplus_max": 15.49367,
+     "wall_s": 1534.1
+    },
+    {
+     "alpha": -6.75,
+     "cl": -0.20678805204666667,
+     "cd": 0.06167404241138333,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.1321792,
+     "yplus_max": 15.52477,
+     "wall_s": 1521.6
+    },
+    {
+     "alpha": -6.5,
+     "cl": -0.199727199,
+     "cd": 0.0181825432,
+     "iters": 1500.0,
+     "settled": true,
+     "yplus_min": 0.0878268,
+     "yplus_max": 14.83184,
+     "wall_s": 755.3
+    },
+    {
+     "alpha": -6.0,
+     "cl": -0.14578333,
+     "cd": 0.01678436072222222,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.1245424,
+     "yplus_max": 14.8059,
+     "wall_s": 457.3
+    },
     {
      "alpha": -5.5,
      "cl": -0.09118407249999999,
@@ -3601,6 +3532,26 @@
      "yplus_min": 0.1383363,
      "yplus_max": 12.60036,
      "wall_s": 463.9
+    },
+    {
+     "alpha": 9.5,
+     "cl": 1.4480745208333334,
+     "cd": 0.03019133095833333,
+     "iters": 1200.0,
+     "settled": true,
+     "yplus_min": 0.05593741,
+     "yplus_max": 12.84228,
+     "wall_s": 604.1
+    },
+    {
+     "alpha": 10.0,
+     "cl": 1.4820989249999998,
+     "cd": 0.03194965325,
+     "iters": 1200.0,
+     "settled": true,
+     "yplus_min": 0.06267651,
+     "yplus_max": 12.93853,
+     "wall_s": 604.3
     }
    ],
    "mesh": {
@@ -5879,6 +5830,362 @@
    "complete": true,
    "machine": "EPYC"
   },
+  "flat-tc092-r050-re140k": {
+   "spec": {
+    "name": "flat-tc092-r050-re140k",
+    "family": "flat_inside",
+    "thickness_ratio": 0.092,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 140000.0,
+    "nose_level": 9,
+    "corner_radius": 0.5,
+    "angles": [
+     -3.5,
+     -2.5,
+     -1.0,
+     0.0,
+     2.0,
+     4.0
+    ],
+    "march": [
+     {
+      "from": -4.5,
+      "step": -0.5,
+      "to": -16.0,
+      "past": 3
+     },
+     {
+      "from": 6.0,
+      "step": 0.5,
+      "to": 20.0
+     }
+    ],
+    "layers": 7
+   },
+   "rows": [
+    {
+     "alpha": -6.5,
+     "cl": -0.15802478569583334,
+     "cd": 0.07206569756666667,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.03188135,
+     "yplus_max": 5.303651,
+     "wall_s": 401.2
+    },
+    {
+     "alpha": -6.0,
+     "cl": -0.19159483033333333,
+     "cd": 0.07184361521666666,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.02505667,
+     "yplus_max": 4.026878,
+     "wall_s": 403.0
+    },
+    {
+     "alpha": -5.5,
+     "cl": -0.16711289766666668,
+     "cd": 0.06488516118333333,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.07053582,
+     "yplus_max": 4.184115,
+     "wall_s": 399.9
+    },
+    {
+     "alpha": -5.25,
+     "cl": -0.14993847833333335,
+     "cd": 0.061278933812500005,
+     "iters": 2400.0,
+     "settled": true,
+     "yplus_min": 0.01559281,
+     "yplus_max": 4.204722,
+     "wall_s": 317.0
+    },
+    {
+     "alpha": -5.0,
+     "cl": -0.13035207166666665,
+     "cd": 0.057697940277777776,
+     "iters": 1800.0,
+     "settled": true,
+     "yplus_min": 0.03307015,
+     "yplus_max": 4.214402,
+     "wall_s": 248.0
+    },
+    {
+     "alpha": -4.5,
+     "cl": -0.08450487356666667,
+     "cd": 0.050701910366666665,
+     "iters": 1500.0,
+     "settled": true,
+     "yplus_min": 0.04975136,
+     "yplus_max": 4.221224,
+     "wall_s": 191.9
+    },
+    {
+     "alpha": -3.5,
+     "cl": 0.023069053833333332,
+     "cd": 0.038511980055555554,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.03507985,
+     "yplus_max": 4.213203,
+     "wall_s": 780.6
+    },
+    {
+     "alpha": -2.5,
+     "cl": 0.13404235666666667,
+     "cd": 0.02957776325,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.02539123,
+     "yplus_max": 4.176664,
+     "wall_s": 80.8
+    },
+    {
+     "alpha": -1.0,
+     "cl": 0.29939652250000004,
+     "cd": 0.021261181416666667,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.09652993,
+     "yplus_max": 4.197293,
+     "wall_s": 80.5
+    },
+    {
+     "alpha": 0.0,
+     "cl": 0.4041425475,
+     "cd": 0.019040589,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.1514574,
+     "yplus_max": 4.017877,
+     "wall_s": 80.0
+    },
+    {
+     "alpha": 2.0,
+     "cl": 0.6115391608333333,
+     "cd": 0.018679752083333334,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.1145564,
+     "yplus_max": 3.850144,
+     "wall_s": 78.1
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.8125493433333334,
+     "cd": 0.02127440125,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.2922745,
+     "yplus_max": 4.056281,
+     "wall_s": 82.2
+    },
+    {
+     "alpha": 6.0,
+     "cl": 1.0014731333333333,
+     "cd": 0.024862870222222222,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.08828102,
+     "yplus_max": 4.23039,
+     "wall_s": 117.1
+    },
+    {
+     "alpha": 6.5,
+     "cl": 1.046452538888889,
+     "cd": 0.025949843055555553,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.05959288,
+     "yplus_max": 4.269911,
+     "wall_s": 120.3
+    },
+    {
+     "alpha": 7.0,
+     "cl": 1.08997335,
+     "cd": 0.027105293,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.009676228,
+     "yplus_max": 4.311285,
+     "wall_s": 122.6
+    },
+    {
+     "alpha": 7.5,
+     "cl": 1.131883611111111,
+     "cd": 0.0282895435,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.03127374,
+     "yplus_max": 4.354108,
+     "wall_s": 112.1
+    },
+    {
+     "alpha": 8.0,
+     "cl": 1.1725050222222222,
+     "cd": 0.029654510166666665,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.05132357,
+     "yplus_max": 4.396246,
+     "wall_s": 136.2
+    },
+    {
+     "alpha": 8.5,
+     "cl": 1.2123309166666667,
+     "cd": 0.03108635477777778,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.03209707,
+     "yplus_max": 4.481916,
+     "wall_s": 113.7
+    },
+    {
+     "alpha": 9.0,
+     "cl": 1.2511756777777778,
+     "cd": 0.032655684722222224,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.04284493,
+     "yplus_max": 4.686418,
+     "wall_s": 133.2
+    },
+    {
+     "alpha": 9.5,
+     "cl": 1.2883365555555555,
+     "cd": 0.034235858833333334,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.03804382,
+     "yplus_max": 4.874609,
+     "wall_s": 120.3
+    },
+    {
+     "alpha": 10.0,
+     "cl": 1.3243935166666667,
+     "cd": 0.03602950025,
+     "iters": 1200.0,
+     "settled": true,
+     "yplus_min": 0.03686153,
+     "yplus_max": 5.056705,
+     "wall_s": 161.7
+    },
+    {
+     "alpha": 10.5,
+     "cl": 1.3576235333333335,
+     "cd": 0.037998434416666664,
+     "iters": 1200.0,
+     "settled": true,
+     "yplus_min": 0.03718659,
+     "yplus_max": 5.234885,
+     "wall_s": 159.9
+    },
+    {
+     "alpha": 11.0,
+     "cl": 1.3880875208333334,
+     "cd": 0.040397743458333336,
+     "iters": 1200.0,
+     "settled": true,
+     "yplus_min": 0.05119466,
+     "yplus_max": 5.404663,
+     "wall_s": 168.5
+    },
+    {
+     "alpha": 11.5,
+     "cl": 1.41750109,
+     "cd": 0.04303182786666667,
+     "iters": 1500.0,
+     "settled": true,
+     "yplus_min": 0.03246876,
+     "yplus_max": 5.553636,
+     "wall_s": 202.8
+    },
+    {
+     "alpha": 12.0,
+     "cl": 1.4405278904761905,
+     "cd": 0.04606580795238095,
+     "iters": 2100.0,
+     "settled": true,
+     "yplus_min": 0.02429761,
+     "yplus_max": 5.532112,
+     "wall_s": 288.7
+    },
+    {
+     "alpha": 12.25,
+     "cl": 1.45218863,
+     "cd": 0.047920894150000004,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.01744398,
+     "yplus_max": 4.836462,
+     "wall_s": 407.3
+    },
+    {
+     "alpha": 12.5,
+     "cl": 1.1766790235,
+     "cd": 0.10043509843333333,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.0122419,
+     "yplus_max": 4.921112,
+     "wall_s": 403.2
+    },
+    {
+     "alpha": 13.0,
+     "cl": 1.1867736225,
+     "cd": 0.12891611753333335,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.07132094,
+     "yplus_max": 6.507534,
+     "wall_s": 424.1
+    }
+   ],
+   "mesh": {
+    "u_inf": 1.2249999999999999,
+    "span": 0.012,
+    "cell": 0.012,
+    "surface_cell": 2.34375e-05,
+    "n_layers": 7,
+    "first_layer": 3.303693628203335e-05,
+    "bg_cells": 8652,
+    "resolved": true,
+    "outline": {
+     "points": 100,
+     "smooth_nose": false,
+     "tolerance": 1e-05,
+     "angle": 0.1,
+     "corner_radius": 0.5
+    },
+    "nose_bands": [
+     [
+      0.02,
+      9
+     ],
+     [
+      0.04,
+      8
+     ],
+     [
+      0.08,
+      7
+     ],
+     [
+      0.16,
+      6
+     ]
+    ],
+    "layers_mean": 6.98,
+    "layers_pct": 99.9,
+    "cells": 59554
+   },
+   "complete": true,
+   "machine": "EPYC"
+  },
   "camb45-tc120-re570k": {
    "spec": {
     "name": "camb45-tc120-re570k",
@@ -6212,6 +6519,950 @@
    },
    "complete": true,
    "machine": "EPYC"
+  },
+  "camb3-tc150-re570k": {
+   "spec": {
+    "name": "camb3-tc150-re570k",
+    "family": "cambered",
+    "thickness_ratio": 0.15,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "nose_level": 9,
+    "outline_points": 400,
+    "smooth_nose": true,
+    "stl_tolerance": 1e-06,
+    "stl_angle": 0.02,
+    "angles": [
+     -8.0,
+     -6.0,
+     -3.5,
+     -2.5,
+     -1.0,
+     0.0,
+     2.0,
+     4.0,
+     6.0,
+     8.0,
+     10.0,
+     12.0
+    ],
+    "march": [
+     {
+      "from": -10.0,
+      "step": -0.5,
+      "to": -20.0,
+      "past": 3
+     },
+     {
+      "from": 13.0,
+      "step": 0.5,
+      "to": 24.0
+     }
+    ],
+    "camber_ratio": 0.03,
+    "camber_position": 0.4
+   },
+   "rows": [
+    {
+     "alpha": -8.0,
+     "cl": -0.5208222077777778,
+     "cd": 0.019094169944444444,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.1071306,
+     "yplus_max": 14.05194,
+     "wall_s": 683.4
+    },
+    {
+     "alpha": -6.0,
+     "cl": -0.3114756166666667,
+     "cd": 0.016749224055555553,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.1036786,
+     "yplus_max": 13.81136,
+     "wall_s": 145.7
+    },
+    {
+     "alpha": -3.5,
+     "cl": -0.043229311166666666,
+     "cd": 0.015174555888888889,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.1436219,
+     "yplus_max": 13.47534,
+     "wall_s": 145.2
+    },
+    {
+     "alpha": -2.5,
+     "cl": 0.0645184825,
+     "cd": 0.014928230555555557,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.141662,
+     "yplus_max": 13.30184,
+     "wall_s": 144.7
+    },
+    {
+     "alpha": -1.0,
+     "cl": 0.22571979888888888,
+     "cd": 0.014942615944444444,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.100983,
+     "yplus_max": 12.94049,
+     "wall_s": 143.6
+    },
+    {
+     "alpha": 0.0,
+     "cl": 0.33224565083333335,
+     "cd": 0.015218540000000001,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.09728745,
+     "yplus_max": 12.61449,
+     "wall_s": 97.2
+    },
+    {
+     "alpha": 2.0,
+     "cl": 0.5407537561111111,
+     "cd": 0.016323707166666666,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.1183619,
+     "yplus_max": 10.48202,
+     "wall_s": 153.6
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.7502291841666667,
+     "cd": 0.018314841666666668,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.06613155,
+     "yplus_max": 10.87695,
+     "wall_s": 102.7
+    },
+    {
+     "alpha": 6.0,
+     "cl": 0.9575816577777778,
+     "cd": 0.021020188333333332,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.03281445,
+     "yplus_max": 11.23226,
+     "wall_s": 138.5
+    }
+   ],
+   "mesh": {
+    "u_inf": 4.9875,
+    "span": 0.012,
+    "cell": 0.012,
+    "surface_cell": 2.34375e-05,
+    "n_layers": 13,
+    "first_layer": 9.337435776481761e-06,
+    "bg_cells": 8652,
+    "resolved": true,
+    "outline": {
+     "points": 400,
+     "smooth_nose": true,
+     "tolerance": 1e-06,
+     "angle": 0.02
+    },
+    "nose_bands": [
+     [
+      0.02,
+      9
+     ],
+     [
+      0.04,
+      8
+     ],
+     [
+      0.08,
+      7
+     ],
+     [
+      0.16,
+      6
+     ]
+    ],
+    "layers_mean": 12.9,
+    "layers_pct": 99.9,
+    "cells": 70383
+   },
+   "complete": false,
+   "machine": "EPYC"
+  },
+  "camb45-tc150-re570k": {
+   "spec": {
+    "name": "camb45-tc150-re570k",
+    "family": "cambered",
+    "thickness_ratio": 0.15,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "nose_level": 9,
+    "outline_points": 400,
+    "smooth_nose": true,
+    "stl_tolerance": 1e-06,
+    "stl_angle": 0.02,
+    "angles": [
+     -8.0,
+     -6.0,
+     -3.5,
+     -2.5,
+     -1.0,
+     0.0,
+     2.0,
+     4.0,
+     6.0,
+     8.0,
+     10.0,
+     12.0
+    ],
+    "march": [
+     {
+      "from": -10.0,
+      "step": -0.5,
+      "to": -20.0,
+      "past": 3
+     },
+     {
+      "from": 13.0,
+      "step": 0.5,
+      "to": 24.0
+     }
+    ],
+    "camber_ratio": 0.045,
+    "camber_position": 0.4
+   },
+   "rows": [
+    {
+     "alpha": -12.5,
+     "cl": -0.25119306802299995,
+     "cd": 0.11046472770000001,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.1011051,
+     "yplus_max": 16.55877,
+     "wall_s": 477.4
+    },
+    {
+     "alpha": -12.0,
+     "cl": -0.314507457135,
+     "cd": 0.13013958062916667,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.05096056,
+     "yplus_max": 16.66957,
+     "wall_s": 477.6
+    },
+    {
+     "alpha": -11.5,
+     "cl": -0.14291240981,
+     "cd": 0.10159001625566667,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.1013699,
+     "yplus_max": 15.30645,
+     "wall_s": 490.7
+    },
+    {
+     "alpha": -11.25,
+     "cl": -0.6714696066666667,
+     "cd": 0.02557975430952381,
+     "iters": 2100.0,
+     "settled": true,
+     "yplus_min": 0.01283898,
+     "yplus_max": 15.7895,
+     "wall_s": 350.2
+    },
+    {
+     "alpha": -11.0,
+     "cl": -0.6508578733333333,
+     "cd": 0.024718934333333335,
+     "iters": 1500.0,
+     "settled": true,
+     "yplus_min": 0.0387215,
+     "yplus_max": 14.55302,
+     "wall_s": 247.0
+    },
+    {
+     "alpha": -10.5,
+     "cl": -0.6033544091666666,
+     "cd": 0.023467004416666666,
+     "iters": 1200.0,
+     "settled": true,
+     "yplus_min": 0.06788485,
+     "yplus_max": 14.46869,
+     "wall_s": 210.6
+    },
+    {
+     "alpha": -10.0,
+     "cl": -0.5567154375,
+     "cd": 0.022240011791666667,
+     "iters": 1200.0,
+     "settled": true,
+     "yplus_min": 0.04402628,
+     "yplus_max": 14.41334,
+     "wall_s": 201.1
+    },
+    {
+     "alpha": -8.0,
+     "cl": -0.35667597944444446,
+     "cd": 0.018739354555555556,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.07919134,
+     "yplus_max": 14.19825,
+     "wall_s": 719.2
+    },
+    {
+     "alpha": -6.0,
+     "cl": -0.14649322722222222,
+     "cd": 0.016645109666666668,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.05863896,
+     "yplus_max": 13.89581,
+     "wall_s": 147.2
+    },
+    {
+     "alpha": -3.5,
+     "cl": 0.11526098222222221,
+     "cd": 0.015475211555555554,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.12174,
+     "yplus_max": 13.00054,
+     "wall_s": 145.2
+    },
+    {
+     "alpha": -2.5,
+     "cl": 0.2217119588888889,
+     "cd": 0.015387438055555555,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.08933073,
+     "yplus_max": 12.55109,
+     "wall_s": 152.9
+    },
+    {
+     "alpha": -1.0,
+     "cl": 0.38145970583333333,
+     "cd": 0.0156896045,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.09308897,
+     "yplus_max": 11.76076,
+     "wall_s": 101.0
+    },
+    {
+     "alpha": 0.0,
+     "cl": 0.48712775,
+     "cd": 0.016151914083333333,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.08642754,
+     "yplus_max": 10.43878,
+     "wall_s": 99.6
+    },
+    {
+     "alpha": 2.0,
+     "cl": 0.6987515908333334,
+     "cd": 0.01767693775,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.08275233,
+     "yplus_max": 10.80891,
+     "wall_s": 101.1
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.9081344427777778,
+     "cd": 0.020013169277777777,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.0330067,
+     "yplus_max": 11.13707,
+     "wall_s": 146.4
+    },
+    {
+     "alpha": 6.0,
+     "cl": 1.1070966944444445,
+     "cd": 0.023175456833333333,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.08211687,
+     "yplus_max": 11.48483,
+     "wall_s": 152.4
+    },
+    {
+     "alpha": 8.0,
+     "cl": 1.2845323222222222,
+     "cd": 0.027140839666666666,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.06930422,
+     "yplus_max": 11.90194,
+     "wall_s": 141.2
+    },
+    {
+     "alpha": 10.0,
+     "cl": 1.4269286222222222,
+     "cd": 0.032380252666666665,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.0471701,
+     "yplus_max": 12.42236,
+     "wall_s": 143.1
+    },
+    {
+     "alpha": 12.0,
+     "cl": 1.5482221366666666,
+     "cd": 0.039430912266666666,
+     "iters": 1500.0,
+     "settled": true,
+     "yplus_min": 0.02151931,
+     "yplus_max": 13.77633,
+     "wall_s": 251.1
+    },
+    {
+     "alpha": 13.0,
+     "cl": 1.5857512166666667,
+     "cd": 0.04451856447222223,
+     "iters": 1800.0,
+     "settled": true,
+     "yplus_min": 0.05228609,
+     "yplus_max": 14.92845,
+     "wall_s": 287.7
+    },
+    {
+     "alpha": 13.25,
+     "cl": 1.5967526583333334,
+     "cd": 0.046086412,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.02807934,
+     "yplus_max": 13.32256,
+     "wall_s": 456.0
+    },
+    {
+     "alpha": 13.5,
+     "cl": 1.607848165,
+     "cd": 0.04788392341666667,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.05509839,
+     "yplus_max": 13.82707,
+     "wall_s": 486.7
+    },
+    {
+     "alpha": 14.0,
+     "cl": 1.6231308333333334,
+     "cd": 0.05189669211666667,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.03767165,
+     "yplus_max": 16.71768,
+     "wall_s": 481.6
+    }
+   ],
+   "mesh": {
+    "u_inf": 4.9875,
+    "span": 0.012,
+    "cell": 0.012,
+    "surface_cell": 2.34375e-05,
+    "n_layers": 13,
+    "first_layer": 9.337435776481761e-06,
+    "bg_cells": 8652,
+    "resolved": true,
+    "outline": {
+     "points": 400,
+     "smooth_nose": true,
+     "tolerance": 1e-06,
+     "angle": 0.02
+    },
+    "nose_bands": [
+     [
+      0.02,
+      9
+     ],
+     [
+      0.04,
+      8
+     ],
+     [
+      0.08,
+      7
+     ],
+     [
+      0.16,
+      6
+     ]
+    ],
+    "layers_mean": 12.9,
+    "layers_pct": 99.9,
+    "cells": 70729
+   },
+   "complete": true,
+   "machine": "EPYC"
+  },
+  "sym-tc150-re570k": {
+   "spec": {
+    "name": "sym-tc150-re570k",
+    "family": "symmetric",
+    "thickness_ratio": 0.15,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "nose_level": 9,
+    "outline_points": 400,
+    "smooth_nose": true,
+    "stl_tolerance": 1e-06,
+    "stl_angle": 0.02,
+    "angles": [
+     0.0,
+     2.0,
+     4.0,
+     6.0,
+     8.0,
+     10.0,
+     12.0
+    ],
+    "march": [
+     {
+      "from": 13.0,
+      "step": 0.5,
+      "to": 24.0
+     }
+    ]
+   },
+   "rows": [
+    {
+     "alpha": 0.0,
+     "cl": -3.2018413277777774e-05,
+     "cd": 0.01447581,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.1615441,
+     "yplus_max": 6.875436,
+     "wall_s": 666.8
+    },
+    {
+     "alpha": 2.0,
+     "cl": 0.21657371166666667,
+     "cd": 0.014869707333333334,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.09269834,
+     "yplus_max": 7.304831,
+     "wall_s": 97.8
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.431222845,
+     "cd": 0.01613713711111111,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.1320366,
+     "yplus_max": 7.645365,
+     "wall_s": 148.5
+    },
+    {
+     "alpha": 6.0,
+     "cl": 0.6411037088888889,
+     "cd": 0.01821688111111111,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.1007852,
+     "yplus_max": 8.008129,
+     "wall_s": 147.5
+    },
+    {
+     "alpha": 8.0,
+     "cl": 0.8405776955555555,
+     "cd": 0.021140928333333333,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.06050599,
+     "yplus_max": 8.379337,
+     "wall_s": 145.1
+    },
+    {
+     "alpha": 10.0,
+     "cl": 1.02257935,
+     "cd": 0.025109461166666666,
+     "iters": 1200.0,
+     "settled": true,
+     "yplus_min": 0.08103173,
+     "yplus_max": 8.740988,
+     "wall_s": 193.3
+    },
+    {
+     "alpha": 12.0,
+     "cl": 1.1765848291666667,
+     "cd": 0.03045252658333333,
+     "iters": 1200.0,
+     "settled": true,
+     "yplus_min": 0.0133766,
+     "yplus_max": 9.086544,
+     "wall_s": 199.1
+    }
+   ],
+   "mesh": {
+    "u_inf": 4.9875,
+    "span": 0.012,
+    "cell": 0.012,
+    "surface_cell": 2.34375e-05,
+    "n_layers": 13,
+    "first_layer": 9.337435776481761e-06,
+    "bg_cells": 8652,
+    "resolved": true,
+    "outline": {
+     "points": 400,
+     "smooth_nose": true,
+     "tolerance": 1e-06,
+     "angle": 0.02
+    },
+    "nose_bands": [
+     [
+      0.02,
+      9
+     ],
+     [
+      0.04,
+      8
+     ],
+     [
+      0.08,
+      7
+     ],
+     [
+      0.16,
+      6
+     ]
+    ],
+    "layers_mean": 12.9,
+    "layers_pct": 99.9,
+    "cells": 70123
+   },
+   "complete": false,
+   "machine": "EPYC"
+  },
+  "camb45-tc092-re140k": {
+   "spec": {
+    "name": "camb45-tc092-re140k",
+    "family": "cambered",
+    "thickness_ratio": 0.092,
+    "camber_ratio": 0.045,
+    "camber_position": 0.4,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 140000.0,
+    "nose_level": 9,
+    "outline_points": 400,
+    "smooth_nose": true,
+    "stl_tolerance": 1e-06,
+    "stl_angle": 0.02,
+    "angles": [
+     -3.5,
+     -2.5,
+     -1.0,
+     0.0,
+     2.0,
+     4.0,
+     6.0,
+     8.0,
+     12.5,
+     13.0,
+     13.5
+    ],
+    "march": [
+     {
+      "from": -4.0,
+      "step": -0.5,
+      "to": -16.0,
+      "past": 3
+     },
+     {
+      "from": 9.0,
+      "step": 0.5,
+      "to": 20.0
+     }
+    ]
+   },
+   "rows": [
+    {
+     "alpha": -6.5,
+     "cl": -0.13537790369166666,
+     "cd": 0.06453856983333334,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.05950377,
+     "yplus_max": 6.142283,
+     "wall_s": 749.5
+    },
+    {
+     "alpha": -6.0,
+     "cl": -0.178923409667,
+     "cd": 0.06290720193333334,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.0850845,
+     "yplus_max": 6.463682,
+     "wall_s": 669.3
+    },
+    {
+     "alpha": -5.5,
+     "cl": -0.12612804746666667,
+     "cd": 0.052593814083333336,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.07803244,
+     "yplus_max": 5.826483,
+     "wall_s": 560.1
+    },
+    {
+     "alpha": -5.25,
+     "cl": -0.09517776651666666,
+     "cd": 0.045814252166666666,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.0321526,
+     "yplus_max": 5.709328,
+     "wall_s": 728.3
+    },
+    {
+     "alpha": -5.0,
+     "cl": -0.05443838327777777,
+     "cd": 0.021662629944444442,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.06641508,
+     "yplus_max": 5.837235,
+     "wall_s": 183.1
+    },
+    {
+     "alpha": -4.5,
+     "cl": -0.0015126784166666666,
+     "cd": 0.019763816444444443,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.1156811,
+     "yplus_max": 6.009681,
+     "wall_s": 176.0
+    },
+    {
+     "alpha": -4.0,
+     "cl": 0.052079864833333336,
+     "cd": 0.01883514575,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.0954855,
+     "yplus_max": 6.129768,
+     "wall_s": 117.2
+    },
+    {
+     "alpha": -3.5,
+     "cl": 0.10560649083333334,
+     "cd": 0.01824389716666667,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.06369914,
+     "yplus_max": 6.23263,
+     "wall_s": 499.8
+    },
+    {
+     "alpha": -2.5,
+     "cl": 0.21224385916666666,
+     "cd": 0.017633292249999998,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.2835949,
+     "yplus_max": 6.42355,
+     "wall_s": 123.5
+    },
+    {
+     "alpha": -1.0,
+     "cl": 0.37015337916666663,
+     "cd": 0.017613684583333334,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.3731099,
+     "yplus_max": 6.693973,
+     "wall_s": 120.0
+    },
+    {
+     "alpha": 0.0,
+     "cl": 0.4733843275,
+     "cd": 0.018009178249999997,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.3578497,
+     "yplus_max": 6.850607,
+     "wall_s": 123.5
+    },
+    {
+     "alpha": 2.0,
+     "cl": 0.6723091033333334,
+     "cd": 0.01967112366666667,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.1230322,
+     "yplus_max": 7.158815,
+     "wall_s": 121.1
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.8637808841666667,
+     "cd": 0.02240098466666667,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.0650706,
+     "yplus_max": 7.453224,
+     "wall_s": 119.6
+    },
+    {
+     "alpha": 6.0,
+     "cl": 1.0455052333333335,
+     "cd": 0.02648630461111111,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.05324785,
+     "yplus_max": 7.740248,
+     "wall_s": 187.5
+    },
+    {
+     "alpha": 8.0,
+     "cl": 1.2000985555555557,
+     "cd": 0.03230372716666667,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.02348491,
+     "yplus_max": 8.043438,
+     "wall_s": 194.5
+    },
+    {
+     "alpha": 9.0,
+     "cl": 1.2638820125,
+     "cd": 0.036321641125,
+     "iters": 1200.0,
+     "settled": true,
+     "yplus_min": 0.04323869,
+     "yplus_max": 8.224667,
+     "wall_s": 291.8
+    },
+    {
+     "alpha": 9.5,
+     "cl": 1.2915691333333332,
+     "cd": 0.0387346913,
+     "iters": 1500.0,
+     "settled": true,
+     "yplus_min": 0.02488901,
+     "yplus_max": 8.319844,
+     "wall_s": 367.9
+    },
+    {
+     "alpha": 10.0,
+     "cl": 1.3147744533333334,
+     "cd": 0.041437076,
+     "iters": 1500.0,
+     "settled": true,
+     "yplus_min": 0.02073959,
+     "yplus_max": 8.41476,
+     "wall_s": 369.6
+    },
+    {
+     "alpha": 10.5,
+     "cl": 1.33398228,
+     "cd": 0.04457651483333333,
+     "iters": 1500.0,
+     "settled": true,
+     "yplus_min": 0.0457517,
+     "yplus_max": 8.513004,
+     "wall_s": 361.5
+    },
+    {
+     "alpha": 11.0,
+     "cl": 1.3508353055555555,
+     "cd": 0.04838845388888889,
+     "iters": 1800.0,
+     "settled": true,
+     "yplus_min": 0.05316349,
+     "yplus_max": 8.671097,
+     "wall_s": 437.8
+    },
+    {
+     "alpha": 11.25,
+     "cl": 1.3626735700000001,
+     "cd": 0.050851160533333335,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.02582984,
+     "yplus_max": 8.743532,
+     "wall_s": 715.6
+    },
+    {
+     "alpha": 11.5,
+     "cl": 1.3726134266666665,
+     "cd": 0.05371770005,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.05748158,
+     "yplus_max": 8.556302,
+     "wall_s": 721.9
+    },
+    {
+     "alpha": 12.0,
+     "cl": 1.37664842,
+     "cd": 0.059989179633333334,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.06811172,
+     "yplus_max": 9.381864,
+     "wall_s": 721.1
+    }
+   ],
+   "mesh": {
+    "u_inf": 1.2249999999999999,
+    "span": 0.012,
+    "cell": 0.012,
+    "surface_cell": 2.34375e-05,
+    "n_layers": 10,
+    "first_layer": 3.303693628203335e-05,
+    "bg_cells": 8652,
+    "resolved": true,
+    "outline": {
+     "points": 400,
+     "smooth_nose": true,
+     "tolerance": 1e-06,
+     "angle": 0.02
+    },
+    "nose_bands": [
+     [
+      0.02,
+      9
+     ],
+     [
+      0.04,
+      8
+     ],
+     [
+      0.08,
+      7
+     ],
+     [
+      0.16,
+      6
+     ]
+    ],
+    "cells": 65232
+   },
+   "complete": true,
+   "machine": "laptop"
   }
  }
 }

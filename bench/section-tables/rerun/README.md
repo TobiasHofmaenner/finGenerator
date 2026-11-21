@@ -16,6 +16,23 @@ Two corrections on 2026-11-21, after four sections stopped with errors:
 - **t/c 0.15, not 0.16.** The three thickest sections were planned at t/c 0.16; fingen draws no section above 0.15 (`FoilParams`), and the driver refused them. They run at 0.15, the thickest a fin's root can be.
 - **Seven wall layers at Re 1.4e5.** The driver's stack has at least ten layers, which at Re 1.4e5 is 0.86 mm against 0.45 mm at the other Reynolds numbers. On the 0.5 mm corner of the flat inside face the mesher dropped it (13 % kept) and the driver's layer check refused the mesh. The sections at Re 1.4e5 that had not run yet (flat inside t/c 0.092, symmetric t/c 0.090 and 0.046, 3 % / t/c 0.05) use seven layers (0.43 mm). The two that had (3 % / t/c 0.07, 4.5 % / t/c 0.092) kept 99.8 % of ten; `ctl-camb3-tc070-re140k-l7` repeats six rows of the first with seven.
 
+**An upper end can be soft** (read 2026-11-21 from the force histories, at 22 of 35). "Not settled" covers two things. A section with a sharp nose stall is separated in the first row past its end: lift down by a sixth or more, drag three to ten times higher (3 % / t/c 0.07: 1.324 at +10.0°, 1.101 at +10.25°). A thick or strongly cambered section stalls from the trailing edge, and its first rows past the end are a small steady oscillation around a mean that no longer moves: 4.5 % / t/c 0.092 at Re 1.4e5 holds a lift of 1.3725–1.3728 from iteration 1500 to 3000 at +11.5°, swinging by ±0.6 % in lift and ±3 % in drag. The driver's rule (the last 100 iterations within 0.6 % of the lift) counts that as not settled, so the end is put where the flow stops being steady, while lift still rises:
+
+| section | end by the rule | rows past it with lift still rising | then |
+|---|---|---|---|
+| 4.5 % / t/c 0.092, Re 1.4e5 | +11.0…+11.25° (1.351) | 1.363, 1.373, 1.377 at +11.25, +11.5, +12.0° | march stopped |
+| 4.5 % / t/c 0.15 | +13.0…+13.25° (1.586) | 1.597, 1.608, 1.623 at +13.25, +13.5, +14.0° | march stopped |
+| 4.5 % / t/c 0.12 | +13.75…+14.0° (1.663) | 1.672 at +14.0° | 1.603 at +14.5° |
+| 4.5 % / t/c 0.092 | +13.75…+14.0° (1.657) | 1.661 at +14.0° | 1.580 at +14.5° |
+| 4.5 % / t/c 0.092, Re 9.7e5 | +14.5…+14.75° (1.737) | 1.743 at +14.75° | 1.728, 1.568 at +15.0, +15.5° |
+| 3 % / t/c 0.12 | +14.0…+14.25° (1.567) | 1.571, 1.580 at +14.25, +14.5° | 1.046 at +15.0° |
+| flat inside t/c 0.12 | +13.0…+13.25° (1.664) | 1.672, 1.678 at +13.25, +13.5° | 1.493 at +14.0° |
+
+- **The table is not affected at the sections.** The builder takes every row, inside and past the ends, and a polar's break is read off its lift curve (`SectionPolar.alpha_break_deg`: the slope down to 30 % of the linear one), not off the end. Checked on the build at 22 sections: the table returns every row past an upper end to 0.001 in lift.
+- **The end itself is early by a quarter to half a degree on these sections**, and by a degree or more on the first two, where the march ended before the mean lift had turned. Both run three more rows (to +13.5° and +15.5°). Lower ends are not soft at Re 5.7e5 (drag 1.3–1.9 times the lowest in the last row inside, 4–9 times in the first past it); on thin sections and at Re 1.4–2.8e5 drag climbs by 40–100 % in the first row past the end and keeps climbing.
+
+**The first cell's height** is the one mesh direction `../nose/` did not vary. Its centre sits at one wall unit over most of the section and at 4–5 on the first 0.5 % of chord near an upper end (read off the gate's rows at 12° and 13.25°; the largest values a row reports, 10–25, are the four cells on the trailing edge's base, which carry no layers). Two controls with half the first cell: `ctl-naca0012-re700k-y1` and `ctl-camb3-tc070-re570k-y1`.
+
 Two gates run with the batch and are kept out of this record: NACA 0012 at Re 7e5 against [SK81] and NACA 4415 at Re 7.5e5 against [Hof96] (`../../section-gate/`).
 
 Read by `scripts/build_section_table_v1.py` (complete sections only). What a row is known to: lift 0.01, drag 1 %, an end half a degree (`../nose/`, section 4).
