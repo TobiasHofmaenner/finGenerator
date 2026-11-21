@@ -3,7 +3,8 @@
     uv run python scripts/falk_quad_lattice.py [--md=bench/falk/quad-level5-foils/lattice.md]
 
 Three stand-in foils have a set run on mesh level 5 (bench/falk/quad-level5 and
-quad-level5-foils). For each, every fin's lift from the linear lattice (attached
+quad-level5-foils), one of them a second time with less toe on the rear pair.
+For each, every fin's lift from the linear lattice (attached
 flow, no section data), lift and drag from the viscous lattice on section table
 v1, the set CFD and the paper. The CFD has the fins on a flat wall, so the
 lattice is solved with a perfect mirror.
@@ -33,7 +34,9 @@ NAMES = ("front inside", "front outside", "rear inside", "rear outside")
 REF_COLS = ("front_IF", "front_OF", "rear_IF", "rear_OF")
 RUNS = (("flat inside, t/c 0.09 (the first stand-in)", "quad-level5/falk-quad.json"),
         ("flat inside, t/c 0.065", "quad-level5-foils/flat-tc065/falk-quad.json"),
-        ("3 % camber, t/c 0.065", "quad-level5-foils/camb3-tc065/falk-quad.json"))
+        ("3 % camber, t/c 0.065", "quad-level5-foils/camb3-tc065/falk-quad.json"),
+        ("flat inside, t/c 0.065, rear pair at 2° of toe",
+         "quad-level5-foils/flat-tc065-reartoe2/falk-quad.json"))
 
 
 def reference() -> dict[tuple[str, float], dict[str, float]]:
@@ -64,7 +67,7 @@ def main() -> None:
     for title, rel in RUNS:
         data = json.loads((BENCH / rel).read_text())
         foil = data.get("foil", {"family": "flat_inside", "thickness_ratio": 0.09, "camber_ratio": 0.0})
-        fin, sp = quad(foil)
+        fin, sp = quad(foil, data.get("layout", {}).get("rear_toe", 3.5))
         blades = lattice.set_blades(sp, nz=10, nx=2)
         pol = {b.name: lattice.strip_sections(fin, b, SPEED, "v1") for b in blades}
         lines += [f"## {title}", "",
@@ -95,6 +98,15 @@ def main() -> None:
         cells = [" / ".join(f"{cl[lee][s]:.3f}" for lee in angles) for s in
                  ("rear_right", "rear_left", "front_right", "front_left")]
         lines.append(f"| {rear_toe:.1f} | " + " | ".join(cells) + f" | {np.sqrt(np.mean(np.square(miss))):.3f} |")
+    for rel in (RUNS[1][1], RUNS[3][1]):          # the two set runs of this foil
+        data = json.loads((BENCH / rel).read_text())
+        cfd = {r["angle"]: {s: r["coeffs"][s]["cl"] for s in SLOTS} for r in data["rows"]}
+        miss = [cfd[lee][s] - ref[("CL", lee)][c] for lee in angles
+                for s, c in (("rear_right", "rear_IF"), ("rear_left", "rear_OF"))]
+        cells = [" / ".join(f"{cfd[lee][s]:.3f}" for lee in angles) for s in
+                 ("rear_right", "rear_left", "front_right", "front_left")]
+        lines.append(f"| set CFD, {data['layout'].get('rear_toe', 3.5):.1f} | " + " | ".join(cells)
+                     + f" | {np.sqrt(np.mean(np.square(miss))):.3f} |")
     lines.append("| [Falk20] | " + " | ".join(" / ".join(f"{ref[('CL', lee)][c]:.3f}" for lee in angles)
                                              for c in ("rear_IF", "rear_OF", "front_IF", "front_OF")) + " | |")
     text = "\n".join(lines)

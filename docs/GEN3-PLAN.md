@@ -549,12 +549,16 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   the front one. Their rear SPLIT differs from ours while the rear pair's
   total does not: in the lattice 1.5–2° of toe on the rear pair (we had put
   the paper's one value, 3.5°, on all four) gives their rear fins within the
-  digitizing error — a set run with 2° is queued. The outside front fin lets
+  digitizing error, and the set run with 2° confirms it (rear inside fin
+  0.215 / 0.407 / 0.616 against their 0.240 / 0.410 / 0.610; the toe moves
+  the same lift between the rear fins in the CFD as in the lattice; the
+  rear outside fin stays 0.05–0.08 above theirs at 5° and 10°). The outside front fin lets
   go between 5° and 10° in ours with three foils, at 15° in theirs; neither
   wall-function simulation is a referee for that, and the 2-D referee has
   our cambered foil two degrees past its range there. For (d): rear toe is
-  a first-order lever on which rear fin carries the load (1.5° moves 0.08 of
-  lift coefficient from the outside rear fin to the inside one).
+  a first-order lever on which rear fin carries the load (1.5° moves
+  0.08–0.09 of lift coefficient from the outside rear fin to the inside one,
+  lattice and set CFD alike), so the lattice can set it.
 - `[ ]` **2b.4 Single.** (a) Isolated 3-D polars of a deep single (the
   reference fleet's 240 mm longboard fin) and of a shortboard-size single,
   4–7 m/s, one-degree steps through the knee. (b) The load case: lean and
