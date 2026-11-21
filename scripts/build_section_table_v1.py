@@ -23,7 +23,7 @@ referee's. `s` is the same position counted between the marks (-1 at the lower
 end, 0 at the centre, +1 at the upper end): the coordinate in which two
 sections are compared. `remainder` is what v0's lift does besides its straight
 line. F and H are what the referee's rows still differ by after the move: a
-drag ratio and a lift difference at 101 places inside the range, and one value
+drag ratio and a lift difference at 121 places inside the range, and one value
 each behind either end, read from the rows past it.
 
 Per section the referee therefore gives (FITTED): the two ends, the width of
@@ -86,9 +86,9 @@ REPO = Path(__file__).resolve().parent.parent
 V0_PATH = REPO / "src/fingen/data/sections_v0.npz"
 BENCH = REPO / "bench/section-tables"
 # The referee's sections: (file under bench/section-tables, families read from it). The
-# rerun is on the converged recipe (bench/section-tables/nose). The flat-inside family has
-# not been rerun — its nose has a real corner and needs its own study — and keeps its one
-# section from the first recipe until then.
+# rerun is on the converged recipe (bench/section-tables/nose). A family read from an
+# earlier file is not read again from a later one: the flat-inside family keeps its one
+# section from the first recipe only until the rerun has it.
 RANS_FILES = (("rerun/results.json", None), ("results.json", ("flat_inside",)))
 K_LOWER, K_UPPER = 1.5, 3.0         # ends by drag, where no row says the flow let go (v0)
 K_OUT = 2.5                         # ... and the foot of the lower cliff
@@ -112,7 +112,9 @@ RE_HALF_OCTAVES = 1e5 * 2.0 ** (0.5 * np.arange(9))
 MARKS = ("lower_out", "lower", "centre", "upper", "upper_out")
 S_MARKS = np.array([-1.1, -1.0, 0.0, 1.0, 1.1])
 DEG_PER_S = 10.0
-KNOTS = np.linspace(-1.0, 1.0, 101)
+# (closer in the outer fifth of the range, where the referee's rows are half a degree apart)
+KNOTS = np.unique(np.round(np.concatenate([np.linspace(-0.8, 0.8, 81), np.linspace(0.8, 1.0, 21),
+                                           np.linspace(-1.0, -0.8, 21)]), 6))
 S_GRID = np.unique(np.round(np.concatenate([
     S_MARKS[0] - np.arange(0.5, 16.01, 0.5) / DEG_PER_S, np.linspace(-1.1, -1.0, 5), KNOTS,
     np.linspace(1.0, 1.1, 5), S_MARKS[-1] + np.arange(0.5, 18.01, 0.5) / DEG_PER_S]), 6))
@@ -326,6 +328,7 @@ def load_nodes(v0) -> list[dict]:
         path = BENCH / rel
         if not path.exists():
             continue
+        have = {n["family"] for n in nodes}
         data = json.loads(path.read_text())
         cap = int(data["plan"].get("end_time", 4000))
         for name, sec in data["sections"].items():
@@ -334,7 +337,8 @@ def load_nodes(v0) -> list[dict]:
             # a marched section says itself when it is complete; a fixed list is when all
             # its rows are in
             complete = sec.get("complete", len(rows) >= len(spec["angles"]))
-            if not complete or wall == "wf" or (families and spec["family"] not in families):
+            if (not complete or wall == "wf" or spec["family"] in have
+                    or (families and spec["family"] not in families)):
                 continue
             if spec["family"] == "symmetric":     # run at positive angles: the rest is its mirror
                 rows = sorted(rows + [{**r, "alpha": -r["alpha"], "cl": -r["cl"]} for r in rows

@@ -19,6 +19,8 @@ The referee refined the surface to its finest level only where the surface turns
 
 Finer cells in the band around the section, a layer stack grown to the face cell, a lower curvature threshold: none of them changes the referee's answer (`near5`, `layers`, `ang10` in `series.md`).
 
+The series also loses the wall as it refines the tip (found 2026-11-21, reading the mesher's own summary): of the layer stack's thickness the mesher kept 99 % on the referee's mesh and 92, 88 and 72 % on the three finer ones. It takes layers off where they do not fit and still ends without an error. Every mesh with a uniform nose band (section 3 and 4) kept 97.8 % or more, the old outline's included, and every section of the rerun 99.6 % or more. The driver now records the share and refuses a resolved-wall mesh below 90 %.
+
 ## 2. The outline
 
 The mesher's surface came from `fingen.foil.section_points` with 100 points (50 per side, cosine spaced) and two splines, one per side, meeting at the leading edge. Against the analytic section at chord 120 mm:

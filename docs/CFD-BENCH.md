@@ -73,6 +73,14 @@ run below their zero-lift angle (`bench/cambered-candidate/`,
   region, not a criterion (the mesher's curvature rule refines less area at
   every level). `fingen.loft` draws fins with the same two splines: a 3-D
   mesh with a resolved nose needs that changed first.
+- **The mesher ends "without any errors" on a mesh that lost its wall
+  layers** (2026-11-21). snappyHexMesh takes a layer stack off again where it
+  does not fit. A flat-inside section with a nose corner of 0.1 mm radius kept
+  1.9 layers of 13 and gave plausible forces, with y+ up to 19 on a wall meant
+  to be resolved. Read the layer summary in `log.snappyHexMesh` (mean layers,
+  percent of the target thickness) for every mesh; `section_polar.py` records
+  it and refuses a resolved-wall mesh below 90 %. The 2-D rerun's sections
+  have 99.6 % or more.
 
 ## Bugs the ladder caught on the way (all fixed, all committed)
 
