@@ -85,13 +85,13 @@ Streams run on the gate's mesh (NACA 0012, Re 7e5; lift coefficient, drag coeffi
 | quiet: 1 %, eddy viscosity ×10, decaying | 0.2 %, ×8 | 109.5 | 0.8265, 169 | 1.1909, 262 | 1.2296, 278 | 1.2645, 297 | 1.0358* | 0.8740* | 0.7622* |
 | quieter: k = 10⁻⁶ U², ω = 5 U/c, decaying | ×0.1 | 109.2 | 0.8271, 169 | 1.1910, 260 | 1.2296, 278 | 0.9860* | | 0.9083* | |
 | **held: k = 10⁻³ U² (2.58 %), ω = 5 U/c** | as set, ×140 | 117.8 | 0.8290, 182 | 1.1885, 281 | 1.2252, 299 | 1.2580, 320 | 0.8189* | 0.6830* | 1.2363* |
-| held, low: k = 10⁻⁴ U² (0.82 %), ω = 5 U/c | as set, ×14 | 110.4 | 0.8258, 171 | running | | | | | |
+| held, low: k = 10⁻⁴ U² (0.82 %), ω = 5 U/c | as set, ×14 | 110.4 | 0.8258, 171 | 1.1874, 265 | 1.2246, 282 | 0.7902* | | 0.6732* | |
 | held, short scale: k = 10⁻³ U², ω = 60 U/c | as set, ×12 | 113.9 | 0.8004, 174 | 1.0641, 266 | 0.9646* | | | | |
 
 (The quieter stream is separated at 12.75° as well. "Held" keeps k and ω at their values up to the section with the model's sustaining terms, [SR07]; OpenFOAM's `decayControl`, driver options `tu`, `omega_cu`, `sustain`.)
 
-- **Lift does not depend on the stream** up to the break: within 0.4 % at every angle in the four streams that leave the layer alone.
-- **The break moves by half a degree.** Last attached row: 13.25–13.5° on the old inlet, 13.0° in the quiet and in the held stream, 12.5° in the quieter one. The highest attached lift is 1.23–1.27 in all four, 14–18 % above [SK81]'s peak.
+- **Lift does not depend on the stream**: within 0.5 % up to 12° in the five streams that leave the layer alone, within 0.9 % in the last degree before the break.
+- **The break moves by half a degree.** Last attached row: 13.25–13.5° on the old inlet, 13.0° in the quiet and in the held stream, 12.5° in the quieter and in the low held one. The highest attached lift is 1.22–1.27 in all five, 14–18 % above [SK81]'s peak.
 - **Drag depends on the stream by 15 %.** Ratio quiet to old inlet: 0.87–0.89 at every angle. Held to old: 0.93–0.96.
 
 **Which drag is right.** A fully turbulent run is to be compared with tripped sections, not with [SK81]'s. [McC87] fits the tripped drag at zero lift of the best tunnels as 0.0017 + 0.91 / (log₁₀ Re)^2.58: twice the flat-plate friction law plus a constant. Its tripped points lie between about 3 and 12 million (its Fig. 4), so Re 7e5 is an extrapolation by a factor of four, and it matters how: with the constant kept the fit gives 0.0113; with the form drag growing with the friction (the usual factor 1 + 2 t/c + 60 (t/c)⁴ on the same friction law, which agrees with the fit within 1 % at Re 6 million) 0.0120.
@@ -117,35 +117,43 @@ Streams run on the gate's mesh (NACA 0012, Re 7e5; lift coefficient, drag coeffi
 |---|---|---|---|---|---|---|
 | 0°: old inlet | 5.61 | 5.06 | 5.12 | 4.80 | 4.68 | 4.77 |
 | 0°: held | 5.52 | 4.91 | 5.00 | 4.73 | 4.62 | 4.71 |
+| 0°: held, low | 4.97 | 3.89 | 4.05 | 4.54 | 4.52 | 4.59 |
 | 0°: quiet | 4.92 | 3.76 | 3.79 | 4.50 | 4.51 | 4.59 |
 | +4°: old inlet | 7.77 | 6.11 | 5.35 | 4.82 | 4.71 | 4.80 |
 | +4°: held | 7.69 | 6.00 | 5.20 | 4.70 | 4.62 | 4.71 |
+| +4°: held, low | 7.40 | 5.56 | 4.60 | 3.90 | 4.24 | 4.49 |
 | +4°: quiet | 7.37 | 5.52 | 4.53 | 3.64 | 3.95 | 4.43 |
 
 - **At Re 7e5 the quiet stream has a laminar run over the first 7 % of chord** (friction 12–16 % lower there), and at 8° on the lower side to 15 %. Behind it the friction stays 4–12 % below the old inlet's.
 - **At Re 1.4e5, the table's lowest Reynolds number, the run covers a fifth to two fifths of the chord** on the lower side (friction 15–26 % lower), and where it sits moves with the angle. On the upper side at 0° it reaches from 10 % to 30 % of chord. Drag is 9 % below the old inlet's at 0° and +4°. A table built on that would carry the model's switch-on point in its Reynolds-number trend.
-- **The held stream shows no such run at either Reynolds number**: its friction follows the old inlet's within 1–3.5 % from the nose to the trailing edge.
+- **The low held stream (0.82 %) has the quiet stream's runs**, a little shorter; its drag is within 0.6 % of the quiet stream's at both Reynolds numbers.
+- **The held stream at 2.58 % shows no such run at either Reynolds number**: its friction follows the old inlet's within 1–3.5 % from the nose to the trailing edge.
 
 **Why not a shorter length scale.** Holding k = 10⁻³ U² with ω = 60 U/c gives the lowest eddy viscosity of the held streams and a drag on the fit (0.0114). But lift is 3.5 % low at 8° and the section lets go by 12.5°. On the aft upper side at 8° its friction falls to 40 % of the other streams' by the trailing edge (0.41 against 1.03 at x/c 0.9–0.97; 1.23 against 1.80 at 0.8–0.9): the stream's ω is higher than the boundary layer's own in its outer part, the sustaining term holds it up there, and the outer layer loses its eddy viscosity. A held stream's ω has to stay well below the layer's; 5 U/c is the value of [SR07] and [RS09]. The run was stopped after four rows.
 
 **The stream chosen: held, k = 10⁻³ U², ω = 5 U/c** (`"tu": 0.02582, "omega_cu": 5.0, "sustain": true`). It is the highest of the three [RS09] test; they note that above 1 % the stream begins to act on the turbulent layer itself, and it does here: 4.5 % more drag than the fit, friction 2–10 % above the quiet stream's behind its laminar run. It is the one stream that is turbulent from the nose at Re 1.4e5 and inside the band of tripped drag at Re 7e5, and it arrives at the section as set whatever the domain. Against the old inlet on the test section's sibling at Re 1.4e5 (3 % camber, t/c 0.07, ten layers):
 
-| α ° | old inlet c_l | c_d | held c_l | c_d | quiet c_l | c_d |
-|---|---|---|---|---|---|---|
-| -5 | -0.2296* | 0.04219 | -0.2134* | 0.04000 | | |
-| -4.75 | -0.1890* | 0.03277 | -0.1856* | 0.03328 | | |
-| -4.5 | -0.1662 | 0.02418 | -0.1629 | 0.02408 | | |
-| -3.5 | -0.0634 | 0.01732 | -0.0612 | 0.01670 | | |
-| 0 | 0.3108 | 0.01592 | 0.3123 | 0.01535 | 0.3107 | 0.01449 |
-| 4 | 0.7220 | 0.01968 | 0.7219 | 0.01888 | 0.7191 | 0.01795 |
+| α ° | old inlet c_l | c_d | held c_l | c_d | held, low c_l | c_d | quiet c_l | c_d |
+|---|---|---|---|---|---|---|---|---|
+| -5 | -0.2296* | 0.04219 | -0.2134* | 0.04000 | | | | |
+| -4.75 | -0.1890* | 0.03277 | -0.1856* | 0.03328 | | | -0.1895* | 0.03537 |
+| -4.5 | -0.1662 | 0.02418 | -0.1629 | 0.02408 | | | -0.1602* | 0.02654 |
+| -3.5 | -0.0634 | 0.01732 | -0.0612 | 0.01670 | -0.0608 | 0.01605 | -0.0605 | 0.01595 |
+| 0 | 0.3108 | 0.01592 | 0.3123 | 0.01535 | 0.3104 | 0.01457 | 0.3107 | 0.01449 |
+| 4 | 0.7220 | 0.01968 | 0.7219 | 0.01888 | 0.7188 | 0.01804 | 0.7191 | 0.01795 |
+| 8 | 1.0545 | 0.03359 | 1.0473* | 0.03281 | | | | |
+| 8.25 | 1.0658 | 0.03666 | 1.0321* | 0.03752 | | | | |
+| 8.5 | 1.0492* | 0.03988 | 1.0181* | 0.04305 | | | | |
 
-The lower end falls in the same row on both; drag is 3.6–4.1 % lower in the held stream (6.5 % at Re 7e5: the old inlet's eddy viscosity grows with Reynolds number, 220 times the molecular one here and 1100 there, so its drag excess does too). The upper-end rows, the quiet stream's end rows and the low held stream at this Reynolds number are running.
+- **Lower end:** in the same row on the old inlet and in the held stream (attached at −4.5°, past it at −4.75°). In the quiet stream −4.5° is already past it.
+- **Upper end:** the held stream is past it at +8.0°, where the old inlet is attached to +8.25°: more than a quarter of a degree earlier. The rerun's march finds where.
+- **Drag** is 3.6–4.1 % lower in the held stream than on the old inlet here, 4.7–5.3 % at Re 5.7e5 (the test section, first rows of the rerun) and 6.5 % at Re 7e5 (NACA 0012). The old inlet's eddy viscosity grows with Reynolds number, 220 times the molecular one here and 1100 at Re 7e5, and its drag excess with it. The quiet and the low held stream are 8–9 % below the old inlet, their laminar runs included.
 
-On the test section at Re 5.7e5 the quiet stream against the old inlet: lift within 0.004, drag 10–11 % lower, and both ends earlier: −6.25° is past the end (attached on the old inlet), +10.0° is past it (1.324 attached on the old inlet).
+On the test section at Re 5.7e5 the quiet stream against the old inlet: lift within 0.004, drag 10–11 % lower, and both ends earlier: −6.25° is past the end (attached on the old inlet), +10.0° is past it (1.324 attached on the old inlet). The held stream there: lift within 0.003 of the old inlet, attached at −6.0° and past the end at −6.5° like the old inlet; the rest of its rows are in `../section-tables/rerun-held/`.
 
 **Consequences.**
 
-- The table's 35 sections are rerun on the held stream (`../section-tables/rerun-held/`, with a row-by-row comparison against the old-inlet sections of `../section-tables/rerun/`). Expected from the controls: lift unchanged, drag 4–7 % lower, ends up to half a degree earlier at the higher Reynolds numbers.
+- The table's 35 sections are rerun on the held stream (`../section-tables/rerun-held/`, with a row-by-row comparison against the old-inlet sections of `../section-tables/rerun/`). Expected from the controls: lift unchanged, drag 4–7 % lower, ends a quarter to half a degree earlier.
 - Both gate sections and the two controls on the first cell's height (half the height, `first_yplus 1`) run on the held stream with the rerun; their rows go into `runs.json` and this record when they are in.
 - The 3-D recipe has the same inlet rule and 4 base chords of fetch instead of 20 chords, so its stream at the fin is yet another one. `fincfd` takes the held stream as an option (`CaseSpec.held_stream`, `write_set_case(held_stream=True)`), off by default: every 3-D record so far is on the decaying stream. On mesh level 5 friction is a third low from the wall functions in any case (`docs/CFD-BENCH.md`); a control on a known fin is to run before 3-D drag is compared across the two streams.
 
