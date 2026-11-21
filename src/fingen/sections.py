@@ -21,6 +21,15 @@ scripts/build_section_table_v1.py, which records its nodes and fits in the
 table's meta). `table=` selects one; "v0" stays the default until v1's
 sections are complete.
 
+A table is stored in one of two layouts (its meta says which). "plain" (v0):
+every polar on one grid of angles, read by interpolating its neighbours point
+by point. "aligned": every polar on a coordinate in which the two ends of its
+attached range sit at the same place for all sections (`_alpha_of_s`), with
+the ends themselves stored beside it. Reading interpolates the ends first and
+the curves at equal position between them, so a section between two nodes has
+ONE cliff at an interpolated angle; point by point it would get two half-height
+steps, at the neighbours' angles. `SectionPolar.attached_deg` reports the ends.
+
 Status of the data (v0): NeuralFoil with the boundary layer tripped. Checked
 against resolved-wall 2-D RANS on our flat-inside section (cl 0.43 / 0.86 /
 1.35 at 0 / 4 / 12°, cd 0.042 at −3.5°, Re 5.7e5 — all within a few percent)
@@ -46,7 +55,8 @@ from fingen.params import FinParams, FoilFamily
 # Shipped tables. "v0" is NeuralFoil as built (every lattice result up to
 # 2026-11-19); "v1" is v0 moved onto the resolved-wall RANS sections — both
 # ends of each section's attached range, drag level, lift slope
-# (scripts/build_section_table_v1.py). Same layout, so either reads the same way.
+# (scripts/build_section_table_v1.py). Either layout (see the module text) hands
+# out the same SectionPolar.
 TABLES = ("v0", "v1")
 _DATA = Path(__file__).parent / "data"
 # The table's cambered block is built at this camber position (NACA p).
@@ -98,6 +108,9 @@ class SectionPolar:
     cd: np.ndarray
     cm: np.ndarray
     clipped: bool           # a requested value lay outside the table and was clamped
+    # (lower, upper) end of the attached range as the table has it; None for a
+    # table in the plain layout, which does not store them
+    attached_deg: tuple[float, float] | None = None
 
     def cl_at(self, alpha_deg):
         return np.interp(alpha_deg, self.alpha_deg, self.cl)
@@ -117,11 +130,22 @@ class SectionPolar:
         and of the roll-off toward the break."""
         a, cl = self.alpha_deg, self.cl
         pos = (a >= -6.0) & (a <= 16.0)
-        peak = float(cl[pos].max())
-        lo = float(np.interp(0.25 * peak, cl[pos][: int(np.argmax(cl[pos])) + 1],
-                             a[pos][: int(np.argmax(cl[pos])) + 1]))
-        hi = float(np.interp(0.65 * peak, cl[pos][: int(np.argmax(cl[pos])) + 1],
-                             a[pos][: int(np.argmax(cl[pos])) + 1]))
+        a, cl = a[pos], cl[pos]
+        k_peak = int(np.argmax(cl))
+        peak = float(cl[k_peak])
+
+        def reached(level: float) -> float:
+            """Angle at which the lift passes `level` on the way up to the peak, found
+            walking down from the peak: below a section's lower end the lift is not
+            monotonic, and a lookup over the whole window would not notice."""
+            k = k_peak
+            while k > 0 and cl[k - 1] > level:
+                k -= 1
+            if k == 0 or cl[k] <= level:
+                return float(a[k])
+            return float(a[k - 1] + (level - cl[k - 1]) / (cl[k] - cl[k - 1]) * (a[k] - a[k - 1]))
+
+        lo, hi = reached(0.25 * peak), reached(0.65 * peak)
         return 0.40 * peak / max(hi - lo, 1e-6), hi, 0.65 * peak
 
     @property
@@ -166,6 +190,33 @@ class SectionPolar:
         return float(self.cd.min())
 
 
+def _alpha_of_s(s: np.ndarray, marks: np.ndarray, s_marks: np.ndarray,
+                deg_per_s: float) -> np.ndarray:
+    """Angles of the aligned layout's coordinate `s` for a section whose marks (foot
+    of the lower cliff, lower end, centre of the low-drag range, upper end, foot of
+    the upper cliff) are `marks`: linear between the marks, which sit at `s_marks`
+    for every section, and `deg_per_s` degrees per unit outside them."""
+    return np.where(s < s_marks[0], marks[0] + (s - s_marks[0]) * deg_per_s,
+                    np.where(s > s_marks[-1], marks[-1] + (s - s_marks[-1]) * deg_per_s,
+                             np.interp(s, s_marks, marks)))
+
+
+def _aligned(t: dict, key: str, br: list[tuple[int, float, bool]]) -> tuple:
+    """(alpha, cl, cd, cm, attached range) of one section from a table in the aligned
+    layout: marks, lift line and curves are interpolated between the neighbouring
+    nodes at equal `s`, then laid out on the interpolated marks."""
+    marks = _lerp(t[f"{key}_marks"], br)
+    alpha = _alpha_of_s(t["s"], marks, t["s_marks"], float(t["meta"]["deg_per_s"]))
+    slope, alpha0 = float(_lerp(t[f"{key}_slope"], br)), float(_lerp(t[f"{key}_alpha0"], br))
+    cl = slope * (alpha - alpha0) + _lerp(t[f"{key}_rem"], br)
+    cd, cm = _lerp(t[f"{key}_cd"], br), _lerp(t[f"{key}_cm"], br)
+    # every polar spans the same angles (the strip solver clips to them)
+    lo, hi = (float(v) for v in t["meta"]["alpha_range"])
+    grid = np.concatenate([[lo], alpha[(alpha > lo) & (alpha < hi)], [hi]])
+    return (grid, np.interp(grid, alpha, cl), np.interp(grid, alpha, cd),
+            np.interp(grid, alpha, cm), (float(marks[1]), float(marks[3])))
+
+
 @functools.lru_cache(maxsize=8192)
 def _polar(family: FoilFamily, tc_key: int, re_key: int, camber_key: int,
            table: str = "v0") -> SectionPolar:
@@ -182,6 +233,11 @@ def _polar(family: FoilFamily, tc_key: int, re_key: int, camber_key: int,
     else:
         br = [_bracket(t["tc"], tc), b_re]
         key = FoilFamily.FLAT_INSIDE.value if family is FoilFamily.FLAT_INSIDE else "symmetric"
+    if t["meta"].get("layout") == "aligned":
+        alpha, cl, cd, cm, attached = _aligned(t, key, br)
+        return SectionPolar(family=family, thickness_ratio=tc, camber_ratio=camber,
+                            reynolds=10.0**log_re, alpha_deg=alpha, cl=cl, cd=cd, cm=cm,
+                            clipped=any(b[2] for b in br), attached_deg=attached)
     return SectionPolar(family=family, thickness_ratio=tc, camber_ratio=camber,
                         reynolds=10.0**log_re, alpha_deg=t["alpha"],
                         cl=_lerp(t[f"{key}_cl"], br), cd=_lerp(t[f"{key}_cd"], br),
