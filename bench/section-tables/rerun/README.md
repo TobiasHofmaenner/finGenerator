@@ -21,7 +21,7 @@ Two corrections on 2026-11-21, after four sections stopped with errors:
 | section | end by the rule | rows past it with lift still rising | then |
 |---|---|---|---|
 | 4.5 % / t/c 0.092, Re 1.4e5 | +11.0…+11.25° (1.351) | 1.363, 1.373, 1.377 at +11.25, +11.5, +12.0° | march stopped |
-| 4.5 % / t/c 0.15 | +13.0…+13.25° (1.586) | 1.597, 1.608, 1.623 at +13.25, +13.5, +14.0° | march stopped |
+| 4.5 % / t/c 0.15 | +13.0…+13.25° (1.586) | 1.597, 1.608, 1.623, 1.624 at +13.25, +13.5, +14.0, +14.5° | 1.482, 1.456 at +15.0, +15.5° (the three rows added) |
 | 4.5 % / t/c 0.12 | +13.75…+14.0° (1.663) | 1.672 at +14.0° | 1.603 at +14.5° |
 | 4.5 % / t/c 0.092 | +13.75…+14.0° (1.657) | 1.661 at +14.0° | 1.580 at +14.5° |
 | 4.5 % / t/c 0.092, Re 9.7e5 | +14.5…+14.75° (1.737) | 1.743 at +14.75° | 1.728, 1.568 at +15.0, +15.5° |
@@ -32,6 +32,12 @@ Two corrections on 2026-11-21, after four sections stopped with errors:
 - **The end itself is early by a quarter to half a degree on these sections**, and by a degree or more on the first two, where the march ended before the mean lift had turned. Both run three more rows (to +13.5° and +15.5°). Lower ends are not soft at Re 5.7e5 (drag 1.3–1.9 times the lowest in the last row inside, 4–9 times in the first past it); on thin sections and at Re 1.4–2.8e5 drag climbs by 40–100 % in the first row past the end and keeps climbing.
 
 **The first cell's height** is the one mesh direction `../nose/` did not vary. Its centre sits at one wall unit over most of the section and at 4–5 on the first 0.5 % of chord near an upper end (read off the gate's rows at 12° and 13.25°; the largest values a row reports, 10–25, are the four cells on the trailing edge's base, which carry no layers). Two controls with half the first cell: `ctl-naca0012-re700k-y1` and `ctl-camb3-tc070-re570k-y1`.
+
+**Seven layers against ten at Re 1.4e5** (`ctl-camb3-tc070-re140k-l7`, six rows of 3 % / t/c 0.07): both ends fall between the same rows (−4.5…−4.75° and +8.25…+8.5°). Lift is 0.014 higher at 0° and +4° (0.325 against 0.311, 0.737 against 0.722) and drag 1.4 % lower; at the two last rows inside the ends lift differs by 0.010–0.014 the other way. So at Re 1.4e5 the sections on seven layers and those on ten differ by about 0.014 in lift, more than the 0.01 the mesh controls at Re 5.7e5 gave, and their ends are comparable.
+
+**Two sections lost their layers at a threshold** (symmetric t/c 0.09 at Re 2.8e5 and 1.4e5, 2026-11-21). In the mesher's first layer pass 20 of 200 000 faces had an interpolation weight below its floor of 0.05; it took the layers off those faces, which made more such faces beside them, and after its passes 12.5 % of the stack was left. The driver refused both meshes. The same section at Re 5.7e5 had no such face. Both run again with the floor at 0.02 (`min_face_weight`, a new option of the driver; every other section keeps 0.05): Re 2.8e5 kept 99.9 % of ten layers.
+
+**The stream** (found 2026-11-21, `../../section-gate/`). The referee's inlet carries 5 % turbulence with a length of a tenth of the chord, the 3-D recipe's rule, which nobody had varied. On the NACA 0012 gate a quiet stream leaves lift unchanged up to the break, lowers drag by 12 % and moves the break half a degree earlier. Controls on which stream the table should stand on are running; the seven runs not yet started (3 % / t/c 0.08, 1 % / t/c 0.07, flat inside t/c 0.065, 3 % / t/c 0.05 at Re 2.8e5 and 1.4e5, symmetric t/c 0.046 at Re 1.4e5, and the three added rows of 4.5 % / t/c 0.092 at Re 1.4e5) wait for the answer.
 
 Two gates run with the batch and are kept out of this record: NACA 0012 at Re 7e5 against [SK81] and NACA 4415 at Re 7.5e5 against [Hof96] (`../../section-gate/`).
 
