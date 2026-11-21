@@ -129,8 +129,14 @@ def _section_sketch(fin: FinParams, z: float, x_le: float, chord: float,
                 # wrap-around spline lets the LE drift in curve parameter as
                 # the upper/lower arc ratio changes spanwise, skewing the
                 # skin. LE tangency across the vertex is left to the
-                # interpolator: with cosine clustering the nose points are
-                # ~0.02% chord apart, so the tangent match is near-exact.
+                # interpolator, and it is NOT near-exact: measured on this
+                # sketch (3 % camber, t/c 0.07, chord 120 mm) the two splines
+                # meet at 33 deg with 32 um of shape error in the first 1 %
+                # of chord at the default 100 points, 19 deg / 7 um at 200,
+                # 9 deg / 2 um at 400 (bench/section-tables/nose). Far below
+                # what a print resolves, and below the cells of every 3-D mesh
+                # run so far (0.3 mm on the nose); a 3-D run with a resolved
+                # nose needs it changed first (docs/GEN3-PLAN.md).
                 # (Explicit end tangents would guarantee G1 but make the
                 # sketch wire non-planar in current build123d.)
                 Spline(*[tuple(p) for p in upper])
