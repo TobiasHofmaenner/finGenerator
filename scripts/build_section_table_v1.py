@@ -40,8 +40,9 @@ camber-free row (fingen.foil draws one outline for both): the two share a fit
 (FIT_OF), and a symmetric section is built from its upper half and mirrored.
 
   * a least-squares plane over (t/c, camber) plus what each section still
-    misses, spread to its neighbourhood by inverse-square distance. At a
-    measured section v1 is therefore that section, row for row inside its range.
+    misses, carried between the sections straight from one to the next
+    (`_spread`). At a measured section v1 is therefore that section, row for
+    row inside its range.
   * The two ENDS are fitted as the referee has them, not as their distance
     from v0 (v0's ends are irregular, the referee's are not).
   * Reynolds number is kept apart, piecewise linear in its logarithm between
@@ -490,15 +491,25 @@ def load_nodes(v0) -> list[dict]:
 
 
 def _spread(points, values, x: np.ndarray) -> np.ndarray:
-    """Inverse-square-distance mean of `values` (one row per point) given at `points`
-    ((t/c, camber), distances counted in NODE_REACH); exactly a point's own row at
-    that point."""
-    values = np.asarray(values, dtype=float).reshape(len(points), -1)
-    d2 = (((np.asarray(points) - x) / NODE_REACH) ** 2).sum(axis=1)
-    if (d2 < 1e-12).any():
-        return values[int(np.argmin(d2))]
-    w = 1.0 / d2
-    return w @ values / w.sum()
+    """`values` (one row per point) given at `points` ((t/c, camber), distances counted
+    in NODE_REACH), carried to `x`: a weight on the distance to every point, the weights
+    summing to zero, plus a constant. Exactly a point's own row at that point, straight
+    from one point to the next along a line of them, and level far from all of them.
+
+    (An inverse-distance mean, used before, is level AROUND every point: between two
+    neighbouring sections it drew a step, and beside a section where the plane has a
+    slope a bump. Leaving one section out at a time, the two predict its ends equally
+    well.)"""
+    at = np.asarray(points, dtype=float) / NODE_REACH
+    values = np.asarray(values, dtype=float).reshape(len(at), -1)
+    n = len(at)
+    if n == 1:
+        return values[0]
+    dist = np.linalg.norm(at[:, None] - at[None], axis=2)
+    system = np.block([[dist, np.ones((n, 1))], [np.ones((1, n)), np.zeros((1, 1))]])
+    weights = np.linalg.solve(system, np.vstack([values, np.zeros((1, values.shape[1]))]))
+    reach = np.linalg.norm(at - np.asarray(x, dtype=float) / NODE_REACH, axis=1)
+    return reach @ weights[:n] + weights[n]
 
 
 def _re_shift(stretches: list[dict], breaks: list[float], x: np.ndarray, log_re: float,
@@ -608,6 +619,19 @@ def corrections(fit: dict | None, v0: TableV0, family: str, tc: float, camber: f
     a, cl, cd, _ = v0.polar(family, tc, camber, re)
     f0 = features(a, cl, cd)
     out = {key: fitted(fit, key, tc, camber, re) for key in OFFSETS}
+    lower, upper = ends_at(fit, v0, family, tc, camber, re)
+    for key in ("log_step_below", "log_step_above"):
+        out[key] = np.maximum(out[key], 0.0)        # no less drag behind an end than at it
+    out["d_lower"] = lower - f0["lower"]
+    out["d_lower_out"] = lower - max(out["step"], CLIFF_MIN_DEG) - f0["lower_out"]
+    out["d_upper"] = upper - f0["upper"]
+    out["d_upper_out"] = upper + max(out["step_up"], CLIFF_MIN_DEG) - f0["upper_out"]
+    return out
+
+
+def ends_at(fit: dict, v0: TableV0, family: str, tc: float, camber: float,
+            re: float) -> tuple[float, float]:
+    """The two ends of a section's attached range as a fit has them (see `corrections`)."""
     lower, upper = (fitted(fit, key, tc, camber, re) for key in ENDS)
     tc_c, camber_c = (float(v) for v in np.clip(np.array([tc, camber]), fit["lo"], fit["hi"]))
     if abs(tc_c - tc) > 1e-9 or abs(camber_c - camber) > 1e-9:
@@ -616,13 +640,7 @@ def corrections(fit: dict | None, v0: TableV0, family: str, tc: float, camber: f
                       for t, c in ((tc, camber), (tc_c, camber_c)))
         lower += here["lower"] - edge["lower"]
         upper += here["upper"] - edge["upper"]
-    for key in ("log_step_below", "log_step_above"):
-        out[key] = np.maximum(out[key], 0.0)        # no less drag behind an end than at it
-    out["d_lower"] = lower - f0["lower"]
-    out["d_lower_out"] = lower - max(out["step"], CLIFF_MIN_DEG) - f0["lower_out"]
-    out["d_upper"] = upper - f0["upper"]
-    out["d_upper_out"] = upper + max(out["step_up"], CLIFF_MIN_DEG) - f0["upper_out"]
-    return out
+    return lower, upper
 
 
 def re_grid(nodes: list[dict]) -> np.ndarray:
@@ -706,15 +724,17 @@ def shipped(path: Path, node: dict):
     return sections.polar(FoilFamily(node["family"]), node["tc"], node["re"], node["camber"], "v1")
 
 
-def left_out(nodes: list[dict], k: int) -> dict:
-    """Ends of node k predicted from all the other nodes of its family."""
+def left_out(nodes: list[dict], k: int, v0: TableV0) -> dict:
+    """Ends of node k predicted from the other SECTIONS of its family: every node of its
+    own section (the same t/c and camber at another Reynolds number) is left out with
+    it, and the ends are found the way the table finds them (`ends_at`)."""
     n = nodes[k]
-    others = [m for j, m in enumerate(nodes)
-              if j != k and FIT_OF[m["family"]] == FIT_OF[n["family"]]]
+    others = [m for m in nodes if FIT_OF[m["family"]] == FIT_OF[n["family"]]
+              and (abs(m["tc"] - n["tc"]) > 1e-9 or abs(m["camber"] - n["camber"]) > 1e-9)]
     if not others:
         return {"lower": float("nan"), "upper": float("nan")}
-    fit = fit_family(others)
-    return {end: fitted(fit, end, n["tc"], n["camber"], n["re"]) for end in ENDS}
+    lower, upper = ends_at(fit_family(others), v0, n["family"], n["tc"], n["camber"], n["re"])
+    return {"lower": lower, "upper": upper}
 
 
 def report(nodes: list[dict], fits: dict, v0: TableV0, path: Path) -> str:
@@ -723,10 +743,10 @@ def report(nodes: list[dict], fits: dict, v0: TableV0, path: Path) -> str:
              "end is halfway between the referee's last row inside the attached range and its "
              "first row past it (a bracket of a quarter degree where the march bisected); v0's is "
              "where its drag passes 1.5 times (lower) and 3 times (upper) its minimum. \"Left "
-             "out\" is the end predicted for a section by a table built without it: how well the "
-             "table is known between its sections. The break is the model's "
-             "(`SectionPolar.alpha_break_deg`: the lift slope has fallen below 30 % of the "
-             "line's).", "",
+             "out\" is the end predicted for a section by a table built without it (at any "
+             "Reynolds number): how well the table is known between its sections. The break "
+             "is the model's (`SectionPolar.alpha_break_deg`: the lift slope has fallen below "
+             "30 % of the line's).", "",
              "| section | lower end °: referee / v0 / v1 / left out | "
              "upper end °: referee / v0 / v1 / left out | "
              "drag level v1 / v0 | lift slope v1 / v0 | "
@@ -743,7 +763,7 @@ def report(nodes: list[dict], fits: dict, v0: TableV0, path: Path) -> str:
         corr = corrections(fits.get(FIT_OF[n["family"]]), v0, n["family"], n["tc"], n["camber"],
                            n["re"])
         p1, p0 = shipped(path, n), v0_read[k]
-        loo = left_out(nodes, k)
+        loo = left_out(nodes, k, v0)
         ok = n["inside"] & n["settled"]
         ratio = p1.cd_at(n["alpha"][ok]) / n["cd"][ok]
         dcl = np.abs(p1.cl_at(n["alpha"][ok]) - n["cl"][ok]).max()
