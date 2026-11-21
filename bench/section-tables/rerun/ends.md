@@ -4,7 +4,8 @@ Written by the collector of the rerun (`~/bench-results/sections2/collect.py`). 
 
 | section | t/c | camber % | Re | rows | lowest c_d | lower end between ° | c_l, c_d at the last row inside | upper end between ° | c_l, c_d at the last row inside | state |
 |---|---|---|---|---|---|---|---|---|---|---|
-| flat-tc092-r050-re570k | 0.092 | 0.0 | 5.7e+05 | 4 | 0.0155 | beyond -4.50 | -0.074, 0.0486 | beyond +2.00 | +0.650, 0.0155 | complete (laptop) |
+| camb3-tc070-re140k | 0.070 | 3.0 | 1.4e+05 | 2 | 0.0158 | beyond -2.50 | +0.044, 0.0162 | beyond -1.00 | +0.204, 0.0158 | running (laptop) |
+| flat-tc092-r050-re570k | 0.092 | 0.0 | 5.7e+05 | 5 | 0.0155 | beyond -4.50 | -0.074, 0.0486 | beyond +2.00 | +0.650, 0.0155 | complete (laptop) |
 | camb45-tc092-re140k | 0.092 | 4.5 | 1.4e+05 | 12 | 0.0176 | -5.00 and -5.50 | -0.054, 0.0217 | beyond +8.00 | +1.200, 0.0323 | running (laptop) |
 | camb3-tc070-re570k | 0.070 | 3.0 | 5.7e+05 | 24 | 0.0126 | -6.25 and -6.50 | -0.341, 0.0180 | +10.00 and +10.25 | +1.324, 0.0329 | complete (laptop) |
 | camb45-tc092-re570k | 0.092 | 4.5 | 5.7e+05 | 25 | 0.0137 | -7.50 and -7.75 | -0.306, 0.0194 | +13.75 and +14.00 | +1.657, 0.0496 | complete (laptop) |

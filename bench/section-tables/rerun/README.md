@@ -7,6 +7,6 @@ The referee's sections of `../results.json`, `../thin-cambered/` and `../third-b
 
 Each section runs a fixed list of angles inside its range and two marches: outward in half degrees from near the old end until two rows in a row (three at the lower end) are past it, then one row halfway into the bracket. Symmetric sections run at positive angles only.
 
-Sections: the table's twelve cambered ones at Re 5.7e5; 3 % / t/c 0.07 also at 2.8e5 and 1.4e5; 4.5 % / t/c 0.092 also at 9.7e5 and 1.4e5; symmetric at t/c 0.046, 0.066, 0.080, 0.090 and 0.120; flat inside with a nose-corner radius of 0.5 mm (`../flat-corner/`) at t/c 0.050, 0.065, 0.092 and 0.120, and t/c 0.092 also at 2.8e5 and 1.4e5.
+Sections (31): the table's twelve cambered ones at Re 5.7e5, and 4.5 % / t/c 0.12, 3 % and 4.5 % / t/c 0.16 (searches have gone there with no referee behind them); 3 % / t/c 0.07 also at 2.8e5 and 1.4e5; 4.5 % / t/c 0.092 also at 9.7e5 and 1.4e5; symmetric at t/c 0.046, 0.066, 0.080, 0.090, 0.120 and 0.160, t/c 0.090 also at 2.8e5 and 1.4e5; flat inside with a nose-corner radius of 0.5 mm (`../flat-corner/`) at t/c 0.050, 0.065, 0.092 and 0.120, and t/c 0.092 also at 2.8e5 and 1.4e5.
 
 Read by `scripts/build_section_table_v1.py` (complete sections only). What a row is known to: lift 0.01, drag 1 %, an end half a degree (`../nose/`, section 4).
