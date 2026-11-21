@@ -130,6 +130,10 @@ class SectionPolar:
         and of the roll-off toward the break."""
         a, cl = self.alpha_deg, self.cl
         pos = (a >= -6.0) & (a <= 16.0)
+        if self.attached_deg is not None:
+            # the peak the section holds: a thin one at low Reynolds number lets go at
+            # a third of the lift it reaches again, stalled, ten degrees later
+            pos &= a <= self.attached_deg[1]
         a, cl = a[pos], cl[pos]
         k_peak = int(np.argmax(cl))
         peak = float(cl[k_peak])

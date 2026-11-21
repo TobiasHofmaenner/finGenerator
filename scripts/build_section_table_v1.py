@@ -23,14 +23,21 @@ referee's. `s` is the same position counted between the marks (-1 at the lower
 end, 0 at the centre, +1 at the upper end): the coordinate in which two
 sections are compared. `remainder` is what v0's lift does besides its straight
 line. F and H are what the referee's rows still differ by after the move: a
-drag ratio and a lift difference at 121 places inside the range, and one value
-each behind either end, read from the rows past it.
+drag ratio and a lift difference at 121 places inside the range. The lift
+difference is kept in units of the lift the line gains between the centre and
+that end, so a section with a shorter range gets a proportionally smaller one.
+Behind either end the referee's rows are kept as STEPS from the value at the
+end, every quarter degree for three degrees (drag behind over drag at the end;
+lift behind less lift at the end, in the same unit); further out v0's shape
+carries on from the last of them. At the end itself the drag is the last row's.
 
 Per section the referee therefore gives (FITTED): the two ends, the width of
 either cliff, a drag level, a lift-slope ratio, a zero-lift shift, a retention
-factor on v0's roll-off, the two residual curves, and level and lift offset
-behind either end. Each is carried to the rest of the grid per foil family
-(`fit_family`, `fitted`):
+factor on v0's roll-off, the two residual curves, and the steps of drag and
+lift behind either end. Each is carried to the rest of the grid per foil family
+(`fit_family`, `fitted`). The symmetric sections are the cambered family's
+camber-free row (fingen.foil draws one outline for both): the two share a fit
+(FIT_OF), and a symmetric section is built from its upper half and mirrored.
 
   * a least-squares plane over (t/c, camber) plus what each section still
     misses, spread to its neighbourhood by inverse-square distance. At a
@@ -41,9 +48,15 @@ behind either end. Each is carried to the rest of the grid per foil family
     the Reynolds numbers that were run: the slope of each stretch is read at the
     sections run at both of its ends and spread like everything else. Outside
     the Reynolds numbers run, the values of the last one are kept.
-  * Outside the sections' box in (t/c, camber) the SHIFT of the box's edge is
-    kept, so v0's trend in thickness and camber carries on from the last
-    measured section. A family with no finished section keeps v0 unchanged.
+  * Outside the sections' box in (t/c, camber) an end is the box edge's, moved
+    by what v0's end does between the edge and the section at the reference
+    Reynolds number: v0's trend in thickness and camber carries on from the
+    last measured section, the trend in Reynolds number is the referee's
+    everywhere (`corrections`). A family with no finished section keeps v0
+    unchanged.
+  * No section has less drag behind an end than at it. Where the fit says so
+    (a step carried far in Reynolds number from the sections it was read at)
+    the node is built without a step; the scan counts those nodes.
 
 How an end is read. A marched section (the rerun) says where it lets go: a row
 is past an end when it did not settle within the iteration cap or has more
@@ -56,8 +69,8 @@ where it passes K_OUT, the upper end where it passes K_UPPER (`features`).
 
 Rows past an end did not settle: steady RANS has no answer for a separated
 section, only a mean of something unsteady. They are used for where the end
-is, and for the level of drag and lift in the three degrees behind it, never
-inside the range.
+is, and for drag and lift in the three degrees behind it, never inside the
+range.
 
 v1 is stored in the ALIGNED layout (fingen.sections): every polar on the
 coordinate s, its marks beside it. The library interpolates marks and curves
@@ -96,14 +109,16 @@ PAST_FACTOR = 4.0                   # a referee row with this many times its low
 CLIFF_MIN_DEG = 0.05                # marks are kept at least this far apart
 LIN_RANGE = (0.0, 5.0)              # lift line fitted here: inside every section's attached range
 STALL_RAMP_DEG = 2.0
-BEHIND_SPAN_DEG = 3.0               # rows this far behind an end set level and lift offset there
-LEVEL_BEHIND = (0.4, 4.0)           # ... the level within these bounds (the rows did not settle)
+# Behind either cliff's foot the referee's rows are kept at these distances (deg): drag as a
+# step from the drag at the end, lift as a step from the lift there. Further out v0's shape
+# carries on from the last of them.
+BEHIND = np.arange(0.0, 3.01, 0.25)
 # v1's grids (v0: 10 thicknesses, 5 cambered thicknesses, 6 cambers). The referee's own
 # thicknesses are on them, so a measured section is a node and not a blend of two.
 TC_FINE = np.unique(np.round(np.concatenate([np.arange(0.040, 0.1301, 0.005), [0.16, 0.19, 0.22],
                                              [0.046, 0.066, 0.092]]), 4))
 TC_CAMBERED_FINE = np.unique(np.round(np.concatenate([np.arange(0.050, 0.1201, 0.005), [0.16],
-                                                      [0.092]]), 4))
+                                                      [0.066, 0.092]]), 4))
 CAMBER_FINE = np.arange(0.0, 0.0501, 0.005)
 # v1's Reynolds numbers: half octaves (v0: octaves, 1e5 … 1.6e6), moved onto the referee's own
 RE_HALF_OCTAVES = 1e5 * 2.0 ** (0.5 * np.arange(9))
@@ -116,19 +131,25 @@ DEG_PER_S = 10.0
 KNOTS = np.unique(np.round(np.concatenate([np.linspace(-0.8, 0.8, 81), np.linspace(0.8, 1.0, 21),
                                            np.linspace(-1.0, -0.8, 21)]), 6))
 S_GRID = np.unique(np.round(np.concatenate([
-    S_MARKS[0] - np.arange(0.5, 16.01, 0.5) / DEG_PER_S, np.linspace(-1.1, -1.0, 5), KNOTS,
-    np.linspace(1.0, 1.1, 5), S_MARKS[-1] + np.arange(0.5, 18.01, 0.5) / DEG_PER_S]), 6))
+    S_MARKS[0] - np.arange(0.5, 16.01, 0.5) / DEG_PER_S, S_MARKS[0] - BEHIND / DEG_PER_S,
+    np.linspace(-1.1, -1.0, 5), KNOTS, np.linspace(1.0, 1.1, 5),
+    S_MARKS[-1] + BEHIND / DEG_PER_S, S_MARKS[-1] + np.arange(0.5, 18.01, 0.5) / DEG_PER_S]), 6))
 ALPHA_RANGE = (-16.0, 24.0)         # every polar the library hands out spans these angles
 # What is fitted over the referee's sections: the two ends of the attached range as
 # the referee has them, and what else says how v0 differs.
 ENDS = ("lower", "upper")
-OFFSETS = ("step", "step_up", "log_level", "log_level_below", "log_level_above", "slope",
-           "d_alpha0", "retention", "d_cl_below", "d_cl_above", "g", "h")
+OFFSETS = ("step", "step_up", "log_level", "log_step_below", "log_step_above", "slope",
+           "d_alpha0", "retention", "lift_step_below", "lift_step_above", "g", "h")
 FITTED = ENDS + OFFSETS
+# (a step of None: v0's own, at the factor of the end it lies behind)
 NEUTRAL = {"d_lower": 0.0, "d_lower_out": 0.0, "d_upper": 0.0, "d_upper_out": 0.0,
-           "log_level": 0.0, "log_level_below": 0.0, "log_level_above": 0.0, "slope": 1.0,
-           "d_alpha0": 0.0, "retention": 1.0, "d_cl_below": 0.0, "d_cl_above": 0.0,
+           "log_level": 0.0, "log_step_below": None, "log_step_above": None, "slope": 1.0,
+           "d_alpha0": 0.0, "retention": 1.0, "lift_step_below": np.zeros(len(BEHIND)),
+           "lift_step_above": np.zeros(len(BEHIND)),
            "g": np.zeros(len(KNOTS)), "h": np.zeros(len(KNOTS))}
+# The symmetric sections are the cambered family's camber-free row (fingen.foil draws the
+# same outline for both): one fit for the two, and one polar for the two at zero camber.
+FIT_OF = {"symmetric": "cambered", "cambered": "cambered", "flat_inside": "flat_inside"}
 # One step of the referee's spacing in t/c and camber: the unit in which a section's
 # distance from a table entry is counted when its remainder is spread.
 NODE_REACH = np.array([0.02, 0.015])
@@ -267,14 +288,54 @@ def apply(a: np.ndarray, cl: np.ndarray, cd: np.ndarray, cm: np.ndarray, corr: d
     # the residuals: the curves inside the range, one value at either cliff's foot and
     # behind it. Across a cliff they run from the one to the other.
     s = s_of(out, target)
-    xs = np.concatenate([S_MARKS[:1], KNOTS, S_MARKS[-1:]])
-    log_f = np.interp(s, xs, np.concatenate([[corr["log_level_below"]],
-                                             corr["log_level"] + corr["g"],
-                                             [corr["log_level_above"]]]))
-    d_cl = np.interp(s, xs, np.concatenate([[corr["d_cl_below"]], corr["h"],
-                                            [corr["d_cl_above"]]]))
+    xs = np.concatenate([(S_MARKS[0] - BEHIND / DEG_PER_S)[::-1], KNOTS,
+                         S_MARKS[-1] + BEHIND / DEG_PER_S])
+    inside = corr["log_level"] + corr["g"]
+    below, above = behind_levels(a, cd, f, corr, inside)
+    log_f = np.interp(s, xs, np.concatenate([below[::-1], inside, above]))
+    span = lift_span(target, corr["slope"] * f["slope"])
+    h = corr["h"] * lift_scale(target, corr["slope"] * f["slope"])
+    d_cl = np.interp(s, xs, np.concatenate([(h[0] + corr["lift_step_below"] * span[0])[::-1], h,
+                                            h[-1] + corr["lift_step_above"] * span[1]]))
     return (corr["slope"] * (line + keep * rem) + d_cl, np.exp(log_f) * np.interp(w, a, cd),
             np.interp(w, a, cm))
+
+
+def lift_span(target: np.ndarray, slope: float) -> tuple[float, float]:
+    """The lift the line gains from the centre to the lower end and to the upper end: the
+    unit the lift residual is kept in. A residual kept as a lift difference and carried
+    to a section with half the range takes twice its share of the lift there (a soft
+    stall of 0.1 became a lift that falls inside the range)."""
+    return slope * (target[2] - target[1]), slope * (target[3] - target[2])
+
+
+def lift_scale(target: np.ndarray, slope: float) -> np.ndarray:
+    below, above = lift_span(target, slope)
+    return np.where(KNOTS < 0.0, below, above)
+
+
+def own_step(a: np.ndarray, cd: np.ndarray, f: dict) -> tuple[np.ndarray, np.ndarray]:
+    """log of v0's own drag at the distances BEHIND either cliff's foot over its drag
+    at that end."""
+    m = marks(f)
+    return (np.log(np.interp(m[0] - BEHIND, a, cd) / np.interp(m[1], a, cd)),
+            np.log(np.interp(m[4] + BEHIND, a, cd) / np.interp(m[3], a, cd)))
+
+
+def behind_levels(a: np.ndarray, cd: np.ndarray, f: dict, corr: dict,
+                  inside: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """log drag factor at the distances BEHIND either cliff's foot. The referee gives
+    the STEP there: drag behind the end over drag at the end (`log_step_*`). The
+    factor follows from the factor at the end and v0's own step. (Kept as a factor
+    on v0 and carried to another section, the drag behind an end came out below the
+    drag in front of it at every seventh node of the table.)"""
+    out = []
+    for k, key, own in zip((0, -1), ("log_step_below", "log_step_above"), own_step(a, cd, f),
+                           strict=True):
+        step = corr[key]
+        out.append(np.full(len(BEHIND), float(inside[k])) if step is None
+                   else float(inside[k]) + np.asarray(step) - own)
+    return out[0], out[1]
 
 
 def lift_parts(a, cl, f: dict, w, corr: dict, out=None):
@@ -389,22 +450,39 @@ def load_nodes(v0) -> list[dict]:
             # the level: the middle half of the range (the rows crowd toward the ends)
             core = inside & (np.abs(s) <= 0.5)
             corr["log_level"] = float(np.median(log_ratio[core if core.any() else inside]))
-            corr["g"] = np.interp(KNOTS, s[inside], log_ratio[inside] - corr["log_level"])
-            corr["h"] = np.interp(KNOTS, s[inside], d_cl[inside])
-            # behind either end: the rows within BEHIND_SPAN_DEG of the cliff's foot. They did
+            # At an end itself (between the last row inside and the first past it) the
+            # drag is the last row's: nothing says it rises before the flow lets go.
+            rows_in = np.nonzero(inside)[0]
+            s_in, ratio_in = s[inside], log_ratio[inside]
+            for mark, k in ((1, rows_in[0]), (3, rows_in[-1])):
+                if reached[mark // 3] and abs(a[k] - target[mark]) > 1e-9:
+                    at_mark = float(np.interp(warp(target[mark], target, marks(f0)), a0, cd0))
+                    s_in = np.append(s_in, S_MARKS[mark])
+                    ratio_in = np.append(ratio_in, np.log(cd[k] / at_mark))
+            order = np.argsort(s_in)
+            corr["g"] = np.interp(KNOTS, s_in[order], ratio_in[order] - corr["log_level"])
+            h = np.interp(KNOTS, s[inside], d_cl[inside])
+            slope1 = corr["slope"] * f0["slope"]
+            corr["h"] = h / lift_scale(target, slope1)
+            # Behind either end: the rows within three degrees of the cliff's foot. They did
             # not settle; they say how much drag and lift a separated section has, roughly.
+            # Kept as steps from the value at the end (`behind_levels`, `lift_span`).
             foot_lo, foot_hi = target[0], target[-1]
-            for side, k, behind in (
-                    ("below", 0, (a <= foot_lo + 1e-9) & (a > foot_lo - BEHIND_SPAN_DEG)),
-                    ("above", -1, (a >= foot_hi - 1e-9) & (a < foot_hi + BEHIND_SPAN_DEG))):
-                behind = behind & ~inside
+            for side, k, dist, own, span in zip(
+                    ("below", "above"), (0, -1), (foot_lo - a, a - foot_hi),
+                    own_step(a0, cd0, f0), lift_span(target, slope1), strict=True):
+                behind = (dist > -1e-9) & (dist < BEHIND[-1] + 1e-9) & ~inside
+                at_end = corr["log_level"] + float(corr["g"][k])
                 if behind.any():
-                    corr[f"log_level_{side}"] = float(np.clip(np.median(log_ratio[behind]),
-                                                              *np.log(LEVEL_BEHIND)))
-                    corr[f"d_cl_{side}"] = float(np.median(d_cl[behind]))
+                    by = np.argsort(dist[behind])
+                    d = dist[behind][by]
+                    level = np.interp(BEHIND, d, log_ratio[behind][by])
+                    corr[f"log_step_{side}"] = level - at_end + own
+                    corr[f"lift_step_{side}"] = (np.interp(BEHIND, d, d_cl[behind][by])
+                                                 - h[k]) / span
                 else:
-                    corr[f"log_level_{side}"] = corr["log_level"] + float(corr["g"][k])
-                    corr[f"d_cl_{side}"] = float(corr["h"][k])
+                    corr[f"log_step_{side}"] = own
+                    corr[f"lift_step_{side}"] = np.zeros(len(BEHIND))
             nodes.append({"name": name, "family": fam, "tc": tc, "camber": camber, "re": re,
                           "alpha": a, "cl": cl, "cd": cd, "settled": settled, "inside": inside,
                           "reached": reached, "rans": fr, "v0": f0, "corr": corr})
@@ -517,16 +595,29 @@ def corrections(fit: dict | None, v0: TableV0, family: str, tc: float, camber: f
     The two ends are the referee's OWN ends (a plane in thickness and camber fits
     them better than it fits their distance from v0, whose ends are irregular);
     the shift is what brings v0's ends there. Outside the box in (t/c, camber) the
-    shift of the box's edge is kept, so v0's trend in thickness and camber carries
-    on from the last measured section. In Reynolds number the ends themselves are
-    kept outside the range that was run."""
+    end of the box's edge is carried on by what v0's end does between the edge and
+    the section AT THE REFERENCE REYNOLDS NUMBER; how an end moves with Reynolds
+    number is the referee's everywhere. (v0's own ends move with Reynolds number in
+    either direction, depending on the section: a thin symmetric one's upper end,
+    read off its drag, comes IN by a degree per octave. Carried on at every Reynolds
+    number separately, that gave a t/c 0.04 section 5.4 deg of range at Re 2.8e5 and
+    2.4 deg at 1.6e6.) In Reynolds number the ends themselves are kept outside the
+    range that was run."""
     if fit is None:
         return dict(NEUTRAL)
-    tc_c, camber_c = np.clip(np.array([tc, camber]), fit["lo"], fit["hi"])
-    a, cl, cd, _ = v0.polar(family, float(tc_c), float(camber_c), re)
+    a, cl, cd, _ = v0.polar(family, tc, camber, re)
     f0 = features(a, cl, cd)
     out = {key: fitted(fit, key, tc, camber, re) for key in OFFSETS}
     lower, upper = (fitted(fit, key, tc, camber, re) for key in ENDS)
+    tc_c, camber_c = (float(v) for v in np.clip(np.array([tc, camber]), fit["lo"], fit["hi"]))
+    if abs(tc_c - tc) > 1e-9 or abs(camber_c - camber) > 1e-9:
+        re_ref = 10.0 ** fit["log_re_ref"]
+        here, edge = (features(*v0.polar(family, t, c, re_ref)[:3])
+                      for t, c in ((tc, camber), (tc_c, camber_c)))
+        lower += here["lower"] - edge["lower"]
+        upper += here["upper"] - edge["upper"]
+    for key in ("log_step_below", "log_step_above"):
+        out[key] = np.maximum(out[key], 0.0)        # no less drag behind an end than at it
     out["d_lower"] = lower - f0["lower"]
     out["d_lower_out"] = lower - max(out["step"], CLIFF_MIN_DEG) - f0["lower_out"]
     out["d_upper"] = upper - f0["upper"]
@@ -556,13 +647,15 @@ def build(v0: TableV0, fits: dict, reynolds: np.ndarray) -> dict:
            "tc_cambered": TC_CAMBERED_FINE, "camber": CAMBER_FINE}
 
     def node(fam: str, tc: float, camber: float, re: float) -> tuple:
-        corr = corrections(fits.get(fam), v0, fam, tc, camber, re)
+        corr = corrections(fits.get(FIT_OF[fam]), v0, fam, tc, camber, re)
         a, cl, cd, cm = v0.polar(fam, tc, camber, re)
         f = features(a, cl, cd)
         m = marks(f, corr)
         alpha = alpha_of(S_GRID, m)
         cl1, cd1, cm1 = apply(a, cl, cd, cm, corr, alpha)
         slope, alpha0 = corr["slope"] * f["slope"], f["alpha0"] + corr["d_alpha0"]
+        if fam == "symmetric" or camber == 0.0 and fam == "cambered":
+            return mirrored(m, slope, cl1, cd1, cm1)
         return m, slope, alpha0, cl1 - slope * (alpha - alpha0), cd1, cm1
 
     def store(key: str, shape: tuple, cells: list) -> None:
@@ -574,15 +667,29 @@ def build(v0: TableV0, fits: dict, reynolds: np.ndarray) -> dict:
     for fam in ("symmetric", "flat_inside"):
         store(fam, (len(TC_FINE), len(reynolds)),
               [node(fam, float(tc), 0.0, float(re)) for tc in TC_FINE for re in reynolds])
-    # The camber-free row of the cambered block belongs to the cambered family here: it
-    # takes the shift of the least cambered section measured, like every other row
-    # outside the box. Left as v0 (as the symmetric family is until it has sections of
-    # its own) it sat two degrees of knee above the 0.5 % row next to it, and a search
-    # found the seam.
+    # The camber-free row of the cambered block is the symmetric section of that
+    # thickness, from the same fit as the rows beside it (FIT_OF): no seam for a search
+    # to find between no camber and a little. (Left as v0 while the cambered rows were
+    # moved, it once sat two degrees of knee above the 0.5 % row next to it.)
     store("cambered", (len(TC_CAMBERED_FINE), len(CAMBER_FINE), len(reynolds)),
           [node("cambered", float(tc), float(camber), float(re))
            for tc in TC_CAMBERED_FINE for camber in CAMBER_FINE for re in reynolds])
     return {k: np.asarray(v, dtype=np.float32) for k, v in out.items()}
+
+
+def mirrored(m: np.ndarray, slope: float, cl: np.ndarray, cd: np.ndarray,
+             cm: np.ndarray) -> tuple:
+    """A symmetric section's node from its upper half (centre to upper end and behind
+    it): the lower half is the mirror image. Marks, lift line (through zero), lift
+    remainder, drag, moment — as `build` stores a node."""
+    marks_sym = np.array([-m[4], -m[3], 0.0, m[3], m[4]])
+    alpha = alpha_of(S_GRID, marks_sym)
+    up = S_GRID >= 0.0
+    rem_up = (cl - slope * alpha)[up]
+    rem_up = rem_up - rem_up[0]                       # no lift at no incidence
+    at, sign = np.abs(S_GRID), np.sign(S_GRID)
+    return (marks_sym, slope, 0.0, sign * np.interp(at, S_GRID[up], rem_up),
+            np.interp(at, S_GRID[up], cd[up]), sign * np.interp(at, S_GRID[up], cm[up]))
 
 
 def shipped(path: Path, node: dict):
@@ -602,7 +709,8 @@ def shipped(path: Path, node: dict):
 def left_out(nodes: list[dict], k: int) -> dict:
     """Ends of node k predicted from all the other nodes of its family."""
     n = nodes[k]
-    others = [m for j, m in enumerate(nodes) if j != k and m["family"] == n["family"]]
+    others = [m for j, m in enumerate(nodes)
+              if j != k and FIT_OF[m["family"]] == FIT_OF[n["family"]]]
     if not others:
         return {"lower": float("nan"), "upper": float("nan")}
     fit = fit_family(others)
@@ -632,7 +740,8 @@ def report(nodes: list[dict], fits: dict, v0: TableV0, path: Path) -> str:
     v0_read = [sections.polar(FoilFamily(n["family"]), n["tc"], n["re"], n["camber"], "v0")
                for n in nodes]
     for k, n in enumerate(nodes):
-        corr = corrections(fits.get(n["family"]), v0, n["family"], n["tc"], n["camber"], n["re"])
+        corr = corrections(fits.get(FIT_OF[n["family"]]), v0, n["family"], n["tc"], n["camber"],
+                           n["re"])
         p1, p0 = shipped(path, n), v0_read[k]
         loo = left_out(nodes, k)
         ok = n["inside"] & n["settled"]
@@ -642,7 +751,7 @@ def report(nodes: list[dict], fits: dict, v0: TableV0, path: Path) -> str:
         cells = []
         for j, end in enumerate(ENDS):
             if n["reached"][j]:
-                miss[end].append((n["family"], loo[end] - n["rans"][end]))
+                miss[end].append((FIT_OF[n["family"]], loo[end] - n["rans"][end]))
             cells.append(f"{n['rans'][end]:+.2f}{'' if n['reached'][j] else ' (not reached)'} / "
                          f"{n['v0'][end]:+.2f} / {p1.attached_deg[j]:+.2f} / {loo[end]:+.2f}")
         lines.append(f"| {n['name']} | {cells[0]} | {cells[1]} | "
@@ -689,25 +798,35 @@ def scan(path: Path) -> list[str]:
     sections._table.cache_clear()
     sections._polar.cache_clear()
     t = sections._table("v1")
-    grid = [(FoilFamily(fam), float(tc), 0.0, float(re))
-            for fam in ("symmetric", "flat_inside") for tc in t["tc"] for re in t["reynolds"]]
-    grid += [(FoilFamily.CAMBERED, float(tc), float(c), float(re))
-             for tc in t["tc_cambered"] for c in t["camber"] for re in t["reynolds"]]
+    grid = [(FoilFamily(fam), float(tc), 0.0, float(re), t[f"{fam}_marks"][i, k])
+            for fam in ("symmetric", "flat_inside") for i, tc in enumerate(t["tc"])
+            for k, re in enumerate(t["reynolds"])]
+    grid += [(FoilFamily.CAMBERED, float(tc), float(c), float(re), t["cambered_marks"][i, j, k])
+             for i, tc in enumerate(t["tc_cambered"]) for j, c in enumerate(t["camber"])
+             for k, re in enumerate(t["reynolds"])]
     found: dict[str, list] = {}
 
-    def note(kind: str, size: float, where: str) -> None:
+    def note(kind: str, size: float | None, where: str) -> None:
         found.setdefault(kind, []).append((size, where))
 
-    for fam, tc, camber, re in grid:
+    for fam, tc, camber, re, m in grid:
         pol = sections.polar(fam, tc, re, camber, "v1")
         where = f"{fam.value} t/c {tc:.3f} camber {100 * camber:.1f} % Re {re:.3g}"
         lo, hi = pol.attached_deg
         inside = (pol.alpha_deg >= lo) & (pol.alpha_deg <= hi)
         if pol.cd.min() <= 0.0:
             note("drag not positive", float(-pol.cd.min()), where)
-        drop = float(-np.diff(pol.cl[inside]).min())
-        if fam is not FoilFamily.FLAT_INSIDE and drop > 1e-3:
-            note("lift falling inside the attached range (by, between two points)", drop, where)
+        upper_half = inside & (pol.alpha_deg >= pol.alpha_cd_min_deg)
+        peak = float(pol.cl[upper_half].max())
+        drop = 1.0 - float(pol.cl[upper_half][-1]) / peak
+        if drop > 0.02:      # the referee's own sections: 0.7 % at most
+            note("lift at the upper end below its peak inside the range (share of the peak)",
+                 drop, where)
+        for name, end, foot in (("lower", m[1], m[0]), ("upper", m[3], m[4])):
+            step = float(pol.cd_at(foot) / pol.cd_at(end))
+            if step < 1.001:
+                note(f"no drag step at the {name} end (the fit gave less drag behind it than "
+                     "at it, or the same; the node is built with the same)", None, where)
         if hi - lo < 3.0:
             note("attached range shorter than 3 deg (length)", 3.0 - (hi - lo), where)
         peak = float(pol.cd[inside].max() / pol.cd_min)
@@ -721,6 +840,9 @@ def scan(path: Path) -> list[str]:
     lines = ["", f"Scan of all {len(grid)} nodes of the table: "
                  + ("nothing found." if not found else "")]
     for kind, rows in found.items():
+        if rows[0][0] is None:
+            lines.append(f"  {kind}: {len(rows)} nodes.")
+            continue
         size, where = max(rows)
         lines.append(f"  {kind}: {len(rows)} nodes, worst {size:.3g} at {where}.")
     return lines
@@ -742,8 +864,8 @@ def main() -> None:
         raise SystemExit("--out must be named sections_v1.npz (the report reads it through fingen)")
     v0 = TableV0()
     nodes = load_nodes(v0)
-    fits = {fam: fit_family([n for n in nodes if n["family"] == fam])
-            for fam in sorted({n["family"] for n in nodes})}
+    fits = {fit: fit_family([n for n in nodes if FIT_OF[n["family"]] == fit])
+            for fit in sorted({FIT_OF[n["family"]] for n in nodes})}
     data = build(v0, fits, re_grid(nodes))
     meta = {**v0.meta, "version": 1, "built": datetime.date.today().isoformat(),
             "source": "table v0 (neuralfoil) moved onto resolved-wall 2-D RANS sections",

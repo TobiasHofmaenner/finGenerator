@@ -178,3 +178,18 @@ def test_linear_range_is_found_from_the_peak_down():
     assert p.alpha0_deg == pytest.approx(-2.0, abs=1e-9)
     assert p.slope_per_rad == pytest.approx(math.degrees(0.1))
     assert p.alpha_break_deg == pytest.approx(10.5)       # the first sample past the peak
+
+
+def test_linear_range_of_an_aligned_polar_is_looked_for_inside_its_attached_range():
+    # a thin section at low Reynolds number: it lets go at 3 deg and reaches twice that
+    # lift again, stalled, by 16 deg. The line and the break are the attached range's.
+    a = np.arange(-16.0, 24.1, 0.25)
+    cl = np.where(np.abs(a) <= 3.0, 0.1 * a, np.sign(a) * (0.2 + 0.03 * (np.abs(a) - 3.0)))
+    kw = dict(family=FoilFamily.SYMMETRIC, thickness_ratio=0.046, camber_ratio=0.0, reynolds=RE,
+              alpha_deg=a, cl=cl, cd=np.full_like(a, 0.01), cm=np.zeros_like(a), clipped=False)
+    plain = sections.SectionPolar(**kw)
+    aligned = sections.SectionPolar(**kw, attached_deg=(-3.0, 3.0))
+    assert aligned.slope_per_rad == pytest.approx(math.degrees(0.1))
+    assert aligned.alpha_break_deg == pytest.approx(3.0)      # the end, with the lift held there
+    assert aligned.cl_break == pytest.approx(0.3)
+    assert plain.slope_per_rad < 0.5 * aligned.slope_per_rad  # read off the stalled branch
