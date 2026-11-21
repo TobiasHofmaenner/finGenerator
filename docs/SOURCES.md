@@ -261,6 +261,37 @@ tabulated C_l, pressure and wake drag, −20°…+40°. Maximum lift at Re 0.75�
 **Cited for:** the measured cambered section the 2-D referee is gated on beside [SK81]
 (`bench/ref-osu-naca4415-re0.75M.dat`).
 
+### [McC87] McCroskey (1987) — A Critical Assessment of Wind Tunnel Results for the NACA 0012 Airfoil
+*NASA TM 100019 / USAAVSCOM TR 87-A-5.* [NTRS 19880002254](https://ntrs.nasa.gov/citations/19880002254)
+(added 2026-11-21)
+Results of more than 40 wind tunnels sorted by quality; fits for lift-curve slope and for drag at zero lift
+against Reynolds number, with the boundary layer tripped (0.0017 + 0.91 / (log₁₀ Re)^2.58) and untripped
+(0.0044 + 0.018 Re^−0.15). At Re 7×10⁵: 0.0113 tripped, 0.0068 untripped; the tripped points lie at
+Re 3–12×10⁶, so that value is an extrapolation. Maximum lift against Reynolds number from seven sources
+(Fig. 13, no trip): about 1.0–1.15 at Re 7×10⁵, 1.5–1.6 at 6×10⁶.
+**Cited for:** the drag a fully turbulent 2-D run should have on the NACA 0012: the tripped fit, not
+[SK81]'s untripped measurement (`bench/section-gate/`).
+
+### [SR07] Spalart & Rumsey (2007) — Effective Inflow Conditions for Turbulence Models in Aerodynamic Calculations
+*AIAA Journal 45(10):2544–2553.* [DOI 10.2514/1.29373](https://doi.org/10.2514/1.29373)
+(added 2026-11-21; AIAA page blocks bots, verified via the DOI record)
+Free-stream turbulence values decay between the inlet and the body, by an amount set by the grid's extent;
+weak source terms in the model's two equations hold chosen ambient values instead. Recommended ambient
+values for the SST model.
+**Cited for:** the held stream of the 2-D referee (OpenFOAM's `decayControl`).
+
+### [RS09] Rumsey & Spalart (2009) — Turbulence Model Behavior in Low Reynolds Number Regions of Aerodynamic Flowfields
+*AIAA Journal 47(4):982–993.* [DOI 10.2514/1.39947](https://doi.org/10.2514/1.39947);
+conference version [NTRS 20080023453](https://ntrs.nasa.gov/api/citations/20080023453/downloads/20080023453.pdf)
+(added 2026-11-21)
+With a quiet stream the SST model leaves a boundary layer laminar up to a length Reynolds number of
+about 4×10⁴ and is not properly turbulent before 1–3×10⁵; on a NACA 0012 at Re 10⁵ and 5° the eddy
+viscosity first reaches the molecular one at 15 % of chord on the upper side and 48 % on the lower. The run shortens as the held
+stream's turbulence rises (their Fig. 9: intensity 0.08 %, 0.8 %, 2.6 % at ωL/U = 5); above about 1 % the
+stream starts to change the turbulent layer itself.
+**Cited for:** why the 2-D referee does not use a quiet stream at the table's Reynolds numbers, and
+the stream it uses (`bench/section-gate/`).
+
 ### [Sel95] Selig et al. (1995) — Summary of Low-Speed Airfoil Data, Vol. 1
 *SoarTech (UIUC LSATs).* [UIUC PDF](https://m-selig.ae.illinois.edu/uiuc_lsat/Low-Speed-Airfoil-Data-V1.pdf)
 Wind-tunnel polars for 34 airfoils at Re 3×10⁴–5×10⁵; large low-Re performance degradation.

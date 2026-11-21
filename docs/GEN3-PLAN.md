@@ -108,7 +108,9 @@ else. The phases below keep their content; this is the sequence.
      scripts now run on the library kernel.
    - `[~]` Section tables: driver `finGenerator-cfd/scripts/section_polar.py`.
      [SK81] gate PASSED with the resolved wall (`bench/section-gate/`: CL_max
-     +3 %, slope −7 %; wall functions were the defect). Table plan: 10
+     +3 %, slope −7 %; wall functions were the defect) — *withdrawn
+     2026-11-21: that mesh had the leading-edge corner, which cancelled the
+     model's late break; see "The referee's stream" below.* Table plan: 10
      sections × Re 5.7e5 and 2.8e5, −10…+16° (`~/bench-results/gen3run/tables`).
      First two sections in (`bench/section-tables/`,
      `scripts/section_table_check.py`): on t/c 0.092 table v0 stands where
@@ -187,6 +189,27 @@ else. The phases below keep their content; this is the sequence.
      at mid-chord): that, not planarity, is what stopped end tangents before.
      No print and no level-5 mesh sees the difference (cells of 0.3 mm and
      more); a 3-D run with a nose band wants `n_foil_points=400`.
+   - `[~]` **The referee's stream (2026-11-21, `bench/section-gate/`).** The
+     2-D referee's inlet (5 % turbulence over a tenth of the chord, the 3-D
+     recipe's rule, decaying over 20 chords) had never been varied. On the
+     NACA 0012 at Re 7e5 it reaches the section with an eddy viscosity 1100
+     times the molecular one. Lift is the same in every stream tried; drag is
+     12 % above tripped tunnels ([McC87]) and the break a quarter to half a
+     degree later than in a quiet stream. A quiet stream is not the answer at
+     the table's Reynolds numbers: the model then leaves the layer laminar
+     over a fifth to two fifths of the chord at Re 1.4e5 ([RS09]; seen in
+     the skin friction). The table moves to a held stream ([SR07]; k = 1e-3
+     U², ω = 5 U/c, both kept up to the section): 4.5 % above tripped tunnels
+     at Re 7e5, no laminar run at Re 1.4e5. All 35 sections are being rerun
+     on it (`bench/section-tables/rerun-held/`; the old-inlet sections stay
+     in `rerun/` as the comparison), then v1 is rebuilt as planned. The first
+     gate's "passed" is withdrawn with it: on the exact outline the NACA 0012
+     peaks 18 % high and 2° late and the NACA 4415 reads 11 % high at 10°, in
+     every stream. That is the fully turbulent model, so the table's upper
+     ends are upper bounds and the knee share stays fitted on a tunnel fin.
+     The 3-D writers take the stream as an option (`held_stream`, off by
+     default); a level-5 control on a known fin is to run before drag is
+     compared across the two.
    - `[x]` Lattice corrected 2026-11-20 (docs/MODEL-EXTENSION.md, "The
      lattice: control points and induced drag"): control points at the
      middle of each strip's clustering-angle step (lift of ten strips within

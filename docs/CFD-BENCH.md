@@ -230,6 +230,25 @@ transition tier with measured tunnel Tu if the [BW04] authors reply.
 - y⁺ spans 4–290: partly below the wall-function band in refined regions.
   Acceptable for lift; revisit with resolved-wall layers for final drag.
 - Fully-turbulent SST (no transition model) — see PHYSICS.md §4 caveats.
+- **The stream (2026-11-21, `bench/section-gate/` section 3).** Every case
+  here sets 5 % turbulence with a length of a tenth of the chord at the
+  inlet and lets it decay on the way to the fin; what arrives depends on
+  the upstream fetch (20 chords in the 2-D referee, 4 base chords in the
+  3-D cases). In 2-D that stream does not move lift, adds 5–12 % to a
+  NACA 0012's drag against tripped tunnels ([McC87]) and delays the break by
+  a quarter to half a degree. A quiet stream is no cure below Re of a
+  million: the SST model then runs laminar over the first part of the
+  chord ([RS09]). The 2-D referee has used a held stream since then
+  ([SR07]; k = 1e-3 U², ω = 5 U/c). The 3-D writers take it as an option
+  (`held_stream`), off by default, and no 3-D record uses it yet: drag
+  from 2-D sections on the held stream and from 3-D cases is not on the
+  same stream. Compare fully turbulent drag with tripped data only; item 3
+  above and the first section gate compared with untripped [SK81].
+- **Maximum lift of a 2-D section is the model's, not the section's**
+  (`bench/section-gate/` section 2): with a resolved wall and an exact
+  nose the NACA 0012 at Re 7e5 peaks 18 % above [SK81] and 2° late, the
+  NACA 4415 reads 11 % high at 10°. Wall functions err the other way
+  (item 3). A section's upper end from RANS is an upper bound.
 ## [BW04] polar-shape validation — PASSED (v0.2.0 gate, first-pass replica)
 
 Replica fin (elliptical-ish, 25° sweep, flat inside, t/c 9 %, 100×120 mm),

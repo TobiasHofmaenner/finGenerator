@@ -190,6 +190,16 @@ in the right coordinates and the record of which CFD numbers can be trusted.
 
 ## Section recipe gate: passed with a resolved wall (2026-11-19)
 
+**Withdrawn 2026-11-21 (`bench/section-gate/`).** The wall-function finding
+below stands; "passed" does not. This gate's mesh had the corner at the
+leading edge found a day later (`bench/section-tables/nose/`); it let go
+early, and that cancelled the model's late break. On the exact outline the
+same section stays attached to 13°: peak 18 % above the measured one and 2°
+late, in every stream tried. A second measured section (NACA 4415, [Hof96])
+reads 11 % high at 10°. The referee is good for lift inside the attached
+range and for the drag of a section that is turbulent from the nose; where
+it ends a range is an upper bound.
+
 `bench/section-gate/`, driver `finGenerator-cfd/scripts/section_polar.py`.
 NACA 0012 at Re 7e5 against [SK81]:
 

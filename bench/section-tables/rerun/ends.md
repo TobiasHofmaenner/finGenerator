@@ -16,13 +16,14 @@ Written by the collector of the rerun (`~/bench-results/sections2/collect.py`). 
 | sym-tc090-re570k | 0.090 | 0.0 | 5.7e+05 | 17 | 0.0126 | mirror of the upper |  | +11.75 and +12.00 | +1.164, 0.0360 | complete (laptop) |
 | camb2-tc070-re570k | 0.070 | 2.0 | 5.7e+05 | 26 | 0.0123 | -7.00 and -7.25 | -0.531, 0.0204 | +9.50 and +9.75 | +1.184, 0.0310 | complete (laptop) |
 | camb45-tc080-re570k | 0.080 | 4.5 | 5.7e+05 | 29 | 0.0135 | -6.50 and -6.75 | -0.200, 0.0182 | +13.50 and +13.75 | +1.617, 0.0522 | complete (laptop) |
-| camb2-tc050-re570k | 0.050 | 2.0 | 5.7e+05 | 12 | 0.0118 | -4.50 and -5.00 | -0.269, 0.0330 | beyond +4.00 | +0.656, 0.0152 | running (laptop) |
+| camb2-tc050-re570k | 0.050 | 2.0 | 5.7e+05 | 18 | 0.0118 | -4.50 and -4.75 | -0.269, 0.0330 | +6.50 and +6.75 | +0.847, 0.0413 | complete (laptop) |
 | camb3-tc070-re280k | 0.070 | 3.0 | 2.8e+05 | 19 | 0.0139 | -5.00 and -5.25 | -0.206, 0.0187 | +8.50 and +8.75 | +1.150, 0.0327 | complete (EPYC) |
 | camb45-tc092-re970k | 0.092 | 4.5 | 9.7e+05 | 27 | 0.0128 | -8.25 and -8.50 | -0.387, 0.0190 | +14.50 and +14.75 | +1.737, 0.0503 | complete (EPYC) |
 | sym-tc066-re570k | 0.066 | 0.0 | 5.7e+05 | 11 | 0.0119 | mirror of the upper |  | +7.25 and +7.50 | +0.772, 0.0214 | complete (EPYC) |
 | sym-tc080-re570k | 0.080 | 0.0 | 5.7e+05 | 16 | 0.0123 | mirror of the upper |  | +10.50 and +10.75 | +1.017, 0.0370 | complete (EPYC) |
 | sym-tc120-re570k | 0.120 | 0.0 | 5.7e+05 | 17 | 0.0135 | mirror of the upper |  | +13.00 and +13.25 | +1.278, 0.0353 | complete (EPYC) |
-| sym-tc090-re280k | 0.090 | 0.0 | 2.8e+05 | 4 | 0.0139 | mirror of the upper |  | beyond +6.00 | +0.640, 0.0188 | running (EPYC) |
+| sym-tc090-re280k | 0.090 | 0.0 | 2.8e+05 | 12 | 0.0139 | mirror of the upper |  | +10.00 and +10.25 | +0.987, 0.0336 | complete (EPYC) |
+| sym-tc090-re140k | 0.090 | 0.0 | 1.4e+05 | 10 | 0.0155 | mirror of the upper |  | +8.25 and +8.50 | +0.820, 0.0301 | complete (EPYC) |
 | flat-tc050-r050-re570k | 0.050 | 0.0 | 5.7e+05 | 24 | 0.0126 | -4.50 and -4.75 | -0.300, 0.0466 | +9.25 and +9.50 | +1.169, 0.0297 | complete (EPYC) |
 | flat-tc120-r050-re570k | 0.120 | 0.0 | 5.7e+05 | 24 | 0.0176 | -5.25 and -5.50 | +0.017, 0.0600 | +13.00 and +13.25 | +1.664, 0.0472 | complete (EPYC) |
 | flat-tc092-r050-re280k | 0.092 | 0.0 | 2.8e+05 | 27 | 0.0170 | -5.50 and -5.75 | -0.166, 0.0642 | +12.50 and +12.75 | +1.525, 0.0448 | complete (EPYC) |

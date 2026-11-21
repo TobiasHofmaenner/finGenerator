@@ -1,6 +1,7 @@
 """Build section table v1: table v0 moved onto the resolved-wall RANS sections.
 
     uv run python scripts/build_section_table_v1.py [--out=DIR/sections_v1.npz] [--report=PATH.md]
+                                                    [--sections=rerun-held]
 
 Table v0 (NeuralFoil, tripped; scripts/build_section_table.py) covers every
 section fingen can draw; the referee (resolved-wall 2-D RANS on the exact
@@ -879,6 +880,9 @@ def _plain(obj):
 
 def main() -> None:
     opt = dict(a.lstrip("-").split("=", 1) for a in sys.argv[1:] if a.startswith("--") and "=" in a)
+    if "sections" in opt:           # the referee's sections from another record, e.g. rerun-held
+        global RANS_FILES
+        RANS_FILES = ((f"{opt['sections']}/results.json", None),) + RANS_FILES[1:]
     out_path = Path(opt.get("out", REPO / "src/fingen/data/sections_v1.npz")).resolve()
     if out_path.name != "sections_v1.npz":
         raise SystemExit("--out must be named sections_v1.npz (the report reads it through fingen)")
