@@ -226,6 +226,46 @@
      "yplus_min": 0.07728432,
      "yplus_max": 5.368956,
      "wall_s": 131.3
+    },
+    {
+     "alpha": 7.5,
+     "cl": 1.044934725,
+     "cd": 0.02823113875,
+     "iters": 1200.0,
+     "settled": true,
+     "yplus_min": 0.1123068,
+     "yplus_max": 5.474196,
+     "wall_s": 182.7
+    },
+    {
+     "alpha": 7.75,
+     "cl": 1.0586893833333333,
+     "cd": 0.030375064866666666,
+     "iters": 1500.0,
+     "settled": true,
+     "yplus_min": 0.1239692,
+     "yplus_max": 5.493492,
+     "wall_s": 203.8
+    },
+    {
+     "alpha": 8.0,
+     "cl": 1.0565067933333334,
+     "cd": 0.03376889875,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.02332568,
+     "yplus_max": 5.440841,
+     "wall_s": 410.1
+    },
+    {
+     "alpha": 8.5,
+     "cl": 1.0367006973333335,
+     "cd": 0.041999565083333336,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.1472099,
+     "yplus_max": 5.596429,
+     "wall_s": 405.1
     }
    ],
    "mesh": {
@@ -271,7 +311,7 @@
     "layers_pct": 99.9,
     "cells": 61562
    },
-   "complete": false,
+   "complete": true,
    "machine": "EPYC"
   },
   "camb3-tc070-re570k": {
@@ -345,6 +385,16 @@
      "yplus_min": 0.0259892,
      "yplus_max": 19.15924,
      "wall_s": 472.9
+    },
+    {
+     "alpha": -6.25,
+     "cl": -0.32014766110166665,
+     "cd": 0.04709483147218334,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.114729,
+     "yplus_max": 10.07027,
+     "wall_s": 496.7
     },
     {
      "alpha": -6.0,
@@ -465,6 +515,86 @@
      "yplus_min": 0.1502001,
      "yplus_max": 12.34181,
      "wall_s": 93.9
+    },
+    {
+     "alpha": 8.0,
+     "cl": 1.1693293833333334,
+     "cd": 0.023296016,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.07442804,
+     "yplus_max": 12.59408,
+     "wall_s": 140.6
+    },
+    {
+     "alpha": 8.5,
+     "cl": 1.2134221666666667,
+     "cd": 0.02485901711111111,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.07516038,
+     "yplus_max": 12.66513,
+     "wall_s": 141.1
+    },
+    {
+     "alpha": 9.0,
+     "cl": 1.2550085055555555,
+     "cd": 0.026657196833333337,
+     "iters": 900.0,
+     "settled": true,
+     "yplus_min": 0.1079234,
+     "yplus_max": 12.74532,
+     "wall_s": 140.3
+    },
+    {
+     "alpha": 9.5,
+     "cl": 1.2936197166666665,
+     "cd": 0.028770681458333332,
+     "iters": 1200.0,
+     "settled": true,
+     "yplus_min": 0.0708752,
+     "yplus_max": 12.83932,
+     "wall_s": 183.4
+    },
+    {
+     "alpha": 10.0,
+     "cl": 1.3232540333333334,
+     "cd": 0.031805811437500005,
+     "iters": 2400.0,
+     "settled": true,
+     "yplus_min": 0.06843764,
+     "yplus_max": 13.09091,
+     "wall_s": 369.8
+    },
+    {
+     "alpha": 10.25,
+     "cl": 1.0834141028333333,
+     "cd": 0.06252274470283334,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.01418822,
+     "yplus_max": 13.27351,
+     "wall_s": 476.3
+    },
+    {
+     "alpha": 10.5,
+     "cl": 1.1230392541666667,
+     "cd": 0.06736775226016667,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.01232445,
+     "yplus_max": 17.32869,
+     "wall_s": 465.8
+    },
+    {
+     "alpha": 11.0,
+     "cl": 1.0524002773333332,
+     "cd": 0.08961112802073333,
+     "iters": 3000.0,
+     "settled": false,
+     "yplus_min": 0.0489104,
+     "yplus_max": 13.35632,
+     "wall_s": 462.0
     }
    ],
    "mesh": {
@@ -509,6 +639,147 @@
     "layers_mean": 12.9,
     "layers_pct": 99.9,
     "cells": 68090
+   },
+   "complete": true,
+   "machine": "EPYC"
+  },
+  "camb45-tc092-re570k": {
+   "spec": {
+    "name": "camb45-tc092-re570k",
+    "family": "cambered",
+    "thickness_ratio": 0.092,
+    "camber_ratio": 0.045,
+    "camber_position": 0.4,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "nose_level": 9,
+    "outline_points": 400,
+    "smooth_nose": true,
+    "stl_tolerance": 1e-06,
+    "stl_angle": 0.02,
+    "angles": [
+     -3.5,
+     -2.5,
+     -1.0,
+     0.0,
+     2.0,
+     4.0,
+     6.0,
+     8.0,
+     10.0
+    ],
+    "march": [
+     {
+      "from": -6.5,
+      "step": -0.5,
+      "to": -16.0,
+      "past": 3
+     },
+     {
+      "from": 11.0,
+      "step": 0.5,
+      "to": 20.0
+     }
+    ],
+    "tu": 0.02582,
+    "omega_cu": 5.0,
+    "sustain": true
+   },
+   "rows": [
+    {
+     "alpha": -3.5,
+     "cl": 0.12926722166666668,
+     "cd": 0.013108006416666667,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.09936809,
+     "yplus_max": 14.08051,
+     "wall_s": 587.3
+    },
+    {
+     "alpha": -2.5,
+     "cl": 0.23948308999999998,
+     "cd": 0.012910270333333333,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.1558866,
+     "yplus_max": 14.01004,
+     "wall_s": 93.2
+    },
+    {
+     "alpha": -1.0,
+     "cl": 0.40413868833333333,
+     "cd": 0.013123553083333333,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.1629149,
+     "yplus_max": 13.86946,
+     "wall_s": 93.4
+    },
+    {
+     "alpha": 0.0,
+     "cl": 0.5131769975,
+     "cd": 0.013563766916666666,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.2762214,
+     "yplus_max": 13.7458,
+     "wall_s": 88.3
+    },
+    {
+     "alpha": 2.0,
+     "cl": 0.7279834641666666,
+     "cd": 0.015028449833333334,
+     "iters": 600.0,
+     "settled": true,
+     "yplus_min": 0.2518181,
+     "yplus_max": 13.40121,
+     "wall_s": 93.0
+    }
+   ],
+   "mesh": {
+    "u_inf": 4.9875,
+    "span": 0.012,
+    "cell": 0.012,
+    "surface_cell": 2.34375e-05,
+    "n_layers": 13,
+    "first_layer": 9.337435776481761e-06,
+    "bg_cells": 8652,
+    "resolved": true,
+    "outline": {
+     "points": 400,
+     "smooth_nose": true,
+     "tolerance": 1e-06,
+     "angle": 0.02
+    },
+    "nose_bands": [
+     [
+      0.02,
+      9
+     ],
+     [
+      0.04,
+      8
+     ],
+     [
+      0.08,
+      7
+     ],
+     [
+      0.16,
+      6
+     ]
+    ],
+    "inlet": {
+     "k": 0.024875370176343743,
+     "omega": 207.8125,
+     "nut_ratio": 114.00098039999997,
+     "sustained": true
+    },
+    "layers_mean": 12.9,
+    "layers_pct": 99.9,
+    "cells": 68653
    },
    "complete": false,
    "machine": "EPYC"
