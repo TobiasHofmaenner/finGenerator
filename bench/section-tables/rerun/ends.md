@@ -12,10 +12,11 @@ Written by the collector of the rerun (`~/bench-results/sections2/collect.py`). 
 | camb3-tc050-re570k | 0.050 | 3.0 | 5.7e+05 | 18 | 0.0122 | -4.00 and -4.25 | -0.113, 0.0297 | +7.25 and +7.50 | +0.988, 0.0477 | complete (laptop) |
 | camb3-tc120-re570k | 0.120 | 3.0 | 5.7e+05 | 26 | 0.0140 | -10.75 and -11.00 | -0.791, 0.0260 | +14.00 and +14.25 | +1.567, 0.0449 | complete (laptop) |
 | camb45-tc070-re570k | 0.070 | 4.5 | 5.7e+05 | 24 | 0.0133 | -5.50 and -5.75 | -0.094, 0.0171 | +11.00 and +11.25 | +1.520, 0.0390 | complete (laptop) |
-| camb3-tc092-re570k | 0.092 | 3.0 | 5.7e+05 | 17 | 0.0131 | -8.50 and -9.00 | -0.577, 0.0216 | beyond +8.00 | +1.177, 0.0237 | running (laptop) |
+| camb3-tc092-re570k | 0.092 | 3.0 | 5.7e+05 | 23 | 0.0131 | -8.75 and -9.00 | -0.601, 0.0225 | beyond +12.00 | +1.484, 0.0365 | running (laptop) |
 | sym-tc046-re570k | 0.046 | 0.0 | 5.7e+05 | 9 | 0.0115 | mirror of the upper |  | +5.50 and +5.75 | +0.561, 0.0410 | complete (laptop) |
-| sym-tc090-re570k | 0.090 | 0.0 | 5.7e+05 | 10 | 0.0126 | mirror of the upper |  | beyond +9.50 | +1.001, 0.0249 | running (laptop) |
-| camb2-tc070-re570k | 0.070 | 2.0 | 5.7e+05 | 3 | 0.0123 | beyond -3.50 | -0.158, 0.0132 | beyond -1.00 | +0.116, 0.0123 | running (laptop) |
+| sym-tc090-re570k | 0.090 | 0.0 | 5.7e+05 | 17 | 0.0126 | mirror of the upper |  | +11.75 and +12.00 | +1.164, 0.0360 | complete (laptop) |
+| camb2-tc070-re570k | 0.070 | 2.0 | 5.7e+05 | 15 | 0.0123 | -7.00 and -7.50 | -0.531, 0.0204 | beyond +6.00 | +0.868, 0.0185 | running (laptop) |
+| camb45-tc080-re570k | 0.080 | 4.5 | 5.7e+05 | 11 | 0.0135 | beyond -5.50 | -0.091, 0.0158 | beyond +8.00 | +1.326, 0.0258 | running (laptop) |
 | camb3-tc070-re280k | 0.070 | 3.0 | 2.8e+05 | 19 | 0.0139 | -5.00 and -5.25 | -0.206, 0.0187 | +8.50 and +8.75 | +1.150, 0.0327 | complete (EPYC) |
 | camb45-tc092-re970k | 0.092 | 4.5 | 9.7e+05 | 27 | 0.0128 | -8.25 and -8.50 | -0.387, 0.0190 | +14.50 and +14.75 | +1.737, 0.0503 | complete (EPYC) |
 | sym-tc066-re570k | 0.066 | 0.0 | 5.7e+05 | 11 | 0.0119 | mirror of the upper |  | +7.25 and +7.50 | +0.772, 0.0214 | complete (EPYC) |
@@ -23,5 +24,5 @@ Written by the collector of the rerun (`~/bench-results/sections2/collect.py`). 
 | sym-tc120-re570k | 0.120 | 0.0 | 5.7e+05 | 17 | 0.0135 | mirror of the upper |  | +13.00 and +13.25 | +1.278, 0.0353 | complete (EPYC) |
 | flat-tc050-r050-re570k | 0.050 | 0.0 | 5.7e+05 | 24 | 0.0126 | -4.50 and -4.75 | -0.300, 0.0466 | +9.25 and +9.50 | +1.169, 0.0297 | complete (EPYC) |
 | flat-tc120-r050-re570k | 0.120 | 0.0 | 5.7e+05 | 24 | 0.0176 | -5.25 and -5.50 | +0.017, 0.0600 | +13.00 and +13.25 | +1.664, 0.0472 | complete (EPYC) |
-| flat-tc092-r050-re280k | 0.092 | 0.0 | 2.8e+05 | 22 | 0.0170 | -5.50 and -5.75 | -0.166, 0.0642 | beyond +11.50 | +1.482, 0.0387 | running (EPYC) |
-| camb45-tc120-re570k | 0.120 | 4.5 | 5.7e+05 | 7 | 0.0144 | beyond -6.00 | -0.148, 0.0161 | beyond +4.00 | +0.925, 0.0190 | running (EPYC) |
+| flat-tc092-r050-re280k | 0.092 | 0.0 | 2.8e+05 | 27 | 0.0170 | -5.50 and -5.75 | -0.166, 0.0642 | +12.50 and +12.75 | +1.525, 0.0448 | complete (EPYC) |
+| camb45-tc120-re570k | 0.120 | 4.5 | 5.7e+05 | 25 | 0.0144 | -10.25 and -10.50 | -0.585, 0.0251 | +13.75 and +14.00 | +1.663, 0.0475 | complete (EPYC) |

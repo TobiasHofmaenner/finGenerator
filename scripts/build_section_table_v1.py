@@ -116,10 +116,10 @@ STALL_RAMP_DEG = 2.0
 BEHIND = np.arange(0.0, 3.01, 0.25)
 # v1's grids (v0: 10 thicknesses, 5 cambered thicknesses, 6 cambers). The referee's own
 # thicknesses are on them, so a measured section is a node and not a blend of two.
-TC_FINE = np.unique(np.round(np.concatenate([np.arange(0.040, 0.1301, 0.005), [0.16, 0.19, 0.22],
-                                             [0.046, 0.066, 0.092]]), 4))
-TC_CAMBERED_FINE = np.unique(np.round(np.concatenate([np.arange(0.050, 0.1201, 0.005), [0.16],
-                                                      [0.066, 0.092]]), 4))
+TC_FINE = np.unique(np.round(np.concatenate([np.arange(0.040, 0.1301, 0.005),
+                                             [0.15, 0.16, 0.19, 0.22], [0.046, 0.066, 0.092]]), 4))
+TC_CAMBERED_FINE = np.unique(np.round(np.concatenate([np.arange(0.050, 0.1201, 0.005),
+                                                      [0.135, 0.15, 0.16], [0.066, 0.092]]), 4))
 CAMBER_FINE = np.arange(0.0, 0.0501, 0.005)
 # v1's Reynolds numbers: half octaves (v0: octaves, 1e5 … 1.6e6), moved onto the referee's own
 RE_HALF_OCTAVES = 1e5 * 2.0 ** (0.5 * np.arange(9))

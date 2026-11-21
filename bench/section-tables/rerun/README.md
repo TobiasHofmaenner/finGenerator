@@ -7,8 +7,15 @@ The referee's sections of `../results.json`, `../thin-cambered/` and `../third-b
 
 Each section runs a fixed list of angles inside its range and two marches: outward in half degrees from near the old end until two rows in a row (three at the lower end) are past it, then one row halfway into the bracket. Symmetric sections run at positive angles only.
 
-Sections (35): the table's eleven cambered ones at Re 5.7e5, and 4.5 % / t/c 0.12, 3 % and 4.5 % / t/c 0.16 (searches have gone there with no referee behind them); 3 % / t/c 0.07 and 3 % / t/c 0.05 also at 2.8e5 and 1.4e5; 4.5 % / t/c 0.092 also at 9.7e5 and 1.4e5; symmetric at t/c 0.046, 0.066, 0.080, 0.090, 0.120 and 0.160, t/c 0.090 also at 2.8e5 and 1.4e5, t/c 0.046 also at 1.4e5; flat inside with a nose-corner radius of 0.5 mm (`../flat-corner/`) at t/c 0.050, 0.065, 0.092 and 0.120, and t/c 0.092 also at 2.8e5 and 1.4e5.
+Sections (35): the table's eleven cambered ones at Re 5.7e5, and 4.5 % / t/c 0.12, 3 % and 4.5 % / t/c 0.15 (searches have gone there with no referee behind them); 3 % / t/c 0.07 and 3 % / t/c 0.05 also at 2.8e5 and 1.4e5; 4.5 % / t/c 0.092 also at 9.7e5 and 1.4e5; symmetric at t/c 0.046, 0.066, 0.080, 0.090, 0.120 and 0.150, t/c 0.090 also at 2.8e5 and 1.4e5, t/c 0.046 also at 1.4e5; flat inside with a nose-corner radius of 0.5 mm (`../flat-corner/`) at t/c 0.050, 0.065, 0.092 and 0.120, and t/c 0.092 also at 2.8e5 and 1.4e5.
 
 The three thin sections at lower Reynolds number were added on 2026-11-21: a fin's tip strips work at t/c 0.04–0.06 and Reynolds numbers of 1–2 × 10⁵, and a table built from the first ten sections gave such sections about ±3° of range by a trend read at t/c 0.07 and 0.092.
+
+Two corrections on 2026-11-21, after four sections stopped with errors:
+
+- **t/c 0.15, not 0.16.** The three thickest sections were planned at t/c 0.16; fingen draws no section above 0.15 (`FoilParams`), and the driver refused them. They run at 0.15, the thickest a fin's root can be.
+- **Seven wall layers at Re 1.4e5.** The driver's stack has at least ten layers, which at Re 1.4e5 is 0.86 mm against 0.45 mm at the other Reynolds numbers. On the 0.5 mm corner of the flat inside face the mesher dropped it (13 % kept) and the driver's layer check refused the mesh. The sections at Re 1.4e5 that had not run yet (flat inside t/c 0.092, symmetric t/c 0.090 and 0.046, 3 % / t/c 0.05) use seven layers (0.43 mm). The two that had (3 % / t/c 0.07, 4.5 % / t/c 0.092) kept 99.8 % of ten; `ctl-camb3-tc070-re140k-l7` repeats six rows of the first with seven.
+
+Two gates run with the batch and are kept out of this record: NACA 0012 at Re 7e5 against [SK81] and NACA 4415 at Re 7.5e5 against [Hof96] (`../../section-gate/`).
 
 Read by `scripts/build_section_table_v1.py` (complete sections only). What a row is known to: lift 0.01, drag 1 %, an end half a degree (`../nose/`, section 4).
