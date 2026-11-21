@@ -16,10 +16,27 @@ from __future__ import annotations
 from dataclasses import replace
 
 import numpy as np
-from build123d import BuildLine, BuildSketch, Line, Part, Plane, Spline, loft, make_face
+from build123d import (
+    BuildLine,
+    BuildSketch,
+    Edge,
+    Face,
+    Line,
+    Part,
+    Plane,
+    Spline,
+    Wire,
+    loft,
+    make_face,
+)
+from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeEdge
+from OCP.GeomAPI import GeomAPI_Interpolate
+from OCP.gp import gp_Pnt, gp_Vec
 from OCP.StdFail import StdFail_NotDone
+from OCP.TColgp import TColgp_Array1OfVec, TColgp_HArray1OfPnt
+from OCP.TColStd import TColStd_HArray1OfBoolean
 
-from fingen.foil import section_points
+from fingen.foil import le_tangent, section_points
 from fingen.outline import chord_schedule
 from fingen.params import (
     DEFAULT_SETTINGS,
@@ -106,6 +123,32 @@ def groove_station_z(fin: FinParams) -> list[float]:
     return zs
 
 
+def _surface_spline(points: np.ndarray, z: float, tangent: tuple[float, float],
+                    le_first: bool) -> Edge:
+    """Interpolating spline through one surface's `points`, in the plane at height
+    `z`, with the section's own tangent at its leading-edge end (the first point
+    if `le_first`, else the last). The trailing-edge end is left free.
+
+    `tangent` is the unit direction of travel through the leading edge. The curve
+    is parameterized by chord length, so a unit vector taken at face value
+    (not rescaled) is the right derivative there."""
+    n = len(points)
+    pts = TColgp_HArray1OfPnt(1, n)
+    tangents = TColgp_Array1OfVec(1, n)
+    given = TColStd_HArray1OfBoolean(1, n)
+    for i, p in enumerate(points, start=1):
+        pts.SetValue(i, gp_Pnt(float(p[0]), float(p[1]), float(z)))
+        tangents.SetValue(i, gp_Vec(float(tangent[0]), float(tangent[1]), 0.0))
+        given.SetValue(i, False)
+    given.SetValue(1 if le_first else n, True)
+    builder = GeomAPI_Interpolate(pts, False, 1e-9)
+    builder.Load(tangents, given, False)
+    builder.Perform()
+    if not builder.IsDone():
+        raise StdFail_NotDone("section spline could not be interpolated")
+    return Edge(BRepBuilderAPI_MakeEdge(builder.Curve()).Edge())
+
+
 def _section_sketch(fin: FinParams, z: float, x_le: float, chord: float,
                     settings: GenSettings):
     thin_outer, thin_inner = _groove_thins(fin, z, chord)
@@ -114,36 +157,41 @@ def _section_sketch(fin: FinParams, z: float, x_le: float, chord: float,
                                   thin_outer=thin_outer, thin_inner=thin_inner)
     upper = upper + np.array([x_le, 0.0])
     lower = lower + np.array([x_le, 0.0])
-    with BuildSketch(Plane.XY.offset(z)) as sk:
-        with BuildLine():
-            if fin.foil.family is FoilFamily.FLAT_INSIDE:
+    if fin.foil.family is FoilFamily.FLAT_INSIDE:
+        with BuildSketch(Plane.XY.offset(z)) as sk:
+            with BuildLine():
                 # Outer surface spline + straight TE + straight flat face:
                 # the inner face is an exact planar strip (print-bed face);
                 # the LE corner between them is a real feature of flat foils.
                 Spline(*[tuple(p) for p in upper])
                 Line(tuple(upper[-1]), tuple(lower[-1]))
                 Line(tuple(lower[-1]), tuple(lower[0]))
-            else:
-                # Two splines sharing the LE vertex. The vertex pins OCCT's
-                # station-to-station correspondence at the nose — a single
-                # wrap-around spline lets the LE drift in curve parameter as
-                # the upper/lower arc ratio changes spanwise, skewing the
-                # skin. LE tangency across the vertex is left to the
-                # interpolator, and it is NOT near-exact: measured on this
-                # sketch (3 % camber, t/c 0.07, chord 120 mm) the two splines
-                # meet at 33 deg with 32 um of shape error in the first 1 %
-                # of chord at the default 100 points, 19 deg / 7 um at 200,
-                # 9 deg / 2 um at 400 (bench/section-tables/nose). Far below
-                # what a print resolves, and below the cells of every 3-D mesh
-                # run so far (0.3 mm on the nose); a 3-D run with a resolved
-                # nose needs it changed first (docs/GEN3-PLAN.md).
-                # (Explicit end tangents would guarantee G1 but make the
-                # sketch wire non-planar in current build123d.)
-                Spline(*[tuple(p) for p in upper])
-                Line(tuple(upper[-1]), tuple(lower[-1]))
-                Spline(*[tuple(p) for p in lower[::-1]])
-        make_face()
-    return sk.sketch
+            make_face()
+        return sk.sketch
+    # Two splines sharing the LE vertex. The vertex pins OCCT's station-to-
+    # station correspondence at the nose — a single wrap-around spline lets the
+    # LE drift in curve parameter as the upper/lower arc ratio changes spanwise,
+    # skewing the skin. Both splines are given the section's own tangent at that
+    # vertex (`foil.le_tangent`), so they meet without a corner.
+    #
+    # Measured on this section (3 % camber, t/c 0.07, chord 120 mm;
+    # bench/section-tables/nose): left to the interpolator, the two met at 33 deg
+    # with 32 um of shape error in the first 1 % of chord at the default 100
+    # points (19 deg / 7 um at 200, 9 deg / 2 um at 400), and a 2-D RANS mesh
+    # that resolves the nose separates a degree early on that corner. With the
+    # tangent the corner is gone at any point count; the shape error is the
+    # points' (39 um at 100, 8 um at 200, 2 um at 400). A print and a mesh with
+    # 0.3 mm cells on the nose see neither; a 3-D run with a resolved nose wants
+    # `n_foil_points=400`.
+    #
+    # The face is assembled from its edges directly: a build123d sketch cleans
+    # itself up by concatenating splines that meet tangentially, and the
+    # concatenated curve is a refit (0.1 mm off the section at mid-chord).
+    t = le_tangent(fin.foil)
+    v_u, v_l = (gp_Pnt(float(p[0]), float(p[1]), float(z)) for p in (upper[-1], lower[-1]))
+    return Face(Wire([_surface_spline(upper, z, t, le_first=True),
+                      Edge(BRepBuilderAPI_MakeEdge(v_u, v_l).Edge()),
+                      _surface_spline(lower[::-1], z, t, le_first=False)]))
 
 
 def fin_solid(fin: FinParams, settings: GenSettings = DEFAULT_SETTINGS) -> Part:

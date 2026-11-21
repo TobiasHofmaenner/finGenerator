@@ -175,15 +175,18 @@ else. The phases below keep their content; this is the sequence.
      and the searches rerun. Everything that rests on v1's ends — the candidate's
      drag at −4.5°, "a thin cambered section stops being cheap", the hold
      numbers — is to be re-read on the rebuilt table.
-   - `[ ]` **The builder's own nose.** `loft._section_sketch` draws every
-     section with the same two splines and 100 points by default: the
-     generated solid has the corner too (measured on its sketch: 33.4° and
-     32 µm at 100 points, 8.8° and 2 µm at 400, the most it accepts). No
-     print and no level-5 mesh sees it (cells of 0.3 mm and more); a 3-D
-     mesh with a resolved nose would. The two splines are there on purpose
-     (the shared vertex pins the loft's station-to-station match), so the
-     fix is end tangents on both (`foil.le_tangent` has them) or 400 points,
-     before any 3-D run with a nose band.
+   - `[x]` **The builder's own nose (2026-11-21).** `loft._section_sketch`
+     drew every section with two splines whose meeting at the leading edge was
+     left to the interpolator: the generated solid had the corner too
+     (measured on its sketch: 33.4° and 32 µm at 100 points, 8.8° and 2 µm at
+     400). Both splines now carry the section's own tangent at that vertex
+     (`foil.le_tangent`): no corner at any point count; the shape error is the
+     points' (39 µm at 100, 8 µm at 200, 2 µm at 400). The section face is put
+     together from its edges, because a build123d sketch concatenates splines
+     that meet tangentially and the concatenated curve is a refit (0.1 mm off
+     at mid-chord): that, not planarity, is what stopped end tangents before.
+     No print and no level-5 mesh sees the difference (cells of 0.3 mm and
+     more); a 3-D run with a nose band wants `n_foil_points=400`.
    - `[x]` Lattice corrected 2026-11-20 (docs/MODEL-EXTENSION.md, "The
      lattice: control points and induced drag"): control points at the
      middle of each strip's clustering-angle step (lift of ten strips within
