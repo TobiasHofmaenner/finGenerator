@@ -253,6 +253,14 @@ bubbles — exactly the fin's Re regime.
 NACA 0009–0025 tabulated C_l/C_d/C_m, Re 10⁴–10⁷, α −180°…+180°.
 **Cited for:** symmetric-section polar lookup tables including post-stall.
 
+### [Hof96] Hoffmann, Reuss Ramsay & Gregorek (1996) — Effects of Grit Roughness and Pitch Oscillations on the NACA 4415 Airfoil
+*NREL/TP-442-7815 (Ohio State University).* [OSTI 266691](https://www.osti.gov/biblio/266691)
+NACA 4415 in two dimensions at Re 0.75–1.5×10⁶, clean and with leading-edge grit (k/c 0.0019):
+tabulated C_l, pressure and wake drag, −20°…+40°. Maximum lift at Re 0.75×10⁶: 1.38 at 15.3° clean,
+1.11 at 11.2° with grit.
+**Cited for:** the measured cambered section the 2-D referee is gated on beside [SK81]
+(`bench/ref-osu-naca4415-re0.75M.dat`).
+
 ### [Sel95] Selig et al. (1995) — Summary of Low-Speed Airfoil Data, Vol. 1
 *SoarTech (UIUC LSATs).* [UIUC PDF](https://m-selig.ae.illinois.edu/uiuc_lsat/Low-Speed-Airfoil-Data-V1.pdf)
 Wind-tunnel polars for 34 airfoils at Re 3×10⁴–5×10⁵; large low-Re performance degradation.

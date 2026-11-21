@@ -1,0 +1,31 @@
+NACA 4415 — Hoffmann, Reuss Ramsay & Gregorek, NREL/TP-442-7815 (Ohio State, 1996),
+"Effects of Grit Roughness and Pitch Oscillations on the NACA 4415 Airfoil", Table B1
+Re = 750,000 block, clean model, steady state (OSU 3x5 tunnel, chord 457 mm, lift from
+surface pressures, drag from the wake rake; natural transition)
+Transcribed 2026-11-21 from the report scan (osti.gov/biblio/266691), printed page B-6.
+Columns: alpha[deg] CL CDwake (-1 = no wake survey at that angle).
+The report's Table 1: maximum lift 1.38 at 15.3 deg clean, 1.11 at 11.2 deg with
+leading-edge grit roughness (k/c 0.0019); lowest drag 0.0078 clean, 0.0150 with grit.
+At Re 1.0e6: 1.35 at 14.3 deg clean, 1.13 at 14.3 deg with grit.
+-10.2 -0.58 0.0187
+-8.1 -0.39 0.0172
+-6.1 -0.20 0.0142
+-4.0 0.02 0.0132
+-2.1 0.22 0.0097
+0.0 0.43 0.0089
+2.1 0.62 0.0078
+4.1 0.86 0.0093
+6.1 1.03 0.0105
+8.1 1.17 0.0148
+10.2 1.27 0.0178
+11.2 1.29 0.0212
+12.2 1.32 0.0218
+13.3 1.33 0.0252
+14.3 1.37 0.0284
+15.3 1.38 -1
+16.3 1.32 -1
+17.3 1.32 -1
+18.1 1.13 -1
+19.1 1.10 -1
+20.1 1.08 -1
+22.1 1.05 -1
