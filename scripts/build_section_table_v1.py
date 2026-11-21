@@ -676,6 +676,56 @@ def report(nodes: list[dict], fits: dict, v0: TableV0, path: Path) -> str:
     return "\n".join(lines)
 
 
+def scan(path: Path) -> list[str]:
+    """Every node of the table at `path`, read through the library and looked at for what
+    a polar must not do: drag that is not positive, lift that falls inside the attached
+    range, a range shorter than three degrees, a break outside the range, a lift line off
+    any section's. Says how many nodes do, and the worst of each kind."""
+    from fingen import sections
+    from fingen.params import FoilFamily
+
+    if path.parent != sections._DATA:
+        sections._DATA = path.parent
+    sections._table.cache_clear()
+    sections._polar.cache_clear()
+    t = sections._table("v1")
+    grid = [(FoilFamily(fam), float(tc), 0.0, float(re))
+            for fam in ("symmetric", "flat_inside") for tc in t["tc"] for re in t["reynolds"]]
+    grid += [(FoilFamily.CAMBERED, float(tc), float(c), float(re))
+             for tc in t["tc_cambered"] for c in t["camber"] for re in t["reynolds"]]
+    found: dict[str, list] = {}
+
+    def note(kind: str, size: float, where: str) -> None:
+        found.setdefault(kind, []).append((size, where))
+
+    for fam, tc, camber, re in grid:
+        pol = sections.polar(fam, tc, re, camber, "v1")
+        where = f"{fam.value} t/c {tc:.3f} camber {100 * camber:.1f} % Re {re:.3g}"
+        lo, hi = pol.attached_deg
+        inside = (pol.alpha_deg >= lo) & (pol.alpha_deg <= hi)
+        if pol.cd.min() <= 0.0:
+            note("drag not positive", float(-pol.cd.min()), where)
+        drop = float(-np.diff(pol.cl[inside]).min())
+        if fam is not FoilFamily.FLAT_INSIDE and drop > 1e-3:
+            note("lift falling inside the attached range (by, between two points)", drop, where)
+        if hi - lo < 3.0:
+            note("attached range shorter than 3 deg (length)", 3.0 - (hi - lo), where)
+        peak = float(pol.cd[inside].max() / pol.cd_min)
+        if peak > 1.5 * PAST_FACTOR:
+            note("drag inside the range over 6 x its minimum (ratio)", peak, where)
+        if not lo - 0.5 <= pol.alpha_break_deg <= hi + 2.5:
+            note("break outside the attached range (deg past its upper end)",
+                 abs(pol.alpha_break_deg - hi), where)
+        if not 4.5 <= pol.slope_per_rad <= 7.5:
+            note("lift slope outside 4.5 … 7.5 per rad", abs(pol.slope_per_rad - 6.0), where)
+    lines = ["", f"Scan of all {len(grid)} nodes of the table: "
+                 + ("nothing found." if not found else "")]
+    for kind, rows in found.items():
+        size, where = max(rows)
+        lines.append(f"  {kind}: {len(rows)} nodes, worst {size:.3g} at {where}.")
+    return lines
+
+
 def _plain(obj):
     """Arrays as lists, all the way down (the meta block is JSON)."""
     if isinstance(obj, dict):
@@ -708,7 +758,7 @@ def main() -> None:
                       "are kept (see fits)"}
     data["meta"] = np.array(json.dumps(meta))
     np.savez_compressed(out_path, **data)
-    text = report(nodes, fits, v0, out_path)
+    text = report(nodes, fits, v0, out_path) + "\n" + "\n".join(scan(out_path))
     print(text)
     print(f"\nwrote {out_path} ({out_path.stat().st_size / 1e3:.0f} kB)")
     if "report" in opt:
