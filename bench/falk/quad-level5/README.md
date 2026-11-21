@@ -33,4 +33,4 @@ Run: the same layout and the same stand-in fin on mesh level 5 at 5, 10 and 15°
 
 ## Next
 
-Running on the EPYC (`level5-tc065`, then `level5-camb3-tc065`): the same set with t/c 0.065 — does the working rail's split come out as theirs — and with a cambered foil of the same zero-lift angle (3 % camber, t/c 0.065: a rounded nose and no corner) — does the outside front fin then stay on its line to 10°.
+Done: `../quad-level5-foils/`. With t/c 0.065 the working rail's front fin is within 7–9 % of theirs; the outside front fin lets go between 5° and 10° with a rounded nose too; and the lattice reproduces our set CFD fin by fin, and their rear split with 1.5–2° of toe on the rear pair.

@@ -154,9 +154,33 @@ else. The phases below keep their content; this is the sequence.
      are not converged**: one surface level finer, thin sections stay attached
      0.25–1.5° further and 4.5 % / t/c 0.092 lets go 0.7–2.2° earlier — about
      ± 1° on every lower end in v1, and less dependence on thickness. (3) Re
-     9.7e5: upper end unchanged, lower end 0.4° out. Running: one level finer
-     again (`gen3mesh`); then the recipe is fixed, the table's sections rerun
-     on it and v1 rebuilt. The thick sections and the main tables wait.
+     9.7e5: upper end unchanged, lower end 0.4° out.
+     **Resolved 2026-11-21 (`bench/section-tables/nose/`): it was the
+     outline, not the cell size.** The surface handed to the mesher had 100
+     points and two splines meeting at the leading edge: a corner of 33° and
+     32 µm off the section at the tip of a 0.65 mm nose, and the mesher's
+     curvature rule refined only that tip. With the outline exact (400
+     points, one spline through the leading edge) and cells of one size on
+     the first 2 % of chord, three mesh levels agree (lift within 0.2 %,
+     drag within 0.5 %, the same break), and the test section (3 % / t/c
+     0.07) is attached from −6.0° to +10.0° where v1 has −4.3° to +8.1°:
+     **two degrees wider at each end.** The same mesh on the old outline
+     separates a degree early at each end. Finding (2) is superseded with
+     it: 4.5 % / t/c 0.092 holds to −7.5° and beyond +13°. Recipe fixed
+     (nose cells 0.023 mm, faces 0.375 mm; finer faces and finer
+     trailing-edge corners move lift by 0.01 at most and no end). Eighteen
+     sections are being rerun on it (the table's twelve cambered ones, the
+     Re 9.7e5 control and five symmetric; the driver marches outward and
+     finds each end itself); then v1 is rebuilt, the knee share refitted
+     and the searches rerun. Everything that rests on v1's ends — the candidate's
+     drag at −4.5°, "a thin cambered section stops being cheap", the hold
+     numbers — is to be re-read on the rebuilt table.
+   - `[ ]` **The builder's own nose.** `loft._section_sketch` draws every
+     section with the same two splines and 100 points by default: the
+     generated solid has the corner too. No print and no level-5 mesh sees
+     it (cells of 0.3 mm and more); a 3-D mesh with a resolved nose would.
+     One spline through the leading edge and more points near it, before
+     any 3-D run with a nose band.
    - `[x]` Lattice corrected 2026-11-20 (docs/MODEL-EXTENSION.md, "The
      lattice: control points and induced drag"): control points at the
      middle of each strip's clustering-angle step (lift of ten strips within
@@ -485,6 +509,12 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   keeps climbing at about 80 % of the slope, so a symmetric blade has an
   onset and a slower line after it, not a break. Hold for it is to be
   defined on that, not on the side blade's knee.
+  *In, 2026-11-20 (`bench/phase2b/centre-thick/`):* the same centre with
+  t/c 0.09 on mesh level 5 stays on its line one degree longer and then
+  breaks sharply (10 % below at 10°, highest lift 0.56 against 0.63) — on a
+  mesh with three cells per nose radius, so the direction is not
+  established. *Running:* five symmetric sections (t/c 0.046–0.12) in the
+  2-D rerun on the converged recipe.
 - `[ ]` **2b.2 Twin.** (a) Set CFD of a twin (two keel-type side fins at
   production toe and cant) over leeway at two speeds, per-fin forces: the load
   share, the toe at which the pair makes no net side force going straight,
@@ -493,6 +523,13 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   criterion has one low-aspect check so far (the paddle probe). (c) Hold
   anchor: commercial twin templates on the measure over their size-chart
   band. (d) `lattice.set_blades` for the twin against (a).
+  *(b) in, 2026-11-20 (`bench/phase2b/twin-keel/`, a stand-in keel 95 mm
+  deep on a 180 mm base, flat inside t/c 0.10, 0–26°):* no knee of the
+  side-fin kind. Lift rises above its own line from 8° (vortex lift at the
+  tip), drag steps up by 40 % between 16° and 18°, lift keeps climbing to
+  1.02 at 26°. Neither the aspect-ratio rule nor the strip criterion
+  describes it; the lattice's lift stays within 7 % and its drag is 19–36 %
+  low beyond 16°. What ends a keel's useful range is the drag step.
 - `[ ]` **2b.3 Quad.** (a) Validation first: our set CFD on the commercial
   4-fin configuration of [Falk20] against its per-fin forces
   (`bench/falk/falk20_perfin_forces.csv`). (b) Our own quad over leeway at two
@@ -501,12 +538,33 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   quad against (a) and (b). (d) The rear fin as a designed member: its own
   load share, its incidence in the front fin's wash, its own toe and cant.
   (e) Hold for a rail pair, defined on the pair.
+  *(a) and (c) in, 2026-11-21 (`bench/falk/quad-level2/`, `quad-level5/`,
+  `quad-level5-foils/`):* with a foil as thin as theirs (t/c 0.065) the front
+  inside fin is within 7–9 % of [Falk20]. The linear lattice agrees with our
+  set CFD fin by fin on every fin whose flow is attached (27 values within
+  0.02 at 5° and 10°, 0.04 at 15°), including what a rear fin loses behind
+  the front one. Their rear SPLIT differs from ours while the rear pair's
+  total does not: in the lattice 1.5–2° of toe on the rear pair (we had put
+  the paper's one value, 3.5°, on all four) gives their rear fins within the
+  digitizing error — a set run with 2° is queued. The outside front fin lets
+  go between 5° and 10° in ours with three foils, at 15° in theirs; neither
+  wall-function simulation is a referee for that, and the 2-D referee has
+  our cambered foil two degrees past its range there. For (d): rear toe is
+  a first-order lever on which rear fin carries the load (1.5° moves 0.08 of
+  lift coefficient from the outside rear fin to the inside one).
 - `[ ]` **2b.4 Single.** (a) Isolated 3-D polars of a deep single (the
   reference fleet's 240 mm longboard fin) and of a shortboard-size single,
   4–7 m/s, one-degree steps through the knee. (b) The load case: lean and
   speed of a single-fin turn, with the fin carrying everything; the
   structural case of a deep fin in a US box. (c) Hold anchor: commercial
   singles on the measure.
+  *(a) in for the deep single, 2026-11-20 (`bench/phase2b/single-longboard/`,
+  a stand-in 240 mm deep raked 45°, symmetric t/c 0.08, 5 m/s):* lift within
+  2 % of the lattice from 4° to 12° and 5 % below its line at 11.6°; drag
+  20–38 % above the lattice from 6°, because the tip stalls progressively
+  with a vortex lying inboard of it (the strip model has neither). The
+  angle at which that starts is not established on this mesh. The
+  shortboard-size single was not run.
 - `[ ]` **2b.5 2 + 1.** (a) The member roles put right: the centre is the
   dominant fin, the sides the small ones (`family_for_config`,
   `sizing.anchor`). (b) Set CFD of a 2 + 1 over leeway, per-fin forces: the
@@ -517,10 +575,11 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
 
 Order: twin (the side-fin path applies; it lacks only its set run and its
 anchor), quad (published per-fin data to validate against), single, 2 + 1.
-The 2-D sections wait for the mesh recipe (`gen3mesh`); the set runs use the
-wall-function recipe of the mount study, which is good for load shares at
-working leeway and not for the last degree before −4.5° or past the knee
-(docs/MODEL-EXTENSION.md, the controls).
+The 2-D sections are running on the converged recipe
+(`bench/section-tables/nose/`); the set runs use the wall-function recipe of
+the mount study, which is good for load shares at working leeway and not for
+the ends of a section's range or past the knee: it separates early
+(docs/MODEL-EXTENSION.md, the controls and the nose).
 
 ## Phase 3 — validation and release
 

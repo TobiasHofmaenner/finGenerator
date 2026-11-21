@@ -1,0 +1,743 @@
+{
+ "ref": {
+  "what": "the referee of table v1 (surface level 6: tip 0.19 mm where the mesher's curvature rule reaches, faces 0.375 mm)",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-ref",
+     "angles": [
+      -2.5,
+      -4.5,
+      -5.0,
+      -5.5,
+      8.0,
+      8.5
+     ],
+     "surface_level": 6
+    }
+   ]
+  }
+ },
+ "lv7": {
+  "what": "everything one level finer (tip, faces, near band)",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-lv7",
+     "angles": [
+      -2.5,
+      -4.5,
+      -5.0,
+      -5.5,
+      8.0,
+      8.5
+     ],
+     "surface_level": 7
+    }
+   ]
+  }
+ },
+ "near5": {
+  "what": "near band (0.15 c around the section) one level finer",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-near5",
+     "angles": [
+      -2.5,
+      -4.5,
+      -5.0,
+      -5.5,
+      8.0,
+      8.5
+     ],
+     "surface_level": 6,
+     "face_level": 5,
+     "near_level": 5,
+     "layers_to": 6
+    }
+   ]
+  }
+ },
+ "layers": {
+  "what": "layer stack grown to the face cell instead of the tip cell",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-layers",
+     "angles": [
+      -2.5,
+      -4.5,
+      -5.0,
+      -5.5,
+      8.0,
+      8.5
+     ],
+     "surface_level": 6,
+     "face_level": 5,
+     "near_level": 4,
+     "layers_to": "face"
+    }
+   ]
+  }
+ },
+ "ang10": {
+  "what": "curvature threshold 10\u00b0 instead of 30\u00b0",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-ang10",
+     "angles": [
+      -2.5,
+      -4.5,
+      -5.0,
+      -5.5,
+      8.0,
+      8.5
+     ],
+     "surface_level": 6,
+     "face_level": 5,
+     "near_level": 4,
+     "layers_to": 6,
+     "resolve_angle": 10
+    }
+   ]
+  }
+ },
+ "face6": {
+  "what": "faces one level finer (0.19 mm)",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-face6",
+     "angles": [
+      -2.5,
+      -4.5,
+      -5.0,
+      -5.5,
+      8.0,
+      8.5
+     ],
+     "surface_level": 6,
+     "face_level": 6,
+     "near_level": 4,
+     "layers_to": 6
+    }
+   ]
+  }
+ },
+ "nose7": {
+  "what": "tip cells 0.094 mm, by curvature (threshold 10\u00b0)",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-nose7",
+     "angles": [
+      -2.5,
+      -4.5,
+      -5.0,
+      -5.5,
+      8.0,
+      8.5
+     ],
+     "surface_level": 7,
+     "face_level": 5,
+     "near_level": 4,
+     "layers_to": 6,
+     "resolve_angle": 10
+    }
+   ]
+  }
+ },
+ "nose8": {
+  "what": "tip cells 0.047 mm, by curvature",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-nose8",
+     "angles": [
+      -2.5,
+      -4.5,
+      -5.0,
+      -5.5,
+      8.0,
+      8.5
+     ],
+     "surface_level": 8,
+     "face_level": 5,
+     "near_level": 4,
+     "layers_to": 6,
+     "resolve_angle": 10
+    }
+   ]
+  }
+ },
+ "nose9": {
+  "what": "tip cells 0.023 mm, by curvature",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-nose9",
+     "angles": [
+      -2.5,
+      -4.5,
+      -5.0,
+      -5.5,
+      8.0,
+      8.5
+     ],
+     "surface_level": 9,
+     "face_level": 5,
+     "near_level": 4,
+     "layers_to": 6,
+     "resolve_angle": 10
+    }
+   ]
+  }
+ },
+ "u9c": {
+  "what": "uniform nose band 0.023 mm, old outline",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-u9c",
+     "angles": [
+      -4.5,
+      8.0,
+      -5.5,
+      8.5,
+      -6.5,
+      9.5,
+      -7.5,
+      10.5,
+      -6.0,
+      9.0,
+      -7.0,
+      10.0,
+      11.5
+     ],
+     "nose_level": 9
+    }
+   ]
+  }
+ },
+ "u7": {
+  "what": "uniform nose band 0.094 mm, exact outline",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-u7",
+     "angles": [
+      -4.5,
+      8.0,
+      -5.5,
+      8.5,
+      -6.5,
+      9.5,
+      -7.5,
+      10.5,
+      -6.0,
+      9.0,
+      -7.0,
+      10.0,
+      11.5
+     ],
+     "nose_level": 7,
+     "outline_points": 400,
+     "smooth_nose": true,
+     "stl_tolerance": 1e-06,
+     "stl_angle": 0.02
+    }
+   ]
+  }
+ },
+ "u8": {
+  "what": "uniform nose band 0.047 mm, exact outline",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-u8",
+     "angles": [
+      -4.5,
+      8.0,
+      -5.5,
+      8.5,
+      -6.5,
+      9.5,
+      -7.5,
+      10.5,
+      -6.0,
+      9.0,
+      -7.0,
+      10.0,
+      11.5
+     ],
+     "nose_level": 8,
+     "outline_points": 400,
+     "smooth_nose": true,
+     "stl_tolerance": 1e-06,
+     "stl_angle": 0.02
+    }
+   ]
+  }
+ },
+ "u9": {
+  "what": "uniform nose band 0.023 mm, exact outline",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-u9",
+     "angles": [
+      -4.5,
+      8.0,
+      -5.5,
+      8.5,
+      -6.5,
+      9.5,
+      -7.5,
+      10.5,
+      -6.0,
+      9.0,
+      -7.0,
+      10.0,
+      11.5
+     ],
+     "nose_level": 9,
+     "outline_points": 400,
+     "smooth_nose": true,
+     "stl_tolerance": 1e-06,
+     "stl_angle": 0.02
+    }
+   ]
+  }
+ },
+ "u9w": {
+  "what": "band 0.023 mm twice as long (4 % of chord), exact outline",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-u9w",
+     "angles": [
+      -4.5,
+      8.0,
+      -5.5,
+      8.5,
+      -6.5,
+      9.5,
+      -7.5,
+      10.5,
+      -6.0,
+      9.0,
+      -7.0,
+      10.0,
+      11.5
+     ],
+     "nose_level": 9,
+     "nose_extent": 0.04,
+     "outline_points": 400,
+     "smooth_nose": true,
+     "stl_tolerance": 1e-06,
+     "stl_angle": 0.02
+    }
+   ]
+  }
+ },
+ "u8e9": {
+  "what": "u8 again on four processes instead of six (same mesh)",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-u8e9",
+     "angles": [
+      -4.5,
+      8.0,
+      -5.5,
+      8.5,
+      -6.5,
+      9.5,
+      -7.5,
+      10.5,
+      -6.0,
+      9.0,
+      -7.0,
+      10.0,
+      11.5
+     ],
+     "nose_level": 8,
+     "edge_level": 9,
+     "outline_points": 400,
+     "smooth_nose": true,
+     "stl_tolerance": 1e-06,
+     "stl_angle": 0.02
+    }
+   ]
+  }
+ },
+ "u8f6": {
+  "what": "band 0.047 mm, faces one level finer (0.19 mm)",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-u8f6",
+     "angles": [
+      -4.5,
+      8.0,
+      -5.5,
+      8.5,
+      -6.5,
+      9.5,
+      -7.5,
+      10.5,
+      -6.0,
+      9.0,
+      -7.0,
+      10.0,
+      11.5
+     ],
+     "nose_level": 8,
+     "outline_points": 400,
+     "smooth_nose": true,
+     "stl_tolerance": 1e-06,
+     "stl_angle": 0.02,
+     "face_level": 6,
+     "near_level": 4,
+     "layers_to": 6,
+     "surface_level": 6
+    }
+   ]
+  }
+ },
+ "u8f6q": {
+  "what": "the same, four angles at the ends first",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-u8f6q",
+     "angles": [
+      10.0,
+      -6.0,
+      10.5,
+      -6.5
+     ],
+     "nose_level": 8,
+     "outline_points": 400,
+     "smooth_nose": true,
+     "stl_tolerance": 1e-06,
+     "stl_angle": 0.02,
+     "face_level": 6,
+     "near_level": 4,
+     "layers_to": 6,
+     "surface_level": 6
+    }
+   ]
+  }
+ },
+ "u9e8": {
+  "what": "band 0.023 mm, trailing-edge corners two levels finer (0.047 mm)",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-u9e8",
+     "angles": [
+      10.0,
+      -6.0,
+      10.5,
+      -6.5,
+      -4.5,
+      8.0,
+      9.0,
+      -5.5
+     ],
+     "nose_level": 9,
+     "outline_points": 400,
+     "smooth_nose": true,
+     "stl_tolerance": 1e-06,
+     "stl_angle": 0.02,
+     "edge_level": 8
+    }
+   ]
+  }
+ },
+ "u9b": {
+  "what": "second section (4.5 % camber, t/c 0.092): band 0.023 mm",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.092,
+     "camber_ratio": 0.045,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb45-tc092-u9",
+     "angles": [
+      -4.5,
+      8.0,
+      -6.0,
+      10.0,
+      -7.0,
+      11.0,
+      -8.0,
+      12.0,
+      -6.5,
+      10.5,
+      -7.5,
+      11.5,
+      -9.0,
+      13.0
+     ],
+     "nose_level": 9,
+     "outline_points": 400,
+     "smooth_nose": true,
+     "stl_tolerance": 1e-06,
+     "stl_angle": 0.02
+    }
+   ]
+  }
+ },
+ "u8b": {
+  "what": "second section: band 0.047 mm",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.092,
+     "camber_ratio": 0.045,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb45-tc092-u8",
+     "angles": [
+      -4.5,
+      8.0,
+      -6.0,
+      10.0,
+      -7.0,
+      11.0,
+      -8.0,
+      12.0,
+      -6.5,
+      10.5,
+      -7.5,
+      11.5,
+      -9.0,
+      13.0
+     ],
+     "nose_level": 8,
+     "outline_points": 400,
+     "smooth_nose": true,
+     "stl_tolerance": 1e-06,
+     "stl_angle": 0.02
+    }
+   ]
+  }
+ }
+}

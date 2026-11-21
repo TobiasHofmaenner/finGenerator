@@ -1,5 +1,7 @@
 # Section tables — resolved-wall 2-D RANS of fingen's foil families (in progress)
 
+**2026-11-21: the sections in `results.json`, `thin-cambered/` and `third-batch/` were meshed from an outline with a corner at the leading edge (`nose/`). Their ends of the attached range are about two degrees narrow at each end, and table v1 with them. Everything below is the record of that referee; the rerun on the converged recipe replaces it.**
+
 The referee for `fingen.sections` (table v0: NeuralFoil, boundary layer tripped) and the data for table v1. Driver `finGenerator-cfd/scripts/section_polar.py`, resolved wall (first cell at y+ ≈ 1), domain ±20 chords, chord 0.12 m, trailing edge 1.2 mm — the recipe that passed the [SK81] NACA 0012 gate (`bench/section-gate/`).
 
 | folder | what | state on 2026-11-20 |
@@ -8,7 +10,8 @@ The referee for `fingen.sections` (table v0: NeuralFoil, boundary layer tripped)
 | `thin-cambered/` | cambered at t/c 0.07 (2 / 3 / 4.5 %) and 4.5 % at t/c 0.092 — the corner a camber-free search goes to | finished, with quarter- to half-degree steps added at both ends of each range (edge pass, `plan-edge.json`) |
 | `mesh-recipe/` | three of those sections again on the 3-D fin recipe (wall functions, surface cells chord/80 … chord/640): how much of a 3-D polar is the mesh | finished |
 | `third-batch/` | 4.5 and 3 % camber at t/c 0.08, 2 and 3 % at t/c 0.05, 1 % at t/c 0.07, 3 % at t/c 0.12, 3 % at t/c 0.07 at Re 2.8e5; half-degree steps toward the lower end, one-degree steps toward the knee | finished |
-| `controls/` | the referee one surface level finer (c/1280) around the lower ends of three sections; the 4.5 % / t/c 0.092 section at Re 9.7e5 resolved, and with wall functions on the cells of 3-D mesh levels 5 and 4. NOT read by the table builder | finished 2026-11-20; a check one level finer again is running |
+| `controls/` | the referee one surface level finer (c/1280) around the lower ends of three sections; the 4.5 % / t/c 0.092 section at Re 9.7e5 resolved, and with wall functions on the cells of 3-D mesh levels 5 and 4. NOT read by the table builder | finished 2026-11-20; its finding on the referee's lower ends is superseded by `nose/` |
+| `nose/` | why the referee did not converge at the nose: the outline handed to the mesher (100 points, two splines meeting at the leading edge), and the recipe that does converge (exact outline, cells of one size on the nose). NOT read by the table builder | finished 2026-11-21: **every section above was run on the old outline and has its attached range about two degrees narrow at each end; all are being rerun** |
 | `table-v1-nodes.md` | section table v1 against every finished section (written by `scripts/build_section_table_v1.py --report=…`) | twelve cambered nodes at eleven sections, one flat-inside |
 
 Each `results.json` is a snapshot of a running or finished job and is replaced as sections finish. Read them with

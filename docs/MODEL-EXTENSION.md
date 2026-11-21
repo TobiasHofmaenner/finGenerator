@@ -653,6 +653,11 @@ of RANS). The trim range needs none on these two sections.
 
 ## The cambered candidate was a second exploit: where a thin cambered section stops being cheap (2026-11-19)
 
+*Note of 2026-11-21: the 2-D referee this chapter rests on meshed a nose that
+was not the section's ("The referee's nose", below). Its ends are two degrees
+narrow at each end, and section 1's conclusion is withdrawn until table v1 is
+rebuilt. The chapter is kept as the record of what was read at the time.*
+
 The first search with camber free returned a thin, strongly cambered blade
 (4.3 % camber, t/c 0.074) at 5.4 N going straight, and the level-2 CFD read it
 at 9.9 N (`bench/cambered-candidate/`). The first referee section (3 % camber
@@ -1627,7 +1632,8 @@ the surface cells of mesh level 5 and of level 4; drag coefficient:
 - It also says again why level 5 and the model agree within 5 % from −2.5°
   to +4°: in level 5 a friction deficit and a pressure excess cancel.
 
-**(b) Is the referee converged at the nose?** The same sections with the
+**(b) Is the referee converged at the nose?** (Superseded: see "The referee's
+nose" below.) The same sections with the
 surface one level finer (c/1280 against c/640); lift and drag coefficient:
 
 | section | own incidence | referee (c/640) | finer (c/1280) |
@@ -1673,11 +1679,196 @@ finer mesh's lower end between −4.5° and −6.0° its margin is 0 to 1.5°, n
 the 2° table v1 gives it. Thin sections have more room than v1 says, thick
 ones less.
 
-Running (`~/bench-results/gen3mesh`): one level finer again (c/2560) on the
-3 % / t/c 0.070 section and on 4.5 % / t/c 0.092, and more angles at c/1280 to
-bracket both ends. That fixes the recipe; the sections the table rests on are
-then rerun on it before v1 is rebuilt. The thick sections and the main tables
-wait for it.
+**Superseded on 2026-11-21.** (b), and with it this paragraph on the −4.5°
+question, was a finer mesh resolving a wrong nose: see "The referee's nose"
+below. (a) and (c) stand; (c)'s section is rerun on the new recipe.
+
+## Three blades the model was not built on (2026-11-20)
+
+Record: `bench/phase2b/`. Everything before this chapter was tested on thruster
+side fins and one centre. Three isolated blades for the other setups went
+through mesh level 5 (`docs/GEN3-PLAN.md`, Phase 2b): a deep single, the gen-1
+centre with twice its thickness, and a keel of the twin kind. The two new
+outlines are stand-ins drawn for the run. Lattice at mirror strength 1.0 on
+table v1 (`lattice-vs-level5.md` in each folder).
+
+| blade | geometric aspect ratio | 5 % below its own line at | aspect-ratio rule | strip criterion | lattice lift | lattice drag |
+|---|---|---|---|---|---|---|
+| single, 240 mm deep, raked 45°, symmetric t/c 0.08, 5 m/s | 2.07 | 11.6° | 12.0° | 7.4° | within 2 % from 4° to 12° | 4 % low at 4°, 20 % at 6°, 32 % at 8°, 38 % at 10° |
+| gen-1 centre with t/c 0.09 (0.046 as ridden), 8.5 m/s | 1.53 | 9.4° (thin: 9.9°) | 12.0° | 11.6° (thin: 7.3°) | 5 % high from 4° | not read |
+| keel, 95 mm deep on a 180 mm base, flat inside t/c 0.10, 7 m/s | 0.61 | never: lift rises above its line from 8° | 23.7° | 26.7° | within 7 % to 26° | 26–32 % high at 0–4°, 19 % low at 16°, 30–36 % low beyond |
+
+- **A raked single loses its drag before its lift.** The strip split
+  (`strip-split.md`) shows the outermost strips giving up their lift from 6°
+  and the strips just inboard carrying 20–28 % more than the lattice: a tip
+  that stalls progressively with a vortex lying on the blade. The loss moves
+  inboard with angle (station 232 mm at 6°, 221 at 8°, 204 at 10°). Total
+  lift hardly notices; pressure drag at 8° is 14.2 N where the lattice has
+  6.6 N of induced drag. The strip model has no such mechanism: its tip
+  strips sit at 4–5.5° of section incidence, inside their sections' range.
+- **A keel makes vortex lift.** From 8° its lift is above its own line (at
+  16° the strips from 72 mm outward carry 0.67–0.90 where the lattice has
+  0.55–0.63); between 16° and 18° the drag steps up by 40 % and the rows stop
+  converging; lift then climbs on to 1.02 at 26°. The lattice's lift stays
+  within 7 % by two errors that cancel (no vortex lift, no loss). What ends
+  this blade's useful range is the drag step, and neither rule sees it.
+- **The thicker symmetric centre** stays on its line a degree longer and then
+  breaks sharply (10 % below at 10°, highest lift 0.56 against 0.63). Table
+  v1 on the symmetric family is v0 and says the opposite (criterion 11.6°
+  against 7.3°).
+
+**How far this can be trusted.** Level 5 puts 2.2 cells on the nose radius at
+the single's root and 0.6 at its station 204 mm, about 3 on the thick centre's
+root, 0.75 on the thin one's; and it separates early by its wall functions (the
+controls, 6(a)). The next chapter shows what a nose resolved that coarsely is
+worth: nothing at the ends of a section's range. So the ANGLE at which the
+single's tip starts to stall, and the thick centre's sharp break, are not
+established. The direction is: a raked tip goes first and costs drag, a keel's
+vortex lift is not small, and the strip model contains neither. Both need a
+3-D run with the nose resolved along the whole leading edge before they enter
+the model.
+
+## The referee's nose: it was the outline (2026-11-21)
+
+Record: `bench/section-tables/nose/` (laptop, `~/bench-results/meshstudy`).
+Section 6(b) of "Twelve cambered sections" left the 2-D referee open: one
+surface level finer, its lower ends moved by a degree in either direction.
+This chapter closes it, and takes back part of what the two chapters before
+it concluded. Test section throughout: 3 % camber, t/c 0.07, chord 0.12 m, Re
+5.7e5, nose radius 0.65 mm. A star marks a run that did not settle in 3000
+iterations: separated.
+
+### 1. Refining by the mesher's curvature rule is not a refinement series
+
+The referee refined the surface to its finest level where it turns by more
+than 30° within a cell. On a thin nose that is the outermost tip (x/c below
+0.0005), and less of it at every level. Drag coefficient × 10⁴:
+
+| tip cells by curvature | −4.5° | −5.0° | −5.5° | +8.0° | +8.5° |
+|---|---|---|---|---|---|
+| 0.19 mm (the referee of table v1) | 322* | 435* | 559* | 340 | 726* |
+| 0.094 mm | 152 | 178 | 553* | 270 | 413* |
+| 0.047 mm | 147 | 159 | 453* | 254 | 274 |
+| 0.023 mm | 145 | 155 | 173 | 252 | 270 |
+
+Every level moves both ends outward and none repeats the one before. A finer
+band around the section, a layer stack grown to the face cell and a lower
+curvature threshold change nothing.
+
+### 2. The outline the mesher was given
+
+The surface came from `fingen.foil.section_points`: 100 points, cosine
+spaced, and two splines, one per side, that meet at the leading edge.
+
+| outline | largest distance from the section within the first 1 % of chord | corner at the leading edge |
+|---|---|---|
+| 100 points, two splines (the referee) | 32 µm | 33° |
+| 100 points, one spline through the leading edge | 39 µm | none |
+| 400 points, two splines | 1.8 µm | 9° |
+| 400 points, one spline through the leading edge | 1.8 µm | none |
+
+It was also handed over in facets of 5.7°. Cells of 0.19 mm see none of this;
+cells of 0.02–0.09 mm mesh the corner, each level a little differently. The
+series of section 1 was converging onto the wrong nose.
+
+### 3. Exact outline, cells of one size on the nose: three levels agree
+
+`nose_level` puts cells of one size on the whole surface ahead of 2 % of
+chord, one level coarser to 4 %, and so on down to the face cells. Lift
+coefficient and drag coefficient × 10⁴:
+
+| nose cells | cells per nose radius | −4.5° | −6.0° | −6.5° | +8.0° | +10.0° | +10.5° |
+|---|---|---|---|---|---|---|---|
+| 0.094 mm | 7 | −0.1538, 142 | −0.3148, 172 | 501* | 1.1694, 244 | 1.3174, 335 | 1308* |
+| 0.047 mm | 14 | −0.1538, 142 | −0.3149, 171 | 497* | 1.1697, 243 | 1.3187, 336 | 1086* |
+| 0.023 mm | 28 | −0.1537, 142 | −0.3147, 171 | 504* | 1.1690, 243 | 1.3235, 329 | 888* |
+| 0.023 mm, band twice as long | 28 | −0.1536, 142 | −0.3144, 171 | 526* | 1.1683, 244 | 1.3161, 332 | 1210* |
+| 0.023 mm, **old outline** | 28 | −0.1531, 144 | 481* | 529* | 1.1617, 252 | 1094* | 1116* |
+
+- **Converged from seven cells per nose radius**: lift within 0.3 % and drag
+  within 0.5 % up to half a degree before each end, and the same break —
+  attached at −6.0° and +10.0°, separated at −6.5° and +10.5°.
+- **The same mesh on the old outline separates a degree early at each end**
+  (at −5.5° and +9.5°) and has 2 % more drag at −4.5°, 4 % at +8°, 12 % at
+  +9°. That is the price of a 33° corner and 32 µm on a 0.65 mm nose.
+- Controls on the exact outline: the same mesh on another process count
+  (lift within 0.002, drag 0.4 %), faces one level finer (lift 0.003–0.011
+  lower, drag 0.8 %), trailing-edge corners two levels finer (lift
+  0.004–0.007 lower, drag 1.2 %). None moves an end. Lift is known to about
+  0.01, drag to about 1 %.
+- A second section (4.5 % camber, t/c 0.092) at 0.047 and 0.023 mm: equal to
+  four digits up to −7.0° and +12°, attached beyond +13° on both, and the
+  lower end at −8.0° or later on one and between −7.5° and −8.0° on the
+  other. **An end is known to half a degree**: the last attached row is the
+  slowest to settle, and a steady solver started from rest decides it by
+  details.
+
+### 4. What it takes back
+
+| test section (3 % camber, t/c 0.07) | lower end | upper end |
+|---|---|---|
+| referee of table v1 | −4.3° | +8.1° |
+| table v0 (NeuralFoil) | −5.2° | +10.0° |
+| exact outline | between −6.0° and −6.5° | between +10.0° and +10.5° |
+
+- **Table v1 is two degrees narrow at each end on this section**, and v0 was
+  closer than the referee it was corrected with: right at the upper end, a
+  degree SHORT at the lower. "The table draws the attached range of a thin
+  cambered section too wide" (the chapter on the cambered candidate, section
+  1) rested on this referee and is withdrawn. What was real in that chapter
+  is its section 3: the level-2 3-D mesh.
+- **Section 6(b) is superseded**, and with it "thin sections have more room
+  than v1 says, thick ones less". Its finer mesh had 4.5 % / t/c 0.092
+  separated at −6.0°; on the exact outline that section holds to −7.5°. Both
+  kinds have more room.
+- **The −4.5° question** (section 6, end): a fin on t/c 0.09–0.11 toed in
+  3.5° works at −2.5° to −4.5°. With the lower end at −7.5° its margin is
+  three degrees, not the "0 to 1.5°" of that section. For a fin on t/c 0.07
+  the margin at −4.5° is a degree and a half where v1 had none.
+- **No evidence is left that a thin cambered side fin pays extra going
+  straight.** The 2-D referee said so and was wrong; mesh level 5 says so
+  and separates early by its wall functions (6(a)). The cambered candidate
+  (4.3 % camber, t/c 0.074: v0 model 5.4 N, level 5 7.7 N) is open again
+  until the table is rebuilt.
+- **The strip knee reads each strip against its section's break.** On
+  cambered blades those breaks are up to two degrees early in v1, so their
+  knees are early too (the one-degree comparison of "The knee", section 6,
+  has the criterion 1.1–1.6° early). The share itself (0.715) is fitted on
+  the tunnel fin, whose flat-inside sections this rerun does not touch, and
+  so are the three fins that anchor hold. Until the flat-inside family is
+  rerun on an exact outline as well, a cambered blade and a flat-inside one
+  are read against referees of different quality.
+- **The flat-inside family is the next rerun, and not the same problem.**
+  Its nose has a real corner where the flat face meets the curved one. What
+  a referee needs there is not the exact outline but the corner a fin
+  actually has after printing and sanding: a study over the corner's radius.
+
+### 5. What it does not change, and what it suggests
+
+- Mesh level 5 has cells of 0.3 mm and more on a fin's nose. It does not see
+  the corner; its early separation is its wall functions and its coarse nose,
+  as before. A 3-D referee needs what the 2-D one needed: the exact nose and
+  small cells along the whole leading edge. `fingen.loft` draws each section
+  with the same two splines and 100 points, so the generated solid has the
+  corner; no print and no present mesh resolves it, a resolved-nose mesh
+  would.
+- An inference, not a measurement: if 32 µm and a corner cost a section a
+  degree at each end, a printed leading edge with a seam, a sanding flat or a
+  ridge of that size is a nose of the same kind. The leading edge wants to be
+  finished smooth and round, with no seam on it; and the ends of a real fin's
+  range are known to about a degree whatever a table says.
+
+### 6. The recipe and the rerun
+
+Nose cells 0.023 mm on the first 2 % of chord (14 cells per nose radius on
+t/c 0.05), 400 outline points, one spline through the leading edge, facets
+of 1.1°, faces 0.375 mm, 13 layers from 9.3 µm: about 68 000 cells, five
+minutes per attached row on four cores. The driver now finds each end by
+marching outward in half-degree steps until two rows (three at the lower
+end) are past it, then one row halfway (`section_polar.py`, `march`).
+Eighteen sections run this way from 2026-11-20 23:27Z on three machines: the
+table's twelve cambered ones, 4.5 % / t/c 0.092 at Re 9.7e5, and five
+symmetric sections (t/c 0.046–0.12), the first referee data for that family.
 
 ## What a fast method cannot do — the rest
 

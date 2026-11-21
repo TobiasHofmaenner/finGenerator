@@ -61,6 +61,18 @@ run below their zero-lift angle (`bench/cambered-candidate/`,
   residuals. Check the force history (`postProcessing/forceCoeffs`): the
   capped level-5 rows are steady within 0.01–1.5 % over their last 200
   iterations.
+- **The geometry handed to the mesher has its own resolution**
+  (2026-11-21, `bench/section-tables/nose/`). The 2-D referee's outline had
+  100 points and two splines meeting at the leading edge: a corner of 33° and
+  32 µm of shape error on a 0.65 mm nose. Cells of 0.19 mm did not see it;
+  cells of 0.02–0.09 mm meshed it, and a day of nose refinement moved the
+  ends of the attached range back and forth by a degree. With the outline
+  exact the mesh converges from seven cells per nose radius, and the range is
+  two degrees wider at each end. Before refining, compare the surface with
+  the analytic shape at the scale of the cells asked for; and refine a
+  region, not a criterion (the mesher's curvature rule refines less area at
+  every level). `fingen.loft` draws fins with the same two splines: a 3-D
+  mesh with a resolved nose needs that changed first.
 
 ## Bugs the ladder caught on the way (all fixed, all committed)
 
