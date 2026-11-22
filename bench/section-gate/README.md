@@ -242,7 +242,27 @@ The table's recipe makes the first cell two flat-plate wall units thick (9.3 µm
 - The table's recipe is the same model at the usual wall spacing, with known offsets against a wall ten times finer: drag 4–5 % low, lift up to 1.4 % high, the upper end 1–1.25° early and the lower end 0.5° early.
 - The offsets are close to common to the two sections (drag at 0°: 4.4 % and 5.1 %; upper end: 1.25° and at least 1°), which is what a ranking of sections needs.
 - A finer wall has no natural stopping point (drag is not level at a median y⁺ of 0.13) and moves the ends further from the measured ones.
-- Proposed: the table stays on its wall, with these offsets stated. The check that decides it is at the fin level, after the rebuild: shift the table's ends by these amounts and see what moves in the knee, the hold numbers and the searches.
+- Proposed: the table stays on its wall, with these offsets stated. The check that decides it is at the fin level: shift the table's ends by these amounts and see what moves in the knee, the hold numbers and the searches.
+
+**The check at the fin level, first pass (2026-11-22, on 29 of the 39 sections).** A second table is built from the same record with every lower end moved out by 0.5° and every upper end by 1.25°. The rows filling the gap continue lift at the slope of the last interval and drag at the logarithmic slope of the four rows before the last; on the test section they follow the finest wall's rows within 0.006 in lift and 2 % in drag. Knee of each blade (`scripts/knee_survey.py`, perfect mirror, share 0.715), in degrees of own incidence:
+
+| blade | table as built | ends moved | with the section's limit read as its highest lift inside the range: as built | ends moved |
+|---|---|---|---|---|
+| tunnel fin [BW04], flat inside | 14.0 | 14.1 | 14.9 | 15.5 |
+| gen-2 side as shipped, flat inside | 8.4 | 8.6 | 8.9 | 9.3 |
+| gen-1 side as ridden, flat inside | 8.7 | 9.2 | 9.2 | 9.7 |
+| gen-2 planform, 3 % camber | 8.0 | 7.9 | 8.5 | 8.7 |
+| cambered candidate (4.3 %, t/c 0.074) | 8.1 | 7.8 | 8.5 | 8.8 |
+| best v1-model side (4.2 %, t/c 0.089) | 9.8 | 9.6 | 10.3 | 10.7 |
+| gen-1 centre, symmetric t/c 0.046 | 6.8 | 7.8 | 7.1 | 8.2 |
+| longboard single, symmetric t/c 0.08 | 7.7 | 8.8 | 8.0 | 9.1 |
+| gen-1 centre with t/c 0.09 | 11.0 | 12.0 | 11.6 | 12.7 |
+
+(The last two columns are on the board mirror, which reads half a degree later throughout.)
+
+- **Side fins: the knee moves by half a degree or less**, the hold numbers by 0.01–0.02 (gen-2 side, 65 kg intermediate: 0.72 to 0.73), the lattice's polars against CFD not at all inside the working range. Their sections have rounded lift tops: 1.25° more range is 3–4 % more lift at the end.
+- **Symmetric fins: the knee moves by a full degree.** A symmetric section's lift runs straight to its end, so the end's angle is its lift. The wall matters for a centre fin's knee and not for a side fin's.
+- **The cambered knees moved the wrong way (8.1° to 7.8° with later ends), and that is the model's break, not the wall.** A section's limit is read where its lift slope falls below 30 % of the line's (`SectionPolar.alpha_break_deg`). On a rounded top a small change of shape moves that point by a degree: on the candidate's critical strip from 12.4° (the end) to 11.4° with the end at 13.7°, 2.3 % less lift. Reading the limit as the highest lift inside the attached range gives the same knees on the table as built (within 0.1°) and moves every blade the same way when the ends move. To be changed with the knee's refit at the rebuild.
 
 ## Files
 
