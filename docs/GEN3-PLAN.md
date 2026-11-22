@@ -294,7 +294,11 @@ else. The phases below keep their content; this is the sequence.
      does not resolve (docs/MODEL-EXTENSION.md, "Section table v1 on the
      converged referee", section 6). Either number is far below a flat inside
      face's 12.5 N; the choice of camber does not hang on it, the size of
-     the claim does.
+     the claim does. Mesh level 6 on the first candidate (the same day,
+     `bench/cambered-candidate/mesh-level-6-candidate/`): going straight 9.9,
+     7.7 and 6.5 N on levels 2, 5 and 6 against the lattice's 5.1 N, on the
+     lattice at −2.5°, 12 % above at −3.5°, 57 % at −4.5°. The series is
+     still falling; a nose band along the leading edge would end it.
      Zero-lift angle tied to toe: still open.
    - `[~]` Fitted separation model for the knee: first cut IN, opt-in
      (2026-11-20, `hydro_model = "lattice-knee"`, `bladehydro.knee`,

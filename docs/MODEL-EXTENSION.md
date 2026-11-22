@@ -2132,8 +2132,13 @@ Lattice over level-5 CFD, drag at the blade's own incidence:
   −3.5° and 2.25 times at −4.5°, and 11–14 % BELOW it at −2.5° and 0°. The
   fin polars stand at 1.1–1.4 and 1.4–1.9 times the lattice at those two
   angles and within 2 % at 0°. So the excess is no larger than what that
-  recipe makes of a section the referee has attached. It is not shown
-  directly: no 3-D run with the nose resolved exists.
+  recipe makes of a section the referee has attached. One more refinement of
+  the fin's nose (mesh level 6, cells of 0.19 mm, 3.9 per nose radius at
+  the base; `bench/cambered-candidate/mesh-level-6-candidate/`) takes the
+  candidate from 6.0, 7.1 and 9.4 N to 5.1, 5.6 and 7.9 N: on the lattice at
+  −2.5°, 12 % above it at −3.5°, 57 % at −4.5°. Going straight the three
+  meshes read 9.9, 7.7 and 6.5 N, the lattice 5.1. It is not shown directly:
+  no 3-D mesh here resolves the nose along the whole leading edge.
 - **Level 5 is on the old inlet.** The twin keel alone on the held stream
   reads 5 % less drag at 0–4° of incidence and 1–2 % less at 12–16°, lift
   1 % less (`bench/phase2b/twin-set/`). Every ratio above is against CFD
@@ -2192,9 +2197,10 @@ Nothing in what a rider can choose moved, except the lowest hold on offer
   knees move by 0.12° or less and the hold of the gen-2 side by 0.001;
   symmetric blades read 0.3–0.8° later (`bench/section-gate/`, section 4).
 - **A 3-D polar with the nose resolved**, on one thin cambered blade at −4.5°
-  to 0°: the check of section 6. A level-6 polar of the candidate (cells of
-  0.28 mm, about two per nose radius) is running as a third point on the
-  trend from level 2 to level 5.
+  to 0°: the check of section 6. Level 6 is a third point on the trend (9.9,
+  7.7, 6.5 N going straight against the lattice's 5.1) and not the end of it;
+  the 2-D series puts that at seven cells per nose radius along the whole
+  leading edge, a nose band and not a mesh level.
 - **Thin symmetric blades** (section 5): their limit is not at the end of
   the attached range. Phase 2.
 - **The fin on the outside of a turn.** Set CFD of a twin

@@ -1,0 +1,46 @@
+{
+ "fin": {
+  "outline": {
+   "depth": 139.8915515119602,
+   "base": 123.43050596044601,
+   "sweep": 29.37488532684597,
+   "tip_width_ratio": 0.2941908810268686,
+   "le_fullness": 0.2947629381442594,
+   "te_shape": -0.001697764913217159,
+   "le_dx": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "te_dx": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "foil": {
+   "family": "cambered",
+   "thickness_ratio": 0.07397941072061848,
+   "camber_ratio": 0.04337209347087455,
+   "camber_position": 0.4,
+   "te_thickness": 0.7
+  },
+  "thickness_tip_factor": 1.1244289759928678,
+  "grooves": {
+   "count": 0,
+   "length": 60.0,
+   "pitch": 6.0,
+   "width": 3.0,
+   "depth_ratio": 0.35,
+   "span_start": 0.45,
+   "surface": "outer"
+  }
+ },
+ "note": "lattice-model winner, seed 0, side_foil cambered, omar big gen2-m2 spec; a candidate for CFD, not a design"
+}
