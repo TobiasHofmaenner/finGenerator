@@ -1,4 +1,4 @@
-# Section-recipe gate: what the 2-D referee can referee (2026-11-19, rewritten 2026-11-21)
+# Section-recipe gate: what the 2-D referee can referee (2026-11-19, rewritten 2026-11-21, the wall 2026-11-22)
 
 Purpose: before a section table is trusted, the 2-D recipe has to reproduce measured sections. Driver: `finGenerator-cfd/scripts/section_polar.py` (simpleFoam, kOmegaSST fully turbulent, resolved wall, domain ±20 chords, one-cell slab). Measurements: NACA 0012 at Re 7e5 ([SK81], `bench/ref-sk81-naca0012-re0.7M.dat`), NACA 4415 at Re 7.5e5 ([Hof96], `bench/ref-osu-naca4415-re0.75M.dat`), both with natural transition, and the fits of more than forty tunnels' NACA 0012 results in [McC87].
 
@@ -9,10 +9,10 @@ Purpose: before a section table is trusted, the 2-D recipe has to reproduce meas
 | quantity | referee against measurement | what it is good for |
 |---|---|---|
 | lift inside the attached range | NACA 4415: within 3 % from 0° to 6°. NACA 0012: 4–6 % below [SK81] at 4–8°, 4 % above the slope [McC87] fits to better tunnels | yes |
-| drag | that of a section turbulent from the nose: at zero lift inside the band tripped tunnels give for the NACA 0012 (section 3), about twice an untripped section's | yes, as that |
-| where the attached range ends | late and high. NACA 0012: peak 1.26–1.27 at 13.0–13.25° against 1.075 at 11° (+18 %, 2° late; seven sources in [McC87] put the maximum at about 1.0–1.15 at this Reynolds number). NACA 4415: +11 % at 10°, +19 % at 14°, no peak below 15° | an upper bound |
+| drag | that of a section turbulent from the nose: at zero lift inside the band tripped tunnels give for the NACA 0012 (section 3), about twice an untripped section's. On the table's wall it is 4–5 % below the same model on a wall ten times finer, on both sections alike (section 4) | yes, as that |
+| where the attached range ends | late and high. NACA 0012: peak 1.26–1.27 at 13.0–13.25° against 1.075 at 11° (+18 %, 2° late; seven sources in [McC87] put the maximum at about 1.0–1.15 at this Reynolds number). NACA 4415: +11 % at 10°, +19 % at 13.5°. A finer wall moves the ends later still, by 0.5–1.25° (section 4) | an upper bound |
 
-The first version of this record (2026-11-19) said "passed: maximum lift within 3 %". That did not hold (section 1). The peak is the fully turbulent model's and no mesh or stream moves it (sections 2 and 3). The lattice's knee is therefore fitted on a tunnel fin, not read off the table's ends (`docs/MODEL-EXTENSION.md`).
+The first version of this record (2026-11-19) said "passed: maximum lift within 3 %". That did not hold (section 1). The peak is the fully turbulent model's. The surface mesh does not move it (section 2), the stream moves the break by half a degree (section 3), and a finer wall moves it later, away from the measurement (section 4). The lattice's knee is therefore fitted on a tunnel fin, not read off the table's ends (`docs/MODEL-EXTENSION.md`).
 
 ## 1. The first gate (2026-11-19), and why its verdict is withdrawn
 
@@ -71,6 +71,24 @@ Exact outline, nose cells of one size, 14 layers; chord 0.2 m and a trailing edg
 - **Lift inside the range agrees.** NACA 4415: within 3 % from 0° to 6°. NACA 0012: 3.8 % and 5.7 % below [SK81] at 4° and 8°, 1.6 % below at 10°. [SK81]'s slope (0.110 per degree) is itself 8 % above the fit of the best tunnels in [McC87] (0.1017 per degree at this Reynolds number, extended a factor of three below the range it was fitted on); the referee's 0.106 lies between.
 - **The break is late and the peak high.** NACA 0012: last settled row 1.272 at 13.25°, against 1.075 at 11°: +18 %, 2.25° late. The seven sources of [McC87]'s first two groups (no trip, its Fig. 13) put the maximum at about 1.0–1.15 at Re 7e5, rising steeply with Reynolds number; the referee's value is what they measure at Re 1.0–1.4 million. NACA 4415: 5.7 % high at 8°, 11 % at 10°, 19 % at 14°, still rising at 15° where the measured section peaks (1.38 at 15.3°). With grit on the leading edge the measured section peaks at 1.11 at 11.2°.
 - **Why** (an inference; no run here separates the two). Both measurements have natural transition at a Reynolds number where a laminar bubble sits near the nose and the layer behind it is thicker than a turbulent one grown from the nose. The model has no bubble, and it keeps a turbulent layer attached longer than tunnels do at this Reynolds number. A mesh does not change it (`../section-tables/nose/`: six meshes, the same break), nor does the stream (section 3).
+**On the table's stream** (held, section 3; the same two meshes, 2026-11-22; `naca0012/held-gate`, `naca4415/held-gate` in `runs.json`):
+
+| NACA 4415 α ° | measured c_l | old inlet c_l | c_d | held c_l | c_d |
+|---|---|---|---|---|---|
+| -4 | 0.020 | 0.0081 | 0.01448 | -0.0013 | 0.01337 |
+| 0 | 0.430 | 0.4166 | 0.01476 | 0.4162 | 0.01375 |
+| 4 | 0.848 (i) | 0.8399 | 0.01821 | 0.8403 | 0.01719 |
+| 8 | 1.163 (i) | 1.2293 | 0.02473 | 1.2292 | 0.02349 |
+| 12 | 1.314 (i) | 1.5299 | 0.03541 | 1.5296 | 0.03406 |
+| 13 | 1.327 (i) | 1.5731 | 0.03983 | 1.5785 | 0.03829 |
+| 13.5 | 1.338 (i) | 1.5872 | 0.04270 | 1.5967 | 0.04075 |
+| 13.75 | 1.348 (i) | | | 1.6040* | 0.04234 |
+| 14 | 1.358 (i) | 1.6140 | 0.04497 | 1.5993* | 0.04433 |
+| 14.5 | 1.372 (i) | 1.6309* | 0.04850 | 1.3688* | 0.06209 |
+
+- **NACA 4415:** lift within 0.6 % of the old inlet's at every settled row, drag 7 % lower at 0° and 4–5 % lower from 8° on. Last settled row 13.5° (14.25° on the old inlet): 1.597 against the measured 1.338, +19 %. Lift stays at 1.60 to 14.0° and is down to 1.37 at 14.5°.
+- **NACA 0012:** the gate is the stream study's held run a second time, on the other machine (section 3 has its rows). The two agree within 0.2 % in lift and drag and break in the same row (attached at 13.0°, past the end at 13.25°).
+
 - **Drag is not comparable with these two measurements**: both are untripped (0.0067 and 0.0089 at 0°), the model is turbulent from the nose (0.0126 and 0.0148). The [Hof96] section with grit has a lowest drag of 0.0150, the referee 0.0145: the old inlet gives a smooth section the drag of one with a heavily roughened nose. Section 3 has the comparison that can be made.
 
 ## 3. The stream
@@ -153,11 +171,80 @@ On the test section at Re 5.7e5 the quiet stream against the old inlet: lift wit
 
 **Consequences.**
 
-- The table's 35 sections are rerun on the held stream (`../section-tables/rerun-held/`, with a row-by-row comparison against the old-inlet sections of `../section-tables/rerun/`). Expected from the controls: lift unchanged, drag 4–7 % lower, ends a quarter to half a degree earlier.
-- Both gate sections and the two controls on the first cell's height (half the height, `first_yplus 1`) run on the held stream with the rerun; their rows go into `runs.json` and this record when they are in.
+- The table's sections are rerun on the held stream (`../section-tables/rerun-held/`, with a row-by-row comparison against the old-inlet sections of `../section-tables/rerun/`): the 35 of the first rerun and four more in the band of thickness where the upper end jumps (t/c 0.05 to 0.08). Expected from the controls: lift unchanged, drag 4–7 % lower, ends a quarter to half a degree earlier.
+- Both gate sections ran on the held stream with the rerun (section 2), and with them a series on the first cell's height (section 4).
 - The 3-D recipe has the same inlet rule and 4 base chords of fetch instead of 20 chords, so its stream at the fin is yet another one. `fincfd` takes the held stream as an option (`CaseSpec.held_stream`, `write_set_case(held_stream=True)`), off by default: every 3-D record so far is on the decaying stream. On mesh level 5 friction is a third low from the wall functions in any case (`docs/CFD-BENCH.md`); a control on a known fin is to run before 3-D drag is compared across the two streams.
+
+## 4. The wall (2026-11-22)
+
+The table's recipe makes the first cell two flat-plate wall units thick (9.3 µm on the test section at Re 5.7e5, 12.9 µm on the NACA 0012) and grows the layers from it at a ratio of 1.2. Measured on the test section's runs (`finGenerator-cfd`'s y⁺ record, read per face): the wall cells' centres sit at a median y⁺ of 1.2 at 0° (90 % of the faces below 1.9) and at 3–6 on the first 0.2 % of chord at +10°. On every mesh the stack tapers to nothing over the last 3 % of chord (y⁺ 2–8 there) and the blunt base carries none (y⁺ to 12, to 22 on the NACA 0012). The series below does not refine those two places.
+
+**The series.** First cell at a half, a quarter and a tenth of the table's height, layers at the same ratio up to the same outer cell (the stack is 0.76–0.88 mm thick on the NACA 0012 in all four), held stream. Lift coefficient, drag coefficient × 10⁴:
+
+| test section (3 % camber, t/c 0.07, Re 5.7e5) | layers | median y⁺ at 0° | 0° | +4° | +10° | upper end between | lower end between |
+|---|---|---|---|---|---|---|---|
+| 9.3 µm (the table's) | 13 | 1.20 | 0.3423, 122.2 | 0.7728, 154.3 | 1.3233, 318.1 | +10.0° and +10.25° | −6.0° and −6.25° |
+| 4.7 µm | 17 | 0.61 | 0.3388, 124.5 | 0.7701, 156.8 | 1.3299, 306.0 | +10.75° and +11.0° | −6.25° and −6.5° |
+| 2.3 µm | 21 | 0.31 | 0.3374, 126.3 | 0.7678, 159.2 | 1.3223, 306.4 | +11.0° and +11.25° | −6.5° and −6.75° |
+| 0.9 µm | 26 | 0.13 | 0.3373, 127.6 | 0.7654, 160.9 | 1.3206, 308.7 | +11.25° and +11.5° | −6.5° and −6.75° |
+
+| NACA 0012, Re 7e5 | layers | 0° | 8° | 12° | 13° | 14° | upper end between |
+|---|---|---|---|---|---|---|---|
+| 12.9 µm (the table's) | 14 | 117.8 | 0.8290, 182.1 | 1.1865, 281.6 | 1.2595, 319.0 | 0.8697* | 13.0° and 13.25° |
+| 6.5 µm | 18 | 120.7 | 0.8256, 185.0 | 1.1889, 279.7 | 1.2619, 316.0 | | 13.25° and 13.5° |
+| 3.2 µm | 22 | 123.0 | 0.8215, 188.3 | 1.1806, 285.4 | 1.2540, 321.3 | 1.3112, 369.4 | beyond 14.0° |
+| 1.3 µm | 27 | 123.8 | 0.8177, 191.6 | 1.1704, 292.4 | 1.2486, 327.0 | 1.3023, 376.7 | beyond 14.0° |
+
+(`held`, `held-gate`, `held-y1`, `held-y05`, `held-y02` in `runs.json`. The two finest NACA 0012 walls are being continued upward from 14.25°.)
+
+- **Drag rises as the wall is refined and has not levelled.** At 0°: +1.9, +3.4, +4.4 % on the test section and +2.5, +4.4, +5.1 % on the NACA 0012 against the table's wall. At 8° on the NACA 0012: +1.6, +3.4, +5.2 %, the last step as large as the first.
+- **Lift falls by about 1 %.** Test section: 0.005 at 0°, level over the last step; 1.0 % at +4°. NACA 0012: 0.4–0.5 % per step from 8° to 13°, 1.4 % in all at 8°, not levelled.
+- **Both ends move outward.** Test section: the upper end by 1.25°, the lower by 0.5°, the last step a quarter of a degree at the upper end and none at the lower. NACA 0012: by at least a degree.
+- **Away from the measurements.** The measured NACA 0012 peaks at 1.075 at 11° ([SK81]). The table's wall holds to 13.0° (1.26), the two finest to 14.0° and beyond (1.30–1.31). Drag at 0° against the tripped fit of section 3 (0.0113–0.0120): 0.01178 on the table's wall, 0.01238 on the finest. Both lie inside the 0.0010 [McC87] allows a tunnel.
+- **What it is** (an inference from the series and one source). The ω equation's solution rises as 1/y² toward a smooth wall and the wall cell's value is set from the cell's own height; a first cell at y⁺ 1 with a growth of 1.2 does not resolve it. [EPV18] is a study of exactly this question for steady RANS without wall functions (read: its abstract). That ω-based models want y⁺ near 0.1 is the reading of a review that cites it, not something read in the paper.
+
+**The wall cell's treatment is not the cause.** OpenFOAM's `omegaWallFunction`, the wall condition on ω in every run, blends by default: the wall cell's ω is the root of the sum of squares of the viscous and the log-law value, and the cell's production of k is replaced by the log-law form at any y⁺ (v2512 source: the replacement is skipped only for `stepwise` blending below the laminar y⁺). Two controls on the table's mesh, test section, held stream:
+
+| wall cells | 0° | +4° | −6.0° | −6.25° | +10.0° |
+|---|---|---|---|---|---|
+| blended (the table's) | 0.3423, 122.2 | 0.7728, 154.3 | −0.3120, 162.8 | past the end | 1.3233, 318.1 |
+| stepwise: viscous ω and the model's own production below y⁺ 11 | 0.3421, 122.2 | 0.7727, 154.1 | −0.3117, 165.3 | past the end | past the end |
+| stepwise, and k = 0 on the wall instead of a zero gradient | 0.3421, 122.2 | 0.7727, 154.1 | −0.3117, 165.3 | past the end | past the end |
+
+(`held-stepwise`, `held-stepwise-k0`.) Away from the ends the rows are the same to four digits, so the blended wall cell is not what separates the table's wall from the finer ones. At the upper end the stepwise wall lets go at least a quarter of a degree earlier. The wall's value of k plays no part.
+
+**From rest, or from the row before.** Every row of the table starts from rest. Two sweeps through the test section's upper end, each row starting from the one before it (`held-up`, `held-down`):
+
+| α ° | 9.0 | 9.5 | 9.75 | 10.0 | 10.25 | 10.5 | 11.0 | 12.0 |
+|---|---|---|---|---|---|---|---|---|
+| from rest | 1.2550, 266.6 | 1.2936, 287.7 | | 1.3233, 318.1 | 1.0834* | 1.1230* | 1.0524* | |
+| sweep upward | | 1.2936, 287.4 | | 1.3234, 318.2 | 1.3567* | 1.0851* | 1.0652* | 0.9949* |
+| sweep downward from 12.5° | 1.2557, 265.7 | 1.2937, 287.5 | 1.3103, 300.8 | 1.0875* | 1.0881* | 1.0755* | 1.0693* | 1.0197* |
+
+- **The end is not a start-up effect.** The upward sweep is attached at +10.0° with the from-rest row's numbers and lets go in the next row, like the rows from rest.
+- **There is a loop a quarter to half a degree wide.** Coming down, the flow stays separated at +10.0° and reattaches at +9.75°. A row from rest finds the loop's upper edge.
+
+**The mesher takes thin layers off without an error.** snappyHexMesh refuses a cell whose determinant is below `minDeterminant` (0.001). For a wall cell of thickness t on a face of size a that is 7812 (t/a)⁴: an aspect ratio of about 50. A first cell of 2.3–3.2 µm is below it on the faces behind the nose band, one of 0.9 µm everywhere. The first attempts at the two finer walls lost their layers that way:
+
+| first cell | the mesher's share of the stack | mean wall y⁺ |
+|---|---|---|
+| 2.3 µm (test section) | 97.6 % | 3.6 |
+| 3.2 µm (NACA 0012) | 92.2 % | 17.6 |
+| 0.9 µm | 0.87 % (refused by the driver) | |
+
+- **The share is a count over faces of the slab, and most faces are nose cells.** A mesh with no layers on most of its chord still reads 97.6 %. The mean wall y⁺ shows it; the driver now prints it per row and flags a mean above the first cell's nominal height plus 0.3 (the base and the taper before it are 0.15 of the mean on every mesh).
+- **The valid series** runs with `min_determinant 1e-12` and `min_vol 1e-20`: every face keeps its layers, 99.9 % of the stack.
+- **Every section of the rerun was checked this way:** mean wall y⁺ 1.26–1.44 at 0°, all faces with layers.
+- Runs named `-y05`, `-y02`, `-y05v`, `-y02v` in `~/bench-results/sections3` are the invalid meshes. They are not in `runs.json`.
+
+**What it means for the table.**
+
+- The table's recipe is the same model at the usual wall spacing, with known offsets against a wall ten times finer: drag 4–5 % low, lift up to 1.4 % high, the upper end 1–1.25° early and the lower end 0.5° early.
+- The offsets are close to common to the two sections (drag at 0°: 4.4 % and 5.1 %; upper end: 1.25° and at least 1°), which is what a ranking of sections needs.
+- A finer wall has no natural stopping point (drag is not level at a median y⁺ of 0.13) and moves the ends further from the measured ones.
+- Proposed: the table stays on its wall, with these offsets stated. The check that decides it is at the fin level, after the rebuild: shift the table's ends by these amounts and see what moves in the knee, the hold numbers and the searches.
 
 ## Files
 
-- `runs.json`: every run of sections 2 and 3 (`scripts/section_gate_tables.py <section> <run> ...` prints a table: `naca0012`, `naca4415`, `camb3-tc070-re140k`, `camb3-tc070-re570k`).
+- `runs.json`: every run of sections 2 to 4 (`scripts/section_gate_tables.py <section> <run> ...` prints a table: `naca0012`, `naca4415`, `camb3-tc070-re140k`, `camb3-tc070-re570k`).
 - `plan-gate.json`, `plan-gate-wf.json`, `results-resolved.json`, `results-wf.json`: the first gate (section 1).

@@ -201,8 +201,13 @@ else. The phases below keep their content; this is the sequence.
      the skin friction). The table moves to a held stream ([SR07]; k = 1e-3
      U², ω = 5 U/c, both kept up to the section): 4.5 % above tripped tunnels
      at Re 7e5, no laminar run at Re 1.4e5. All 35 sections are being rerun
-     on it (`bench/section-tables/rerun-held/`; the old-inlet sections stay
-     in `rerun/` as the comparison), then v1 is rebuilt as planned. The first
+     on it, with four more where the upper end jumps (t/c 0.05 to 0.08)
+     (`bench/section-tables/rerun-held/`; the old-inlet sections stay in
+     `rerun/` as the comparison), then v1 is rebuilt as planned. Against a
+     wall ten times finer the table's recipe reads drag 4–5 % low and its
+     ends 0.5–1.25° early, on two sections alike (`bench/section-gate/`,
+     section 4); proposed: keep the recipe, state the offsets, and check at
+     the fin level after the rebuild. The first
      gate's "passed" is withdrawn with it: on the exact outline the NACA 0012
      peaks 18 % high and 2° late and the NACA 4415 reads 11 % high at 10°, in
      every stream. That is the fully turbulent model, so the table's upper

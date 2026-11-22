@@ -292,6 +292,15 @@ stream starts to change the turbulent layer itself.
 **Cited for:** why the 2-D referee does not use a quiet stream at the table's Reynolds numbers, and
 the stream it uses (`bench/section-gate/`).
 
+### [EPV18] Eça, Pereira & Vaz (2018) — Viscous flow simulations at high Reynolds numbers without wall functions: Is y⁺ ≃ 1 enough for the near-wall cells?
+*Computers & Fluids 170:157–175.* [DOI 10.1016/j.compfluid.2018.04.035](https://doi.org/10.1016/j.compfluid.2018.04.035)
+(added 2026-11-22; abstract read on the publisher's page, the paper itself not)
+Steady incompressible RANS with the no-slip condition applied at the wall: how the numerical error
+depends on the turbulence model and on the height of the first cell.
+**Cited for:** the question the 2-D referee's wall series answers for this recipe
+(`bench/section-gate/README.md`, section 4). The figure often attached to it, a first cell at
+y⁺ ≈ 0.1 for ω-based models, is a citing review's reading and was not checked against the paper.
+
 ### [Sel95] Selig et al. (1995) — Summary of Low-Speed Airfoil Data, Vol. 1
 *SoarTech (UIUC LSATs).* [UIUC PDF](https://m-selig.ae.illinois.edu/uiuc_lsat/Low-Speed-Airfoil-Data-V1.pdf)
 Wind-tunnel polars for 34 airfoils at Re 3×10⁴–5×10⁵; large low-Re performance degradation.
