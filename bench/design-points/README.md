@@ -47,7 +47,27 @@ One rider: 60 kg, thruster side fin, PPA-CF, click tab, as the quiz would send i
 
 - **Not like a fin off a shop wall.** The base is as long as the tab set needs (104–110 mm), the blade above it a slender one of 45–65 mm chord: the trailing edge cuts in by 30–50 mm within the first 30 mm of height and the leading edge stands upright or leans forward of the base. The chord itself tapers smoothly (8.5 m/s, 55°: 110, 75, 61, 52, 44 mm at 0, 27, 54, 81, 108 mm of height).
 - **What draws them so.** The model pays for wetted area and for induced drag at the working force, so it wants span and little chord; the base length is a gate at one height only. The twelve edge offsets then spread the chord so that five or six strips reach the knee criterion together (shares 0.56–0.60 from 53 to 117 mm on that fin) and so that the bending gate is met: with the offsets set to zero the same fin reads hold 0.69 instead of 0.80, a knee at 7.8° instead of 9.3° and a bending safety factor of 1.21 instead of 1.51.
-- **Whether a blade like this does what the model says is not known.** The criterion's share was fitted on one tunnel fin of ordinary planform; a blade shaped until every strip sits at that share is the case it has not seen, and a base flare under a concave trailing edge is three-dimensional flow no strip sees. A 3-D polar of the fin for 8.5 m/s and 55° through its knee is queued.
+- **Whether a blade like this does what the model says is not known.** The criterion's share was fitted on one tunnel fin of ordinary planform; a blade shaped until every strip sits at that share is the case it has not seen, and a base flare under a concave trailing edge is three-dimensional flow no strip sees. 3-D polars of both versions of the fin for 8.5 m/s and 55° through the knee are queued (with and without the offsets, next section).
+
+## Without the edge offsets
+
+The same search with only the eight shape sliders and camber free (`run_sliders_only.py`, the whole budget in one stage; `fins/sliders-*.json`, drawn in `with-without-offsets.png` by `draw_with_without.py`):
+
+![with and without the edge offsets at three design points](with-without-offsets.png)
+
+| speed m/s, lean ° | | area mm² | camber % | t/c | knee ° | going straight N | at the working force N | hold | score, seeds |
+|---|---|---|---|---|---|---|---|---|---|
+| 8.5, 55 | sliders and camber | 8 690 | 4.5 | 0.083 | 7.9 | 4.59 | 6.40 | 0.79 | +0.08, +0.08, +0.08 (and the swept stray, +0.31) |
+| | with the offsets | 8 142 | 4.0 | 0.105 | 9.3 | 4.24 | 6.29 | 0.80 | +0.02 (stray +0.29) |
+| 7.5, 48 | sliders and camber | 8 889 | 4.7 | 0.071 | 7.9 | 3.79 | 6.21 | 0.80 | −0.03, −0.01 |
+| | with the offsets | 8 151 | 4.6 | 0.090 | 8.7 | 3.53 | 6.10 | 0.81 | −0.08, −0.06 |
+| 6.5, 48 | sliders and camber | 10 577 | 4.8 | 0.070 | 9.9 | 3.44 | 6.78 | 0.76 | +0.19, +0.20 |
+| | with the offsets | 10 631 | 4.9 | 0.070 | 9.6 | 3.49 | 6.79 | 0.76 | +0.19, +0.20 |
+
+- **Without the offsets the fin is an ordinary one**: raked 26–29°, a full tip, a trailing edge that hollows above a base of 104 mm.
+- **The offsets are worth 0.00 to 0.06 of score**: 0.35 N going straight and 0.1 N at the working force at most, a tenth of a felt step, and 0.01 of hold.
+- That is less than a rider feels, and it comes from shaping the chord to a criterion fitted on one ordinary fin. Since 2026-11-22 the search leaves the offsets alone under frontier scoring (`RiderSpec.edge_offsets`, on again by asking; every shipped generation-2 result keeps them).
+- The sliders park too: depth at the corridor's edge (140 mm), base at the tab minimum (104 mm), tip width at its upper bound (0.60 of the base) on every seed. The first two are named above; the wide tip is the same pull as the offsets', lower loading where the criterion looks, within what eight sliders can do.
 
 ## Reading: the gates
 

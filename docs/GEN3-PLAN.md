@@ -518,6 +518,15 @@ design turn given directly (1.0), with `skill` kept for existing rider files.
   a curve fitted to the set CFD (toe default 3.5°); flat-inside t/c capped to
   the validated band until 0.1c; stage B (edge offsets) off; shape sliders left
   to structure, roll damping and safety only.
+  *Edge offsets: in, 2026-11-22.* Under frontier scoring the search no longer
+  opens the twelve edge offsets unless asked (`RiderSpec.edge_offsets`).
+  Drawn for the first time (`bench/design-points/`), the fins they made were
+  slender blades on a base flare, the chord spread until five or six strips
+  reach the knee criterion together; searched on the sliders and camber
+  alone the fin is an ordinary raked one and reads 0.00–0.06 worse in score,
+  a tenth of a felt step at most. 3-D polars of both versions for one design
+  point are queued. Still parked on bounds: depth (corridor), base (tabs),
+  tip width (0.60).
 - `[ ]` **1.3 Turn-load drag.** Add drag at the peak force to the drive/speed
   reading (this is where fins differ 3×; trim differs 1.3×).
 - `[ ]` **1.4 Fold the peak-margin gate into one-sided forgiveness.** Floor by

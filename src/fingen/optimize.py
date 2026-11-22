@@ -349,6 +349,15 @@ class RiderSpec:
     scoring: str = "targets"
     aspirations: dict[str, float] | None = None
     taste_bands: dict[str, tuple[float, float]] | None = None
+    # Whether the search's second stage unlocks the twelve edge offsets (le_dx,
+    # te_dx). None = the scoring's own default: on under "targets" (every shipped
+    # result was found with them), off under "frontier". On the lattice the
+    # offsets spread the chord until five or six strips reach the knee criterion
+    # together and draw a slender blade on a base flare; searched without them
+    # the fin is an ordinary one and reads under a tenth of a felt step worse
+    # (bench/design-points). The criterion was fitted on one fin of ordinary
+    # planform, so that tenth is not known to be real.
+    edge_offsets: bool | None = None
 
     def __post_init__(self) -> None:
         if not 30.0 <= self.weight_kg <= 160.0:
@@ -396,6 +405,10 @@ class RiderSpec:
         if self.hold_min is not None:
             return self.hold_min
         return HOLD_FLOOR_KNEE if self.hydro_model in spider.STRIP_KNEE else None
+
+    def resolved_edge_offsets(self) -> bool:
+        """Whether the search opens the edge offsets for this rider."""
+        return self.scoring != "frontier" if self.edge_offsets is None else self.edge_offsets
 
     def resolved_targets(self, *, rear_member: bool = False) -> dict[str, float]:
         """Derived defaults with any explicit override merged over them.
@@ -1377,8 +1390,10 @@ def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
 
     Stage A optimizes the eight level-1 sliders (CMA-ES, broad sigma). Stage B
     unlocks the twelve level-2 le_dx/te_dx Bézier offsets from the stage-A
-    optimum with a tight sigma, plus grooves when `groove_trigger` fires. Decode
-    is ValueError→penalty; deterministic under `seed`.
+    optimum with a tight sigma (`RiderSpec.resolved_edge_offsets`: not under
+    frontier scoring unless asked), plus grooves when `groove_trigger` fires;
+    with neither to open, stage A has the whole budget. Decode is
+    ValueError→penalty; deterministic under `seed`.
 
     `x0` overrides the stage-A start: a level-1 slider vector in the normalized
     [0,1]^8 box (default None → the template default via `_x0_sliders`, i.e. the
@@ -1399,9 +1414,11 @@ def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
     designs_center = rider.config in _CENTER_DESIGN_CONFIGS
     budget_c = max(int(budget_evals / 3.0), 1) if designs_center else 0
     budget_side = max(budget_evals - budget_c, 1)
-    budget_a = max(int(budget_side * 0.6), 1)
-    budget_b = max(budget_side - budget_a, 0)
     use_grooves = groove_trigger(rider)
+    use_offsets = rider.resolved_edge_offsets()
+    # the second stage has something to open, or stage A keeps the whole budget
+    budget_a = max(int(budget_side * 0.6), 1) if (use_offsets or use_grooves) else budget_side
+    budget_b = max(budget_side - budget_a, 0)
 
     def _stage_cb(stage: str, evals_before: int, **decode_kw):
         """Adapt _run_cma's (n_evals, best_f, best_x) to OptimizeProgress with
@@ -1437,18 +1454,18 @@ def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
     hist_b: list[float] = []
     nb = 0
     if budget_b > 0:
-        x0_b = (list(xa[:_N_SLIDERS]) + [0.5] * _N_OFFSETS
+        x0_b = (list(xa[:_N_SLIDERS]) + ([0.5] * _N_OFFSETS if use_offsets else [])
                 + ([0.5] * _N_GROOVES if use_grooves else [])
                 + ([float(xa[_N_SLIDERS])] if side_camber else []))
-        xb, fb, hist_b, nb = _run_cma(rider, x0_b, _SIGMA_B, use_offsets=True,
+        xb, fb, hist_b, nb = _run_cma(rider, x0_b, _SIGMA_B, use_offsets=use_offsets,
                                       use_grooves=use_grooves, budget=budget_b,
                                       seed=seed, workers=workers,
                                       progress=_stage_cb("refine", na,
-                                                         use_offsets=True,
+                                                         use_offsets=use_offsets,
                                                          use_grooves=use_grooves))
         if fb <= fa:
             try:
-                best_fin = _decode(xb, rider.config, use_offsets=True,
+                best_fin = _decode(xb, rider.config, use_offsets=use_offsets,
                                    use_grooves=use_grooves, tabs=rider.tabs,
                                    camber=side_camber)
             except ValueError:

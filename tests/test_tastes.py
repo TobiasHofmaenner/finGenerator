@@ -136,3 +136,32 @@ def test_the_two_searches_run_end_to_end_on_a_small_budget():
     assert out.achieved[YAW] == pytest.approx(
         out.tasted.result.margins[YAW] / out.balanced.result.margins[YAW])
     assert tasted_result_to_dict(out)["tastes"][YAW]["multiple"] == 0.7
+
+
+def test_the_edge_offsets_are_a_choice_and_frontier_scoring_leaves_them_alone(monkeypatch):
+    # Every shipped result was searched with the twelve edge offsets; under frontier
+    # scoring on the lattice they shape the chord to the knee criterion for under a tenth
+    # of a felt step (bench/design-points), so there the search keeps to the eight sliders
+    # and camber unless asked.
+    targets = RiderSpec(weight_kg=75.0, skill=Skill.INTERMEDIATE, config=FinConfig.THRUSTER)
+    assert targets.resolved_edge_offsets() is True
+    assert _rider().resolved_edge_offsets() is False
+    assert _rider(edge_offsets=True).resolved_edge_offsets() is True
+    assert dataclasses.replace(targets, edge_offsets=False).resolved_edge_offsets() is False
+
+    stages: list = []
+    real = opt._run_cma
+
+    def spy(rider, x0, sigma0, **kw):
+        stages.append((kw["use_offsets"], kw["budget"], len(x0)))
+        return real(rider, x0, sigma0, **kw)
+
+    monkeypatch.setattr(opt, "_run_cma", spy)
+    single = dataclasses.replace(_rider(), config=FinConfig.SINGLE, side_foil="flat_inside")
+    monkeypatch.setattr(opt, "groove_trigger", lambda rider: False)
+    out = opt.optimize(single, budget_evals=60, seed=0, workers=1)
+    assert stages == [(False, 60, 8)]                 # one stage, the whole budget, eight sliders
+    assert out.fin.outline.le_dx == (0.0,) * 6 and out.fin.outline.te_dx == (0.0,) * 6
+    stages.clear()
+    opt.optimize(dataclasses.replace(single, edge_offsets=True), budget_evals=60, seed=0, workers=1)
+    assert [s[0] for s in stages] == [False, True] and stages[0][1] == 36 and stages[1][2] == 20
