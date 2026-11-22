@@ -10,7 +10,7 @@ Purpose: before a section table is trusted, the 2-D recipe has to reproduce meas
 |---|---|---|
 | lift inside the attached range | NACA 4415: within 3 % from 0° to 6°. NACA 0012: 4–6 % below [SK81] at 4–8°, 4 % above the slope [McC87] fits to better tunnels | yes |
 | drag | that of a section turbulent from the nose: at zero lift inside the band tripped tunnels give for the NACA 0012 (section 3), about twice an untripped section's. On the table's wall it is 4–5 % below the same model on a wall ten times finer, on both sections alike (section 4) | yes, as that |
-| where the attached range ends | late and high. NACA 0012: peak 1.26–1.27 at 13.0–13.25° against 1.075 at 11° (+18 %, 2° late; seven sources in [McC87] put the maximum at about 1.0–1.15 at this Reynolds number). NACA 4415: +11 % at 10°, +19 % at 13.5°. A finer wall moves the ends later still, by 0.5–1.25° (section 4) | an upper bound |
+| where the attached range ends | late and high. NACA 0012: peak 1.26–1.27 at 13.0–13.25° against 1.075 at 11° (+18 %, 2° late; seven sources in [McC87] put the maximum at about 1.0–1.15 at this Reynolds number). NACA 4415: +11 % at 10°, +19 % at 13.5°. A finer wall moves the ends later still, by 0.5–1.5° (section 4) | an upper bound |
 
 The first version of this record (2026-11-19) said "passed: maximum lift within 3 %". That did not hold (section 1). The peak is the fully turbulent model's. The surface mesh does not move it (section 2), the stream moves the break by half a degree (section 3), and a finer wall moves it later, away from the measurement (section 4). The lattice's knee is therefore fitted on a tunnel fin, not read off the table's ends (`docs/MODEL-EXTENSION.md`).
 
@@ -192,15 +192,15 @@ The table's recipe makes the first cell two flat-plate wall units thick (9.3 µm
 |---|---|---|---|---|---|---|---|
 | 12.9 µm (the table's) | 14 | 117.8 | 0.8290, 182.1 | 1.1865, 281.6 | 1.2595, 319.0 | 0.8697* | 13.0° and 13.25° |
 | 6.5 µm | 18 | 120.7 | 0.8256, 185.0 | 1.1889, 279.7 | 1.2619, 316.0 | | 13.25° and 13.5° |
-| 3.2 µm | 22 | 123.0 | 0.8215, 188.3 | 1.1806, 285.4 | 1.2540, 321.3 | 1.3112, 369.4 | beyond 14.0° |
-| 1.3 µm | 27 | 123.8 | 0.8177, 191.6 | 1.1704, 292.4 | 1.2486, 327.0 | 1.3023, 376.7 | beyond 14.0° |
+| 3.2 µm | 22 | 123.0 | 0.8215, 188.3 | 1.1806, 285.4 | 1.2540, 321.3 | 1.3112, 369.4 | 14.25° and 14.5° |
+| 1.3 µm | 27 | 123.8 | 0.8177, 191.6 | 1.1704, 292.4 | 1.2486, 327.0 | 1.3023, 376.7 | 14.5° and 14.75° |
 
-(`held`, `held-gate`, `held-y1`, `held-y05`, `held-y02` in `runs.json`. The two finest NACA 0012 walls are being continued upward from 14.25°.)
+(`held`, `held-gate`, `held-y1`, `held-y05`, `held-y02` in `runs.json`. The two finest NACA 0012 walls were continued from 14.25° in quarter degrees: the 3.2 µm wall's last settled row is 14.25° (1.3230, 384.6), the 1.3 µm wall's 14.5° (1.3252, 408.4).)
 
 - **Drag rises as the wall is refined and has not levelled.** At 0°: +1.9, +3.4, +4.4 % on the test section and +2.5, +4.4, +5.1 % on the NACA 0012 against the table's wall. At 8° on the NACA 0012: +1.6, +3.4, +5.2 %, the last step as large as the first.
 - **Lift falls by about 1 %.** Test section: 0.005 at 0°, level over the last step; 1.0 % at +4°. NACA 0012: 0.4–0.5 % per step from 8° to 13°, 1.4 % in all at 8°, not levelled.
-- **Both ends move outward.** Test section: the upper end by 1.25°, the lower by 0.5°, the last step a quarter of a degree at the upper end and none at the lower. NACA 0012: by at least a degree.
-- **Away from the measurements.** The measured NACA 0012 peaks at 1.075 at 11° ([SK81]). The table's wall holds to 13.0° (1.26), the two finest to 14.0° and beyond (1.30–1.31). Drag at 0° against the tripped fit of section 3 (0.0113–0.0120): 0.01178 on the table's wall, 0.01238 on the finest. Both lie inside the 0.0010 [McC87] allows a tunnel.
+- **Both ends move outward.** Test section: the upper end by 1.25°, the lower by 0.5°, the last step a quarter of a degree at the upper end and none at the lower. NACA 0012: by 1.25° and then 1.5° on the two finest walls, the last step a quarter of a degree here too, and its highest lift goes from 1.26 to 1.33.
+- **Away from the measurements.** The measured NACA 0012 peaks at 1.075 at 11° ([SK81]). The table's wall holds to 13.0° (1.26), the two finest to 14.25° and 14.5° (1.32 and 1.33). Drag at 0° against the tripped fit of section 3 (0.0113–0.0120): 0.01178 on the table's wall, 0.01238 on the finest. Both lie inside the 0.0010 [McC87] allows a tunnel.
 - **What it is** (an inference from the series and one source). The ω equation's solution rises as 1/y² toward a smooth wall and the wall cell's value is set from the cell's own height; a first cell at y⁺ 1 with a growth of 1.2 does not resolve it. [EPV18] is a study of exactly this question for steady RANS without wall functions (read: its abstract). That ω-based models want y⁺ near 0.1 is the reading of a review that cites it, not something read in the paper.
 
 **The wall cell's treatment is not the cause.** OpenFOAM's `omegaWallFunction`, the wall condition on ω in every run, blends by default: the wall cell's ω is the root of the sum of squares of the viscous and the log-law value, and the cell's production of k is replaced by the log-law form at any y⁺ (v2512 source: the replacement is skipped only for `stepwise` blending below the laminar y⁺). Two controls on the table's mesh, test section, held stream:
@@ -239,8 +239,8 @@ The table's recipe makes the first cell two flat-plate wall units thick (9.3 µm
 
 **What it means for the table.**
 
-- The table's recipe is the same model at the usual wall spacing, with known offsets against a wall ten times finer: drag 4–5 % low, lift up to 1.4 % high, the upper end 1–1.25° early and the lower end 0.5° early.
-- The offsets are close to common to the two sections (drag at 0°: 4.4 % and 5.1 %; upper end: 1.25° and at least 1°), which is what a ranking of sections needs.
+- The table's recipe is the same model at the usual wall spacing, with known offsets against a wall ten times finer: drag 4–5 % low, lift up to 1.4 % high, the upper end 1.25–1.5° early and the lower end 0.5° early.
+- The offsets are close to common to the two sections (drag at 0°: 4.4 % and 5.1 %; upper end: 1.25° and 1.5°), which is what a ranking of sections needs.
 - A finer wall has no natural stopping point (drag is not level at a median y⁺ of 0.13) and moves the ends further from the measured ones.
 - Proposed: the table stays on its wall, with these offsets stated. The check that decides it is at the fin level: shift the table's ends by these amounts and see what moves in the knee, the hold numbers and the searches.
 

@@ -3100,7 +3100,7 @@
   "naca0012/held-y05": {
    "run": "ctl-naca0012-re700k-y05d",
    "stream": "k = 1e-3 U^2 (2.58 %), omega = 5 U/c, held",
-   "note": "first cell a quarter as high (min_determinant 1e-12, min_vol 1e-20)",
+   "note": "first cell a quarter as high (min_determinant 1e-12, min_vol 1e-20); two runs of one mesh, the second continues the upper end from 14.25 deg",
    "spec": {
     "name": "ctl-naca0012-re700k-y05d",
     "family": "symmetric",
@@ -3233,13 +3233,37 @@
      "cd": 0.036945,
      "iters": 2700,
      "settled": true
+    },
+    {
+     "alpha": 14.25,
+     "cl": 1.32303,
+     "cd": 0.038459,
+     "iters": 3000,
+     "settled": true,
+     "yplus_mean": 0.4785548
+    },
+    {
+     "alpha": 14.5,
+     "cl": 1.30179,
+     "cd": 0.042801,
+     "iters": 3000,
+     "settled": false,
+     "yplus_mean": 0.4815625
+    },
+    {
+     "alpha": 14.75,
+     "cl": 0.77556,
+     "cd": 0.130356,
+     "iters": 3000,
+     "settled": false,
+     "yplus_mean": 0.528142
     }
    ]
   },
   "naca0012/held-y02": {
    "run": "ctl-naca0012-re700k-y02d",
    "stream": "k = 1e-3 U^2 (2.58 %), omega = 5 U/c, held",
-   "note": "first cell a tenth as high (min_determinant 1e-12, min_vol 1e-20)",
+   "note": "first cell a tenth as high (min_determinant 1e-12, min_vol 1e-20); two runs of one mesh, the second continues the upper end from 14.25 deg",
    "spec": {
     "name": "ctl-naca0012-re700k-y02d",
     "family": "symmetric",
@@ -3380,6 +3404,38 @@
      "iters": 2400,
      "settled": true,
      "yplus_mean": 0.2681031
+    },
+    {
+     "alpha": 14.25,
+     "cl": 1.3146,
+     "cd": 0.039217,
+     "iters": 2400,
+     "settled": true,
+     "yplus_mean": 0.2697458
+    },
+    {
+     "alpha": 14.5,
+     "cl": 1.32518,
+     "cd": 0.040838,
+     "iters": 2700,
+     "settled": true,
+     "yplus_mean": 0.2720491
+    },
+    {
+     "alpha": 14.75,
+     "cl": 1.1376,
+     "cd": 0.060917,
+     "iters": 3000,
+     "settled": false,
+     "yplus_mean": 0.3241583
+    },
+    {
+     "alpha": 15.0,
+     "cl": 1.10634,
+     "cd": 0.069916,
+     "iters": 3000,
+     "settled": false,
+     "yplus_mean": 0.2801201
     }
    ]
   },

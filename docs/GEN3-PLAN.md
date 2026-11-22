@@ -205,7 +205,7 @@ else. The phases below keep their content; this is the sequence.
      (`bench/section-tables/rerun-held/`; the old-inlet sections stay in
      `rerun/` as the comparison), then v1 is rebuilt as planned. Against a
      wall ten times finer the table's recipe reads drag 4–5 % low and its
-     ends 0.5–1.25° early, on two sections alike (`bench/section-gate/`,
+     ends 0.5–1.5° early, on two sections alike (`bench/section-gate/`,
      section 4); proposed: keep the recipe, state the offsets, and check at
      the fin level after the rebuild. The first
      gate's "passed" is withdrawn with it: on the exact outline the NACA 0012
