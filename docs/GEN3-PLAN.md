@@ -564,6 +564,21 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   1.02 at 26°. Neither the aspect-ratio rule nor the strip criterion
   describes it; the lattice's lift stays within 7 % and its drag is 19–36 %
   low beyond 16°. What ends a keel's useful range is the drag step.
+  *(a) and (d) in, 2026-11-22 (`bench/phase2b/twin-set/`, two of that keel
+  at toe 2°, cant 4°, 7 m/s, mesh level 5, leeway 0–12°):* the two fins do
+  not feel each other (the loaded fin within 1–1.5 % of the same fin alone),
+  so a twin is two isolated fins at leeway − toe and −leeway − toe. The
+  loaded fin's share is not a number: 0.77 at 4° of leeway, 0.68 at 6°, 0.66
+  at 8–12°, set by the toe against the foil's zero-lift angle (4.1° here)
+  until the unloaded fin, its flat face on the suction side, leaves its line
+  near −8…−10° of own incidence. The lattice set has the share within 0.02
+  to 6° and then too low (0.59 at 12°): it keeps the unloaded fin on its
+  line, 38 % more lift at 12° than the CFD — a strip driven past its
+  section's lower end has no knee in the model. Going straight this foil's
+  drag is lowest with no toe (9.5 N a fin, 10.8 N at 2°, 13.2 N at the 4.1°
+  where it carries nothing). *Running:* one mesh level finer, and 4 m/s.
+  *Open:* (c); a share from the lattice set in place of `sizing`'s 0.75; the
+  unloaded fin's lower end in the lattice.
 - `[ ]` **2b.3 Quad.** (a) Validation first: our set CFD on the commercial
   4-fin configuration of [Falk20] against its per-fin forces
   (`bench/falk/falk20_perfin_forces.csv`). (b) Our own quad over leeway at two

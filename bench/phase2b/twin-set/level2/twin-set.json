@@ -1,0 +1,104 @@
+{
+  "speed": 7.0,
+  "mesh_level": 2,
+  "end_time": 1500,
+  "fin": {
+    "outline": {
+      "depth": 95,
+      "base": 180,
+      "sweep": 14,
+      "tip_width_ratio": 0.55,
+      "le_fullness": 0.9,
+      "te_shape": 0.8,
+      "le_dx": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "te_dx": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "foil": {
+      "family": "flat_inside",
+      "thickness_ratio": 0.1,
+      "camber_ratio": 0.0,
+      "camber_position": 0.4,
+      "te_thickness": 0.7
+    },
+    "thickness_tip_factor": 0.85,
+    "grooves": {
+      "count": 0,
+      "length": 60.0,
+      "pitch": 6.0,
+      "width": 3.0,
+      "depth_ratio": 0.35,
+      "span_start": 0.45,
+      "surface": "outer"
+    }
+  },
+  "fin_area_mm2": 14789.745802815822,
+  "layout": {
+    "toe": 2.0,
+    "cant": 4.0,
+    "side_y": 165.0
+  },
+  "rows": [
+    {
+      "angle": 4.0,
+      "coeffs": {
+        "right": {
+          "cl": 0.16018306666666668,
+          "cd": 0.026538640333333332,
+          "cm": 0.014855677133333333,
+          "iterations": 1500.0
+        },
+        "left": {
+          "cl": 0.05441049256666666,
+          "cd": 0.046749623899999995,
+          "cm": 0.06929499613333333,
+          "iterations": 1500.0
+        },
+        "total": {
+          "cl": 0.10729641666666666,
+          "cd": 0.03664400843333333,
+          "cm": 0.0202317457,
+          "iterations": 1500.0
+        }
+      },
+      "wall_s": 413.6
+    },
+    {
+      "angle": 8.0,
+      "coeffs": {
+        "right": {
+          "cl": 0.29209618299999995,
+          "cd": 0.0390402016,
+          "cm": 0.0662500198,
+          "iterations": 1500.0
+        },
+        "left": {
+          "cl": 0.162012052,
+          "cd": 0.07946221786666667,
+          "cm": 0.1072659684,
+          "iterations": 1500.0
+        },
+        "total": {
+          "cl": 0.22705335199999999,
+          "cd": 0.059251009433333335,
+          "cm": 0.04053440433333333,
+          "iterations": 1500.0
+        }
+      },
+      "wall_s": 342.4
+    }
+  ]
+}
