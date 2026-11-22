@@ -264,6 +264,25 @@ The table's recipe makes the first cell two flat-plate wall units thick (9.3 µm
 - **Symmetric fins: the knee moves by a full degree.** A symmetric section's lift runs straight to its end, so the end's angle is its lift. The wall matters for a centre fin's knee and not for a side fin's.
 - **The cambered knees moved the wrong way (8.1° to 7.8° with later ends), and that is the model's break, not the wall.** A section's limit is read where its lift slope falls below 30 % of the line's (`SectionPolar.alpha_break_deg`). On a rounded top a small change of shape moves that point by a degree: on the candidate's critical strip from 12.4° (the end) to 11.4° with the end at 13.7°, 2.3 % less lift. Reading the limit as the highest lift inside the attached range gives the same knees on the table as built (within 0.1°) and moves every blade the same way when the ends move. To be changed with the knee's refit at the rebuild.
 
+**The same check on the table as shipped (2026-11-22, all 39 sections).** The limit is now the highest lift inside the range (`SectionPolar.cl_limit`), and the share is refitted on the tunnel fin for each table, as the model does it: 0.606 on the table as built, 0.587 with every lower end moved out by 0.5° and every upper end by 1.25°. Knee on the board mirror, degrees of own incidence:
+
+| blade | table as built | ends moved, share refitted | ends moved, share kept at 0.606 |
+|---|---|---|---|
+| tunnel fin [BW04], flat inside | 12.0 | 12.0 | 12.5 |
+| gen-2 side as shipped, flat inside | 7.06 | 7.05 | 7.39 |
+| gen-1 side as ridden, flat inside | 7.06 | 7.07 | 7.46 |
+| gen-2 planform, 3 % camber | 6.70 | 6.62 | 6.94 |
+| cambered candidate (4.3 %, t/c 0.074) | 6.49 | 6.37 | 6.73 |
+| best v1-model side (4.2 %, t/c 0.089) | 8.06 | 7.96 | 8.36 |
+| paddle probe, 3.5 % camber | 15.2 | 15.2 | 15.8 |
+| gen-1 centre with t/c 0.09, symmetric | 10.0 | 10.3 | 10.6 |
+| longboard single, symmetric t/c 0.08 | 6.3 | 6.9 | 7.2 |
+| gen-1 centre, symmetric t/c 0.046 | 5.2 | 6.0 | 6.2 |
+
+- **For a side fin the wall's end shift is absorbed by the fit on the tunnel fin**: knees within 0.12°, hold of the gen-2 and gen-1 sides 0.704 and 0.571 against 0.703 and 0.572, drag going straight 12.49 against 12.51 N. Every blade moves the same way now when the ends move.
+- **Symmetric blades move by 0.3–0.8°**, later with a finer wall. Their knee is open for another reason (`../section-tables/rerun-held/`, the controls behind an end).
+- What the fit does not absorb is the drag level: a wall ten times finer would read 4–5 % more section drag, about half a newton on a flat-inside side fin going straight and a fifth of a newton on a cambered one.
+
 ## Files
 
 - `runs.json`: every run of sections 2 to 4 (`scripts/section_gate_tables.py <section> <run> ...` prints a table: `naca0012`, `naca4415`, `camb3-tc070-re140k`, `camb3-tc070-re570k`).

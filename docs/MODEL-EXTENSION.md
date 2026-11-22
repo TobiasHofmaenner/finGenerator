@@ -2183,8 +2183,10 @@ Nothing in what a rider can choose moved, except the lowest hold on offer
 
 - **The wall.** Keep the usual wall and state its offsets, or rerun 39
   sections on one ten times finer for ends 0.5–1.5° later and drag 4–5 %
-  higher, further from the tunnels. Proposed: keep. A what-if with every end
-  moved by those amounts changed side-fin knees by half a degree or less.
+  higher, further from the tunnels. Proposed: keep. With every end moved by
+  those amounts and the share refitted on the tunnel fin (0.587), side-fin
+  knees move by 0.12° or less and the hold of the gen-2 side by 0.001;
+  symmetric blades read 0.3–0.8° later (`bench/section-gate/`, section 4).
 - **A 3-D polar with the nose resolved**, on one thin cambered blade at −4.5°
   to 0°: the check of section 6. A level-6 polar of the candidate (cells of
   0.28 mm, about two per nose radius) is running as a third point on the
