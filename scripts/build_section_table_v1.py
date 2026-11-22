@@ -122,8 +122,12 @@ LIN_RANGE = (0.0, 5.0)              # lift line fitted here: inside every sectio
 STALL_RAMP_DEG = 2.0
 # Behind either cliff's foot the referee's rows are kept at these distances (deg): drag as a
 # step from the drag at the end, lift as a step from the lift there. Further out v0's shape
-# carries on from the last of them.
-BEHIND = np.arange(0.0, 3.01, 0.25)
+# carries on from the last of them: the first three degrees (REACH_MIN) on every section,
+# since a march stops three rows past an end; as far as its rows go where a section was run
+# on behind it (the flat inside face below its lower end, where the fin on the outside of a
+# turn works). How far is a fitted quantity of its own (`reach_below`, `reach_above`).
+BEHIND = np.concatenate([np.arange(0.0, 3.01, 0.25), np.arange(3.5, 10.01, 0.5)])
+REACH_MIN = 3.0
 # v1's grids (v0: 10 thicknesses, 5 cambered thicknesses, 6 cambers). The referee's own
 # thicknesses are on them, so a measured section is a node and not a blend of two.
 TC_FINE = np.unique(np.round(np.concatenate([np.arange(0.040, 0.1301, 0.005),
@@ -150,7 +154,8 @@ ALPHA_RANGE = (-16.0, 24.0)         # every polar the library hands out spans th
 # the referee has them, and what else says how v0 differs.
 ENDS = ("lower", "upper")
 OFFSETS = ("step", "step_up", "log_level", "log_step_below", "log_step_above", "slope",
-           "d_alpha0", "retention", "lift_step_below", "lift_step_above", "g", "h")
+           "d_alpha0", "retention", "lift_step_below", "lift_step_above", "g", "h",
+           "reach_below", "reach_above")
 FITTED = ENDS + OFFSETS
 # what happens behind an end and has one sign on every section of the referee (less lift
 # behind the upper end, more drag behind either): carried in Reynolds number by a ratio
@@ -160,7 +165,8 @@ NEUTRAL = {"d_lower": 0.0, "d_lower_out": 0.0, "d_upper": 0.0, "d_upper_out": 0.
            "log_level": 0.0, "log_step_below": None, "log_step_above": None, "slope": 1.0,
            "d_alpha0": 0.0, "retention": 1.0, "lift_step_below": np.zeros(len(BEHIND)),
            "lift_step_above": np.zeros(len(BEHIND)),
-           "g": np.zeros(len(KNOTS)), "h": np.zeros(len(KNOTS))}
+           "g": np.zeros(len(KNOTS)), "h": np.zeros(len(KNOTS)),
+           "reach_below": REACH_MIN, "reach_above": REACH_MIN}
 # The symmetric sections are the cambered family's camber-free row (fingen.foil draws the
 # same outline for both): one fit for the two, and one polar for the two at zero camber.
 FIT_OF = {"symmetric": "cambered", "cambered": "cambered", "flat_inside": "flat_inside"}
@@ -306,13 +312,22 @@ def apply(a: np.ndarray, cl: np.ndarray, cd: np.ndarray, cm: np.ndarray, corr: d
                          S_MARKS[-1] + BEHIND / DEG_PER_S])
     inside = corr["log_level"] + corr["g"]
     below, above = behind_levels(a, cd, f, corr, inside)
+    below, above = held(below, corr["reach_below"]), held(above, corr["reach_above"])
     log_f = np.interp(s, xs, np.concatenate([below[::-1], inside, above]))
     span = lift_span(target, corr["slope"] * f["slope"])
     h = corr["h"] * lift_scale(target, corr["slope"] * f["slope"])
-    d_cl = np.interp(s, xs, np.concatenate([(h[0] + corr["lift_step_below"] * span[0])[::-1], h,
-                                            h[-1] + corr["lift_step_above"] * span[1]]))
+    lift_below = held(h[0] + corr["lift_step_below"] * span[0], corr["reach_below"])
+    lift_above = held(h[-1] + corr["lift_step_above"] * span[1], corr["reach_above"])
+    d_cl = np.interp(s, xs, np.concatenate([lift_below[::-1], h, lift_above]))
     return (corr["slope"] * (line + keep * rem) + d_cl, np.exp(log_f) * np.interp(w, a, cd),
             np.interp(w, a, cm))
+
+
+def held(values: np.ndarray, reach: float) -> np.ndarray:
+    """`values` at the distances BEHIND an end, kept at the one at `reach` degrees from there
+    on: what lies further out is v0's shape with the last correction the referee gave."""
+    k = min(int(np.searchsorted(BEHIND, max(float(reach), REACH_MIN) - 1e-9)), len(BEHIND) - 1)
+    return np.where(np.arange(len(BEHIND)) <= k, values, np.asarray(values)[k])
 
 
 def lift_span(target: np.ndarray, slope: float) -> tuple[float, float]:
@@ -479,7 +494,8 @@ def load_nodes(v0) -> list[dict]:
             h = np.interp(KNOTS, s[inside], d_cl[inside])
             slope1 = corr["slope"] * f0["slope"]
             corr["h"] = h / lift_scale(target, slope1)
-            # Behind either end: the rows within three degrees of the cliff's foot. They did
+            # Behind either end: the rows within ten degrees of the cliff's foot (three rows
+            # of the march; more where the section was run on, `reach_*`). They did
             # not settle; they say how much drag and lift a separated section has, roughly.
             # Kept as steps from the value at the end (`behind_levels`, `lift_span`).
             foot_lo, foot_hi = target[0], target[-1]
@@ -495,9 +511,11 @@ def load_nodes(v0) -> list[dict]:
                     corr[f"log_step_{side}"] = level - at_end + own
                     corr[f"lift_step_{side}"] = (np.interp(BEHIND, d, d_cl[behind][by])
                                                  - h[k]) / span
+                    corr[f"reach_{side}"] = max(REACH_MIN, float(d[-1]))
                 else:
                     corr[f"log_step_{side}"] = own
                     corr[f"lift_step_{side}"] = np.zeros(len(BEHIND))
+                    corr[f"reach_{side}"] = REACH_MIN
             nodes.append({"name": name, "family": fam, "tc": tc, "camber": camber, "re": re,
                           "alpha": a, "cl": cl, "cd": cd, "settled": settled, "inside": inside,
                           "reached": reached, "rans": fr, "v0": f0, "corr": corr})
@@ -559,13 +577,16 @@ def _re_ratios(y: np.ndarray, member: list, multi: list, log_re: np.ndarray,
     camber, t/c 0.08) then had 0.24 MORE lift behind the end than at it at 1.4e5, and
     every eighth node of the table no drag step at all."""
     out = []
+    # (read within three degrees of the end, where every march has rows; further out a
+    # section has rows only if it was run on, and the last row's step is held)
+    near = [j for j in range(y.shape[1]) if BEHIND[j] <= 3.0 + 1e-9]
     for b in breaks:
         num = den = 0.0
         for k in multi:
             m = member[k][np.argsort(log_re[member[k]])]
             if log_re[m[0]] <= min(b, ref) + 1e-9 and log_re[m[-1]] >= max(b, ref) - 1e-9:
-                num += sum(float(np.interp(b, log_re[m], y[m, j])) for j in range(y.shape[1]))
-                den += sum(float(np.interp(ref, log_re[m], y[m, j])) for j in range(y.shape[1]))
+                num += sum(float(np.interp(b, log_re[m], y[m, j])) for j in near)
+                den += sum(float(np.interp(ref, log_re[m], y[m, j])) for j in near)
         out.append(max(num / den, 0.0) if abs(den) > 1e-12 else 1.0)
     return out
 
