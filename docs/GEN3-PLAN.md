@@ -298,7 +298,11 @@ else. The phases below keep their content; this is the sequence.
      `bench/cambered-candidate/mesh-level-6-candidate/`): going straight 9.9,
      7.7 and 6.5 N on levels 2, 5 and 6 against the lattice's 5.1 N, on the
      lattice at −2.5°, 12 % above at −3.5°, 57 % at −4.5°. The series is
-     still falling; a nose band along the leading edge would end it.
+     still falling; a nose band along the leading edge would end it. On the
+     gen-2 planform (`bench/cambered-candidate/mesh-level-6/`) level 6 has
+     the flat inside face at 13.1 N going straight (level 5: 13.3, lattice
+     12.5: converged) and 3 % camber on t/c 0.092 at 5.0 N (level 5: 5.9,
+     lattice 4.6): the factor between the two is a 3-D CFD result now.
      Zero-lift angle tied to toe: still open.
    - `[~]` Fitted separation model for the knee: first cut IN, opt-in
      (2026-11-20, `hydro_model = "lattice-knee"`, `bladehydro.knee`,

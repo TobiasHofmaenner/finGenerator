@@ -2139,15 +2139,23 @@ Lattice over level-5 CFD, drag at the blade's own incidence:
   −2.5°, 12 % above it at −3.5°, 57 % at −4.5°. Going straight the three
   meshes read 9.9, 7.7 and 6.5 N, the lattice 5.1. It is not shown directly:
   no 3-D mesh here resolves the nose along the whole leading edge.
+- **On the gen-2 planform level 6 settles it** (`bench/cambered-candidate/
+  mesh-level-6/`). The flat inside face does not move with the mesh (level 6
+  is 1–4 % below level 5 at every angle; 13.1 N going straight, the lattice
+  12.5). The 3 % blade of t/c 0.092 does (12–18 % less from −2.5° to
+  −4.5°) and ends within 5 % of the lattice from −3.5° to +4° and 16 % above
+  at −4.5°: 5.0 N going straight, the lattice 4.6. On one planform, in 3-D
+  CFD, 13.1 N against 5.0 N.
 - **Level 5 is on the old inlet.** The twin keel alone on the held stream
   reads 5 % less drag at 0–4° of incidence and 1–2 % less at 12–16°, lift
   1 % less (`bench/phase2b/twin-set/`). Every ratio above is against CFD
   that would read that much lower.
 
 What a cambered side fin costs going straight, 4.6–5.1 N against 12.5 N,
-rests on the 2-D referee and on strips that stay inside their range. It is
-the largest single number in the trade between a flat inside face and
-camber, and the 3-D check of it is the one named above.
+is the largest single number in the trade between a flat inside face and
+camber. For the thicker cambered blade the finest 3-D mesh now has it
+within a tenth; for the thin candidate the lattice's number still rests on
+the 2-D referee and on strips that stay inside their range.
 
 ### 7. What the search does on this table
 
