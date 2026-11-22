@@ -2199,7 +2199,7 @@ Nothing in what a rider can choose moved, except the lowest hold on offer
   incidence, its flat face on the suction side, and level off; the lattice
   keeps it on the line (on the four-fin set's front outside fin 69 % and
   94 % more lift than the set CFD at 10° and 15° of leeway). Its strips are
-  then 2° to 9° past their sections' lower ends, and that far out the table
+  then 1° to 9° past their sections' lower ends, and that far out the table
   has no referee: the marches stop three rows past an end and v0's shape
   carries on, with the lift still growing. The one control run on from
   there (section 2) has the lift level off two degrees past the end. With
@@ -2208,7 +2208,8 @@ Nothing in what a rider can choose moved, except the lowest hold on offer
   67 %), and the other three fins of the set within 6 % as before. So this
   is the table, not the lattice: the flat-inside sections want rows to −14°
   below their lower end, and the builder has to carry them. The twin's low
-  keel (aspect ratio 0.6) is not helped by it, 32 % high at 12° either way.
+  keel (aspect ratio 0.6) is hardly helped by it: 38 % high at 12° of
+  leeway as shipped, 32 % levelled.
 - **Reynolds number above 5.7e5** rests on one section (4.5 % camber, t/c
   0.092 at 9.7e5). Root strips of side fins work at 7–9.5e5.
 - **The share is one number from one tunnel fin.** Two measured foils and
