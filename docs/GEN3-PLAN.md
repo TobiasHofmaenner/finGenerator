@@ -581,8 +581,11 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   11.6°). The cause is found. A thin symmetric section's attached range ends
   at 5–7° in a step of drag, with a bubble growing from the nose, and its
   lift goes on rising behind that end at two thirds of the slope (control to
-  12°: 0.52 at the end, 0.79 at 9°, 0.90 at 10°); tunnels have the same kink
-  at 5° on a 6 % section and its highest lift near 9°. The criterion takes
+  12°: 0.52 at the end, 0.79 at 9°, 0.90 at 10°). Tunnels are quoted with
+  the same kind of kink near 5° on a 6 % section (NACA 64A006, McCullough
+  and Gault, NACA TN 2502) and a highest lift of about 0.9 near 9°: from two
+  secondary sources found by search, the report itself is still to be read.
+  The criterion takes
   its share of the lift at the END, so on these sections it takes a share of
   the kink. On both thin blades the polar starts to leave its line where the
   most loaded strip reaches the kink itself (share 1.0: 8.5° and 10.4°),
