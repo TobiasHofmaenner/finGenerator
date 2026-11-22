@@ -38,6 +38,7 @@ front fin. See `falk_rear_deficit`/`interference_factor` for the mapping.
 from __future__ import annotations
 
 import contextlib
+import dataclasses
 import functools
 import json
 import math
@@ -1512,6 +1513,135 @@ def optimize(rider: RiderSpec, budget_evals: int = 4000, seed: int = 0,
 
 
 # --- serialization (web tier + verification handoff) -------------------------
+
+
+# --- tastes relative to the balanced fin --------------------------------------
+# A rider does not know a yaw stiffness in N m/rad. What can be asked is "looser
+# or stiffer than the fin we would make you anyway", so a taste is given as a
+# MULTIPLE of the balanced fin's own value (1.0 = that fin). Only once that fin is
+# known does the multiple become a band in physical units (GEN3-PLAN 1.7; the web
+# quiz sends {"tastes": {"yaw_stiffness_nm_rad": 0.8, "roll_damping_nm_s": 1.0}}).
+TASTE_MULTIPLE_RANGE = (0.2, 5.0)
+# A multiple this close to 1 asks for the balanced fin: no band, no second search.
+# (Six seeds of the balanced search differ by +-10 % in both tastes at one score.)
+TASTE_MULTIPLE_DEADBAND = 0.02
+# How far outside its band a taste may end and still count as reached: a tenth of
+# TASTE_STEP, well under what the seeds of one search differ by.
+TASTE_REACHED_TOL = 0.03
+_TASTE_FAR = 1e-6           # the open side of a one-sided band, as a multiple of the reference
+
+
+@dataclass
+class TastedResult:
+    """What `optimize_with_tastes` found.
+
+    `balanced` is the fin for the rider with no taste asked; `tasted` the fin of
+    the second search, or None when every multiple asked for the balanced fin.
+    `reference` holds the balanced fin's own tastes in physical units, `bands` what
+    the second search was held to, `achieved` where its fin ended (as multiples of
+    the reference) and `reached` whether that is inside the band. A band that was
+    not reached is a finding about the rider's frontier, not an error: the range
+    in which a taste can be moved is not the same for every rider."""
+
+    balanced: OptimizationResult
+    tasted: OptimizationResult | None
+    multiples: dict[str, float]
+    reference: dict[str, float]
+    bands: dict[str, tuple[float, float]]
+    achieved: dict[str, float]
+    reached: dict[str, bool]
+
+    @property
+    def chosen(self) -> OptimizationResult:
+        """The fin the rider asked for: the tasted one where there is one."""
+        return self.tasted if self.tasted is not None else self.balanced
+
+    @property
+    def n_evals(self) -> int:
+        return self.balanced.n_evals + (self.tasted.n_evals if self.tasted is not None else 0)
+
+
+def taste_bands_from_multiples(reference: dict[str, float],
+                               multiples: dict[str, float]) -> dict[str, tuple[float, float]]:
+    """Bands in physical units for tastes given as multiples of `reference`.
+
+    Below 1 the multiple is an upper bound (looser, quicker: "at most 0.8 x"),
+    above 1 a lower bound (stiffer, calmer: "at least 1.25 x"), as the lever audit
+    moved them (bench/levers). Within TASTE_MULTIPLE_DEADBAND of 1 there is no
+    band."""
+    lo_m, hi_m = TASTE_MULTIPLE_RANGE
+    bands = {}
+    for name, multiple in multiples.items():
+        if name not in TASTES:
+            raise ValueError(f"unknown taste {name!r} (known: {TASTES})")
+        if not lo_m <= multiple <= hi_m:
+            raise ValueError(f"taste multiple {name}={multiple!r} outside {lo_m:g}-{hi_m:g}")
+        ref = reference[name]
+        if not ref > 0.0:
+            raise ValueError(f"reference {name}={ref!r} must be positive")
+        if multiple < 1.0 - TASTE_MULTIPLE_DEADBAND:
+            bands[name] = (_TASTE_FAR * ref, multiple * ref)
+        elif multiple > 1.0 + TASTE_MULTIPLE_DEADBAND:
+            bands[name] = (multiple * ref, ref / _TASTE_FAR)
+    return bands
+
+
+def optimize_with_tastes(rider: RiderSpec, tastes: dict[str, float], budget_evals: int = 4000,
+                         seed: int = 0, workers: int | None = None,
+                         progress: Callable[[OptimizeProgress], None] | None = None,
+                         ) -> TastedResult:
+    """The fin for a rider whose tastes are given relative to the balanced fin.
+
+    Two searches of `budget_evals` each at most: the balanced fin (the rider as
+    given, without taste bands), then, if a multiple in `tastes` is off 1, the same
+    rider held to the bands those multiples make of the balanced fin's own yaw
+    stiffness and roll damping. Tastes act under frontier scoring only
+    (`RiderSpec.scoring = "frontier"`); `rider.taste_bands` must be empty, the
+    bands are this function's to set.
+
+    Both results carry their shortfalls per good in felt steps
+    (`result.margins["shortfall_*"]`), which is what a result page draws: what the
+    taste cost against the balanced fin is the difference of the two."""
+    if rider.scoring != "frontier":
+        raise ValueError("tastes act under frontier scoring only (RiderSpec.scoring)")
+    if rider.taste_bands:
+        raise ValueError("give tastes as multiples OR RiderSpec.taste_bands, not both")
+    multiples = {name: float(tastes.get(name, 1.0)) for name in TASTES}
+    unknown = set(tastes) - set(TASTES)
+    if unknown:
+        raise ValueError(f"unknown tastes: {sorted(unknown)} (known: {TASTES})")
+    balanced = optimize(rider, budget_evals=budget_evals, seed=seed, workers=workers,
+                        progress=progress)
+    reference = {name: float(balanced.result.margins[name]) for name in TASTES}
+    bands = taste_bands_from_multiples(reference, multiples)
+    if not bands:
+        return TastedResult(balanced=balanced, tasted=None, multiples=multiples,
+                            reference=reference, bands={}, achieved=dict.fromkeys(TASTES, 1.0),
+                            reached=dict.fromkeys(TASTES, True))
+    tasted = optimize(dataclasses.replace(rider, taste_bands=bands), budget_evals=budget_evals,
+                      seed=seed, workers=workers, progress=progress)
+    achieved = {name: float(tasted.result.margins[name]) / reference[name] for name in TASTES}
+    reached = {}
+    for name in TASTES:
+        lo, hi = bands.get(name, (0.0, math.inf))
+        x = achieved[name] * reference[name]
+        reached[name] = lo * (1.0 - TASTE_REACHED_TOL) <= x <= hi * (1.0 + TASTE_REACHED_TOL)
+    return TastedResult(balanced=balanced, tasted=tasted, multiples=multiples,
+                        reference=reference, bands=bands, achieved=achieved, reached=reached)
+
+
+def tasted_result_to_dict(result: TastedResult) -> dict:
+    """A `TastedResult` as plain data: both fins as `result_to_dict` writes them,
+    and what the tastes asked for, were held to and reached."""
+    return {
+        "balanced": result_to_dict(result.balanced),
+        "tasted": None if result.tasted is None else result_to_dict(result.tasted),
+        "tastes": {name: {"multiple": result.multiples[name],
+                          "reference": result.reference[name],
+                          "band": (list(result.bands[name]) if name in result.bands else None),
+                          "achieved_multiple": result.achieved[name],
+                          "reached": result.reached[name]} for name in TASTES},
+    }
 
 
 def fin_to_dict(fin: FinParams) -> dict:

@@ -476,7 +476,7 @@ design turn given directly (1.0), with `skill` kept for existing rider files.
   takes the balanced search first, then a second search with the band — item
   1.7. Open from the plan above: the speed floor as a second input (waits for
   D4), the finish as a logged modifier, `docs/INPUTS.md`.
-- `[ ]` **1.7 Tastes relative to the balanced fin.** `optimize` wrapper for a
+- `[x]` **1.7 Tastes relative to the balanced fin.** `optimize` wrapper for a
   rider with taste multiples: search the balanced fin (no bands), read its
   yaw stiffness and roll damping, set `taste_bands` from the multiples
   (looser: an upper bound, stiffer: a lower bound, as in `bench/levers/`), and
@@ -485,6 +485,15 @@ design turn given directly (1.0), with `skill` kept for existing rider files.
   what the quiz's result page draws. The reachable range is not the same for
   every rider (the quiz offers 0.6–1.5 × and 0.45–1.6 ×, from one rider):
   report when a band was not reached.
+  *In, 2026-11-22:* `optimize.optimize_with_tastes(rider, tastes, …)` returns
+  a `TastedResult`: the balanced fin, the tasted fin (none when every
+  multiple is within 2 % of 1), the balanced fin's own two tastes, the bands
+  the second search was held to, where its fin ended as multiples of the
+  balanced one and whether that is inside the band (3 % tolerance);
+  `tasted_result_to_dict` for a worker to write. It takes what the quiz
+  sends as it is. Both searches start from the template and use the same
+  seed; each gets the full budget. Not done here: the worker in T-FINS-web
+  that calls it, and the result page.
 - `[ ]` **1.1 Physical-unit axes.** Replace `_normalize` (fleet rank) with
   per-axis physical scales: trim drag and turn-load drag in N relative to the
   rider's estimated board drag; L/D at work and at peak; hold as
