@@ -47,6 +47,7 @@
  "speed_ms": 8.5,
  "bank_deg": 55.0,
  "gates": "omar",
+ "edge_offsets": true,
  "objective": 1.386034737093571,
  "feasible": false,
  "margins": {

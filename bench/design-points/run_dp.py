@@ -13,6 +13,8 @@ from fingen.params import FinConfig, TabSystem
 
 GATES = {"omar": {"stress_sf_min": 1.5, "washout_max": 0.015},            # his gates, tab gate ON (a mix)
          "file": {"stress_sf_min": 1.5, "washout_max": 0.015, "tab_sf_min": None},   # as his rider files
+         "sliders": {"stress_sf_min": 1.5, "washout_max": 0.015, "tab_sf_min": None},  # as "file", run after the
+                                                                           # search stopped opening the edge offsets
          "default": {}}                                                    # what a quiz job gets today
 
 if __name__ == "__main__":

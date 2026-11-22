@@ -47,6 +47,7 @@
  "speed_ms": 8.5,
  "bank_deg": 55.0,
  "gates": "file",
+ "edge_offsets": true,
  "objective": 0.017584003462276412,
  "feasible": true,
  "margins": {

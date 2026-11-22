@@ -21,7 +21,7 @@ def draw(ax, fin, title, colour="#1f6f8b"):
     ax.set_title(title, fontsize=11)
 for i, v in enumerate((6.5, 7.5, 8.5)):
     for j, lean in enumerate((40, 48, 55)):
-        fin, m = load(f"file-v{v:g}-lean{lean}")
+        fin, m = load(f"sliders-v{v:g}-lean{lean}")
         o, f = fin.outline, fin.foil
         draw(axes[i, j], fin, f"{v:g} m/s, {lean}° lean\n{metrics(o).area:.0f} mm², camber {100 * f.camber_ratio:.1f} %, t/c {f.thickness_ratio:.3f}\n"
                                f"hold {m['hold_ratio']:.2f}, {m['trim_drag_n']:.1f} N straight, {m['work_drag_n']:.1f} N working")
@@ -30,7 +30,7 @@ fin, m = load("omar-v7.5-lean48")
 draw(axes[1, 3], fin, f"tab gate ON: 7.5 m/s, 48°\n{metrics(fin.outline).area:.0f} mm², hold {m['hold_ratio']:.2f}, {m['work_drag_n']:.1f} N working", "#b5532d")
 fin, m = load("omar-v8.5-lean55")
 draw(axes[2, 3], fin, f"tab gate ON: 8.5 m/s, 55°\n{metrics(fin.outline).area:.0f} mm², hold {m['hold_ratio']:.2f}, {m['work_drag_n']:.1f} N working", "#b5532d")
-fig.suptitle("Generation 3 side fin for a 60 kg rider over the design turn (model output, not yet checked in CFD). "
+fig.suptitle("Generation 3 side fin for a 60 kg rider over the design turn, as the library searches it (no edge offsets; model output). "
              "Leading edge to the left; mm.", fontsize=13)
 fig.tight_layout(); fig.savefig(sys.argv[1], dpi=75)
 print("ok")

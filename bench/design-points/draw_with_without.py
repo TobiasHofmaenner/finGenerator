@@ -1,5 +1,5 @@
 """Outlines: the searches without edge offsets beside the ones with, and the shipped gen-2 side fin."""
-import glob, json, pickle, sys
+import json, sys
 from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
@@ -10,9 +10,9 @@ from fingen.outline import metrics, planform
 
 here = Path(__file__).parent
 gen2 = fin_from_dict(json.loads(Path("bench/foil-family/fins/side-shipped-gen2.json").read_text())["fin"])
-def best(pattern):
-    rs = sorted((pickle.loads(open(p, "rb").read()) for p in glob.glob(str(here / pattern))), key=lambda r: r["objective"])
-    return rs[0]
+def best(name):
+    d = json.loads((here / "fins" / f"{name}.json").read_text())
+    return {"fin": fin_from_dict(d["fin"]), "margins": d["margins"], "objective": d["objective"]}
 rows = [(8.5, 55), (7.5, 48), (6.5, 48)]
 fig, axes = plt.subplots(3, 3, figsize=(13.5, 13))
 def draw(ax, fin, title, colour):
@@ -27,7 +27,7 @@ def label(r):
     return (f"{metrics(o).area:.0f} mm², camber {100 * f.camber_ratio:.1f} %, t/c {f.thickness_ratio:.3f}\n"
             f"hold {m['hold_ratio']:.2f}, {m['trim_drag_n']:.2f} N straight, {m['work_drag_n']:.2f} N working, score {r['objective']:+.2f}")
 for i, (v, lean) in enumerate(rows):
-    a = best(f"stageA-v{v:g}-l{lean:g}-s*.pkl"); b = best(f"dp-file-v{v:g}-l{lean:g}-h0.8-s*.pkl")
+    a = best(f"sliders-v{v:g}-lean{lean:g}"); b = best(f"offsets-v{v:g}-lean{lean:g}")
     draw(axes[i, 0], a["fin"], f"{v:g} m/s, {lean}°: eight sliders and camber only\n" + label(a), "#2d7d46")
     draw(axes[i, 1], b["fin"], f"{v:g} m/s, {lean}°: with the twelve edge offsets\n" + label(b), "#1f6f8b")
     if i == 0:
