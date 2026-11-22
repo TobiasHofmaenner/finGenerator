@@ -121,7 +121,8 @@ def cases() -> list[tuple[str, FinParams, float, tuple[np.ndarray, np.ndarray]]]
          _polar("knee/one-degree/results-L6-flat.json", "flat-inside-L6")),
         # the generation-3 side for 8.5 m/s and 55 deg of lean, and its twin with a narrow tip
         # (bench/design-points/cfd): the first pair of polars that differs in tip width alone
-        ("gen-3 side for 8.5 m/s, 55° (4.5 % camber, tip 0.60 of the base), mesh level 5, one-degree steps",
+        ("gen-3 side for 8.5 m/s, 55° (4.5 % camber, tip 0.60 of the base), mesh level 5, "
+         "one-degree steps",
          _fin("design-points/cfd/fin-sliders.json"), 8.5,
          _polar("design-points/cfd/sliders-L5.json", "gen3-side-sliders-L5")),
         ("the same fin with its tip at 0.35 of the base, mesh level 5, one-degree steps",
