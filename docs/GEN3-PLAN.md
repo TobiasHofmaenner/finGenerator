@@ -623,7 +623,12 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   drag is lowest with no toe (9.5 N a fin, 10.8 N at 2°, 13.2 N at the 4.1°
   where it carries nothing). *Running:* one mesh level finer, and 4 m/s.
   *Open:* (c); a share from the lattice set in place of `sizing`'s 0.75; the
-  unloaded fin's lower end in the lattice.
+  unloaded fin behind its lower end. On fins of ordinary aspect ratio that is
+  the table (no referee rows more than 1.5° past a flat inside face's lower
+  end; with the lift levelled as the one control has it, the four-fin set's
+  front outside fin reads 17–24 % high instead of 69–94 %): rows to −14° on
+  the seven flat-inside sections, and the builder to carry them. The low
+  keel's own fall-off is not explained by it.
 - `[ ]` **2b.3 Quad.** (a) Validation first: our set CFD on the commercial
   4-fin configuration of [Falk20] against its per-fin forces
   (`bench/falk/falk20_perfin_forces.csv`). (b) Our own quad over leeway at two
