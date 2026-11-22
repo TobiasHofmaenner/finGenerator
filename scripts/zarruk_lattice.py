@@ -19,7 +19,7 @@ Reynolds number.
 What is asked of the comparison:
   * the lift slope, at an aspect ratio twice a fin's;
   * where the measured foil stalls, what its most loaded strip is doing: its lift as
-    a share of the lift the table's section has at its break (the quantity
+    a share of the most lift the table's section carries attached (the quantity
     bladehydro.KNEE_FRACTION is a share of), its incidence, and how far that is from
     the end of the section's attached range.
 """
@@ -84,11 +84,11 @@ def main() -> None:
              "Written by `scripts/zarruk_lattice.py`. Perfect mirror at the root, no other wall. "
              "Slopes are of the line through the origin over 4…8° (measured: clean markers only; "
              "the paper gives 4.82 per rad for Type I at Re 1.0e6). The most loaded strip is the "
-             "one nearest its section's lift at break; \"margin\" is from its incidence to the end "
+             "one nearest the most lift its section carries attached; \"margin\" is from its incidence to the end "
              "of its section's attached range.", "",
              "| foil | Re on the mean chord | lift slope per rad: measured / lattice | "
              "measured stall: ° , C_L | lattice C_L there | most loaded strip: z / span | "
-             "its lift | share of its section's lift at break | its incidence ° | margin ° | "
+             "its lift | share of the most lift its section carries attached | its incidence ° | margin ° | "
              "lattice's own polar: 5 % below its line at ° |",
              "|---|---|---|---|---|---|---|---|---|---|---|"]
     for kind, re_label in RUNS:
@@ -113,7 +113,7 @@ def main() -> None:
         else:
             sol = lattice.solve_viscous([b], {"blade": pol}, speed, st[0])
             ld = sol.loads["blade"]
-            brk = np.array([float(p.cl_at(p.alpha_break_deg)) for p in pol])
+            brk = np.array([p.cl_limit for p in pol])
             k = int(np.argmax(ld.cl_local / brk))
             end = pol[k].attached_deg[1] if pol[k].attached_deg else pol[k].alpha_break_deg
             cells += [f"{st[0]:.1f}, {st[1]:.3f}",

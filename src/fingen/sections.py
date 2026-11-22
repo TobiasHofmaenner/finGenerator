@@ -185,6 +185,21 @@ class SectionPolar:
         return self._break[1]
 
     @functools.cached_property
+    def cl_limit(self) -> float:
+        """The most lift the section carries attached: its highest lift between the zero-lift
+        angle and the upper end of the attached range (the lift at the break where the table
+        reports no range). On a section whose lift rounds over before its end, the break by
+        slope moves a degree with a change of shape too small to see, and the lift read
+        there with it; the highest lift does not move (bench/section-gate, section 4).
+        Not the last word on a thin section: its lift keeps rising behind the end of the
+        range, which is where a bubble has grown from the nose and the drag has stepped."""
+        if self.attached_deg is None:
+            return self.cl_break
+        hi = self.attached_deg[1]
+        inside = (self.alpha_deg >= self.alpha0_deg) & (self.alpha_deg <= hi)
+        return float(max(self.cl[inside].max(initial=-np.inf), float(self.cl_at(hi))))
+
+    @functools.cached_property
     def alpha_cd_min_deg(self) -> float:
         """Centre of the low-drag range."""
         return float(self.alpha_deg[int(np.argmin(self.cd))])

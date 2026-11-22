@@ -75,9 +75,9 @@ def strip_knee(fin: FinParams, speed: float, fraction: float, mirror: float,
     pol = lattice.strip_sections(fin, blade, speed, table)
     lo, hi = (lattice.solve_viscous([blade], {"blade": pol}, speed, a,
                                     mirror_strength=mirror).loads["blade"] for a in (2.0, 6.0))
-    cl_break = np.array([float(p.cl_at(p.alpha_break_deg)) for p in pol])
+    cl_limit = np.array([p.cl_limit for p in pol])
     rate = (hi.cl_local - lo.cl_local) / 4.0
-    reach = np.where(rate > 1e-6, 2.0 + (fraction * cl_break - lo.cl_local) / np.maximum(rate, 1e-6),
+    reach = np.where(rate > 1e-6, 2.0 + (fraction * cl_limit - lo.cl_local) / np.maximum(rate, 1e-6),
                      np.inf)
     alpha = float(reach.min())
     return alpha, lo.cl + (hi.cl - lo.cl) / 4.0 * (alpha - 2.0)
@@ -132,7 +132,7 @@ def cases() -> list[tuple[str, FinParams, float, tuple[np.ndarray, np.ndarray]]]
 def main() -> None:
     opt = dict(a[2:].split("=", 1) for a in sys.argv[1:] if a.startswith("--") and "=" in a)
     fraction = float(opt.get("fraction", bladehydro.KNEE_FRACTION))
-    lines = [f"# Where each blade leaves its lift line (strip criterion at {fraction:g} of the section's lift at its break)",
+    lines = [f"# Where each blade leaves its lift line (strip criterion at {fraction:g} of the most lift the section carries attached)",
              "",
              "| blade | geometric aspect ratio | polar: 5 % below its line between ° | aspect-ratio rule ° | "
              "strip criterion °: perfect mirror / board mirror | C_L at the knee: rule / criterion (perfect mirror) | "

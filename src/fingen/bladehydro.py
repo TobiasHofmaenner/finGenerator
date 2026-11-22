@@ -26,8 +26,8 @@ where the tunnel has it bend at 12-14. Under `"lattice"` and `"lattice-v1"`
 the break angle therefore stays tier-0's (hydro.break_alpha_deg) and every
 solve here is kept on the attached side of it. `"lattice-knee"` reads the
 knee off the strips instead (`knee`, KNEE_FRACTION): the blade leaves its
-line when its most loaded strip reaches a fixed share of what its section
-lifts at the section's own break.
+line when its most loaded strip reaches a fixed share of the most lift its
+section carries attached (`SectionPolar.cl_limit`).
 
 The board is not a perfect mirror. BOARD_MIRROR_STRENGTH weakens the image so
 the lift slope loses about 8–9 %, which is tier-0's reflection factor 1.7 and
@@ -57,8 +57,11 @@ NZ, NX = 10, 2
 # clear of the zero-lift kink of a flat inside face.
 _LIN_LO_DEG, _LIN_HI_DEG = 2.0, 6.0
 TRIM_LEEWAY_DEG = 1.0
-# The knee of a blade (`knee`): its most loaded strip at this share of the lift
-# its section has at the section's own break. One fitted number. 0.715 puts the
+# The knee of a blade (`knee`): its most loaded strip at this share of the most
+# lift its section carries attached (`SectionPolar.cl_limit`; until 2026-11-22
+# the lift at the break by slope, which is the same number on a table whose
+# sections hold their lift to the end and a jumpy one where they round over).
+# One fitted number. 0.715 puts the
 # knee of the [BW04] tunnel fin at 12.0 deg on the board mirror — the last
 # tunnel point on its lift line (14 deg is 6 % below it) and tier-0's own
 # anchor. Checked, not fitted, against the eight 3-D polars with a fin file
@@ -113,8 +116,8 @@ def knee(fin: FinParams, speed: float, table: str = "v0") -> tuple[float, float]
 
     Every strip's lift is followed along its own line through the working
     range; the knee is the first angle at which one of them reaches
-    KNEE_FRACTION of the lift its section has at the section's own break
-    (`SectionPolar.alpha_break_deg`). A blade that loads its tip reaches that
+    KNEE_FRACTION of the most lift its section carries attached
+    (`SectionPolar.cl_limit`). A blade that loads its tip reaches that
     earlier than one that spreads its load, a high aspect ratio earlier than a
     low one (each degree of incidence loads its strips more), a section with
     more maximum lift later. What it stands for: on a real blade the line ends
@@ -123,12 +126,12 @@ def knee(fin: FinParams, speed: float, table: str = "v0") -> tuple[float, float]
     lo, _ = point(fin, speed, _LIN_LO_DEG, table)
     hi, _ = point(fin, speed, _LIN_HI_DEG, table)
     _, polars = _context(fin, round(speed * 1e3), table)
-    cl_break = np.array([float(p.cl_at(p.alpha_break_deg)) for p in polars["blade"]])
+    cl_limit = np.array([p.cl_limit for p in polars["blade"]])
     span = _LIN_HI_DEG - _LIN_LO_DEG
     rate = (hi.cl_local - lo.cl_local) / span
     reach = np.full(len(rate), np.inf)
     rising = rate > 1e-6
-    reach[rising] = _LIN_LO_DEG + ((KNEE_FRACTION * cl_break[rising] - lo.cl_local[rising])
+    reach[rising] = _LIN_LO_DEG + ((KNEE_FRACTION * cl_limit[rising] - lo.cl_local[rising])
                                    / rate[rising])
     alpha = float(reach.min())
     if not math.isfinite(alpha):

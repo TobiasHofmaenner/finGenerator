@@ -193,3 +193,21 @@ def test_linear_range_of_an_aligned_polar_is_looked_for_inside_its_attached_rang
     assert aligned.alpha_break_deg == pytest.approx(3.0)      # the end, with the lift held there
     assert aligned.cl_break == pytest.approx(0.3)
     assert plain.slope_per_rad < 0.5 * aligned.slope_per_rad  # read off the stalled branch
+
+
+def test_cl_limit_is_the_highest_attached_lift_not_the_lift_where_the_slope_falls():
+    """A lift curve that rounds over before its end: the break by slope sits inside the
+    range and reads less lift than the section carries; the limit is the top."""
+    a = np.arange(-4.0, 14.01, 0.25)
+    # straight to 8 deg, a top of 0.9 at 10 deg, and it lets go there
+    cl = np.where(a <= 8.0, 0.1 * a, 0.8 + 0.1 * (a - 8.0) - 0.025 * (a - 8.0) ** 2)
+    cl = np.where(a > 10.0, 0.6, cl)
+    kw = dict(family=FoilFamily.CAMBERED, thickness_ratio=0.07, camber_ratio=0.03, reynolds=5.7e5,
+              alpha_deg=a, cl=cl, cd=0.01 + 0.0002 * a**2, cm=np.zeros_like(a), clipped=False)
+    p = sections.SectionPolar(**kw, attached_deg=(-4.0, 10.0))
+    assert p.cl_limit == pytest.approx(0.9)
+    assert p.alpha_break_deg < 10.0
+    assert p.cl_break < p.cl_limit
+    # a table without a range (the plain layout): the lift at the break, as before
+    plain = sections.SectionPolar(**kw)
+    assert plain.cl_limit == plain.cl_break
