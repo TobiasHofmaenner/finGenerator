@@ -16,6 +16,6 @@ What differs from `../rerun/` besides the stream:
 - **Four sections are added (2026-11-22), 39 in all**, in the band of thickness where the upper end jumps as the stall moves from the nose to the trailing edge: 3 % camber at t/c 0.06 and 0.075, 4.5 % camber at t/c 0.06, flat inside at t/c 0.06, all at Re 5.7e5. On the first 25 sections the upper end of the 3 % cambered family goes 6.6°, 10.1°, 13.1° at t/c 0.05, 0.07, 0.08, and the table built with one section left out misses that section's upper end by 1.0° (cambered) and 1.7° (flat inside) rms. That gap is as large as what a finer wall moves and larger than what the stream does.
 - **A row that swings about a steady mean counts as settled** (`cycle` in `results.json`, listed in the kit's `cycles.json`): three flat-inside rows at −2.5°, whose lift swings by ±0.006 about a mean that holds to four digits over 1800 iterations, with settled rows on both sides.
 
-The wall: every section's mesh keeps its layers on all faces and has a mean wall y⁺ of 1.26–1.44 at 0° (32 sections started so far, and both gates). What that wall costs against a finer one (drag 4–5 % low, ends 0.5–1.25° early) is in `../../section-gate/`, section 4.
+The wall: every section's mesh keeps its layers on all faces and has a mean wall y⁺ of 1.26–1.44 at 0° (all 39 sections, and both gates). What that wall costs against a finer one (drag 4–5 % low, ends 0.5–1.25° early) is in `../../section-gate/`, section 4.
 
 The table (`scripts/build_section_table_v1.py --sections=rerun-held`) is rebuilt from this record when it is complete.
