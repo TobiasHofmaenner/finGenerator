@@ -692,6 +692,13 @@
      "settled": true
     },
     {
+     "alpha": 12.75,
+     "cl": 1.24337,
+     "cd": 0.029167,
+     "iters": 2700,
+     "settled": true
+    },
+    {
      "alpha": 13.0,
      "cl": 0.79022,
      "cd": 0.096098,
@@ -1576,6 +1583,13 @@
    },
    "rows": [
     {
+     "alpha": -5.0,
+     "cl": -0.21207,
+     "cd": 0.041113,
+     "iters": 3000,
+     "settled": false
+    },
+    {
      "alpha": -4.75,
      "cl": -0.18947,
      "cd": 0.03537,
@@ -1609,6 +1623,27 @@
      "cd": 0.017953,
      "iters": 600,
      "settled": true
+    },
+    {
+     "alpha": 8.0,
+     "cl": 1.02146,
+     "cd": 0.033857,
+     "iters": 3000,
+     "settled": false
+    },
+    {
+     "alpha": 8.25,
+     "cl": 0.99859,
+     "cd": 0.039242,
+     "iters": 3000,
+     "settled": false
+    },
+    {
+     "alpha": 8.5,
+     "cl": 1.00036,
+     "cd": 0.04358,
+     "iters": 3000,
+     "settled": false
     }
    ]
   },
@@ -1690,6 +1725,27 @@
    },
    "rows": [
     {
+     "alpha": -5.0,
+     "cl": -0.21281,
+     "cd": 0.041361,
+     "iters": 3000,
+     "settled": false
+    },
+    {
+     "alpha": -4.75,
+     "cl": -0.18924,
+     "cd": 0.035207,
+     "iters": 3000,
+     "settled": false
+    },
+    {
+     "alpha": -4.5,
+     "cl": -0.16127,
+     "cd": 0.02598,
+     "iters": 3000,
+     "settled": false
+    },
+    {
      "alpha": -3.5,
      "cl": -0.06076,
      "cd": 0.016045,
@@ -1709,6 +1765,27 @@
      "cd": 0.01804,
      "iters": 600,
      "settled": true
+    },
+    {
+     "alpha": 8.0,
+     "cl": 1.02343,
+     "cd": 0.033645,
+     "iters": 3000,
+     "settled": false
+    },
+    {
+     "alpha": 8.25,
+     "cl": 0.99888,
+     "cd": 0.039167,
+     "iters": 3000,
+     "settled": false
+    },
+    {
+     "alpha": 8.5,
+     "cl": 1.00084,
+     "cd": 0.043497,
+     "iters": 3000,
+     "settled": false
     }
    ]
   },
@@ -2209,6 +2286,13 @@
      "settled": false
     },
     {
+     "alpha": -6.25,
+     "cl": -0.32015,
+     "cd": 0.047095,
+     "iters": 3000,
+     "settled": false
+    },
+    {
      "alpha": -6.0,
      "cl": -0.31195,
      "cd": 0.016276,
@@ -2291,6 +2375,366 @@
      "cd": 0.018599,
      "iters": 600,
      "settled": true
+    },
+    {
+     "alpha": 8.0,
+     "cl": 1.16933,
+     "cd": 0.023296,
+     "iters": 900,
+     "settled": true
+    },
+    {
+     "alpha": 8.5,
+     "cl": 1.21342,
+     "cd": 0.024859,
+     "iters": 900,
+     "settled": true
+    },
+    {
+     "alpha": 9.0,
+     "cl": 1.25501,
+     "cd": 0.026657,
+     "iters": 900,
+     "settled": true
+    },
+    {
+     "alpha": 9.5,
+     "cl": 1.29362,
+     "cd": 0.028771,
+     "iters": 1200,
+     "settled": true
+    },
+    {
+     "alpha": 10.0,
+     "cl": 1.32325,
+     "cd": 0.031806,
+     "iters": 2400,
+     "settled": true
+    },
+    {
+     "alpha": 10.25,
+     "cl": 1.08341,
+     "cd": 0.062523,
+     "iters": 3000,
+     "settled": false
+    },
+    {
+     "alpha": 10.5,
+     "cl": 1.12304,
+     "cd": 0.067368,
+     "iters": 3000,
+     "settled": false
+    },
+    {
+     "alpha": 11.0,
+     "cl": 1.0524,
+     "cd": 0.089611,
+     "iters": 3000,
+     "settled": false
+    }
+   ]
+  },
+  "naca0012/held-y1": {
+   "run": "ctl-naca0012-re700k-y1",
+   "stream": "k = 1e-3 U^2 (2.58 %), omega = 5 U/c, held",
+   "note": "first cell half as high",
+   "spec": {
+    "name": "ctl-naca0012-re700k-y1",
+    "family": "symmetric",
+    "thickness_ratio": 0.12,
+    "te_thickness": 0.4,
+    "chord": 0.2,
+    "re": 700000.0,
+    "nose_level": 9,
+    "outline_points": 400,
+    "smooth_nose": true,
+    "stl_tolerance": 1e-06,
+    "stl_angle": 0.02,
+    "angles": [
+     0.0,
+     8.0,
+     12.0,
+     12.5,
+     13.0,
+     13.25,
+     13.5
+    ],
+    "first_yplus": 1.0,
+    "tu": 0.02582,
+    "omega_cu": 5.0,
+    "sustain": true
+   },
+   "mesh": {
+    "u_inf": 3.6749999999999994,
+    "span": 0.020000000000000004,
+    "cell": 0.020000000000000004,
+    "surface_cell": 3.906250000000001e-05,
+    "n_layers": 18,
+    "first_layer": 6.467635196411375e-06,
+    "bg_cells": 8652,
+    "resolved": true,
+    "outline": {
+     "points": 400,
+     "smooth_nose": true,
+     "tolerance": 1e-06,
+     "angle": 0.02
+    },
+    "nose_bands": [
+     [
+      0.02,
+      9
+     ],
+     [
+      0.04,
+      8
+     ],
+     [
+      0.08,
+      7
+     ],
+     [
+      0.16,
+      6
+     ]
+    ],
+    "inlet": {
+     "k": 0.013505741148374995,
+     "omega": 91.87499999999997,
+     "nut_ratio": 140.001204,
+     "sustained": true
+    },
+    "layers_mean": 17.9,
+    "layers_pct": 99.9,
+    "cells": 75327
+   },
+   "rows": [
+    {
+     "alpha": 0.0,
+     "cl": -0.00013,
+     "cd": 0.012071,
+     "iters": 600,
+     "settled": true
+    },
+    {
+     "alpha": 8.0,
+     "cl": 0.82562,
+     "cd": 0.018497,
+     "iters": 900,
+     "settled": true
+    },
+    {
+     "alpha": 12.0,
+     "cl": 1.18894,
+     "cd": 0.027973,
+     "iters": 1800,
+     "settled": true
+    },
+    {
+     "alpha": 12.5,
+     "cl": 1.225,
+     "cd": 0.029854,
+     "iters": 1500,
+     "settled": true
+    },
+    {
+     "alpha": 13.0,
+     "cl": 1.26193,
+     "cd": 0.031596,
+     "iters": 2400,
+     "settled": true
+    },
+    {
+     "alpha": 13.25,
+     "cl": 1.27674,
+     "cd": 0.032634,
+     "iters": 3000,
+     "settled": true
+    },
+    {
+     "alpha": 13.5,
+     "cl": 0.85303,
+     "cd": 0.084591,
+     "iters": 3000,
+     "settled": false
+    }
+   ]
+  },
+  "camb3-tc070-re570k/held-y1": {
+   "run": "ctl-camb3-tc070-re570k-y1",
+   "stream": "k = 1e-3 U^2 (2.58 %), omega = 5 U/c, held",
+   "note": "first cell half as high; two runs of one mesh, the second extends the upper end",
+   "spec": {
+    "name": "ctl-camb3-tc070-re570k-y1",
+    "family": "cambered",
+    "thickness_ratio": 0.07,
+    "camber_ratio": 0.03,
+    "camber_position": 0.4,
+    "te_thickness": 1.2,
+    "chord": 0.12,
+    "re": 570000.0,
+    "nose_level": 9,
+    "outline_points": 400,
+    "smooth_nose": true,
+    "stl_tolerance": 1e-06,
+    "stl_angle": 0.02,
+    "angles": [
+     0.0,
+     4.0,
+     -5.5,
+     -6.0,
+     -6.25,
+     -6.5,
+     9.5,
+     10.0,
+     10.25,
+     10.5
+    ],
+    "first_yplus": 1.0,
+    "tu": 0.02582,
+    "omega_cu": 5.0,
+    "sustain": true
+   },
+   "mesh": {
+    "u_inf": 4.9875,
+    "span": 0.012,
+    "cell": 0.012,
+    "surface_cell": 2.34375e-05,
+    "n_layers": 17,
+    "first_layer": 4.6687178882408805e-06,
+    "bg_cells": 8652,
+    "resolved": true,
+    "outline": {
+     "points": 400,
+     "smooth_nose": true,
+     "tolerance": 1e-06,
+     "angle": 0.02
+    },
+    "nose_bands": [
+     [
+      0.02,
+      9
+     ],
+     [
+      0.04,
+      8
+     ],
+     [
+      0.08,
+      7
+     ],
+     [
+      0.16,
+      6
+     ]
+    ],
+    "inlet": {
+     "k": 0.024875370176343743,
+     "omega": 207.8125,
+     "nut_ratio": 114.00098039999997,
+     "sustained": true
+    },
+    "layers_mean": 16.9,
+    "layers_pct": 99.9,
+    "cells": 72402
+   },
+   "rows": [
+    {
+     "alpha": -6.5,
+     "cl": -0.36797,
+     "cd": 0.053789,
+     "iters": 3000,
+     "settled": false
+    },
+    {
+     "alpha": -6.25,
+     "cl": -0.34099,
+     "cd": 0.016863,
+     "iters": 1200,
+     "settled": true
+    },
+    {
+     "alpha": -6.0,
+     "cl": -0.31447,
+     "cd": 0.016149,
+     "iters": 1200,
+     "settled": true
+    },
+    {
+     "alpha": -5.5,
+     "cl": -0.26031,
+     "cd": 0.015066,
+     "iters": 900,
+     "settled": true
+    },
+    {
+     "alpha": 0.0,
+     "cl": 0.33881,
+     "cd": 0.012446,
+     "iters": 600,
+     "settled": true
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.77008,
+     "cd": 0.015684,
+     "iters": 600,
+     "settled": true
+    },
+    {
+     "alpha": 9.5,
+     "cl": 1.29181,
+     "cd": 0.028317,
+     "iters": 900,
+     "settled": true
+    },
+    {
+     "alpha": 10.0,
+     "cl": 1.32995,
+     "cd": 0.030598,
+     "iters": 1200,
+     "settled": true
+    },
+    {
+     "alpha": 10.25,
+     "cl": 1.34419,
+     "cd": 0.031937,
+     "iters": 1200,
+     "settled": true
+    },
+    {
+     "alpha": 10.5,
+     "cl": 1.36003,
+     "cd": 0.033409,
+     "iters": 1500,
+     "settled": true
+    },
+    {
+     "alpha": 10.75,
+     "cl": 1.36969,
+     "cd": 0.035359,
+     "iters": 1200,
+     "settled": true
+    },
+    {
+     "alpha": 11.0,
+     "cl": 1.12743,
+     "cd": 0.058873,
+     "iters": 3000,
+     "settled": false
+    },
+    {
+     "alpha": 11.5,
+     "cl": 1.00033,
+     "cd": 0.102818,
+     "iters": 3000,
+     "settled": false
+    },
+    {
+     "alpha": 12.0,
+     "cl": 1.03435,
+     "cd": 0.169263,
+     "iters": 3000,
+     "settled": false
     }
    ]
   }

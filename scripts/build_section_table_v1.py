@@ -74,6 +74,13 @@ section, only a mean of something unsteady. They are used for where the end
 is, and for drag and lift in the three degrees behind it, never inside the
 range.
 
+A row the record marks `cycle` counts as settled. It failed the stopping rule
+by swinging about a mean that holds to four digits (a flat inside face at
+-2.5 deg on the held stream, shedding from its corner), its neighbours on both
+sides settle, and its mean lies on the curve through them. Read as unsettled
+it would end the flat-inside range at -1 deg, two rows short of where the
+section lets go.
+
 v1 is stored in the ALIGNED layout (fingen.sections): every polar on the
 coordinate s, its marks beside it. The library interpolates marks and curves
 between neighbouring nodes at equal s, so a section between two nodes has one
@@ -409,7 +416,8 @@ def load_nodes(v0) -> list[dict]:
             a = np.array([r["alpha"] for r in rows])
             cl = np.array([r["cl"] for r in rows])
             cd = np.array([r["cd"] for r in rows])
-            settled = np.array([r.get("settled", r.get("iters", 0) < cap) for r in rows])
+            settled = np.array([bool(r.get("cycle")) or r.get("settled", r.get("iters", 0) < cap)
+                                for r in rows])
             camber = float(spec.get("camber_ratio") or 0.0)
             fam, tc, re = spec["family"], float(spec["thickness_ratio"]), float(spec["re"])
             a0, cl0, cd0, cm0 = v0.polar(fam, tc, camber, re)
