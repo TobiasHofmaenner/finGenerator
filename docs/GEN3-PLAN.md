@@ -284,6 +284,17 @@ else. The phases below keep their content; this is the sequence.
      12 500–13 000 mm² with t/c 0.06–0.07 and 2–3 % camber. Both are outside
      the box of the referee's nodes; the sections at t/c 0.05 and 0.12 decide.
      Still no cambered fin to export.
+     2026-11-22, on the table rebuilt from the converged referee (39
+     sections, inside the box now): five of six seeds under D11 agree on
+     8 200–8 900 mm², depth 138–140, 3.3–4.6 % camber on t/c 0.08–0.11,
+     4.4–4.6 N going straight, hold 0.79–0.82: the same fin as on the table
+     of 11-20 less its smallest versions. What stands between it and an
+     export is one check: the drag going straight of a cambered fin rests on
+     the 2-D referee (4.6–5.1 N), and mesh level 5 reads 6–9 N on a nose it
+     does not resolve (docs/MODEL-EXTENSION.md, "Section table v1 on the
+     converged referee", section 6). Either number is far below a flat inside
+     face's 12.5 N; the choice of camber does not hang on it, the size of
+     the claim does.
      Zero-lift angle tied to toe: still open.
    - `[~]` Fitted separation model for the knee: first cut IN, opt-in
      (2026-11-20, `hydro_model = "lattice-knee"`, `bladehydro.knee`,
@@ -300,7 +311,11 @@ else. The phases below keep their content; this is the sequence.
      inside one degree; the criterion ranks the three side blades as the CFD
      does (within 0.5°) and sits 1.1–1.6° early on all of them, lift at the
      knee 3–7 % low — the share is fitted on the board mirror; left as is,
-     the hold floor moves with it. The centre lets go gradually and keeps
+     the hold floor moves with it. (2026-11-22: share 0.606 of the most lift
+     the section carries attached, on the rebuilt table; side blades 0.5–1.5°
+     early; the measured hydrofoil of [Zar14] is 0–2 % below its line at the
+     criterion's angle and 2–5 % two degrees on, so the criterion marks the
+     onset and "5 % below" comes two degrees later.) The centre lets go gradually and keeps
      most of its slope: its hold needs its own reading (Phase 2). Below the
      knee the lattice carries lift within 2 % and drag at turning load
      within 1–5 %. **Decided (D11):** what hold is measured against.
@@ -558,6 +573,24 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   mesh with three cells per nose radius, so the direction is not
   established. *Running:* five symmetric sections (t/c 0.046–0.12) in the
   2-D rerun on the converged recipe.
+  *In, 2026-11-22 (table rebuilt on 39 sections, nine of them symmetric;
+  docs/MODEL-EXTENSION.md, "Section table v1 on the converged referee",
+  sections 2 and 5):* the strip knee now sits on the thick centre's polar
+  (t/c 0.09: 10.0° against 9.4°) and 4–5° before the thin blades' (gen-1
+  centre, t/c 0.046: 5.2° against 9.9°; longboard single: 6.3° against
+  11.6°). The cause is found. A thin symmetric section's attached range ends
+  at 5–7° in a step of drag, with a bubble growing from the nose, and its
+  lift goes on rising behind that end at two thirds of the slope (control to
+  12°: 0.52 at the end, 0.79 at 9°, 0.90 at 10°); tunnels have the same kink
+  at 5° on a 6 % section and its highest lift near 9°. The criterion takes
+  its share of the lift at the END, so on these sections it takes a share of
+  the kink. On both thin blades the polar starts to leave its line where the
+  most loaded strip reaches the kink itself (share 1.0: 8.5° and 10.4°),
+  which is the same as 0.6 of a highest lift of 0.85–0.9. *To decide (Phase
+  2):* what a thin section's limit is in the table, its lift at the kink
+  with a share of one or its highest lift behind the end with the common
+  share; the second needs rows behind the end on every thin section and a
+  referee for where the lift tops out, which a steady RANS mean is not.
 - `[ ]` **2b.2 Twin.** (a) Set CFD of a twin (two keel-type side fins at
   production toe and cant) over leeway at two speeds, per-fin forces: the load
   share, the toe at which the pair makes no net side force going straight,
