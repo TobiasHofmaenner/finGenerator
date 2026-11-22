@@ -589,11 +589,18 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   its share of the lift at the END, so on these sections it takes a share of
   the kink. On both thin blades the polar starts to leave its line where the
   most loaded strip reaches the kink itself (share 1.0: 8.5° and 10.4°),
-  which is the same as 0.6 of a highest lift of 0.85–0.9. *To decide (Phase
-  2):* what a thin section's limit is in the table, its lift at the kink
-  with a share of one or its highest lift behind the end with the common
-  share; the second needs rows behind the end on every thin section and a
-  referee for where the lift tops out, which a steady RANS mean is not.
+  which is the same as 0.6 of a highest lift of 0.85–0.9. Two cautions.
+  Those two polars are mesh level 5, with cells of 0.3 mm on a nose of
+  0.23 mm radius: no referee for where a thin blade lets go. And by the
+  referee's own rows behind the end only t/c 0.046–0.05 is of the kink kind
+  (lift held or rising, drag up by a tenth to a half); from t/c 0.06 on a
+  section loses 0.1–0.5 of lift there, the symmetric t/c 0.066 and 0.08 of
+  the longboard single included, and the one measured symmetric foil
+  ([Zar14], t/c 0.09) is on the common share. *To decide (Phase 2):* what a
+  thin section's limit is in the table, its lift at the kink with a share of
+  one or its highest lift behind the end with the common share. Either
+  needs a referee for a thin symmetric blade first: a 3-D run with the nose
+  resolved, or a tunnel polar.
 - `[ ]` **2b.2 Twin.** (a) Set CFD of a twin (two keel-type side fins at
   production toe and cant) over leeway at two speeds, per-fin forces: the load
   share, the toe at which the pair makes no net side force going straight,
