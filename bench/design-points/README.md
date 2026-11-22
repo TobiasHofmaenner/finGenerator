@@ -69,6 +69,22 @@ The same search with only the eight shape sliders and camber free (`run_sliders_
 - That is less than a rider feels, and it comes from shaping the chord to a criterion fitted on one ordinary fin. Since 2026-11-22 the search leaves the offsets alone under frontier scoring (`RiderSpec.edge_offsets`, on again by asking; every shipped generation-2 result keeps them).
 - The sliders park too: depth at the corridor's edge (140 mm), base at the tab minimum (104 mm), tip width at its upper bound (0.60 of the base) on every seed. The first two are named above; the wide tip is the same pull as the offsets', lower loading where the criterion looks, within what eight sliders can do.
 
+## Where each dimension of that fin comes from
+
+One slider moved at a time around the fin found without offsets for 8.5 m/s and 55° (`sweep_sliders.py`; depth 140 mm, base 104 mm, sweep 26°, tip width 0.60 of the base, 4.5 % camber, t/c 0.083):
+
+| moved | values | knee ° | hold | going straight N | at the working force N | what stops it |
+|---|---|---|---|---|---|---|
+| tip width, share of the base | 0.25, 0.35, 0.45, 0.55, **0.60** | 4.8, 5.9, 6.7, 7.5, 7.9 | 0.55, 0.63, 0.68, 0.75, 0.79 | 4.2 … 4.6 | 6.1 … 6.4 | the slider's upper limit (0.60) |
+| depth mm | 120, 130, **140**, 150, 160 | 8.6, 8.2, 7.9, 7.6, 7.4 | 0.66, 0.72, 0.79, 0.85, 0.91 | 3.9, 4.2, 4.6, 4.9, 5.3 | 6.6, 6.4, 6.4, 6.5, 6.6 | the depth corridor (140) |
+| base mm | 95, **104**, 112, 120 | 7.5, 7.9, 8.3, 8.7 | 0.72, 0.79, 0.84, 0.90 | 4.3, 4.6, 4.9, 5.1 | 6.2, 6.4, 6.7, 6.9 | the tab set's minimum base (104) |
+| sweep ° | 10, 20, **26**, 32, 40 | 7.6, 7.7, 7.9, 8.2, 9.1 | 0.74, 0.77, 0.79, 0.80, 0.83 | 4.4 … 4.9 | 6.2 … 6.9 | the washout limit of 1.5 %, on both sides |
+
+- **Every dimension of the fin is set by a gate or a bound**: depth by the corridor, base by the tabs, tip width by its slider's limit, sweep by the washout limit, thickness by the bending safety factor. Camber and the two edge-shape sliders are what the score chooses.
+- **Tip width is the model's strongest lever on hold**: from 0.25 to 0.60 of the base the knee goes from 4.8° to 7.9° and hold from 0.55 to 0.79, for 0.4 N going straight. A narrow tip loads its outer strips and they reach the criterion first. That is what taper does to a wing, and the size of it here is the criterion's: no two polars on record differ in tip width alone. A twin of this fin with the tip at 0.35 is queued beside it.
+- **Depth beyond the corridor would not be taken far**: at 150 mm hold is past its target and going straight costs 0.35 N more, so the score is about level between 140 and 150 mm.
+- **The washout limit decides the sweep** to within a few degrees, from his file for the big-wave set (1.5 %; his other files have 5 %).
+
 ## Reading: the gates
 
 - **The tab gate decides the fin from about 7.5 m/s and 48° up.** With it at 1.0 the search cuts the root moment the only way it can: depth 113 mm and base 123 mm at 7.5 m/s and 48°, depth 90 mm and base 124 mm at 8.5 m/s and 55°. Hold drops to the floor, drag at the working force rises from 6.1 to 7.7 N and from 6.3 to 9.0 N (half a step and one step), roll damping falls from 0.43 and 0.46 to 0.19 and 0.10 N m s. On the library's defaults the fin of 8.5 m/s and 55° is that one too, not feasible on either seed.
