@@ -2,7 +2,7 @@
 
 Questions. The rider gives the design turn directly (lean angle and speed, `docs/GEN3-PLAN.md` 1.0): does the side fin follow it sensibly? And a rider built from the web quiz's job carries no gate of their own, so the library's defaults apply, where the test rider's files set three of them differently: what does that change?
 
-One rider: 60 kg, thruster side fin, PPA-CF, click tab, as the quiz would send it (`scoring="frontier"`, `hydro_model="lattice-knee"`, cambered side foil, hold target 0.80), section table of 2026-11-22. Speed 6.5, 7.5 and 8.5 m/s by lean 40°, 48° and 55°; 6 000 evaluations, two seeds a point, the better one in the table. `run_dp.py` is the script of one search, `fins/` has the better fin of every point with its margins.
+One rider: 60 kg, thruster side fin, PPA-CF, click tab, as the quiz would send it (`scoring="frontier"`, `hydro_model="lattice-knee"`, cambered side foil, hold target 0.80), section table of 2026-11-22. Speed 6.5, 7.5 and 8.5 m/s by lean 40°, 48° and 55°; 6 000 evaluations, two seeds a point, the better one in the table. `run_dp.py` is the script of one search, `fins/` has the better fin of every point with its margins. `outlines.png` (`draw.py`) draws them.
 
 ### Gates: the test rider's files: bending safety factor 1.5, washout 1.5 %, no tab gate
 
@@ -40,6 +40,14 @@ One rider: 60 kg, thruster side fin, PPA-CF, click tab, as the quiz would send i
 - **Camber goes to the edge of what can be asked.** 4.5–5.0 % at seven points of nine, and 3.4–4.0 % only at 8.5 m/s with 48° and 55°. The parameter ends at 5 %; the most cambered section the referee has run is 4.5 %, and beyond it the table carries the old trend on (lift limit +0.02 to +0.05 per half percent, drag +1.5 %). Three sections at 5 % camber are running; until they are in, the last half percent is not a result.
 - **Looseness and roll feel come out with the speed**, not chosen: yaw stiffness 142–228 N m/rad, roll damping 0.37–0.49 N m s.
 - Seeds: the two agree within 0.06 in score at eight points; at 8.5 m/s and 55° the second is the swept stray known from every search so far (sweep 60°, +0.29). A worker has to run several seeds and keep the best.
+
+## What the fins look like
+
+![the nine fins, the shipped gen-2 side and the two fins of the tab gate](outlines.png)
+
+- **Not like a fin off a shop wall.** The base is as long as the tab set needs (104–110 mm), the blade above it a slender one of 45–65 mm chord: the trailing edge cuts in by 30–50 mm within the first 30 mm of height and the leading edge stands upright or leans forward of the base. The chord itself tapers smoothly (8.5 m/s, 55°: 110, 75, 61, 52, 44 mm at 0, 27, 54, 81, 108 mm of height).
+- **What draws them so.** The model pays for wetted area and for induced drag at the working force, so it wants span and little chord; the base length is a gate at one height only. The twelve edge offsets then spread the chord so that five or six strips reach the knee criterion together (shares 0.56–0.60 from 53 to 117 mm on that fin) and so that the bending gate is met: with the offsets set to zero the same fin reads hold 0.69 instead of 0.80, a knee at 7.8° instead of 9.3° and a bending safety factor of 1.21 instead of 1.51.
+- **Whether a blade like this does what the model says is not known.** The criterion's share was fitted on one tunnel fin of ordinary planform; a blade shaped until every strip sits at that share is the case it has not seen, and a base flare under a concave trailing edge is three-dimensional flow no strip sees. A 3-D polar of the fin for 8.5 m/s and 55° through its knee is queued.
 
 ## Reading: the gates
 
