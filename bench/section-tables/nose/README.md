@@ -52,6 +52,23 @@ The surface was also handed to the mesher in facets of 5.7° (STL angular tolera
 - **On the old outline the same mesh separates a degree early at each end** (at −5.5° and +9.5°) and has 2 % more drag at −4.5°, 4 % at +8°, 12 % at +9°. A corner of 33° and 32 µm at the tip of a 0.65 mm nose is what that costs.
 - **The referee of table v1 had both defects.** It is separated at −4.5° and at +8.5° on this section; the table's ends for it are −4.3° and +8.1°. The attached range is about two degrees wider at each end.
 
+### Below seven cells per nose radius (2026-11-22)
+
+The same section on the exact outline and a resolved wall, with coarser cells on the nose: the sizes a 3-D fin mesh has there. Drag coefficient × 10⁴, * = not settled in 3000 iterations.
+
+| nose cells | cells per nose radius | −2.5° | −3.5° | −4.5° | −5.5° | −6.0° | 0° | +8.0° | +9.0° | +10.0° | +10.5° |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0.094 mm (`u7`, from the table above) | 7 | | | 142 | 158 | 172 | | 244 | 278 | 335 | 1308* |
+| 0.19 mm in a uniform band (`u6`) | 3.5 | | | 146 | 181 | 430* | | 250 | 285 | 344 | 1151* |
+| 0.19 mm where the curvature rule reaches (`e6`) | 3.5 | | | 145 | 174 | 439* | | 252 | 290 | 347 | 1749 |
+| 0.375 mm on the whole surface (`s5`) | 1.7 | 139 | 148 | 264* | 480* | 590* | 131 | 372* | 833* | 1428* | 1617* |
+| converged recipe on the old inlet (`../rerun/`) | 28 | 127 | 132 | 142 | 158 | 171 | 128 | 243 | 278 | 329 | |
+
+- **With 3.5 cells per nose radius the lower end comes half a degree early** (attached at −5.5° with 10–15 % more drag, gone at −6.0°) and the upper end stays in its row, with 3 % more drag.
+- **With 1.7 it comes two to two and a half degrees early at both ends.** The section is attached at −3.5° and does not settle at −4.5° (1.9 times the drag); at +8° it does not settle either and carries 0.08 less lift. Where it is attached it reads 9–12 % more drag at −2.5° and −3.5°, 2 % more at 0°.
+- A mesh with 0.75 mm on the surface (`s4`) could not be made on this recipe: the wall layers do not fit between a first cell of 9 µm and faces that size.
+- **What this says about the 3-D fin meshes.** Mesh level 5 of `finGenerator-cfd` puts 0.39 mm on a side fin's nose (1.9 cells per nose radius at the base of a blade with t/c 0.074, fewer outboard), level 6 0.19 mm, both on wall functions. By this series level 5 loses a thin cambered blade's lower end from about −3.5° and its upper end by two degrees or more, and level 6 half of that near the base. Going straight, the candidate's polars on the two levels behave so (`../../cambered-candidate/mesh-level-6-candidate/`). What the early upper end does to the knee of a level-5 polar is not shown here: the tunnel fin's level-5 knee (12.5°) is where the tunnel has it, on a flat inside face of t/c 0.09.
+
 ## 4. Controls on the exact outline
 
 Each against the run it varies; lift coefficient and drag coefficient × 10⁴ in `series.md`, section 3 and 4.

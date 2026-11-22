@@ -331,6 +331,119 @@
    ]
   }
  },
+ "u6": {
+  "what": "uniform nose band 0.19 mm, exact outline",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-u6",
+     "angles": [
+      10.0,
+      -6.0,
+      10.5,
+      -6.5,
+      -4.5,
+      8.0,
+      9.0,
+      -5.5
+     ],
+     "nose_level": 6,
+     "outline_points": 400,
+     "smooth_nose": true,
+     "stl_tolerance": 1e-06,
+     "stl_angle": 0.02
+    }
+   ]
+  }
+ },
+ "e6": {
+  "what": "exact outline on the referee's mesh (no band)",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-e6",
+     "angles": [
+      10.0,
+      -6.0,
+      10.5,
+      -6.5,
+      -4.5,
+      8.0,
+      9.0,
+      -5.5
+     ],
+     "outline_points": 400,
+     "smooth_nose": true,
+     "stl_tolerance": 1e-06,
+     "stl_angle": 0.02
+    }
+   ]
+  }
+ },
+ "s5": {
+  "what": "exact outline, the whole surface at 0.375 mm (no band, no curvature refinement)",
+  "plan": {
+   "domain_chords": 20,
+   "wall": "resolved",
+   "end_time": 3000,
+   "stop_when_converged": true,
+   "sections": [
+    {
+     "family": "cambered",
+     "thickness_ratio": 0.07,
+     "camber_ratio": 0.03,
+     "camber_position": 0.4,
+     "te_thickness": 1.2,
+     "chord": 0.12,
+     "re": 570000.0,
+     "name": "camb3-tc070-s5",
+     "angles": [
+      -4.5,
+      0.0,
+      -6.0,
+      -3.5,
+      -5.5,
+      -2.5,
+      8.0,
+      9.0,
+      10.0,
+      10.5,
+      -6.5
+     ],
+     "outline_points": 400,
+     "smooth_nose": true,
+     "stl_tolerance": 1e-06,
+     "stl_angle": 0.02,
+     "surface_level": 5,
+     "face_level": 5,
+     "near_level": 4,
+     "edge_level": 5
+    }
+   ]
+  }
+ },
  "u7": {
   "what": "uniform nose band 0.094 mm, exact outline",
   "plan": {
