@@ -59,8 +59,8 @@ Perfect mirror, the same pair, strips on section table v1 (`lattice.md` is on th
 
 ## The controls
 
-- **Mesh.** Level 2 against level 5: the loaded fin's lift 2–3 % lower, the unloaded fin's 6 % and 9 % higher (4°, 8°), the share 0.02–0.03 lower. Level 6 against level 5: the loaded fin 1–2 % higher, the unloaded fin the same at 8° (0.150 against 0.149) and 4 % lower at 12°, the share within 0.02, drag within 1.5 % on both fins. So the unloaded fin's fall-off from its line is not the mesh; level 5 has it.
-- **Speed.** At 4 m/s every coefficient is within 0.003 in lift of the 7 m/s set, 0.010 on the unloaded fin at 12°, and drag is 1–2 % higher; the shares are the same. On wall functions the set does not know its Reynolds number.
+- **Mesh.** Level 2 against level 5: the loaded fin's lift 2–3 % lower, the unloaded fin's 6 % and 9 % higher (4°, 8°), the share 0.02–0.03 lower. Level 6 against level 5: the loaded fin 1–2 % higher, the unloaded fin the same at 8° (0.150 against 0.149) and 4 % lower at 12°, the share within 0.02, drag within 2 % on both fins. So the unloaded fin's fall-off from its line is not the mesh; level 5 has it.
+- **Speed.** At 4 m/s every coefficient is within 0.003 in lift of the 7 m/s set, 0.010 on the unloaded fin at 12°, and drag is 0.5–2 % higher (1.4 % lower on the unloaded fin at 12°); the shares are the same. On wall functions the set does not know its Reynolds number.
 - **Stream.** The keel alone, held stream against the old inlet (`../twin-keel/`), own incidence 0°, 4°, 8°, 12°, 16°: drag −4.8 %, −5.1 %, −3.7 %, −2.2 %, −1.3 %; lift −0.4 % to −1.2 %. The 2-D referee lost 5–12 % of its drag by the same change; on wall functions the 3-D polar loses about 5 % at low incidence. Every level-5 polar in this repository is on the old inlet.
 
 ## What this does not say
