@@ -84,11 +84,12 @@ def main() -> None:
              "Written by `scripts/zarruk_lattice.py`. Perfect mirror at the root, no other wall. "
              "Slopes are of the line through the origin over 4…8° (measured: clean markers only; "
              "the paper gives 4.82 per rad for Type I at Re 1.0e6). The most loaded strip is the "
-             "one nearest the most lift its section carries attached; \"margin\" is from its incidence to the end "
-             "of its section's attached range.", "",
+             "one nearest the most lift its section carries attached; \"margin\" is from its "
+             "incidence to the end of its section's attached range.", "",
              "| foil | Re on the mean chord | lift slope per rad: measured / lattice | "
              "measured stall: ° , C_L | lattice C_L there | most loaded strip: z / span | "
-             "its lift | share of the most lift its section carries attached | its incidence ° | margin ° | "
+             "its lift | share of the most lift its section carries attached | its incidence ° | "
+             "margin ° | "
              "lattice's own polar: 5 % below its line at ° |",
              "|---|---|---|---|---|---|---|---|---|---|---|"]
     for kind, re_label in RUNS:
