@@ -2217,22 +2217,52 @@ Nothing in what a rider can choose moved, except the lowest hold on offer
   incidence, its flat face on the suction side, and level off; the lattice
   keeps it on the line (on the four-fin set's front outside fin 69 % and
   94 % more lift than the set CFD at 10° and 15° of leeway). Its strips are
-  then 1° to 9° past their sections' lower ends, and that far out the table
-  has no referee: the marches stop three rows past an end and v0's shape
-  carries on, with the lift still growing. The one control run on from
-  there (section 2) has the lift level off two degrees past the end. With
-  the flat-inside sections levelled the same way the lattice reads that fin
-  24 % and 17 % high instead (t/c 0.065: 10 % and 16 % instead of 36 % and
-  67 %), and the other three fins of the set within 6 % as before. So this
-  is the table, not the lattice: the flat-inside sections want rows to −14°
-  below their lower end, and the builder has to carry them. The twin's low
-  keel (aspect ratio 0.6) is hardly helped by it: 38 % high at 12° of
-  leeway as shipped, 32 % levelled.
+  then 1° to 9° past their sections' lower ends, where the table had no
+  referee: the marches stop three rows past an end and v0's shape carried
+  on. *Corrected the same evening.* A what-if with the lift levelled two
+  degrees past the end, as the first rows of one control suggested, brought
+  that fin to 24 % and 17 % high, and this entry said "the table, not the
+  lattice". The seven flat-inside sections were then run on to −14° and the
+  table rebuilt on them: their lift does leave its line two degrees past
+  the end, but goes on growing at about a third of the slope (t/c 0.092:
+  −0.35 at −10°, −0.57 at −14°; thinner sections more). With those rows the
+  lattice reads the front outside fin 51 % and 83 % high at 10° and 15°
+  (t/c 0.065: 44 % and 76 %), the twin keel's unloaded fin 35 % high at
+  12°. So the table was a part of it and the smaller part. What is left is
+  between a 2-D referee whose rows there never settle and a 3-D set CFD on
+  wall functions that levels the whole blade at once; a strip driven past
+  its lower end still wants a rule of its own, and a referee to fit it on.
 - **Reynolds number above 5.7e5** rests on one section (4.5 % camber, t/c
   0.092 at 9.7e5). Root strips of side fins work at 7–9.5e5.
 - **The share is one number from one tunnel fin.** Two measured foils and
   four one-degree CFD polars agree with what it marks; none of them is a
   cambered side fin in a tunnel.
+
+### 9. The same evening: three sections at 5 % camber, and rows behind the flat-inside lower ends
+
+Two additions to the record, one rebuild (42 sections; `bench/section-tables/
+rerun-held/`).
+
+- **5 % camber.** A map of the fin over the design turn
+  (`bench/design-points/`) had the search at 4.5–5.0 % camber at most points,
+  on the edge of the parameter and past the most cambered sections run.
+  Three sections at 5 % (t/c 0.07, 0.08, 0.092) put the referee on that
+  edge: the attached range ends at 11.6°, 13.4° and 13.1° with a limit lift
+  of 1.57, 1.65 and 1.69. Against 4.5 % that is 0.04–0.05 more lift at an
+  upper end half a degree later on t/c 0.07 and a quarter of a degree
+  earlier on the two thicker ones, and a lower end a quarter to half a
+  degree earlier (−5.1°, −6.1°, −6.9°). The table had carried the old trend
+  to within 0.5° and 0.04 of that. Camber still pays in lift at the edge, a
+  little more than the table said, and takes it from the range below.
+- **Behind a flat inside face's lower end.** The seven flat-inside sections
+  were run on to −14°; the builder now carries a section as far behind an
+  end as its rows go (a reach of its own per section and side, three degrees
+  where only the march's rows exist). Section 8 has what that did and did
+  not do for the fin on the outside of a turn.
+- **What did not move.** The table at the 39 earlier sections, the share
+  (0.606), every knee of the survey, the hold anchors. Inside the box of
+  the earlier cambered sections the ends moved by 0.08° at most and the
+  limit lift by 0.007.
 
 ## What a fast method cannot do — the rest
 

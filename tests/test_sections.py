@@ -138,9 +138,10 @@ def test_v1_is_the_referee_at_its_sections():
     # Table v1 is v0 moved onto the resolved-wall RANS sections. At each of them it has to
     # BE the referee, read the way the model reads it: lift and drag of every row inside the
     # attached range, and both ends inside the quarter or half degree the referee brackets
-    # them in. (As built on 2026-11-22: lift within 0.0013, drag within 1.4 %.)
+    # them in. (As built on 2026-11-22: lift within 0.0013, drag within 1.4 %.) Rows a section
+    # was run on with behind an end (`behind` in the record) lie past it and are not read here.
     secs = _referee_sections()
-    assert len(secs) == 39
+    assert len(secs) == 42
     assert {fam for _, fam, *_ in secs} == set(FoilFamily)
     for name, fam, tc, camber, re, a, cl, cd, lower, upper in secs:
         p = sections.polar(fam, tc, re, camber, table="v1")
@@ -150,6 +151,28 @@ def test_v1_is_the_referee_at_its_sections():
         assert upper[0] <= p.attached_deg[1] <= upper[1], name
         if lower is not None:        # a symmetric section is run on one side only
             assert lower[0] <= p.attached_deg[0] <= lower[1], name
+
+
+def test_v1_levels_a_flat_inside_faces_lift_behind_its_lower_end():
+    # The fin on the outside of a turn works with its flat face on the suction side, 2 to 9 deg
+    # past the lower end of its sections' attached range. The referee was run on to -14 deg
+    # there on all seven flat-inside sections: the lift leaves its line about two degrees past
+    # the end and grows at a third of the slope from there. v0's shape, which the table carried
+    # on until then, kept the line (bench/phase2b/twin-set, docs/MODEL-EXTENSION.md).
+    p = sections.polar(FoilFamily.FLAT_INSIDE, 0.092, RE, table="v1")
+    line = lambda a: math.radians(p.slope_per_rad) * (a - p.alpha0_deg)       # noqa: E731
+    assert float(p.cl_at(-6.0)) == pytest.approx(line(-6.0), abs=0.03)
+    assert float(p.cl_at(-10.0)) == pytest.approx(-0.354, abs=0.02)             # the referee's row
+    assert float(p.cl_at(-14.0)) == pytest.approx(-0.570, abs=0.02)
+    assert float(p.cl_at(-10.0)) > 0.65 * line(-10.0)                           # line: -0.63
+    assert float(p.cl_at(-14.0)) > 0.60 * line(-14.0)                           # line: -1.06
+    # the thinner the face, the more of it: -0.61 at t/c 0.065, -0.155 at t/c 0.12, at -10 deg
+    thin = sections.polar(FoilFamily.FLAT_INSIDE, 0.065, RE, table="v1")
+    thick = sections.polar(FoilFamily.FLAT_INSIDE, 0.12, RE, table="v1")
+    assert float(thin.cl_at(-10.0)) == pytest.approx(-0.613, abs=0.02)
+    assert float(thick.cl_at(-10.0)) == pytest.approx(-0.155, abs=0.02)
+    # inside the range and at the ends nothing moved with those rows
+    assert p.attached_deg[0] == pytest.approx(-4.875, abs=0.01)
 
 
 def test_v1_reads_what_the_referee_found_at_the_edges_of_the_range():

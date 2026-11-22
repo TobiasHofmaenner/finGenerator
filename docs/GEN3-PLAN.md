@@ -657,12 +657,14 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   where it carries nothing). One mesh level finer (1.1 M cells) and at
   4 m/s the shares are the same within 0.02.
   *Open:* (c); a share from the lattice set in place of `sizing`'s 0.75; the
-  unloaded fin behind its lower end. On fins of ordinary aspect ratio that is
-  the table (no referee rows more than 1.5° past a flat inside face's lower
-  end; with the lift levelled as the one control has it, the four-fin set's
-  front outside fin reads 17–24 % high instead of 69–94 %): rows to −14° on
-  the seven flat-inside sections, and the builder to carry them. The low
-  keel's own fall-off is not explained by it.
+  unloaded fin behind its lower end. The table had no referee rows more
+  than 1.5° past a flat inside face's lower end; the seven sections were run
+  on to −14° and the table rebuilt on them the same day. Their lift leaves
+  its line two degrees past the end and grows on at a third of the slope,
+  and with it the lattice reads the four-fin set's front outside fin 51 %
+  and 83 % above set CFD at 10° and 15° (before: 69 % and 94 %), the keel's
+  unloaded fin 35 % at 12°. The larger part is still open: a rule for a
+  strip driven past its lower end, and a referee to fit it on.
 - `[ ]` **2b.3 Quad.** (a) Validation first: our set CFD on the commercial
   4-fin configuration of [Falk20] against its per-fin forces
   (`bench/falk/falk20_perfin_forces.csv`). (b) Our own quad over leeway at two
