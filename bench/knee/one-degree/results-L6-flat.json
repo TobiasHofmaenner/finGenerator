@@ -1,0 +1,102 @@
+{
+ "plan": {
+  "speed": 8.5,
+  "mesh_level": 6,
+  "end_time": 800,
+  "fin": "fins/side-shipped-gen2.json",
+  "variants": [
+   {
+    "name": "flat-inside-L6",
+    "angles": [
+     0.0,
+     4.0,
+     6.0,
+     7.0,
+     8.0,
+     9.0,
+     10.0,
+     12.0
+    ]
+   }
+  ],
+  "note": "rows at 0 and 4 deg from bench/cambered-candidate/mesh-level-6 (EPYC, 8 processes), 6 to 12 deg run on the laptop (12 processes); same mesh recipe, 1 009 370 cells"
+ },
+ "variants": {
+  "flat-inside-L6": {
+   "patch": {},
+   "area_mm2": 9733.62607226676,
+   "foil": {
+    "family": "flat_inside",
+    "thickness_ratio": 0.09211512693674807,
+    "camber_ratio": 0.0,
+    "camber_position": 0.4
+   },
+   "rows": [
+    {
+     "alpha": 0.0,
+     "cl": 0.21575485952380952,
+     "cd": 0.02209929476190476,
+     "cm": -0.15777538095238094,
+     "iterations": 206.0,
+     "wall_s": 187.9
+    },
+    {
+     "alpha": 4.0,
+     "cl": 0.47497298275862065,
+     "cd": 0.031599073103448276,
+     "cm": -0.2612483586206896,
+     "iterations": 142.0,
+     "wall_s": 127.9
+    },
+    {
+     "alpha": 6.0,
+     "cl": 0.6012284193548387,
+     "cd": 0.042989478064516126,
+     "cm": -0.31279020645161293,
+     "iterations": 153.0,
+     "wall_s": 176.1
+    },
+    {
+     "alpha": 7.0,
+     "cl": 0.6627345419354839,
+     "cd": 0.05000849387096774,
+     "cm": -0.3378974387096774,
+     "iterations": 153.0,
+     "wall_s": 177.1
+    },
+    {
+     "alpha": 8.0,
+     "cl": 0.7214687451612902,
+     "cd": 0.05803395580645161,
+     "cm": -0.36157053548387097,
+     "iterations": 155.0,
+     "wall_s": 317.4
+    },
+    {
+     "alpha": 9.0,
+     "cl": 0.7666151775000001,
+     "cd": 0.070692829,
+     "cm": -0.38092760062500003,
+     "iterations": 800.0,
+     "wall_s": 902.5
+    },
+    {
+     "alpha": 10.0,
+     "cl": 0.7709558249999999,
+     "cd": 0.085996664625,
+     "cm": -0.381405695625,
+     "iterations": 800.0,
+     "wall_s": 916.0
+    },
+    {
+     "alpha": 12.0,
+     "cl": 0.8319920249999999,
+     "cd": 0.116138678125,
+     "cm": -0.409876380625,
+     "iterations": 800.0,
+     "wall_s": 900.4
+    }
+   ]
+  }
+ }
+}

@@ -14,6 +14,9 @@
 | gen-2 side as shipped, mesh level 5, one-degree steps | 2.01 | 8–9 (≈ 8.6) | 12.0 | 6.6 / 7.1 | 1.01 / 0.65 | 0.83 |
 | best v1-model side (4.2 % camber, t/c 0.089), mesh level 5, one-degree steps | 1.96 | 8–9 (≈ 8.6) | 12.0 | 7.6 / 8.0 | 1.01 / 0.75 | 0.92 |
 | gen-1 centre as ridden, symmetric, mesh level 5, one-degree steps | 1.53 | 9–10 (≈ 9.9) | 12.0 | 4.9 / 5.2 | 0.65 / 0.27 | 0.63 |
+| gen-2 side as shipped, mesh level 6, one-degree steps | 2.01 | 9–10 (≈ 9.2) | 12.0 | 6.6 / 7.1 | 1.01 / 0.65 | 0.83 |
+| gen-3 side for 8.5 m/s, 55° (4.5 % camber, tip 0.60 of the base), mesh level 5, one-degree steps | 2.26 | 9–10 (≈ 9.1) | 11.7 | 7.4 / 7.9 | 1.09 / 0.80 | 0.90 |
+| the same fin with its tip at 0.35 of the base, mesh level 5, one-degree steps | 2.42 | 7–8 (≈ 7.6) | 11.7 | 5.6 / 6.0 | 1.12 / 0.69 | 0.90 |
 | longboard single (stand-in, 240 mm, raked 45°), symmetric t/c 0.08, mesh level 5 | 2.07 | 11–12 (≈ 11.6) | 12.0 | 6.1 / 6.3 | 0.69 / 0.37 | 0.75 |
 | gen-1 centre with t/c 0.09 instead of 0.046, mesh level 5 | 1.53 | 9–10 (≈ 9.4) | 12.0 | 9.5 / 10.0 | 0.65 / 0.53 | 0.56 |
 | twin keel (stand-in, 95 mm deep), flat inside t/c 0.10, mesh level 5 | 0.61 | not within the polar | 23.7 | 26.8 / 30.9 | 0.73 / 0.95 | 1.02 |

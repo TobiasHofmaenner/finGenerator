@@ -116,6 +116,17 @@ def cases() -> list[tuple[str, FinParams, float, tuple[np.ndarray, np.ndarray]]]
         ("gen-1 centre as ridden, symmetric, mesh level 5, one-degree steps",
          _fin("mount/fins/centre-ridden-gen1.json"), 8.5,
          _polar("knee/one-degree/results-L5centre.json", "centre-gen1-L5")),
+        # one mesh level finer on the fin the hold floor is anchored on (bench/knee/one-degree)
+        ("gen-2 side as shipped, mesh level 6, one-degree steps", shipped, 8.5,
+         _polar("knee/one-degree/results-L6-flat.json", "flat-inside-L6")),
+        # the generation-3 side for 8.5 m/s and 55 deg of lean, and its twin with a narrow tip
+        # (bench/design-points/cfd): the first pair of polars that differs in tip width alone
+        ("gen-3 side for 8.5 m/s, 55° (4.5 % camber, tip 0.60 of the base), mesh level 5, one-degree steps",
+         _fin("design-points/cfd/fin-sliders.json"), 8.5,
+         _polar("design-points/cfd/sliders-L5.json", "gen3-side-sliders-L5")),
+        ("the same fin with its tip at 0.35 of the base, mesh level 5, one-degree steps",
+         _fin("design-points/cfd/fin-sliders-tip035.json"), 8.5,
+         _polar("design-points/cfd/tip035-L5.json", "gen3-side-sliders-tip035-L5")),
         # blades for the other setups, mesh level 5 (bench/phase2b)
         ("longboard single (stand-in, 240 mm, raked 45°), symmetric t/c 0.08, mesh level 5",
          _fin("phase2b/single-longboard/fins/single-longboard.json"), 5.0,
