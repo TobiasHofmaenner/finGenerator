@@ -1,12 +1,12 @@
 """Build section table v1: table v0 moved onto the resolved-wall RANS sections.
 
     uv run python scripts/build_section_table_v1.py [--out=DIR/sections_v1.npz] [--report=PATH.md]
-                                                    [--sections=rerun-held]
+                                                    [--sections=rerun]
 
 Table v0 (NeuralFoil, tripped; scripts/build_section_table.py) covers every
 section fingen can draw; the referee (resolved-wall 2-D RANS on the exact
-outline, bench/section-tables/rerun and bench/section-tables/nose) covers a few
-dozen. Where the two overlap v0 has the wrong shape at both ends of the
+outline on a held stream, bench/section-tables/rerun-held and bench/section-gate)
+covers a few dozen. Where the two overlap v0 has the wrong shape at both ends of the
 attached range: its drag creeps up over the last two degrees and it has no end,
 where the referee stays low up to a break a quarter degree wide and is
 separated behind it. Its ends are also up to a degree off, its lift slope 3–4 %
@@ -108,10 +108,12 @@ REPO = Path(__file__).resolve().parent.parent
 V0_PATH = REPO / "src/fingen/data/sections_v0.npz"
 BENCH = REPO / "bench/section-tables"
 # The referee's sections: (file under bench/section-tables, families read from it). The
-# rerun is on the converged recipe (bench/section-tables/nose). A family read from an
-# earlier file is not read again from a later one: the flat-inside family keeps its one
-# section from the first recipe only until the rerun has it.
-RANS_FILES = (("rerun/results.json", None), ("results.json", ("flat_inside",)))
+# record is the rerun on the converged recipe (bench/section-tables/nose) and the held
+# stream (bench/section-gate); --sections=rerun reads the same recipe on the old inlet.
+# A family read from an earlier file is not read again from a later one: the second
+# entry gave the flat-inside family its one section from the first recipe while the
+# rerun had none, and is not reached now.
+RANS_FILES = (("rerun-held/results.json", None), ("results.json", ("flat_inside",)))
 K_LOWER, K_UPPER = 1.5, 3.0         # ends by drag, where no row says the flow let go (v0)
 K_OUT = 2.5                         # ... and the foot of the lower cliff
 PAST_FACTOR = 4.0                   # a referee row with this many times its lowest drag: past
@@ -918,7 +920,10 @@ def scan(path: Path) -> list[str]:
                      "at it, or the same; the node is built with the same)", None, where)
         behind = (pol.alpha_deg > hi) & (pol.alpha_deg <= hi + 3.0)
         gain = float(pol.cl[behind].max() - pol.cl_at(hi)) if behind.any() else 0.0
-        if gain > 0.03:      # the referee's own sections: 0.011 at most
+        # the referee's own rows behind an end: 0.011 at most where the stall starts at
+        # the trailing edge, 0.03 within a degree on the thin symmetric sections, whose
+        # lift goes on rising behind the end (bench/section-tables/rerun-held, controls)
+        if gain > 0.03:
             note("more lift within 3 deg behind the upper end than at it (c_l)", gain, where)
         if hi - lo < 3.0:
             note("attached range shorter than 3 deg (length)", 3.0 - (hi - lo), where)
@@ -952,7 +957,7 @@ def _plain(obj):
 
 def main() -> None:
     opt = dict(a.lstrip("-").split("=", 1) for a in sys.argv[1:] if a.startswith("--") and "=" in a)
-    if "sections" in opt:           # the referee's sections from another record, e.g. rerun-held
+    if "sections" in opt:           # the referee's sections from another record, e.g. rerun
         global RANS_FILES
         RANS_FILES = ((f"{opt['sections']}/results.json", None),) + RANS_FILES[1:]
     out_path = Path(opt.get("out", REPO / "src/fingen/data/sections_v1.npz")).resolve()

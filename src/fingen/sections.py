@@ -82,7 +82,9 @@ def table_meta(table: str = "v0") -> dict:
 
 def _bracket(grid: np.ndarray, x: float) -> tuple[int, float, bool]:
     """(lower index, weight of the upper node, clipped?) for linear interpolation."""
-    clipped = not (grid[0] <= x <= grid[-1])
+    # the grids are stored in single precision: a request AT an edge is not outside it
+    slack = 1e-6 * float(grid[-1] - grid[0])
+    clipped = not (grid[0] - slack <= x <= grid[-1] + slack)
     x = min(max(x, float(grid[0])), float(grid[-1]))
     i = int(min(np.searchsorted(grid, x, side="right") - 1, len(grid) - 2))
     return i, float((x - grid[i]) / (grid[i + 1] - grid[i])), clipped

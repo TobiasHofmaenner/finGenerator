@@ -189,7 +189,7 @@ else. The phases below keep their content; this is the sequence.
      at mid-chord): that, not planarity, is what stopped end tangents before.
      No print and no level-5 mesh sees the difference (cells of 0.3 mm and
      more); a 3-D run with a nose band wants `n_foil_points=400`.
-   - `[~]` **The referee's stream (2026-11-21, `bench/section-gate/`).** The
+   - `[x]` **The referee's stream (2026-11-21, `bench/section-gate/`).** The
      2-D referee's inlet (5 % turbulence over a tenth of the chord, the 3-D
      recipe's rule, decaying over 20 chords) had never been varied. On the
      NACA 0012 at Re 7e5 it reaches the section with an eddy viscosity 1100
@@ -200,21 +200,30 @@ else. The phases below keep their content; this is the sequence.
      over a fifth to two fifths of the chord at Re 1.4e5 ([RS09]; seen in
      the skin friction). The table moves to a held stream ([SR07]; k = 1e-3
      U², ω = 5 U/c, both kept up to the section): 4.5 % above tripped tunnels
-     at Re 7e5, no laminar run at Re 1.4e5. All 35 sections are being rerun
+     at Re 7e5, no laminar run at Re 1.4e5. All 35 sections were rerun
      on it, with four more where the upper end jumps (t/c 0.05 to 0.08)
      (`bench/section-tables/rerun-held/`; the old-inlet sections stay in
-     `rerun/` as the comparison), then v1 is rebuilt as planned. Against a
+     `rerun/` as the comparison), and v1 was rebuilt from the 39 on
+     2026-11-22 (docs/MODEL-EXTENSION.md, "Section table v1 on the converged
+     referee"): the table is the referee at every section (lift within
+     0.0013, drag within 1.4 %), the knee share is refitted from 0.715 to
+     0.606 with the tunnel fin at 12.0° as before, a section's limit for the
+     knee is the most lift it carries attached (`SectionPolar.cl_limit`), and
+     D11's floor follows the gen-2 side from 0.72 to 0.70. Against a
      wall ten times finer the table's recipe reads drag 4–5 % low and its
      ends 0.5–1.5° early, on two sections alike (`bench/section-gate/`,
-     section 4); proposed: keep the recipe, state the offsets, and check at
-     the fin level after the rebuild. The first
+     section 4); proposed: keep the recipe and state the offsets (a decision
+     for Tobias; the fin-level check moved side-fin knees by half a degree or
+     less). The first
      gate's "passed" is withdrawn with it: on the exact outline the NACA 0012
      peaks 18 % high and 2° late and the NACA 4415 reads 11 % high at 10°, in
      every stream. That is the fully turbulent model, so the table's upper
      ends are upper bounds and the knee share stays fitted on a tunnel fin.
      The 3-D writers take the stream as an option (`held_stream`, off by
-     default); a level-5 control on a known fin is to run before drag is
-     compared across the two.
+     default). The level-5 control (the twin keel alone,
+     `bench/phase2b/twin-set/`): drag 5 % lower at 0–4° of incidence, 1–2 %
+     at 12–16°, lift 1 % lower; every level-5 polar on record is on the old
+     inlet.
    - `[x]` Lattice corrected 2026-11-20 (docs/MODEL-EXTENSION.md, "The
      lattice: control points and induced drag"): control points at the
      middle of each strip's clustering-angle step (lift of ten strips within
@@ -712,6 +721,13 @@ the ends of a section's range or past the knee: it separates early
   going straight against the gen-2 side's 15 N. For the field test: a ladder
   of three fins that differ only in hold (about 0.65 / 0.75 / 0.85) would
   calibrate the floor directly. (b) stays open with D4.
+  2026-11-22 — the measure moved with the section table (rebuilt on the
+  converged referee, knee share refitted): the gen-2 side reads 0.704, the
+  gen-1 side 0.57, the commercial medium fin 0.80–0.85 for a 65 kg rider and
+  0.65–0.70 for an 80 kg rider. The floor is the gen-2 side's level by this
+  decision and follows it: `HOLD_FLOOR_KNEE = 0.70`. The aspiration is left
+  at 0.80 as decided; it was 0.07 above the gen-2 side and is now 0.10 above
+  (0.78 would keep the distance). For Tobias to confirm or move.
 - **D6** *(decided 2026-11-19)* No wave-size input, no skill input, no presets:
   the rider sets bank angle (30–55°) and speed band directly and we explain the
   meaning. Presets are a later UX layer. Open sub-point: speed band as two

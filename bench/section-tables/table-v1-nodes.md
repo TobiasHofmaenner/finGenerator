@@ -1,26 +1,66 @@
-# Section table v1 at the referee's nodes
+# Section table v1 at the referee's sections
 
-v1 is read here the way fingen reads it (`sections.polar` on the shipped file). "Left out" is the end predicted for a node by a table built without it: how well the table is known between its nodes.
+v1 is read here the way fingen reads it (`sections.polar` on the shipped file). An end is halfway between the referee's last row inside the attached range and its first row past it (a bracket of a quarter degree where the march bisected); v0's is where its drag passes 1.5 times (lower) and 3 times (upper) its minimum. "Left out" is the end predicted for a section by a table built without it (at any Reynolds number): how well the table is known between its sections. The break is the model's (`SectionPolar.alpha_break_deg`: the lift slope has fallen below 30 % of the line's).
 
-| section | lower end °: RANS / v0 / v1 / left out | upper end °: RANS / v0 / v1 / left out | drag level v1 / v0 | lift slope v1 / v0 | lift retention | cd v1 / RANS over the settled rows: min … max | largest cl difference |
-|---|---|---|---|---|---|---|---|
-| flat-tc092-re570k | -1.38 / -0.79 / -1.38 / +nan | +11.00 / +11.48 / +11.00 / +nan | 1.243 | 0.966 | 0.79 | 0.95 … 1.09 | 0.017 |
-| camb3-tc092-re570k | -6.09 / -7.49 / -6.01 / -6.20 | +10.17 / +12.50 / +10.18 / +10.13 | 1.039 | 0.975 | 0.56 | 0.96 … 1.20 | 0.005 |
-| camb45-tc070-re570k | -3.81 / -4.61 / -3.79 / -3.69 | +9.04 / +10.18 / +9.04 / +9.04 | 1.098 | 0.972 | 0.68 | 0.91 … 1.09 | 0.009 |
-| camb3-tc070-re570k | -4.30 / -5.17 / -4.26 / -4.07 | +8.05 / +9.85 / +8.06 / +8.16 | 1.055 | 0.972 | 0.63 | 0.91 … 1.14 | 0.006 |
-| camb45-tc092-re570k | -6.66 / -6.72 / -6.45 / -5.55 | +11.21 / +12.15 / +11.20 / +11.02 | 1.128 | 0.978 | 0.66 | 0.86 … 1.55 | 0.011 |
-| camb2-tc070-re570k | -4.57 / -5.61 / -4.53 / -4.59 | +7.40 / +9.20 / +7.41 / +7.40 | 1.045 | 0.967 | 0.49 | 0.93 … 1.22 | 0.053 |
-| camb45-tc080-re570k | -4.58 / -5.57 / -4.53 / -4.96 | +9.78 / +11.13 / +9.78 / +10.06 | 1.085 | 0.973 | 0.63 | 0.90 … 1.19 | 0.010 |
-| camb3-tc080-re570k | -5.04 / -6.26 / -5.01 / -5.12 | +9.13 / +11.12 / +9.14 / +8.99 | 1.058 | 0.972 | 0.49 | 0.94 … 1.20 | 0.006 |
-| camb2-tc050-re570k | -3.11 / -3.59 / -3.12 / -2.70 | +6.06 / +6.15 / +6.06 / +5.48 | 1.069 | 0.965 | 1.00 | 0.89 … 1.02 | 0.011 |
-| camb3-tc050-re570k | -2.80 / -3.24 / -2.81 / -2.58 | +6.29 / +6.57 / +6.30 / +6.41 | 1.119 | 0.968 | 1.00 | 0.92 … 1.08 | 0.013 |
-| camb3-tc070-re280k | -4.12 / -4.59 / -4.09 / -4.07 | +8.15 / +8.92 / +8.16 / +8.05 | 1.014 | 0.962 | 1.01 | 0.89 … 1.16 | 0.007 |
-| camb3-tc120-re570k | -8.63 / -9.60 / -8.63 / -8.16 | +12.81 / +13.87 / +12.81 / +11.55 | 1.118 | 0.968 | 0.72 | 0.87 … 1.04 | 0.027 |
-| camb1-tc070-re570k | -5.06 / -6.00 / -5.02 / -4.90 | +6.39 / +8.57 / +6.40 / +6.78 | 1.044 | 0.966 | 0.33 | 0.95 … 1.51 | 0.002 |
+| section | lower end °: referee / v0 / v1 / left out | upper end °: referee / v0 / v1 / left out | drag level v1 / v0 | lift slope v1 / v0 | inside the range: c_d v1 / referee, min … max | largest c_l difference | break °, c_l there: v0 / v1 | referee's highest settled c_l (at °) |
+|---|---|---|---|---|---|---|---|---|
+| camb3-tc070-re140k | -4.62 / -4.47 / -4.63 / -4.71 | +7.88 / +8.82 / +7.88 / +9.03 | 0.899 | 0.937 | 0.994 … 1.001 | 0.0003 | 9.00, 1.218 / 7.88, 1.064 | 1.059 (+7.75) |
+| flat-tc092-r050-re570k | -4.88 / -0.79 / -4.87 / -4.75 | +12.88 / +11.48 / +12.87 / +12.88 | 1.211 | 0.959 | 0.995 … 1.002 | 0.0002 | 10.00, 1.406 / 12.77, 1.604 | 1.603 (+12.75) |
+| camb3-tc070-re570k | -6.12 / -5.17 / -6.13 / -6.07 | +10.12 / +9.85 / +10.13 / +10.31 | 1.022 | 0.969 | 0.999 … 1.001 | 0.0001 | 10.00, 1.314 / 10.13, 1.331 | 1.323 (+10.00) |
+| camb45-tc092-re570k | -7.38 / -6.72 / -7.38 / -7.29 | +13.38 / +12.15 / +13.38 / +13.75 | 1.033 | 0.974 | 0.996 … 1.001 | 0.0004 | 10.50, 1.477 / 13.07, 1.642 | 1.647 (+13.25) |
+| camb3-tc050-re570k | -3.88 / -3.24 / -3.88 / -3.51 | +6.62 / +6.57 / +6.63 / +6.57 | 1.020 | 0.974 | 0.986 … 1.002 | 0.0005 | 8.00, 1.099 / 6.17, 0.953 | 0.964 (+6.50) |
+| camb3-tc120-re570k | -10.38 / -9.60 / -10.38 / -9.99 | +12.88 / +13.87 / +12.88 / +13.06 | 1.016 | 0.971 | 0.997 … 1.001 | 0.0002 | 12.50, 1.479 / 13.00, 1.526 | 1.514 (+12.75) |
+| camb45-tc070-re570k | -5.38 / -4.61 / -5.38 / -4.99 | +11.12 / +10.18 / +11.13 / +11.02 | 1.044 | 0.971 | 0.997 … 1.001 | 0.0006 | 10.50, 1.457 / 11.13, 1.526 | 1.519 (+11.00) |
+| camb3-tc092-re570k | -8.62 / -7.49 / -8.63 / -8.54 | +13.38 / +12.50 / +13.38 / +13.37 | 1.023 | 0.965 | 0.996 … 1.001 | 0.0003 | 12.00, 1.453 / 13.38, 1.552 | 1.547 (+13.25) |
+| sym-tc046-re570k | -5.12 / -3.88 / -5.13 / -5.61 | +5.12 / +5.12 / +5.13 / +5.56 | 1.028 | 0.952 | 0.991 … 1.001 | 0.0002 | 7.50, 0.737 / 5.13, 0.526 | 0.516 (+5.00) |
+| sym-tc090-re570k | -11.12 / -7.88 / -11.13 / -11.11 | +11.12 / +11.30 / +11.13 / +11.22 | 1.016 | 0.967 | 0.998 … 1.000 | 0.0002 | 11.00, 1.106 / 11.13, 1.128 | 1.122 (+11.00) |
+| camb2-tc070-re570k | -6.88 / -5.61 / -6.88 / -6.82 | +9.62 / +9.20 / +9.63 / +9.50 | 1.023 | 0.966 | 0.995 … 1.002 | 0.0002 | 9.50, 1.169 / 9.75, 1.203 | 1.181 (+9.50) |
+| camb45-tc080-re570k | -6.38 / -5.57 / -6.38 / -6.32 | +13.62 / +11.13 / +13.63 / +12.38 | 1.041 | 0.979 | 0.995 … 1.001 | 0.0005 | 10.50, 1.467 / 12.22, 1.595 | 1.615 (+13.50) |
+| camb2-tc050-re570k | -4.38 / -3.59 / -4.38 / -4.45 | +6.38 / +6.15 / +6.38 / +6.36 | 1.008 | 0.970 | 0.990 … 1.005 | 0.0002 | 8.00, 0.976 / 6.38, 0.839 | 0.833 (+6.25) |
+| camb3-tc070-re280k | -4.88 / -4.59 / -4.87 / -5.25 | +8.38 / +8.92 / +8.37 / +9.78 | 0.968 | 0.960 | 0.994 … 1.001 | 0.0004 | 9.50, 1.247 / 8.37, 1.152 | 1.144 (+8.25) |
+| camb45-tc092-re970k | -8.12 / -7.85 / -8.12 / -7.29 | +14.12 / +12.68 / +14.12 / +13.75 | 1.080 | 0.975 | 0.996 … 1.001 | 0.0001 | 11.50, 1.577 / 13.96, 1.730 | 1.731 (+14.00) |
+| sym-tc066-re570k | -7.38 / -5.81 / -7.38 / -8.19 | +7.38 / +7.39 / +7.38 / +8.09 | 1.017 | 0.966 | 0.996 … 1.001 | 0.0001 | 8.00, 0.809 / 7.38, 0.779 | 0.769 (+7.25) |
+| sym-tc080-re570k | -10.62 / -7.10 / -10.63 / -9.60 | +10.62 / +9.61 / +10.63 / +9.61 | 1.020 | 0.966 | 0.997 … 1.003 | 0.0013 | 9.00, 0.933 / 9.67, 0.993 | 1.047 (+10.50) |
+| sym-tc120-re570k | -12.38 / -9.67 / -12.38 / -11.81 | +12.38 / +14.34 / +12.38 / +11.79 | 1.039 | 0.963 | 0.999 … 1.000 | 0.0005 | 13.50, 1.310 / 12.38, 1.237 | 1.230 (+12.25) |
+| sym-tc090-re280k | -10.12 / -7.25 / -10.12 / -10.21 | +10.12 / +9.89 / +10.12 / +10.20 | 0.970 | 0.958 | 0.995 … 1.001 | 0.0004 | 9.50, 0.975 / 10.12, 0.989 | 0.986 (+10.00) |
+| sym-tc090-re140k | -8.38 / -7.02 / -8.38 / -9.56 | +8.38 / +9.32 / +8.38 / +9.71 | 0.907 | 0.949 | 0.991 … 1.004 | 0.0003 | 9.00, 0.914 / 8.38, 0.817 | 0.812 (+8.25) |
+| flat-tc050-r050-re570k | -4.62 / -0.67 / -4.62 / -4.86 | +9.38 / +8.97 / +9.37 / +11.48 | 1.154 | 0.965 | 0.995 … 1.003 | 0.0001 | 9.00, 1.126 / 9.75, 1.133 | 1.166 (+9.25) |
+| flat-tc120-r050-re570k | -4.62 / -0.94 / -4.62 / -5.02 | +12.62 / +11.93 / +12.62 / +13.33 | 1.201 | 0.959 | 0.996 … 1.003 | 0.0004 | 10.00, 1.472 / 12.22, 1.649 | 1.656 (+12.50) |
+| flat-tc092-r050-re280k | -4.62 / -1.21 / -4.62 / -4.75 | +11.88 / +12.01 / +11.87 / +12.88 | 1.069 | 0.955 | 0.998 … 1.003 | 0.0003 | 10.00, 1.391 / 11.87, 1.500 | 1.496 (+11.75) |
+| flat-tc092-r050-re140k | -4.38 / -1.63 / -4.38 / -4.75 | +11.38 / +12.56 / +11.38 / +12.88 | 0.994 | 0.936 | 0.997 … 1.003 | 0.0004 | 10.50, 1.376 / 11.38, 1.409 | 1.404 (+11.25) |
+| camb45-tc120-re570k | -8.88 / -9.31 / -8.88 / -9.00 | +12.88 / +13.24 / +12.88 / +13.27 | 1.023 | 0.980 | 0.996 … 1.001 | 0.0004 | 12.50, 1.566 / 12.88, 1.636 | 1.630 (+12.75) |
+| camb3-tc150-re570k | -10.88 / -11.27 / -10.88 / -11.17 | +13.12 / +14.21 / +13.13 / +12.96 | 1.009 | 0.986 | 0.997 … 1.001 | 0.0004 | 14.00, 1.494 / 13.16, 1.497 | 1.489 (+13.00) |
+| camb45-tc150-re570k | -10.12 / -11.30 / -10.13 / -10.16 | +12.88 / +13.25 / +12.88 / +14.01 | 1.023 | 1.047 | 0.996 … 1.001 | 0.0005 | 13.50, 1.545 / 12.56, 1.568 | 1.573 (+12.75) |
+| sym-tc150-re570k | -12.12 / -10.87 / -12.13 / -13.98 | +12.12 / +15.49 / +12.13 / +13.09 | 1.014 | 0.953 | 0.997 … 1.000 | 0.0001 | 14.50, 1.340 / 12.16, 1.192 | 1.182 (+12.00) |
+| camb3-tc080-re570k | -7.38 / -6.26 / -7.38 / -7.45 | +13.12 / +11.12 / +13.13 / +12.28 | 1.026 | 0.971 | 0.995 … 1.001 | 0.0005 | 10.50, 1.353 / 12.22, 1.486 | 1.498 (+13.00) |
+| camb1-tc070-re570k | -7.62 / -6.00 / -7.63 / -7.68 | +8.62 / +8.57 / +8.63 / +9.04 | 1.027 | 0.967 | 0.996 … 1.001 | 0.0002 | 9.00, 1.015 / 8.63, 1.010 | 1.002 (+8.50) |
+| flat-tc065-r050-re570k | -4.88 / -0.70 / -4.87 / -4.87 | +13.12 / +10.18 / +13.12 / +12.45 | 1.246 | 0.968 | 0.995 … 1.003 | 0.0005 | 10.00, 1.265 / 12.59, 1.495 | 1.502 (+13.00) |
+| camb3-tc050-re280k | -3.38 / -3.17 / -3.38 / -2.52 | +6.38 / +6.57 / +6.37 / +5.28 | 0.965 | 0.957 | 0.992 … 1.001 | 0.0002 | 8.00, 1.093 / 6.37, 0.938 | 0.933 (+6.25) |
+| camb3-tc050-re140k | -3.62 / -3.26 / -3.62 / -2.30 | +5.88 / +6.92 / +5.88 / +4.92 | 0.899 | 0.948 | 0.996 … 1.003 | 0.0003 | 8.00, 1.093 / 6.25, 0.900 | 0.885 (+5.75) |
+| sym-tc046-re140k | -4.38 / -3.95 / -4.38 / -4.23 | +4.38 / +5.58 / +4.38 / +3.73 | 0.886 | 0.931 | 0.997 … 1.003 | 0.0001 | 7.50, 0.726 / 6.00, 0.548 | 0.440 (+4.25) |
+| camb45-tc092-re140k | -4.88 / -5.16 / -4.88 / -5.56 | +11.88 / +11.71 / +11.88 / +11.37 | 0.916 | 0.966 | 0.997 … 1.001 | 0.0009 | 9.50, 1.328 / 12.00, 1.421 | 1.409 (+11.75) |
+| camb3-tc060-re570k | -4.38 / -4.18 / -4.38 / -4.94 | +7.62 / +8.19 / +7.63 / +8.25 | 1.013 | 0.973 | 0.995 … 1.001 | 0.0001 | 9.00, 1.184 / 7.63, 1.121 | 1.111 (+7.50) |
+| camb3-tc075-re570k | -6.88 / -5.71 / -6.88 / -6.78 | +11.62 / +10.49 / +11.63 / +11.67 | 1.025 | 0.969 | 0.997 … 1.001 | 0.0003 | 10.50, 1.337 / 11.63, 1.431 | 1.425 (+11.50) |
+| camb45-tc060-re570k | -3.62 / -3.70 / -3.63 / -4.22 | +8.38 / +8.59 / +8.38 / +9.54 | 1.044 | 0.974 | 0.994 … 1.001 | 0.0005 | 9.00, 1.339 / 8.38, 1.328 | 1.319 (+8.25) |
+| flat-tc060-r050-re570k | -4.88 / -0.68 / -4.87 / -4.79 | +12.38 / +9.87 / +12.37 / +11.87 | 1.196 | 0.970 | 0.995 … 1.003 | 0.0004 | 10.00, 1.234 / 11.88, 1.419 | 1.424 (+12.25) |
 
-cambered: 12 nodes at 11 sections, Reynolds number 2.8e+05 … 5.7e+05 (1 section(s) at more than one); plane over ['t/c', 'camber']; the plane alone misses a section by at most lower 0.757, upper 0.435, step 1.253, log_level 0.041, log_level_below 0.325, slope 0.004, d_alpha0 0.022, retention 0.287 (spread back in around each section).
-  Per octave of Reynolds number (mean over those sections): lower -0.173, upper -0.101, step -0.259, log_level +0.038, log_level_below -0.281, slope +0.009, d_alpha0 +0.026, retention -0.366.
-  Left out, lower end: rms 0.40 deg, largest 1.11 deg over 12 nodes.
-  Left out, upper end: rms 0.43 deg, largest 1.26 deg over 12 nodes.
+cambered: 32 nodes at 23 sections, Reynolds number 1.4e+05 … 9.7e+05; plane over ['t/c', 'camber']; the plane alone misses a section by at most lower 1.758, upper 2.666, step 0.000, step_up 0.000, log_level 0.022, log_step_below 1.225, log_step_above 0.965, slope 0.049, d_alpha0 0.338, retention 0.573, lift_step_below 0.283, lift_step_above 0.210 (spread back in around each section).
+  Reynolds number 1.4e+05 … 2.8e+05 (5 section(s)): per octave the lower end moves -0.67°, the upper end +0.77°.
+  Reynolds number 2.8e+05 … 5.7e+05 (5 section(s)): per octave the lower end moves -0.86°, the upper end +0.81°.
+  Reynolds number 5.7e+05 … 9.7e+05 (1 section(s)): per octave the lower end moves -0.98°, the upper end +0.98°.
+  Steps behind an end, over their size at the reference Reynolds number, at 1.4e+05, 2.8e+05, 5.7e+05, 9.7e+05: lift lost behind the upper end 0.18, 0.56, 1.00, 0.43; drag step (log) behind the lower end 0.76, 0.88, 1.00, 0.96; drag step (log) behind the upper end 0.70, 0.76, 1.00, 0.63.
+  Left out, lower end: rms 0.62 deg, largest 1.86 deg over 32 nodes.
+  Left out, upper end: rms 0.73 deg, largest 1.41 deg over 32 nodes.
 
-flat_inside: 1 nodes at 1 sections, Reynolds number 5.7e+05 … 5.7e+05 (0 section(s) at more than one); plane over a constant; the plane alone misses a section by at most lower 0.000, upper 0.000, step 0.000, log_level 0.000, log_level_below 0.000, slope 0.000, d_alpha0 0.000, retention 0.000 (spread back in around each section).
+flat_inside: 7 nodes at 5 sections, Reynolds number 1.4e+05 … 5.7e+05; plane over ['t/c']; the plane alone misses a section by at most lower 0.182, upper 1.931, step 0.000, step_up 0.000, log_level 0.040, log_step_below 0.059, log_step_above 0.577, slope 0.003, d_alpha0 0.020, retention 0.456, lift_step_below 0.047, lift_step_above 0.288 (spread back in around each section).
+  Reynolds number 1.4e+05 … 2.8e+05 (1 section(s)): per octave the lower end moves -0.25°, the upper end +0.50°.
+  Reynolds number 2.8e+05 … 5.7e+05 (1 section(s)): per octave the lower end moves -0.24°, the upper end +0.98°.
+  Steps behind an end, over their size at the reference Reynolds number, at 1.4e+05, 2.8e+05, 5.7e+05: lift lost behind the upper end 0.69, 0.95, 1.00; drag step (log) behind the lower end 0.83, 0.98, 1.00; drag step (log) behind the upper end 1.13, 0.92, 1.00.
+  Left out, lower end: rms 0.24 deg, largest 0.40 deg over 7 nodes.
+  Left out, upper end: rms 1.13 deg, largest 2.10 deg over 7 nodes.
+
+Scan of all 2720 nodes of the table: 
+  more lift within 3 deg behind the upper end than at it (c_l): 190 nodes, worst 0.19 at symmetric t/c 0.040 camber 0.0 % Re 1.6e+06.
+  break outside the attached range (deg past its upper end): 4 nodes, worst 2.63 at symmetric t/c 0.040 camber 0.0 % Re 8e+05.
+  lift slope outside 4.5 … 7.5 per rad: 14 nodes, worst 3.2 at flat_inside t/c 0.220 camber 0.0 % Re 1e+05.
+  no drag step at the upper end (the fit gave less drag behind it than at it, or the same; the node is built with the same): 80 nodes.

@@ -2,6 +2,8 @@
 
 **2026-11-21: the sections in `results.json`, `thin-cambered/` and `third-batch/` were meshed from an outline with a corner at the leading edge (`nose/`). Their ends of the attached range are about two degrees narrow at each end, and table v1 with them. Everything below is the record of that referee; the rerun on the converged recipe replaces it.**
 
+**2026-11-22: table v1 is built from `rerun-held/`: 39 sections on the converged nose recipe (`nose/`) and a held stream (`../section-gate/`). `table-v1-nodes.md` has the table at every one of them. `rerun/` is the same recipe on the old inlet (29 of its 35 sections were run).**
+
 The referee for `fingen.sections` (table v0: NeuralFoil, boundary layer tripped) and the data for table v1. Driver `finGenerator-cfd/scripts/section_polar.py`, resolved wall (first cell at y+ ≈ 1), domain ±20 chords, chord 0.12 m, trailing edge 1.2 mm — the recipe that passed the [SK81] NACA 0012 gate (`bench/section-gate/`).
 
 | folder | what | state on 2026-11-20 |

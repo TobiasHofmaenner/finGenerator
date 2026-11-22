@@ -1,5 +1,7 @@
 # Where a blade leaves its lift line (2026-11-20)
 
+**2026-11-22: `survey.md` and `hold-anchor.md` are regenerated on the section table rebuilt from the converged referee (`../section-tables/rerun-held/`), with the share refitted from 0.715 to 0.606 on the same tunnel fin and a section's limit read as the most lift it carries attached. The text below is the record of 2026-11-20 and its numbers are that table's; what moved is in `docs/MODEL-EXTENSION.md`, "Section table v1 on the converged referee", section 5.**
+
 Question: tier-0 holds every blade of effective aspect ratio above 2.5 on its lift line up to 12°, the value measured on one tunnel fin ([BW04], geometric aspect ratio 1.5), and later for lower ones. Is that what the stored polars show, and can the lattice say it instead?
 
 `survey.md` is written by `uv run python scripts/knee_survey.py --md=bench/knee/survey.md`: every stored 3-D polar that comes with a fin file, the angle at which it has fallen 5 % below the line through its 0…6° samples, the aspect-ratio rule (`hydro.break_alpha_deg`), and the strip criterion (`bladehydro.knee`: the most loaded strip at 0.715 of the lift its section has at the section's own break). The share is refitted whenever the section table is rebuilt — 0.70 on the table before the twelve-section rebuild of 2026-11-20, 0.715 on it; the survey moved by 0.5° at most.

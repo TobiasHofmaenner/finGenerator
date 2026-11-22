@@ -21,7 +21,10 @@ What is asked of the comparison:
   * where the measured foil stalls, what its most loaded strip is doing: its lift as
     a share of the most lift the table's section carries attached (the quantity
     bladehydro.KNEE_FRACTION is a share of), its incidence, and how far that is from
-    the end of the section's attached range.
+    the end of the section's attached range;
+  * where the strip criterion (bladehydro.knee's rule, a perfect mirror) puts this
+    foil's knee, and where the measured polar stands against its own line there
+    and two degrees on.
 """
 
 from __future__ import annotations
@@ -31,7 +34,7 @@ from pathlib import Path
 
 import numpy as np
 
-from fingen import lattice, sections
+from fingen import bladehydro, lattice, sections
 from fingen.params import FoilFamily
 
 MEASURED = Path(__file__).resolve().parent.parent / "bench/zarruk/measured"
@@ -76,6 +79,23 @@ def stall(a: np.ndarray, cl: np.ndarray) -> tuple[float, float] | None:
     return (float(a[k]), float(cl[k])) if k < len(a) - 1 else None
 
 
+def criterion_deg(b: lattice.Blade, pol: list, speed: float) -> float:
+    """bladehydro.knee's rule on this blade: the first angle at which a strip, followed
+    along its own line through 2 and 6 deg, reaches KNEE_FRACTION of its section's limit."""
+    lo, hi = (lattice.solve_viscous([b], {"blade": pol}, speed, a).loads["blade"]
+              for a in (2.0, 6.0))
+    rate = (hi.cl_local - lo.cl_local) / 4.0
+    limit = np.array([p.cl_limit for p in pol])
+    return float((2.0 + (bladehydro.KNEE_FRACTION * limit - lo.cl_local) / rate).min())
+
+
+def against_line(a: np.ndarray, cl: np.ndarray, k: float, at: float) -> str:
+    """The measured lift at `at` degrees against the line of slope `k`, in percent."""
+    if np.isnan(k) or not a[0] <= at <= a[-1]:
+        return "–"
+    return f"{100.0 * (np.interp(at, a, cl) / (k * at) - 1.0):+.0f} %"
+
+
 def main() -> None:
     opt = dict(a.lstrip("-").split("=", 1) for a in sys.argv[1:] if a.startswith("--") and "=" in a)
     table = opt.get("table", "v1")
@@ -85,13 +105,15 @@ def main() -> None:
              "Slopes are of the line through the origin over 4…8° (measured: clean markers only; "
              "the paper gives 4.82 per rad for Type I at Re 1.0e6). The most loaded strip is the "
              "one nearest the most lift its section carries attached; \"margin\" is from its "
-             "incidence to the end of its section's attached range.", "",
+             "incidence to the end of its section's attached range. The strip criterion is "
+             f"`bladehydro.knee`'s rule at its share of {bladehydro.KNEE_FRACTION:g}.", "",
              "| foil | Re on the mean chord | lift slope per rad: measured / lattice | "
              "measured stall: ° , C_L | lattice C_L there | most loaded strip: z / span | "
              "its lift | share of the most lift its section carries attached | its incidence ° | "
              "margin ° | "
-             "lattice's own polar: 5 % below its line at ° |",
-             "|---|---|---|---|---|---|---|---|---|---|---|"]
+             "lattice's own polar: 5 % below its line at ° | strip criterion ° | "
+             "measured against its own line there | two degrees on |",
+             "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for kind, re_label in RUNS:
         re_c = float(re_label)
         speed = re_c * NU / MEAN_M
@@ -122,7 +144,12 @@ def main() -> None:
                       f"{b.z_mid[k] / (SPAN_MM * 1e-3):.2f}", f"{ld.cl_local[k]:.2f}",
                       f"{ld.cl_local[k] / brk[k]:.2f}", f"{ld.alpha_eff_deg[k]:.1f}",
                       f"{end - ld.alpha_eff_deg[k]:+.1f}"]
-        lines.append("| " + " | ".join(cells + [knee]) + " |")
+        crit = criterion_deg(b, pol, speed)
+        k_line = k_meas if not np.isnan(k_meas) else slope_per_deg(am, clm)
+        lines.append("| " + " | ".join(cells + [knee, f"{crit:.1f}",
+                                                against_line(am, clm, k_line, crit),
+                                                against_line(am, clm, k_line, crit + 2.0)])
+                     + " |")
     text = "\n".join(lines)
     print(text)
     if "md" in opt:

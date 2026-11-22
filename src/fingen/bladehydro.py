@@ -61,15 +61,18 @@ TRIM_LEEWAY_DEG = 1.0
 # lift its section carries attached (`SectionPolar.cl_limit`; until 2026-11-22
 # the lift at the break by slope, which is the same number on a table whose
 # sections hold their lift to the end and a jumpy one where they round over).
-# One fitted number. 0.715 puts the
+# One fitted number. 0.606 puts the
 # knee of the [BW04] tunnel fin at 12.0 deg on the board mirror — the last
 # tunnel point on its lift line (14 deg is 6 % below it) and tier-0's own
-# anchor. Checked, not fitted, against the eight 3-D polars with a fin file
-# (scripts/knee_survey.py): within about a degree of where each leaves its line.
-# The number belongs to the section table it was fitted on (v1 of 2026-11-20,
-# quarter-degree angles; 0.70 on the half-degree table before it): refit it
+# anchor. Checked, not fitted, against the 3-D polars with a fin file
+# (scripts/knee_survey.py): side fins sit 1.5–2 deg before where their one-degree
+# polars leave the line, thin symmetric blades 4–5 deg before (their sections'
+# lift keeps rising behind the end of the attached range; Phase 2).
+# The number belongs to the section table it was fitted on (v1 of 2026-11-22,
+# the 39 sections on the held stream; 0.715 on the table of 2026-11-20, whose
+# flat-inside sections ended 2–3 deg earlier and carried less lift): refit it
 # with scripts/knee_survey.py --fraction= when the table is rebuilt.
-KNEE_FRACTION = 0.715
+KNEE_FRACTION = 0.606
 
 
 @functools.lru_cache(maxsize=256)

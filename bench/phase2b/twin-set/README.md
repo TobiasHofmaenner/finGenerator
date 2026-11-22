@@ -7,7 +7,7 @@ The pair: two of the stand-in keels of `../twin-keel/` (95 mm deep on a 180 mm b
 - `level5/twin-set.json`: the six leeway angles.
 - `level2/twin-set.json`: the coarser-mesh control at 4° and 8° (282 295 cells, mean y⁺ 160–180).
 - `keel-held-stream/`: the keel alone on mesh level 5 on the held stream of `../../section-gate/` (the 3-D control of that stream), to set beside `../twin-keel/results.json`.
-- `lattice.md`: `uv run python scripts/twin_set_lattice.py bench/phase2b/twin-set/level5/twin-set.json --md=…` (section table v1 as shipped).
+- `lattice.md`: `uv run python scripts/twin_set_lattice.py bench/phase2b/twin-set/level5/twin-set.json --md=…` (section table v1 of 2026-11-22, built on the held-stream sections).
 
 *Running (2026-11-22):* the set one mesh level finer at 8°, 12° and 4°, and the level-5 set at 4 m/s.
 
@@ -43,9 +43,9 @@ The same rows as one fin's polar over its own incidence (leeway − toe on the r
 
 ## The lattice beside it
 
-Perfect mirror, the same pair, strips on section table v1 (`lattice.md`; third column: a test build of the table from the first 35 held-stream sections of `../../section-tables/rerun-held/`, to be replaced when that table is built).
+Perfect mirror, the same pair, strips on section table v1 (`lattice.md` is on the table of 2026-11-22, built on the 39 held-stream sections of `../../section-tables/rerun-held/`; the column before it is the table of 2026-11-20).
 
-| leeway ° | share: CFD | viscous lattice, table as shipped | test build | lift of the unloaded fin: CFD | lattice, test build |
+| leeway ° | share: CFD | viscous lattice, table of 11-20 | table of 11-22 | lift of the unloaded fin: CFD | lattice, table of 11-22 |
 |---|---|---|---|---|---|
 | 2 | 1.04 | 0.96 | 1.03 | −0.004 | −0.004 |
 | 4 | 0.77 | 0.73 | 0.77 | +0.051 | +0.057 |
@@ -53,9 +53,9 @@ Perfect mirror, the same pair, strips on section table v1 (`lattice.md`; third c
 | 8 | 0.67 | 0.62 | 0.64 | +0.149 | +0.175 |
 | 12 | 0.66 | 0.59 | 0.59 | +0.226 | +0.312 |
 
-- The loaded fin's lift is within 0.02 at every angle and equal at 12°; on the test build the share is within 0.02 to 6°.
-- **The lattice keeps the unloaded fin on its line.** At 12° it reads 38 % more lift on it than the CFD, and 13 % more side force for the pair (9 % at 8°). Its strips pass the lower end of the flat-inside section's attached range (−4.8° in the test build) from 6° of leeway on: section incidence −3.9…−5.7° from tip to root at 6°, −4.3…−6.0° at 8°, −5.1…−7.3° at 12°. Behind that end the table carries the lift on along the line, down to −0.4 at −8°, and so do the 2-D referee's rows there, which are not settled (t/c 0.092, Re 5.7e5: −0.12 at −5°, −0.23 at −6°). The lattice has a knee for a strip that reaches its section's limit on the working side and none for one driven past its lower end.
-- Drag of the loaded fin: the lattice on the test build reads 8–20 % more than level 5 up to 8° and 10 % less at 12°; level 5's friction is low (`docs/CFD-BENCH.md`), and on the held stream it would read another 5 % less (below).
+- The loaded fin's lift is within 0.02 at every angle and equal at 12°; on the table of 11-22 the share is within 0.02 to 6°.
+- **The lattice keeps the unloaded fin on its line.** At 12° it reads 38 % more lift on it than the CFD, and 13 % more side force for the pair (9 % at 8°). Its strips pass the lower end of the flat-inside section's attached range (−4.8°) from 6° of leeway on: section incidence −3.9…−5.7° from tip to root at 6°, −4.3…−6.0° at 8°, −5.1…−7.3° at 12°. Behind that end the table carries the lift on along the line, down to −0.4 at −8°, and so do the 2-D referee's rows there, which are not settled (t/c 0.092, Re 5.7e5: −0.12 at −5°, −0.23 at −6°). The lattice has a knee for a strip that reaches its section's limit on the working side and none for one driven past its lower end.
+- Drag of the loaded fin: the lattice reads 8–20 % more than level 5 up to 8° and 10 % less at 12°; level 5's friction is low (`docs/CFD-BENCH.md`), and on the held stream it would read another 5 % less (below).
 
 ## The controls
 

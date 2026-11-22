@@ -115,20 +115,28 @@ def test_symmetric_centre_reads_similarly_under_both_models():
     assert all(0.0 <= v <= 100.0 for v in scores.values())
 
 
-def test_section_table_v1_prices_a_thin_cambered_blade_on_the_edge_of_its_range():
-    # bench/cambered-candidate: 4.3 % camber on t/c 0.074. Going straight at the 3.5 deg
-    # toe it works at -2.5..-4.5 deg; resolved-wall RANS has thin cambered sections leave
-    # their attached range between -3.5 and -4.5 deg, table v0 a degree later
-    # (docs/MODEL-EXTENSION.md, "The cambered candidate was a second exploit").
+def test_section_table_v1_prices_going_straight_as_the_referee_does():
+    # Going straight at the 3.5 deg toe a side fin works at -2.5..-4.5 deg of own incidence.
+    # bench/cambered-candidate, 4.3 % camber on t/c 0.074: on the referee's sections
+    # (bench/section-tables/rerun-held) its strips keep 1-3 deg to the lower end of their
+    # attached range there, and the blade costs what v0 said. Table v1 as first built had
+    # thin cambered sections end between -3.5 and -4.5 deg and read 6-9 N, from a referee
+    # whose nose the mesher had cut short (docs/MODEL-EXTENSION.md, "The referee's nose").
     cand = _candidate()
     v0 = bladehydro.trim_drag_n(cand, SPEED, 3.5)
     v1 = bladehydro.trim_drag_n(cand, SPEED, 3.5, "v1")
     assert v0 == pytest.approx(5.4, abs=0.3)
-    assert 6.0 < v1 < 9.0
-    # the thicker 3 % blade keeps most of its range and moves by under a newton
+    assert v1 == pytest.approx(5.1, abs=0.3)
+    # the same planform as the gen-2 side with 3 % camber: the two tables agree
     twin = _cambered(_fin("side-shipped-gen2.json"))
-    assert 0.3 < (bladehydro.trim_drag_n(twin, SPEED, 3.5, "v1")
-                  - bladehydro.trim_drag_n(twin, SPEED, 3.5)) < 1.3
+    assert bladehydro.trim_drag_n(twin, SPEED, 3.5, "v1") == pytest.approx(
+        bladehydro.trim_drag_n(twin, SPEED, 3.5), abs=0.3)
+    # the flat inside face is the drag: 12.5 N on v1 (level-5 CFD 13-15 N, v0 14.9)
+    side = _fin("side-shipped-gen2.json")
+    flat = bladehydro.trim_drag_n(side, SPEED, 3.5, "v1")
+    assert flat == pytest.approx(12.5, abs=0.8)
+    assert 1.5 < bladehydro.trim_drag_n(side, SPEED, 3.5) - flat < 3.5
+    assert flat > 2.2 * v1
     # lift is the same blade: within 0.02 in CL across the working range
     for a in (-3.5, 0.0, 4.0):
         assert bladehydro.point(cand, SPEED, a, "v1")[0].cl == pytest.approx(
@@ -142,7 +150,7 @@ def test_evaluate_reads_the_table_its_model_names():
     assert e0.margins["trim_drag_n"] == pytest.approx(bladehydro.trim_drag_n(cand, SPEED, 3.5))
     assert e1.margins["trim_drag_n"] == pytest.approx(
         bladehydro.trim_drag_n(cand, SPEED, 3.5, "v1"))
-    assert e1.margins["trim_drag_n"] > e0.margins["trim_drag_n"] + 0.7
+    assert abs(e1.margins["trim_drag_n"] - e0.margins["trim_drag_n"]) > 0.2     # 5.1 and 5.4 N
 
 
 

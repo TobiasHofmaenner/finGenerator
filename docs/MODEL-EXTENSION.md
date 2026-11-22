@@ -1880,6 +1880,331 @@ Eighteen sections run this way from 2026-11-20 23:27Z on three machines: the
 table's twelve cambered ones, 4.5 % / t/c 0.092 at Re 9.7e5, and five
 symmetric sections (t/c 0.046–0.12), the first referee data for that family.
 
+## Section table v1 on the converged referee: 39 sections on a held stream (2026-11-22)
+
+Records: `bench/section-tables/rerun-held/` (the sections and two controls
+behind an end), `bench/section-gate/` (the stream, the wall, and what the
+referee is against measured sections), `bench/section-tables/table-v1-nodes.md`
+(the table at its sections), `bench/knee/`, `bench/zarruk/lattice.md`,
+`scripts/build_section_table_v1.py`, `src/fingen/sections.py`.
+
+The chapter before this one left a converged nose recipe and eighteen
+sections running on it. Three things happened before a table was built from
+them: the referee's stream turned out to carry a thousand times the molecular
+viscosity and was replaced, its wall was measured against finer ones, and the
+sections grew to 39. The builder and the library were rewritten to hold what
+those sections show. This chapter is the table that ships now, and what moved
+with it.
+
+### 1. The referee the table stands on
+
+- **The stream.** The inlet rule every run had used (5 % turbulence over a
+  tenth of the chord, decaying over 20 chords) reaches the section with an
+  eddy viscosity several hundred to a thousand times the molecular one. Lift
+  does not see it. Drag reads 5–12 % above what tripped tunnels give a NACA
+  0012, and a section lets go a quarter to half a degree later. The table is
+  on a stream held at k = 10⁻³ U² and ω = 5 U/c up to the section by the
+  model's sustaining terms ([SR07], [RS09]). A quiet stream is no
+  alternative: at Re 1.4e5 the model then leaves a fifth to two fifths of the
+  chord laminar.
+- **What it is.** A section turbulent from the nose. Lift inside the attached
+  range is within 3 % of the measured NACA 4415 and 4–6 % below [SK81]'s
+  NACA 0012. Drag at zero lift is inside the band of tripped tunnels (0.0118
+  against 0.0113–0.0120 at Re 7e5), about twice an untripped section's. The
+  upper end is late and high: the NACA 0012 holds to 13.0° with a lift of
+  1.26 where tunnels have 1.0–1.15 at 11°. A section's upper end in this
+  table is an upper bound.
+- **The wall.** The first cell's centre sits at y⁺ 1.2. Against cells a
+  half, a quarter and a tenth as high the drag is 4–5 % low, the lower end
+  half a degree early and the upper end 1.25–1.5° early, on the two sections
+  tried alike; none of it has levelled at the finest wall. A finer wall moves
+  the ends further from the tunnels', not nearer. The table keeps the usual
+  wall and states the offsets (`bench/section-gate/`, section 4).
+- **The sections.** 23 cambered (1–4.5 % camber, t/c 0.05–0.15), 9
+  symmetric (t/c 0.046–0.15), 7 flat inside (t/c 0.05–0.12), 28 at Re
+  5.7e5 and eleven at 1.4e5, 2.8e5 or 9.7e5. Every mesh keeps its wall
+  layers on all faces. Four were added on 2026-11-22 between t/c 0.06 and
+  0.075, where the table built with one section left out missed that
+  section's upper end by a degree and more.
+
+### 2. What the sections show
+
+Upper end of the attached range in degrees at Re 5.7e5, and the lift there:
+
+| t/c | 0.046–0.05 | 0.06 | 0.065–0.07 | 0.075 | 0.08 | 0.09 | 0.12 | 0.15 |
+|---|---|---|---|---|---|---|---|---|
+| symmetric | 5.1, 0.52 | | 7.4, 0.77 | | 10.6, 1.05 | 11.1, 1.12 | 12.4, 1.23 | 12.1, 1.18 |
+| 3 % camber | 6.6, 0.96 | 7.6, 1.11 | 10.1, 1.32 | 11.6, 1.43 | 13.1, 1.50 | 13.4, 1.55 | 12.9, 1.51 | 13.1, 1.49 |
+| 4.5 % camber | | 8.4, 1.32 | 11.1, 1.52 | | 13.6, 1.62 | 13.4, 1.65 | 12.9, 1.63 | 12.9, 1.57 |
+| flat inside | 9.4, 1.17 | 12.4, 1.42 | 13.1, 1.50 | | | 12.9, 1.60 | 12.6, 1.66 | |
+
+- **Thickness pays steeply up to t/c 0.08 and not at all above 0.09.** A
+  cambered section gains three degrees of upper end per 0.01 of thickness
+  between 0.06 and 0.08, as its stall moves from the nose to the trailing
+  edge; from 0.09 on the end stays at 13° and the lift at 1.5–1.65. The
+  table of 2026-11-20, with no section above t/c 0.12 at 4.5 % camber, had
+  carried the trend on to 15.6° and a lift of 1.9 there.
+- **A flat inside face holds as long as a cambered section** of its
+  thickness from t/c 0.06 on (12.4–13.1°), three degrees longer than the
+  first referee had it, and carries more lift.
+- **Its lower end is geometry.** −4.4° to −4.9° at every thickness and
+  Reynolds number, with the drag at twice its lowest by −3° and three and a
+  half times at the end. That ramp is the 12.5 N a flat-inside side fin costs
+  going straight (section 6).
+- **A thin cambered section is attached going straight.** 3 % camber on t/c
+  0.07 holds from −6.1° to +10.1°, on 0.06 from −4.4°, on 0.05 from −3.9°.
+  The first referee had 0.07 separated at −4.5° ("The cambered candidate was
+  a second exploit"); that was the cut-short nose.
+- **Reynolds number moves both ends outward by 0.7–1.0° per octave** on the
+  cambered and symmetric sections; on the flat inside face the upper end by
+  as much and the lower end by a quarter of a degree.
+- **Drag stays low to the end and then steps, on a thin section.** On a
+  thick, strongly cambered one the end is soft: 4.5 % on t/c 0.12 stops
+  settling at 13.0° with its lift still at 1.64 and no step in its drag.
+- **Behind an end** two sections were run on (`rerun-held/controls/`). No
+  row there settles; the steady solver swings and its means say where the
+  flow is going. A thin symmetric section (t/c 0.046) has no highest lift in
+  reach: behind its end at 5.1° the lift goes on at two thirds of the slope
+  to 1.0 at 12°, with 2 to 7 times the drag (thin-aerofoil stall). A flat
+  inside face driven from its curved side keeps its line to −7° and holds at
+  −0.33 to −0.45 from there. The table has the first in drag and not in lift
+  (it levels at 0.65), the second to −7°.
+
+### 3. The builder and the library
+
+For every section the table still starts from v0, because v0 covers every
+thickness, camber and Reynolds number and the referee 39. What is taken from
+the referee:
+
+- **An end is where the rows let go.** A row is past an end when it did not
+  settle or has more than four times the section's lowest drag; the end is
+  halfway between the last row inside and the first row past. A row that
+  swings in a bounded cycle about a mean that holds to four digits counts as
+  settled (four flat-inside rows at −2.5°, where the lift is near zero and
+  the driver's relative test cannot pass).
+- **Inside the range two residual curves bring the moved v0 onto the rows**:
+  a drag ratio and a lift difference at 121 places between the ends. At a
+  measured section the table is that section. The lift difference is kept in
+  units of the lift the line gains between the centre of the range and that
+  end, so a section with half the range gets half of a soft stall and not a
+  lift that falls inside its range.
+- **Behind an end** the rows are kept as steps from the value at the end,
+  every quarter degree for three degrees; further out v0's shape carries on.
+  No section has less drag behind an end than at it: where the fit says so
+  the section is built without a step.
+- **Reynolds number** is piecewise linear in its logarithm between the
+  Reynolds numbers run, each stretch's slope read at the sections run at
+  both of its ends; outside them the ends stay where last measured.
+- **Between sections** every one of these is a plane over thickness and
+  camber plus what each section still misses, spread to its neighbours.
+  Outside the box of measured sections v0's trend carries on from the edge.
+- **A symmetric section is built from its upper half and mirrored**, and is
+  the camber-free row of the cambered family, from one fit with the rows
+  beside it: fingen draws one outline for both.
+
+The library changed in two places. The table is stored on a coordinate in
+which both ends sit at the same place for every section, and the library
+interpolates the ends first and the curves at equal position between them: a
+section between two nodes has one cliff at an interpolated angle, where
+blending at equal angle gave it two half-height ones (in three directions at
+once a quarter-degree cliff read as a ramp a degree wide).
+`SectionPolar.attached_deg` reports the ends. And a section's limit for the
+knee is now `SectionPolar.cl_limit`, the highest lift between its zero-lift
+angle and its upper end. Until now it was the lift where the local slope
+falls under 30 % of the line's; on a section whose lift rounds over before
+its end that angle jumped by 0.4° between neighbouring nodes, and the lift
+read there by up to 7 %.
+
+### 4. The table at its sections and between them
+
+At all 39 sections the shipped table, read through `fingen.sections`, has
+the referee's lift within 0.0013 and its drag within 1.4 % on every row
+inside the attached range, and both ends inside the bracket the referee gives
+(`table-v1-nodes.md`; `test_v1_is_the_referee_at_its_sections`). Built with
+one section left out, the table misses that section's ends by 0.6° (lower)
+and 0.7° (upper) rms on the cambered and symmetric sections, 1.9° and 1.4°
+at worst, and by 0.2° and 1.1° on the flat-inside ones (2.1° at worst, at the
+thin edge). That is how well an end is known between sections: as well as the
+wall's offset, and better than the referee's distance from a tunnel.
+
+Against v0 at the same sections: the lift slope is 2–7 % lower (one section
+of 39 higher), the drag
+level within 4 % on cambered and symmetric sections at Re 5.7e5 and 15–25 %
+higher on a flat inside face, and v0's flat inside face has no lower end at
+all.
+
+The builder scans all 2720 nodes of the table after every build for what a
+polar must not do. What it finds on this one, and what each is:
+
+- **More lift within three degrees behind the upper end than at it, 190
+  nodes.** Thin sections (t/c 0.04–0.066 symmetric, 0.05–0.055 up to 2–3.5 %
+  camber): the referee's own behaviour, see the control. And
+  4.5–5 % camber at t/c 0.08 and 0.15–0.16, 0.03–0.15: soft ends, where the
+  referee's rows behind the end are still rising too.
+- **No drag step at the upper end, 80 nodes**, all at 4–5 % camber on t/c
+  0.10–0.11. Their neighbours among the sections end softly and the marches
+  stop three rows past the end, before any cliff: there is no step to carry.
+- **Lift slope under 4.5 per radian, 14 nodes**: flat inside at t/c 0.19 and
+  0.22, far from any section run (the thickest is 0.12).
+- **Break by slope 2.6° past the upper end, 4 nodes**: symmetric t/c 0.040,
+  thinner than the thinnest section run.
+
+None of them lies where a strip of a fin on record works.
+
+### 5. The knee on this table
+
+`bladehydro.KNEE_FRACTION` is one number fitted on one tunnel fin, and it
+belongs to the table it was fitted on. On this one the flat-inside sections
+of the tunnel fin carry 15 % more lift than before, and the share that keeps
+its knee at 12.0° on the board mirror goes from 0.715 to **0.606**. The
+convention has not changed: 12° is the last tunnel point on that fin's line.
+
+| blade | polar: 5 % below its line ° | criterion ° (board mirror), table of 11-20 | this table |
+|---|---|---|---|
+| tunnel fin [BW04], flat inside | 12–14 (tunnel), 12.5 (level 5) | 12.0 | 12.0 |
+| gen-2 side as shipped, flat inside | 8.6 | 7.4 | 7.1 |
+| best v1-model side, 4.2 % camber, t/c 0.089 | 8.6 | 7.9 | 8.1 |
+| same planform as gen 2, 3 % camber | ≈ 7 | | 6.7 |
+| cambered candidate, 4.3 %, t/c 0.074 | ≈ 6 | 6.9 | 6.5 |
+| gen-1 side as ridden, flat inside | ≈ 8 | 7.5 | 7.1 |
+| paddle probe, 3.5 % camber | ≈ 14 | 14.7 | 15.2 |
+| gen-1 centre with t/c 0.09, symmetric | 9.4 | 12.3 | 10.0 |
+| gen-1 centre as ridden, symmetric t/c 0.046 | 9.9 | 7.7 | 5.2 |
+| longboard single, symmetric t/c 0.08 | 11.6 | 7.7 | 6.3 |
+
+- **Side fins: within half a degree of where they were**, and 0.5–1.5°
+  before the angle at which their one-degree polars are 5 % below the line.
+- **That offset is what the convention means.** A second measured foil says
+  so: the hydrofoil of [Zar14] (NACA 0009, unswept, twice a fin's aspect
+  ratio; `bench/zarruk/lattice.md`). At the angle the criterion gives, 7.6°
+  and 8.2° at Re 0.4e6 and 0.6e6, the measured lift is 0–2 % below its own
+  line; two degrees on it is 2–5 % below; it stalls at 10.5–11° with its most
+  loaded strip at 0.76–0.84 of its section's limit. The criterion marks
+  where a blade starts to leave its line, and "5 % below" comes about two
+  degrees later, on the tunnel fin (12.0° and about 13.7°) as on this one. The
+  lattice's lift slope is 3–8 % below the measured one there (4.5 against
+  4.6–4.9 per radian; the tunnel's walls are not in the lattice).
+- **The thick symmetric centre moved onto its polar** (12.3° to 10.0°,
+  level 5: 9.4°): the symmetric family has referee sections now.
+- **Thin symmetric blades are 4–5° early**, and earlier than before. Their
+  sections' attached range ends at 5–7°, and the criterion takes a share of
+  the lift at that end. But that end is a step in drag, not a limit of lift
+  (section 2): the blade goes on lifting, which is what the one-degree polar
+  of the gen-1 centre shows (it lets go gradually from 8° and climbs on at
+  80 % of its slope). A thin symmetric blade has an onset and a slower line
+  after it. Its hold is to be defined on that (GEN3-PLAN 2b.1, Phase 2), not
+  by moving this share.
+
+**Hold.** On the strip measure the anchors of decision D11 read: the
+commercial medium fin 0.65–0.85 over the weight band it is sold for (0.67–0.86
+before), the gen-2 side 0.70 for its 60 kg rider (0.73), the gen-1 side that
+slid 0.57 (0.60). The floor is the gen-2 side's level and moves with the
+measure: `HOLD_FLOOR_KNEE` 0.72 → 0.70. The target stays at 0.80.
+
+### 6. Going straight, against the 3-D polars
+
+Drag per fin at 8.5 m/s going straight at 3.5° of toe, lattice on this table:
+the gen-2 side with its flat inside face 12.5 N (table of 11-20: 15.1; mesh
+level 5: 13–15), the same planform with 3 % camber 4.6 N (4.9), the cambered
+candidate 5.1 N (7.3).
+
+Lattice over level-5 CFD, drag at the blade's own incidence:
+
+| blade | −4.5° | −3.5° | −2.5° | 0° | +4° |
+|---|---|---|---|---|---|
+| gen-2 side, flat inside | 0.92 | 0.94 | 0.96 | 1.02 | 1.00 |
+| gen-2 planform, 3 % camber, t/c 0.092 | 0.69 | 0.84 | 0.92 | 0.98 | 0.97 |
+| best v1-model side, 4.2 %, t/c 0.089 | 0.72 | 0.89 | 0.96 | 0.99 | 0.97 |
+| cambered candidate, 4.3 %, t/c 0.074 | 0.53 | 0.70 | 0.88 | 0.98 | 0.98 |
+
+- **The flat inside face is settled**: within 8 % at every angle, where the
+  table before read 11–24 % high.
+- **From 0° up every blade is within 3 %.**
+- **Below −2.5° the cambered blades disagree, and the thinner the more.** The
+  lattice has the candidate at 5.0 N from −2.5° to −4.5°; level 5 has 6.0, 7.1
+  and 9.4 N. In the lattice its strips work 1.9–3° inside their sections'
+  lower ends over the inner six tenths of the span at −2.5° and −3.5°, and
+  still 0.4–0.9° on the outer four tenths at −4.5°. Level 5 has one to two
+  cells on that blade's nose radius and wall functions; the 2-D referee needed
+  seven cells to place an end, and an under-resolved nose lets go a degree or
+  two early ("The referee's nose", section 5). So the difference is what a
+  coarse nose would produce. It is not shown to be only that: no 3-D run with
+  the nose resolved exists.
+- **Level 5 is on the old inlet.** The twin keel alone on the held stream
+  reads 5 % less drag at 0–4° of incidence and 1–2 % less at 12–16°, lift
+  1 % less (`bench/phase2b/twin-set/`). Every ratio above is against CFD
+  that would read that much lower.
+
+What a cambered side fin costs going straight, 4.6–5.1 N against 12.5 N,
+rests on the 2-D referee and on strips that stay inside their range. It is
+the largest single number in the trade between a flat inside face and
+camber, and the 3-D check of it is the one named above.
+
+### 7. What the search does on this table
+
+`lattice-knee` with the library's floor and target (D11: 0.70 and 0.80),
+neutral aspirations, cambered side foil, six seeds of 6 000 evaluations, as
+in "Twelve cambered sections", section 5:
+
+| | area mm² | depth mm | camber % | t/c at the base | knee ° | going straight N | at the working force N | hold |
+|---|---|---|---|---|---|---|---|---|
+| this table, five seeds of six | 8 210–8 900 | 138–140 | 3.3–4.6 | 0.082–0.109 | 7.8–9.2 | 4.35–4.61 | 6.35–6.44 | 0.79–0.82 |
+| table of 11-20, six of six | 7 050–8 850 | 135–140 | 3.0–4.7 | 0.093–0.132 | 9.0–10.8 | 4.4–4.5 | 6.4–6.6 | 0.78–0.86 |
+
+- **The fin did not change, its smallest versions went.** Depth, base (104–
+  105 mm), sweep (24–28°), camber and both drags are where they were. Read
+  on this table, three of the six fins of 11-20 are below the floor (hold
+  0.64–0.69): the three smallest, of 7 050–8 000 mm². Two of them made up
+  for area with 4.6–4.7 % camber on t/c 0.11–0.13, which the old table
+  credited with a lift no section run since has (section 2). Area now starts
+  at 8 200 mm².
+- **It does not go thin for the cheap drag of section 6.** The base stays at
+  t/c 0.08–0.11: a thinner section costs the knee more than it saves going
+  straight. Going straight the strips of three of the five keep 1.0–5.3° to
+  their lower ends at the far trim point (−4.5° of own incidence). The two at
+  4.5 % camber on t/c 0.08 have their tip strips 0.8° and 0.0° from it: the
+  search has found that edge, and those two are the ones the open check of
+  section 6 is about. The other three would read the same with a lower end a
+  degree earlier.
+- **The bending gate is what holds the thickness up**: three of the five sit
+  on a roll-augmented bending safety factor of 1.50 (one of them at
+  1.49999, which the library reports as not feasible).
+- **The sixth seed** went to 60° of sweep with a tip a sixth of the base and
+  t/c 0.16 at the root (knee 13.5°) and scores worse than the five (+0.30
+  against +0.04 to +0.08). No measured swept blade stands behind the
+  criterion there; the same kind of stray seed as on every table so far.
+- Yaw stiffness 243–276 N m/rad and roll damping 0.46–0.50 N m s over the
+  five: as before, free for a rider's taste.
+
+Nothing in what a rider can choose moved, except the lowest hold on offer
+(0.72 → 0.70).
+
+### 8. What is open
+
+- **The wall.** Keep the usual wall and state its offsets, or rerun 39
+  sections on one ten times finer for ends 0.5–1.5° later and drag 4–5 %
+  higher, further from the tunnels. Proposed: keep. A what-if with every end
+  moved by those amounts changed side-fin knees by half a degree or less.
+- **A 3-D polar with the nose resolved**, on one thin cambered blade at −4.5°
+  to 0°: the check of section 6. A level-6 polar of the candidate (cells of
+  0.28 mm, about two per nose radius) is running as a third point on the
+  trend from level 2 to level 5.
+- **Thin symmetric blades** (section 5): their limit is not at the end of
+  the attached range. Phase 2.
+- **The fin on the outside of a turn.** Set CFD of a twin
+  (`bench/phase2b/twin-set/`), of the thruster (`bench/mount/`) and of the
+  four-fin layout has that fin leave its lift line near −8° to −10° of own
+  incidence, its flat face on the suction side; the lattice keeps it on the
+  line (38 % more lift on it at 12° of leeway on the twin). The strips are
+  then past their sections' lower ends, where the 2-D referee's mean lift
+  still follows the line for two degrees. A strip driven past its lower end
+  needs a rule of its own, as the knee is one for the working side.
+- **Reynolds number above 5.7e5** rests on one section (4.5 % camber, t/c
+  0.092 at 9.7e5). Root strips of side fins work at 7–9.5e5.
+- **The share is one number from one tunnel fin.** Two measured foils and
+  four one-degree CFD polars agree with what it marks; none of them is a
+  cambered side fin in a tunnel.
+
 ## What a fast method cannot do — the rest
 
 - **Post-stall magnitude on a low-aspect-ratio swept blade.** Strip methods get

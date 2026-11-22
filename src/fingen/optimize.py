@@ -596,13 +596,15 @@ DEFAULT_ASPIRATIONS = {
 GOODS = tuple(DEFAULT_ASPIRATIONS)
 # Decision D11 (2026-11-20). Where the knee is read off the strips
 # (spider.STRIP_KNEE), hold is anchored on fins of known behaviour, not on 1.0:
-# on that measure the gen-2 side reads 0.729 for its 60 kg rider (it holds), the
-# gen-1 side that slid 0.60, and a commercial medium thruster fin 0.67-0.86 over
+# on that measure the gen-2 side reads 0.704 for its 60 kg rider (it holds), the
+# gen-1 side that slid 0.57, and a commercial medium thruster fin 0.65-0.85 over
 # the weight band size charts sell it for (scripts/hold_anchor.py,
 # bench/knee/hold-anchor.md). The number is a convention — lean and speed of the
 # design turn are assumed, and a blade keeps lifting past its knee; the order of
-# those fins is not.
-HOLD_FLOOR_KNEE = 0.72            # the gen-2 side's level: nothing goes below it
+# those fins is not. The floor is the gen-2 side's level and moves with the
+# measure: 0.72 on the section table of 2026-11-20 (the side read 0.729), 0.70
+# on the table of 2026-11-22.
+HOLD_FLOOR_KNEE = 0.70            # the gen-2 side's level: nothing goes below it
 HOLD_ASPIRATION_KNEE = 0.80       # what a search aims for when nothing is said
 TASTES = ("yaw_stiffness_nm_rad", "roll_damping_nm_s")
 
@@ -1019,8 +1021,8 @@ def evaluate(fin: FinParams, rider: RiderSpec, *,
     shift = camber_break_shift_deg(fin)
     if shift > 0.0:
         issues.append(
-            f"camber beyond the validated range (flat-inside t/c "
-            f"{fin.foil.thickness_ratio:.3f} > {CAMBER_CREDIT_TC:.2f}): break angle "
+            f"camber beyond the validated range (zero-lift angle {shift:.1f} deg past "
+            f"that of a flat inside face of t/c {CAMBER_CREDIT_TC:.2f}): break angle "
             f"lowered {shift:.1f} deg, so the extra camber earns no max lift or "
             "margin — section polars adjudicate")
     if fin.foil.thickness_ratio > _THIN_SECTION_TC_MAX:

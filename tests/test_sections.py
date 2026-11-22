@@ -2,6 +2,7 @@
 
 import json
 import math
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -67,6 +68,9 @@ def test_out_of_table_requests_are_clamped_and_flagged():
     assert sections.polar(FoilFamily.SYMMETRIC, 0.09, 5.0e4).clipped
     assert sections.polar(FoilFamily.CAMBERED, 0.09, RE, camber_ratio=0.08).clipped
     assert not sections.polar(FoilFamily.CAMBERED, 0.09, RE, camber_ratio=0.03).clipped
+    # a request AT the table's edge is inside it (the grids are stored in single precision)
+    assert not sections.polar(FoilFamily.CAMBERED, 0.05, RE, 0.03, table="v1").clipped
+    assert sections.polar(FoilFamily.CAMBERED, 0.049, RE, 0.03, table="v1").clipped
     with pytest.raises(ValueError):
         sections.polar(FoilFamily.SYMMETRIC, 0.09, 0.0)
 
@@ -105,32 +109,73 @@ def test_both_tables_ship_and_v1_names_what_it_was_fitted_on():
         sections.polar(FoilFamily.SYMMETRIC, 0.09, RE, table="v2")
 
 
-def test_v1_ends_a_thin_cambered_sections_range_where_the_rans_does():
-    # bench/section-tables/thin-cambered, 3 % camber, Re 5.7e5, resolved wall:
-    # t/c 0.070 attached at -3.5 deg (cd 0.0139), separated at -4.5 (0.032, 2.5 x the
-    # minimum) and past its knee at +10; t/c 0.092 attached from -6 to +10 deg.
-    thin0 = sections.polar(FoilFamily.CAMBERED, 0.07, RE, 0.03)
-    thin1 = sections.polar(FoilFamily.CAMBERED, 0.07, RE, 0.03, table="v1")
-    thick1 = sections.polar(FoilFamily.CAMBERED, 0.092, RE, 0.03, table="v1")
-    assert float(thin0.cd_at(-4.5)) < 1.35 * thin0.cd_min        # v0: still inside
-    assert float(thin1.cd_at(-4.5)) > 1.8 * thin1.cd_min         # v1: out, as in RANS
-    assert float(thin1.cd_at(-3.5)) < 1.35 * thin1.cd_min
-    assert float(thick1.cd_at(-4.5)) < 1.25 * thick1.cd_min
-    assert float(thin1.cd_at(0.0)) == pytest.approx(0.0128, rel=0.05)
-    assert float(thin1.cl_at(8.0)) == pytest.approx(1.126, abs=0.03)
-    assert float(thick1.cl_at(10.0)) == pytest.approx(1.287, abs=0.03)
-    # the knee is a maximum: lift falls within 4 deg past it
-    assert float(thin1.cl_at(13.0)) < float(thin1.cl_at(8.5))
+def _referee_sections():
+    """Every section of the record table v1 is built on (bench/section-tables/rerun-held):
+    (name, family, t/c, camber, Re, angles / lift / drag of the rows inside its attached
+    range, the bracket of its lower end or None, the bracket of its upper end). A row is past
+    an end when it did not settle (a bounded cycle about a steady mean counts as settled) or
+    has more than four times the section's lowest drag: the builder's own reading."""
+    path = Path(__file__).resolve().parent.parent / "bench/section-tables/rerun-held/results.json"
+    out = []
+    for name, sec in json.loads(path.read_text())["sections"].items():
+        spec = sec["spec"]
+        rows = sorted(sec["rows"], key=lambda r: r["alpha"])
+        a, cl, cd = (np.array([r[k] for r in rows]) for k in ("alpha", "cl", "cd"))
+        settled = np.array([bool(r.get("settled", True)) or bool(r.get("cycle")) for r in rows])
+        ok = settled & (cd <= 4.0 * cd[settled].min())
+        lo = hi = int(np.argmin(np.where(ok, cd, np.inf)))
+        while lo > 0 and ok[lo - 1]:
+            lo -= 1
+        while hi < len(a) - 1 and ok[hi + 1]:
+            hi += 1
+        out.append((name, FoilFamily(spec["family"]), spec["thickness_ratio"],
+                    spec.get("camber_ratio", 0.0), spec["re"], a[lo:hi + 1], cl[lo:hi + 1],
+                    cd[lo:hi + 1], (a[lo - 1], a[lo]) if lo > 0 else None, (a[hi], a[hi + 1])))
+    return out
 
 
-def test_v1_keeps_the_flat_inside_anchors():
-    p = sections.polar(FoilFamily.FLAT_INSIDE, 0.092, RE, table="v1")
-    assert float(p.cl_at(0.0)) == pytest.approx(0.426, abs=0.02)
-    assert float(p.cl_at(4.0)) == pytest.approx(0.861, abs=0.02)
-    assert float(p.cl_at(10.0)) == pytest.approx(1.361, abs=0.03)
-    assert float(p.cd_at(-3.5)) == pytest.approx(0.0423, rel=0.05)
-    assert float(p.cd_at(4.0)) == pytest.approx(0.0177, rel=0.06)   # v0 reads 0.0138 here
-    assert float(sections.polar(FoilFamily.FLAT_INSIDE, 0.092, RE).cd_at(4.0)) < 0.015
+def test_v1_is_the_referee_at_its_sections():
+    # Table v1 is v0 moved onto the resolved-wall RANS sections. At each of them it has to
+    # BE the referee, read the way the model reads it: lift and drag of every row inside the
+    # attached range, and both ends inside the quarter or half degree the referee brackets
+    # them in. (As built on 2026-11-22: lift within 0.0013, drag within 1.4 %.)
+    secs = _referee_sections()
+    assert len(secs) == 39
+    assert {fam for _, fam, *_ in secs} == set(FoilFamily)
+    for name, fam, tc, camber, re, a, cl, cd, lower, upper in secs:
+        p = sections.polar(fam, tc, re, camber, table="v1")
+        assert not p.clipped, name
+        assert np.abs(p.cl_at(a) - cl).max() < 0.005, name
+        assert np.abs(p.cd_at(a) / cd - 1.0).max() < 0.03, name
+        assert upper[0] <= p.attached_deg[1] <= upper[1], name
+        if lower is not None:        # a symmetric section is run on one side only
+            assert lower[0] <= p.attached_deg[0] <= lower[1], name
+
+
+def test_v1_reads_what_the_referee_found_at_the_edges_of_the_range():
+    # What the record says and v0 does not (docs/MODEL-EXTENSION.md):
+    # a thin cambered section keeps its attached range going straight. 3 % camber on
+    # t/c 0.07 at Re 5.7e5 is attached from -6.0 to +10.0 deg; the first referee had it
+    # separated at -4.5, on an outline the mesher had cut short at the nose.
+    thin = sections.polar(FoilFamily.CAMBERED, 0.07, RE, 0.03, table="v1")
+    assert thin.attached_deg == pytest.approx((-6.125, 10.125), abs=0.01)
+    assert float(thin.cd_at(-4.5)) < 1.2 * thin.cd_min
+    assert float(thin.cd_at(0.0)) == pytest.approx(0.0122, rel=0.03)
+    # past its upper end the section has let go: lift falls, drag is several times the lowest
+    assert float(thin.cl_at(11.5)) < float(thin.cl_at(10.0)) - 0.2
+    assert float(thin.cd_at(11.5)) > 4.0 * thin.cd_min
+    # a flat inside face costs drag below about zero incidence and ends just under -4.75 deg
+    # at every thickness from 0.05 to 0.12; v0 has no such end
+    flat = sections.polar(FoilFamily.FLAT_INSIDE, 0.092, RE, table="v1")
+    assert flat.attached_deg[0] == pytest.approx(-4.875, abs=0.01)
+    assert float(flat.cd_at(-3.5)) == pytest.approx(0.0354, rel=0.03)      # 2.4 x its lowest
+    assert float(flat.cd_at(-3.5)) > 2.2 * flat.cd_min
+    assert float(flat.cl_at(10.0)) == pytest.approx(1.44, abs=0.02)
+    # the upper end of the thin sections climbs steeply with thickness (3 % camber:
+    # 6.6, 7.6, 10.1, 11.6, 13.1 deg at t/c 0.05, 0.06, 0.07, 0.075, 0.08)
+    ends = [sections.polar(FoilFamily.CAMBERED, tc, RE, 0.03, table="v1").attached_deg[1]
+            for tc in (0.05, 0.06, 0.07, 0.075, 0.08)]
+    assert ends == pytest.approx([6.625, 7.625, 10.125, 11.625, 13.125], abs=0.01)
 
 
 def test_aligned_layout_keeps_one_cliff_between_two_nodes(tmp_path, monkeypatch):
