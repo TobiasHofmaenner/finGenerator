@@ -2126,10 +2126,14 @@ Lattice over level-5 CFD, drag at the blade's own incidence:
   lower ends over the inner six tenths of the span at −2.5° and −3.5°, and
   still 0.4–0.9° on the outer four tenths at −4.5°. Level 5 has one to two
   cells on that blade's nose radius and wall functions; the 2-D referee needed
-  seven cells to place an end, and an under-resolved nose lets go a degree or
-  two early ("The referee's nose", section 5). So the difference is what a
-  coarse nose would produce. It is not shown to be only that: no 3-D run with
-  the nose resolved exists.
+  seven cells to place an end. The same recipe at the same cell size run in
+  2-D (chord/320, wall functions; `bench/section-tables/mesh-recipe/`) reads
+  the 3 % section of t/c 0.07 at 1.36 times the converged referee's drag at
+  −3.5° and 2.25 times at −4.5°, and 11–14 % BELOW it at −2.5° and 0°. The
+  fin polars stand at 1.1–1.4 and 1.4–1.9 times the lattice at those two
+  angles and within 2 % at 0°. So the excess is no larger than what that
+  recipe makes of a section the referee has attached. It is not shown
+  directly: no 3-D run with the nose resolved exists.
 - **Level 5 is on the old inlet.** The twin keel alone on the held stream
   reads 5 % less drag at 0–4° of incidence and 1–2 % less at 12–16°, lift
   1 % less (`bench/phase2b/twin-set/`). Every ratio above is against CFD
