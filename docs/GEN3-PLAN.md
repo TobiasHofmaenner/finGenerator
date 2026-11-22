@@ -628,7 +628,8 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   line, 38 % more lift at 12° than the CFD — a strip driven past its
   section's lower end has no knee in the model. Going straight this foil's
   drag is lowest with no toe (9.5 N a fin, 10.8 N at 2°, 13.2 N at the 4.1°
-  where it carries nothing). *Running:* one mesh level finer, and 4 m/s.
+  where it carries nothing). One mesh level finer (1.1 M cells) and at
+  4 m/s the shares are the same within 0.02.
   *Open:* (c); a share from the lattice set in place of `sizing`'s 0.75; the
   unloaded fin behind its lower end. On fins of ordinary aspect ratio that is
   the table (no referee rows more than 1.5° past a flat inside face's lower

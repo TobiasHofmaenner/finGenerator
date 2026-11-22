@@ -6,21 +6,21 @@ The pair: two of the stand-in keels of `../twin-keel/` (95 mm deep on a 180 mm b
 
 - `level5/twin-set.json`: the six leeway angles.
 - `level2/twin-set.json`: the coarser-mesh control at 4° and 8° (282 295 cells, mean y⁺ 160–180).
+- `level6/twin-set.json`: the finer-mesh control at 4°, 8° and 12° (1 137 704 cells, surface cells 0.56 and 0.28 mm, mean y⁺ 47–56).
+- `level5-4ms/twin-set.json`: the level-5 set at 4 m/s, 0°, 4°, 8° and 12° (mean y⁺ 54–60).
 - `keel-held-stream/`: the keel alone on mesh level 5 on the held stream of `../../section-gate/` (the 3-D control of that stream), to set beside `../twin-keel/results.json`.
 - `lattice.md`: `uv run python scripts/twin_set_lattice.py bench/phase2b/twin-set/level5/twin-set.json --md=…` (section table v1 of 2026-11-22, built on the held-stream sections).
 
-*Running (2026-11-22):* the set one mesh level finer at 8°, 12° and 4°, and the level-5 set at 4 m/s.
-
 ## The set
 
-| leeway ° | C_L right | C_L left | C_D right | C_D left | share of the loaded fin | the same on mesh level 2 |
-|---|---|---|---|---|---|---|
-| 0 | +0.054 | −0.053 | 0.0292 | 0.0292 | – | |
-| 2 | +0.106 | −0.004 | 0.0255 | 0.0356 | 1.04 | |
-| 4 | +0.165 | +0.051 | 0.0254 | 0.0452 | 0.77 | 0.75 (+0.160, +0.054) |
-| 6 | +0.229 | +0.107 | 0.0298 | 0.0596 | 0.68 | |
-| 8 | +0.299 | +0.149 | 0.0384 | 0.0769 | 0.67 | 0.64 (+0.292, +0.162) |
-| 12 | +0.449 | +0.226 | 0.0681 | 0.1177 | 0.66 | |
+| leeway ° | C_L right | C_L left | C_D right | C_D left | share of the loaded fin | the same on mesh level 2 | on mesh level 6 | at 4 m/s (level 5) |
+|---|---|---|---|---|---|---|---|---|
+| 0 | +0.054 | −0.053 | 0.0292 | 0.0292 | – | | | – (+0.053, −0.053) |
+| 2 | +0.106 | −0.004 | 0.0255 | 0.0356 | 1.04 | | | |
+| 4 | +0.165 | +0.051 | 0.0254 | 0.0452 | 0.77 | 0.75 (+0.160, +0.054) | 0.78 (+0.168, +0.048) | 0.76 (+0.164, +0.051) |
+| 6 | +0.229 | +0.107 | 0.0298 | 0.0596 | 0.68 | | | |
+| 8 | +0.299 | +0.149 | 0.0384 | 0.0769 | 0.67 | 0.64 (+0.292, +0.162) | 0.67 (+0.303, +0.150) | 0.67 (+0.298, +0.150) |
+| 12 | +0.449 | +0.226 | 0.0681 | 0.1177 | 0.66 | | 0.68 (+0.455, +0.218) | 0.68 (+0.448, +0.216) |
 
 The same rows as one fin's polar over its own incidence (leeway − toe on the right fin, −leeway − toe on the left), lift in the fin's own frame, drag in newtons at 7 m/s:
 
@@ -59,11 +59,12 @@ Perfect mirror, the same pair, strips on section table v1 (`lattice.md` is on th
 
 ## The controls
 
-- **Mesh.** Level 2 against level 5: the loaded fin's lift 2–3 % lower, the unloaded fin's 6 % and 9 % higher (4°, 8°), the share 0.02–0.03 lower. The unloaded fin's lift behind its lower end moves with the mesh, and the coarser mesh sits nearer the lattice; the finer run is to say which way it goes on.
+- **Mesh.** Level 2 against level 5: the loaded fin's lift 2–3 % lower, the unloaded fin's 6 % and 9 % higher (4°, 8°), the share 0.02–0.03 lower. Level 6 against level 5: the loaded fin 1–2 % higher, the unloaded fin the same at 8° (0.150 against 0.149) and 4 % lower at 12°, the share within 0.02, drag within 1.5 % on both fins. So the unloaded fin's fall-off from its line is not the mesh; level 5 has it.
+- **Speed.** At 4 m/s every coefficient is within 0.003 in lift of the 7 m/s set, 0.010 on the unloaded fin at 12°, and drag is 1–2 % higher; the shares are the same. On wall functions the set does not know its Reynolds number.
 - **Stream.** The keel alone, held stream against the old inlet (`../twin-keel/`), own incidence 0°, 4°, 8°, 12°, 16°: drag −4.8 %, −5.1 %, −3.7 %, −2.2 %, −1.3 %; lift −0.4 % to −1.2 %. The 2-D referee lost 5–12 % of its drag by the same change; on wall functions the 3-D polar loses about 5 % at low incidence. Every level-5 polar in this repository is on the old inlet.
 
 ## What this does not say
 
-- One fin, one toe, one speed. The keel is a stand-in, low and broad (aspect ratio 0.61), with vortex lift from 8° of own incidence; a deeper twin fin has a knee, and where it sits against the unloaded fin's fall-off is not shown here.
-- Where the unloaded fin leaves its line is read on wall functions, with cells of 0.56 mm at the nose. Two meshes and two sets agree on about −8…−10° of own incidence. The 2-D referee's attached range ends at −4.8° of section incidence, which this keel's inboard strips reach at about −8° of own incidence (6° of leeway); behind that end the referee's lift is unsettled, not lost, so the two do not disagree on where, only on what follows.
+- One fin and one toe. The keel is a stand-in, low and broad (aspect ratio 0.61), with vortex lift from 8° of own incidence; a deeper twin fin has a knee, and where it sits against the unloaded fin's fall-off is not shown here.
+- Where the unloaded fin leaves its line is read on wall functions, with cells of 0.56 mm at the nose. Three meshes and two sets agree on about −8…−10° of own incidence. The 2-D referee's attached range ends at −4.8° of section incidence, which this keel's inboard strips reach at about −8° of own incidence (6° of leeway); behind that end the referee's lift is unsettled, not lost, so the two do not disagree on where, only on what follows.
 - The turn itself. At the lean angles the library sizes for, a pair of this area works beyond 12° of leeway.
