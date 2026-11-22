@@ -794,6 +794,24 @@ the ends of a section's range or past the knee: it separates early
   decision and follows it: `HOLD_FLOOR_KNEE = 0.70`. The aspiration is left
   at 0.80 as decided; it was 0.07 above the gen-2 side and is now 0.10 above
   (0.78 would keep the distance). For Tobias to confirm or move.
+- **D13** *(open, 2026-11-22)* Which gates a rider from the quiz gets. The
+  quiz's job carries the facts, the design turn, the hold target and the two
+  tastes, and no gate, so `RiderSpec`'s defaults apply: tab gate at a safety
+  factor of 1.0, bending at 1.0, no washout limit. The test rider's files,
+  which made the fins ridden in Bali, have the tab gate off, bending at
+  1.3–1.7 and washout at 1.5–5 %. The difference designs the fin
+  (`bench/design-points/`): with the tab gate on, a 60 kg rider's side fin
+  goes from 140 mm deep to 113 mm at 7.5 m/s and 48° of lean and to 90 mm at
+  8.5 m/s and 55°, with roll damping down to a half and a quarter and a step
+  more drag at the working force; without it the same fins read a tab safety
+  factor of 0.5–0.96, the shipped gen-2 side 0.53. Options: (a) the test
+  rider's practice for everyone (no tab gate, bending 1.5, washout 1.5 %);
+  (b) the library defaults as they are; (c) the tab gate on a threshold the
+  field supports (his fins hold at 0.53: a gate at about 0.5 would pass them
+  and still stop a fin twice as loaded), with (a)'s other two. Item 1.0
+  already says gate tolerances become global constants; this is which.
+  Until decided, every search result states its gates, and no worker is
+  built on the quiz's job as it is.
 - **D6** *(decided 2026-11-19)* No wave-size input, no skill input, no presets:
   the rider sets bank angle (30–55°) and speed band directly and we explain the
   meaning. Presets are a later UX layer. Open sub-point: speed band as two
