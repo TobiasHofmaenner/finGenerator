@@ -2,7 +2,7 @@
 
 Questions. The rider gives the design turn directly (lean angle and speed, `docs/GEN3-PLAN.md` 1.0): does the side fin follow it sensibly? What does the fin look like? And a rider built from the web quiz's job carries no gate of their own, so the library's defaults apply, where the test rider's files set three of them differently: what does that change?
 
-One rider: 60 kg, thruster side fin, PPA-CF, click tab, as the quiz would send it (`scoring="frontier"`, `hydro_model="lattice-knee"`, cambered side foil, hold target 0.80), section table of 2026-11-22. Speed 6.5, 7.5 and 8.5 m/s by lean 40°, 48° and 55°; 6 000 evaluations, two seeds a point (four for the present search: the map was run on the table before and after its last three sections went in, and every fin is scored here on the table as shipped), the best one in the tables. `run_dp.py` is the script of one search, `fins/` has the better fin of every point with its margins (`sliders-…`: as the library searches now; `offsets-…`: with the twelve edge offsets, the library before this day; `omar-…`, `default-…`: with the tab gate on). `outlines.png` (`draw.py`) and `with-without-offsets.png` (`draw_with_without.py`) draw them.
+One rider: 60 kg, thruster side fin, PPA-CF, click tab, as the quiz would send it (`scoring="frontier"`, `hydro_model="lattice-knee"`, cambered side foil, hold target 0.80), section table of 2026-11-22. Speed 6.5, 7.5 and 8.5 m/s by lean 40°, 48° and 55°; 6 000 evaluations, two seeds a point (four for the present search: the map was run on the table before and after its last three sections went in, and every fin is scored here on the table as shipped), the best one in the tables. `run_dp.py` is the script of one search, `fins/` has the better fin of every point with its margins (`sliders-…`: as the library searches now; `offsets-…`: with the twelve edge offsets, the library before this day; `default-…`: the library's default gates; `omar-…`: his gates with the tab gate on). `outlines.png` (`draw.py`) and `with-without-offsets.png` (`draw_with_without.py`) draw them.
 
 ### Gates: the test rider's files (bending safety factor 1.5, washout 1.5 %, no tab gate), searched as the library does now: no edge offsets
 
@@ -36,7 +36,15 @@ One rider: 60 kg, thruster side fin, PPA-CF, click tab, as the quiz would send i
 
 | speed m/s | lean ° | area mm² | depth mm | base mm | sweep ° | camber % | t/c at the base | knee ° | going straight N | at the working force N | hold | yaw stiffness N m/rad | roll damping N m s | bending SF with roll | tab SF | score: best seed (other) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 8.5 | 55 | 7555 | 89 | 122 | 59 | 4.8 | 0.220 | 19.4 | 4.14 | 9.55 | 0.72 | 117 | 0.09 | 34.32 | 0.99 | +3.29 (not feasible) (+4.37) |
+| 6.5 | 40 | 8810 | 140 | 104 | 10 | 4.9 | 0.073 | 7.4 | 3.02 | 6.47 | 0.78 | 148 | 0.35 | 2.95 | 1.00 | +0.05 (+0.15) |
+| 6.5 | 48 | 9948 | 109 | 123 | 60 | 5.0 | 0.082 | 16.1 | 3.11 | 9.12 | 0.70 | 115 | 0.15 | 5.87 | 1.00 | +1.04 (+1.10) |
+| 6.5 | 55 | 10388 | 104 | 116 | 12 | 5.0 | 0.103 | 19.3 | 3.31 | 9.79 | 0.70 | 114 | 0.17 | 5.20 | 0.73 | +28.20 (not feasible) (+28.54) |
+| 7.5 | 40 | 7509 | 140 | 104 | 23 | 4.5 | 0.068 | 6.3 | 3.26 | 5.82 | 0.83 | 185 | 0.38 | 1.22 | 1.00 | -0.19 (-0.18) |
+| 7.5 | 48 | 7848 | 115 | 123 | 60 | 5.0 | 0.106 | 13.2 | 3.35 | 7.54 | 0.71 | 140 | 0.16 | 6.00 | 1.00 | +0.48 (+0.73) |
+| 7.5 | 55 | 7820 | 91 | 106 | 60 | 5.0 | 0.129 | 23.0 | 3.30 | 9.85 | 0.70 | 107 | 0.10 | 7.39 | 0.89 | +12.67 (not feasible) (+14.72) |
+| 8.5 | 40 | 7321 | 138 | 104 | 19 | 4.0 | 0.072 | 7.0 | 3.82 | 5.85 | 1.03 | 210 | 0.41 | 1.15 | 1.00 | -0.27 (-0.03) |
+| 8.5 | 48 | 6865 | 111 | 110 | 31 | 5.0 | 0.084 | 8.3 | 3.86 | 6.87 | 0.76 | 178 | 0.20 | 3.05 | 1.00 | +0.23 (+0.24) |
+| 8.5 | 55 | 7621 | 90 | 123 | 11 | 5.0 | 0.134 | 14.6 | 4.11 | 9.09 | 0.70 | 134 | 0.10 | 13.59 | 0.97 | +3.91 (not feasible) (+5.21) |
 
 ### Gates: bending 1.5, washout 1.5 %, tab gate at 1.0
 
@@ -86,8 +94,10 @@ One slider moved at a time around the fin first found without offsets for 8.5 m/
 
 ## Reading: the gates
 
-- **The tab gate decides the fin from about 7.5 m/s and 48° up.** With it at 1.0 the search cuts the root moment the only way it can: depth 113 mm and base 123 mm at 7.5 m/s and 48°, depth 90 mm and base 124 mm at 8.5 m/s and 55°. Hold drops to the floor, drag at the working force rises from 6.2 to 7.7 N and from 6.4 to 9.0 N (half a step and most of one), roll damping falls from 0.42 and 0.48 to 0.19 and 0.10 N m s. On the library's defaults the fin of 8.5 m/s and 55° is that one too, not feasible on either seed.
-- **Without it the fins sit at a tab safety factor of 0.50–0.98 on the same model.** The test rider's shipped side fins are 140 mm deep and read 0.53; they are in use. The comment at `RiderSpec.tab_sf_min` calls the tab model the wrong tool for a gate and describes this exploit; `docs/FEM-BENCH.md` keeps the gate on outside the envelope it was checked in, because what it guards against is a tab snapping at the deck.
+- **On the library's defaults a rider from the quiz gets the fins of the first table only at 40° of lean** (third table). There the tab gate is just met (safety factor 1.00) and the fin is the same one, a little thinner because the bending gate asks for 1.0 instead of 1.5.
+- **From 48° the tab gate does the designing.** The search cuts the root moment the only way it can: depth 109–115 mm, the base out to 110–123 mm, and at two speeds of three a sweep of 60°. Hold drops to 0.70–0.76, drag at the working force rises to 6.9–9.1 N from 6.1–6.8 N (a quarter of a step to most of one), roll damping falls from 0.41–0.46 to 0.15–0.20 N m s.
+- **At 55° there is no feasible fin at any of the three speeds.** The hold floor and the tab gate cannot both be met: the best the search finds is 90–104 mm deep with a tab safety factor of 0.73–0.97 and hold on the floor.
+- **Without the tab gate the fins sit at a tab safety factor of 0.50–0.98 on the same model** (first table). The test rider's shipped side fins are 140 mm deep and read 0.53; they are in use. The comment at `RiderSpec.tab_sf_min` calls the tab model the wrong tool for a gate and describes this exploit; `docs/FEM-BENCH.md` keeps the gate on outside the envelope it was checked in, because what it guards against is a tab snapping at the deck.
 - **The bending safety factor is the other one.** The default is 1.0, his files have 1.3 to 1.7; at 1.5 it sets the thickness at five of nine points.
 - This is `docs/GEN3-PLAN.md` decision D13: which gates a rider from the quiz gets.
 

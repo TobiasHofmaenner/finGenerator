@@ -1,0 +1,84 @@
+{
+ "fin": {
+  "outline": {
+   "depth": 115.13530934820209,
+   "base": 123.48783514880823,
+   "sweep": 59.99937946494218,
+   "tip_width_ratio": 0.3839155197624572,
+   "le_fullness": 0.58646615738723,
+   "te_shape": -0.9994612343486015,
+   "le_dx": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "te_dx": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "foil": {
+   "family": "cambered",
+   "thickness_ratio": 0.10575315884185421,
+   "camber_ratio": 0.04997283917137144,
+   "camber_position": 0.4,
+   "te_thickness": 0.7
+  },
+  "thickness_tip_factor": 0.8653805638079509,
+  "grooves": {
+   "count": 0,
+   "length": 60.0,
+   "pitch": 6.0,
+   "width": 3.0,
+   "depth_ratio": 0.35,
+   "span_start": 0.45,
+   "surface": "outer"
+  }
+ },
+ "seed": 0,
+ "budget": 6000,
+ "speed_ms": 7.5,
+ "bank_deg": 48.0,
+ "gates": "default",
+ "edge_offsets": true,
+ "objective": 0.47541799231297943,
+ "feasible": true,
+ "margins": {
+  "trim_drag_n": 3.350833503151888,
+  "work_drag_n": 7.537344654209969,
+  "hold_ratio": 0.7121696752586113,
+  "yaw_stiffness_nm_rad": 140.28446559795907,
+  "shortfall_trim_drag": -0.5156405018682304,
+  "shortfall_work_drag": 0.4391517092082801,
+  "shortfall_hold": 0.4391516237069437,
+  "stress_sf": 7.1439310360432255,
+  "stress_sf_roll": 6.002042058314491,
+  "tab_sf": 1.0000000156121047,
+  "f_wet_hz": 145.02420090255333,
+  "divergence_ms": 92.48298839396745,
+  "area_mm2": 7848.294506124128,
+  "area_min_mm2": 4416.3184390243905,
+  "area_max_mm2": Infinity,
+  "capacity_n": 178.85062628233428,
+  "capacity_req_n": 82.75421700000001,
+  "base_max_mm": 123.5,
+  "alpha_work_deg": 4.306498707407691,
+  "alpha_peak_deg": 20.246803447439852,
+  "margin_peak_deg": -7.055434852389496,
+  "washout_pct": -1.6062228920260408,
+  "env_factor": 1.0,
+  "tip_deflection_mm": 2.195620284291749,
+  "roll_damping_nm_s": 0.16316748876667417,
+  "roll_inertia_kgm2": 0.0009081748388776803,
+  "roll_tau_ms": 5.565905596404378,
+  "roll_agility": 6.128671879175498,
+  "roll_set_damping_nm_s": 0.7252077618911879
+ }
+}

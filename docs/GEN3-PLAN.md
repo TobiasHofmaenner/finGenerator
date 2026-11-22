@@ -811,11 +811,13 @@ the ends of a section's range or past the knee: it separates early
   factor of 1.0, bending at 1.0, no washout limit. The test rider's files,
   which made the fins ridden in Bali, have the tab gate off, bending at
   1.3–1.7 and washout at 1.5–5 %. The difference designs the fin
-  (`bench/design-points/`): with the tab gate on, a 60 kg rider's side fin
-  goes from 140 mm deep to 113 mm at 7.5 m/s and 48° of lean and to 90 mm at
-  8.5 m/s and 55°, with roll damping down to a half and a quarter and a step
-  more drag at the working force; without it the same fins read a tab safety
-  factor of 0.5–0.96, the shipped gen-2 side 0.53. Options: (a) the test
+  (`bench/design-points/`, nine design turns for a 60 kg rider): on the
+  defaults the fin is the same one only at 40° of lean; at 48° it is
+  109–115 mm deep instead of 140 mm, with roll damping down to under a half
+  and up to most of a step more drag at the working force; at 55° there is
+  no feasible fin at any speed, because the hold floor and the tab gate
+  cannot both be met. Without the tab gate the same fins read a tab safety
+  factor of 0.50–0.98, the shipped gen-2 side 0.53. Options: (a) the test
   rider's practice for everyone (no tab gate, bending 1.5, washout 1.5 %);
   (b) the library defaults as they are; (c) the tab gate on a threshold the
   field supports (his fins hold at 0.53: a gate at about 0.5 would pass them
