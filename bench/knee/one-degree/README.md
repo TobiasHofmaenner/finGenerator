@@ -114,7 +114,7 @@ A has the t/c 0.066 blade let go earlier than the t/c 0.05 one (6.7° against 8.
 | B, a share of one | 10.1°, 8.55° | 13.1°, 8.5° |
 | C, the smaller of its own end and 0.606 of the thick section's limit | 9.0°, 8.55° | 9.0°, 8.5° |
 
-- **B is out.** The t/c 0.080 blade is 5 % below its line four and a half degrees before a share of one has it there, and its most loaded strip is then at 0.62 of what its section carries.
+- **B is out.** The t/c 0.080 blade is 5 % below its line four and a half degrees before a share of one has it there. Its most loaded strip is at 0.53–0.62 of what its section carries where the blade starts to leave (6° to 7°) and at 0.74 at the 5 % point.
 - **A is out on the t/c 0.066 blade.** It had that blade let go 1.3° before the t/c 0.050 one; it lets go half a degree after it.
 - **C is within half a degree on both, on the late side.**
 - **The three blades let go at the same lift of the most loaded strip**, between 0.51 and 0.60, though their sections carry 0.53, 0.71 and 0.97 at the end of the attached range. The thin one is at its section's end there; the other two are cut off at the same level with their sections' ends far away. That is what C says in other words, with the level a little under 0.606 of the thick section's limit (0.59–0.61 at these strips).
