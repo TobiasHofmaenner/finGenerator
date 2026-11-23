@@ -59,3 +59,28 @@ triangles). Every 3-D polar so far was meshed on the coarse surface.
     later: at 10 deg less than 5 % below its line. If the rows repeat within 1 %, the facets were not what level 7
     resolved and its break stands as that level's.
     Level 8 only after this is read.
+
+Written 2026-11-23 14:07Z, with levels 6 and 7 of the t/c 0.080 blade on the exact surface read and BEFORE the runs below.
+
+Items 10 and 11 as found. Exact surface, lift against the line through 0 and 4 deg:
+  level 6 (1 057 207 cells, y+ 45):  8 deg -1.4 %,  9 deg -5.0 %, 10 deg -8.8 %               5 % point 9.0 deg
+  level 7 (1 261 916 cells, y+ 36):  8 deg -0.5 %,  9 deg -4.8 %, 10 deg -8.4 %, 11 -10.4 %   5 % point 9.1 deg
+Item 10: level 6 repeats the faceted surface's lift within 0.5-0.6 % at 8 and 10 deg and 1.3 % at 9 (a swinging
+row): the facets were just visible to it; its 5 % point moves from 8.7 to 9.0 deg.
+Item 11: I expected the round nose to hold longer than the faceted one at level 7. It does not: at 9 deg it carries
+2.5 % LESS lift (4.8 % below its line where the facets had 2.6), at 11 deg 1.5 % less; 8 and 10 deg repeat. Neither
+branch as written. What stands: on the exact surface two levels with 1.0-1.7 and 2.5-3.2 faces on the nose radius
+agree within 0.8 % of lift at every row and put the 5 % point at 9.0-9.1 deg.
+
+So level 6 on the exact surface is used for the fins below (level 7 as a spot check only where level 6 is in doubt).
+
+12. The tunnel fin [BW04], level 6, exact surface, 7 m/s, rows 0, 4, 11, 12, 13, 14 deg. Level 5 on the faceted
+    surface: 5 % point about 12.5 deg; the tunnel: on its line at 12 deg, 6 % below at 14.
+    Expected from what one level and the surface did to the other blades (+0.5 deg, +0.3 deg): 12.8-13.5 deg.
+    Past 13.5 deg (within 3 % of its line at 14) the simulation holds on longer than the tunnel fin did.
+13. The gen-3 side fin for 8.5 m/s and 55 deg, level 6, exact surface, rows 0, 4, 8, 9, 10, 11 deg. Level 5, faceted:
+    3.9 % below at 9 deg, 16 % at 10 (lift falls from 0.881 to 0.827).
+    Expected: 5 % point 9.3-9.9 deg. The question beside it: does the lift still FALL in one degree (more than 10 %
+    lost between two rows)? If yes, the sharp release is the blade's; if the break turns gradual, it was the mesh's.
+14. The gen-2 side as shipped, level 6, exact surface, rows 0, 4, 8, 9, 10, 11 deg. Level 6, faceted: 5 % point 9.2.
+    Expected 9.2-9.6 deg; the hold floor is anchored on this fin and nothing here should move it by half a degree.

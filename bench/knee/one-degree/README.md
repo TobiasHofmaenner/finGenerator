@@ -152,8 +152,25 @@ Lift against each polar's own line through 0° and 4°:
 
 The case builder scales the fin to metres and then exports with the library's default linear tolerance, 1e-3 of the model's unit: a metre-scale tolerance of one millimetre, so only the angular rule shapes the facets, and it does not act on the surface between its edges. With 400 points per section and facets to 2 µm (`exact_surface` in `fincfd.case`, set by mesh levels 7 and 8; 2.57 million triangles) the same cuts are within 0.010 mm of the NACA form and no corner exceeds 9°; with the default 100 points per section and fine facets a corner of 31° stays at the leading edge.
 
-- **What it does to the record above.** Nose faces of 0.31–0.43 mm (level 5) and 0.22 mm (level 6) are three to seven times the facets' error; whether they see it is being run (level 6 on the exact surface, `plan-exact-tc080-L6.json`). Level 7's faces (0.086 mm) are the size of the error: its later break may be the faceted nose and not a better resolved one, and it is read as neither until it has been repeated on the exact surface (`plan-exact-tc080-L7.json`). Level 8 was stopped before it produced a row. Predictions for both reruns: `nose7-prediction.txt`, items 10 and 11.
+- **What it does to the record above.** Nose faces of 0.31–0.43 mm (level 5) and 0.22 mm (level 6) are three to seven times the facets' error; level 7's (0.086 mm) are the size of it. Both were rerun on the exact surface (`plan-exact-tc080-L6.json`, `plan-exact-tc080-L7.json`; next section): level 6 had read the break 0.3° early on the facets, level 7 up to 0.8° late. Every polar above this section is on the faceted surface; for nose faces of 0.3 mm and more (levels 2 to 5) the error is at most what level 6 shows. Level 8 was stopped before it produced a row.
 - **The order was wrong.** `docs/CFD-BENCH.md` has had the rule since 2026-11-21 (the 2-D referee's outline): compare the surface with the analytic shape at the scale of the cells asked for, before refining. The level-7 mesh was run first and the surface looked at after.
+
+#### The thick symmetric blade on the exact surface: levels 6 and 7 agree (2026-11-23, 14:06Z)
+
+`results-exact-L6-sym-tc080.json` (1 057 207 cells, mean wall y⁺ 45), `results-exact-L7-sym-tc080.json` (1 261 916 cells, y⁺ 36). Predictions: `nose7-prediction.txt`, items 10 and 11, and what was found under item 11's date.
+
+| lift against the line through 0° and 4° | 8° | 9° | 10° | 11° | 5 % below at |
+|---|---|---|---|---|---|
+| level 6, faceted surface | −2.1 % | −6.4 % | −9.6 % | | 8.7° |
+| level 7, faceted surface | −0.75 % | −2.6 % | −8.4 % (not settled) | −9.2 % | 9.4–9.9° |
+| **level 6, exact surface** | −1.4 % | −5.0 % | −8.8 % | | **9.0°** |
+| **level 7, exact surface** | −0.5 % | −4.8 % | −8.4 % | −10.4 % | **9.1°** |
+
+- **On the exact surface one more level at the nose no longer moves the break.** Lift agrees within 0.8 % at every row between 1.0–1.7 and 2.4–3.2 faces on the nose radius of the outer strips. The 5 % point of this blade is 9.0–9.1°.
+- **The faceted surface was visible to both levels, in opposite directions.** Level 6 read the break 0.3° early on it. Level 7 read it late: at 9° the faceted nose carried 2.5 % more lift than the round one, which I had expected the other way round (a corner as the sharper nose). The sequence 8.5°, 8.7°, 9.4° that looked like a mesh not yet converged was a surface changing under the mesh.
+- **Rows.** Level 7: 8° stops settled after 177 iterations; 9° holds its mean within 0.002 over three windows; 10° and 11° drift down by 0.02 and 0.01 over the last 450 iterations. Level 6: all rows from 8° at the cap, means within 0.003 (8°), 0.007 (9°), 0.009 (10°).
+- **The strips, on both levels:** the ones at z/depth 0.65 to 0.92 are 5 % short of the lattice at blade angles of 8.0° to 8.8°, at a lattice strip lift of 0.57–0.69, which is 0.61–0.72 of what their sections carry and 3.3–4.1° of incidence before their sections' ends. With the nose loading of those strips (1.03, 1.08, 1.14 at z/depth 0.76, 0.85, 0.92) the share is 0.73–0.76 at all three.
+- **What that is and is not.** It is this recipe's answer for this blade, no longer the mesh's or the surface's: wall functions, a boundary layer turbulent from the nose. It is two degrees after the strip criterion's onset (6.9°) and four before the lattice run through its sections' ends (13.2°). Whether the gap to the sections' ends is the blade (three dimensions) or the recipe (wall functions against the table's resolved wall) is not separated by it. The thinner blades of the series have not been rerun on the exact surface, so the three readings stay open.
 
 #### Strip loads from the surface pressure
 

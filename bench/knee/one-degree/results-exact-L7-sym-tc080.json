@@ -1,0 +1,74 @@
+{
+ "plan": {
+  "speed": 8.5,
+  "mesh_level": 7,
+  "end_time": 800,
+  "fin": "gen2-planform-sym-tc080.json",
+  "variants": [
+   {
+    "name": "sym-tc080-gen2-planform-L7x",
+    "angles": [
+     4,
+     9,
+     10,
+     8,
+     11
+    ]
+   }
+  ]
+ },
+ "variants": {
+  "sym-tc080-gen2-planform-L7x": {
+   "patch": {},
+   "rows": [
+    {
+     "alpha": 4.0,
+     "cl": 0.25242562058823526,
+     "cd": 0.016699691470588234,
+     "cm": -0.1038309205882353,
+     "iterations": 169.0,
+     "wall_s": 1262.4
+    },
+    {
+     "alpha": 8.0,
+     "cl": 0.5020996944444445,
+     "cd": 0.037797696666666665,
+     "cm": -0.20716651111111112,
+     "iterations": 177.0,
+     "wall_s": 216.2
+    },
+    {
+     "alpha": 9.0,
+     "cl": 0.540418913125,
+     "cd": 0.05223083656250001,
+     "cm": -0.226470843125,
+     "iterations": 800.0,
+     "wall_s": 920.8
+    },
+    {
+     "alpha": 10.0,
+     "cl": 0.57776700375,
+     "cd": 0.0652084426875,
+     "cm": -0.242726049375,
+     "iterations": 800.0,
+     "wall_s": 919.7
+    },
+    {
+     "alpha": 11.0,
+     "cl": 0.62209754875,
+     "cd": 0.0802630608125,
+     "cm": -0.26194019,
+     "iterations": 800.0,
+     "wall_s": 914.2
+    }
+   ],
+   "area_mm2": 9733.62607226676,
+   "foil": {
+    "family": "symmetric",
+    "thickness_ratio": 0.08,
+    "camber_ratio": 0.0,
+    "camber_position": 0.4
+   }
+  }
+ }
+}

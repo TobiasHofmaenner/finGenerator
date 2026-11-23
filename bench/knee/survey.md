@@ -27,5 +27,7 @@
 | gen-2 side's planform, symmetric t/c 0.080, mesh level 5, one-degree steps | 2.01 | 8–9 (≈ 8.7) | 12.0 | 6.9 / 7.1 | 0.75 / 0.44 | 0.63 | 11.3 | 13.2 |
 | the same, mesh level 6 | 2.01 | 8–9 (≈ 8.7) | 12.0 | 6.9 / 7.1 | 0.75 / 0.44 | 0.57 | 11.3 | 13.2 |
 | the same, mesh level 7 (level 6 with the nose split once more) | 2.01 | 9–10 (≈ 9.5) | 12.0 | 6.9 / 7.1 | 0.75 / 0.44 | 0.63 | 11.3 | 13.2 |
+| the same on the exact surface (facets to 2 µm), mesh level 6 | 2.01 | not within the polar | 12.0 | 6.9 / 7.1 | 0.75 / 0.44 | 0.58 | 11.3 | 13.2 |
+| the same on the exact surface, mesh level 7 | 2.01 | not within the polar | 12.0 | 6.9 / 7.1 | 0.75 / 0.44 | 0.62 | 11.3 | 13.2 |
 | gen-2 side's planform, symmetric t/c 0.066, mesh level 5, at 5 m/s | 2.01 | 8–9 (≈ 8.3) | 12.0 | 4.5 / 4.7 | 0.75 / 0.29 | 0.61 | 7.5 | 9.3 |
 | twin keel (stand-in, 95 mm deep), flat inside t/c 0.10, mesh level 5 | 0.61 | not within the polar | 23.7 | 26.8 / 30.9 | 0.73 / 0.95 | 1.02 | 46.9 | beyond 20 |

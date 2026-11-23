@@ -734,9 +734,16 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   8°, 9°, 10°, 12°): a search that evens out the strips for hold makes them
   reach their limits together. Nothing scores that; the spread of angles at
   which the strips reach their limits would.
-  *Running:* the t/c 0.080 blade on the exact surface, levels 6 and 7
-  (`bench/knee/one-degree/nose7-prediction.txt`); after it level 7 on the
-  gen-3 side fin, the tunnel fin and the gen-2 side; rows behind the upper end
+  *In, 14:06Z: on the exact surface levels 6 and 7 agree* (lift within 0.8 %
+  at every row; the t/c 0.080 blade is 5 % below its line at 9.0–9.1°). The
+  drift 8.5°, 8.7°, 9.4° over three levels was the surface, not the mesh. That
+  break is now this recipe's answer for this blade: two degrees after the
+  criterion's onset, four before its sections' ends; its outer strips let go
+  at 0.61–0.72 of what their sections carry. The thinner blades of the series
+  are not rerun yet, so the three readings stay open.
+  *Running:* level 6 on the exact surface for the tunnel fin, the gen-3 side
+  fin and the gen-2 side (`bench/knee/one-degree/nose7-prediction.txt`, items
+  12–14); rows behind the upper end
   on seventeen sections, because past 10° the lattice falls short on the
   thin centre where the table levels a thin section's lift off and the
   referee has it rising on.
@@ -869,7 +876,13 @@ the ends of a section's range or past the knee: it separates early
   never a search input. Cautions on record: the grip setting barely moves
   it, the design turn, foil and fin count do; catching a wave is not a fin
   matter; bands, not digits, until (a); a precomputed map from the answers to
-  fin drag is needed before a search has run. Check first: the same
+  fin drag is needed before a search has run, and it exists in outline: over
+  the nine design turns of `bench/design-points/` a winning side fin costs
+  3.0–4.6 N going straight and 5.9–7.2 N at the working load, so the fins'
+  slice hardly depends on the answers. The panel then shows the wave's
+  budget, our fins against a flat-inside shop fin (about 13 N against 4.6 N
+  going straight at 8.5 m/s), and fin count, not the cost of a choice.
+  Check first: the same
   arithmetic against measured riding speed by wave height; (c) the share at the
   rider's speeds, since fin drag grows with the square of speed and the
   yardstick does not.
