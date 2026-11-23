@@ -717,6 +717,17 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   (3) lift the clip if (1) supports it; (4) a design variable for flex (bead
   direction or a stiffness distribution; the parameters have none today, and
   the beam model has no bending-twist coupling term).
+  Cost and dynamics (asked 2026-11-23): the coupled loop is cheap as built
+  (flex solve 14 ms, a coupled knee about 0.16 s against 0.1 s rigid; two or
+  three passes, since the fins are far below their divergence speed), and it
+  gives the static shape only. For oscillation the flex model has two of the
+  three numbers: divergence at 35–51 m/s (gen-3 side, gen-2 side), first wet
+  natural frequency 66 and 89 Hz. Flutter is not computed. Shedding from a
+  separated blade is an estimated 40–100 Hz at riding speeds, which straddles
+  those frequencies: a frequency-margin check past the knee is free to add,
+  and Omar can say whether a fin hums or chatters. The energy such a
+  vibration takes is estimated at the order of 10 W against a drag power above
+  a kilowatt; fatigue, feel and an earlier spin-out are the costs to look at.
   A second measure the same lattice could give, raised by the same question:
   how a fin lets go. On levels 5 and 6 the gen-3 side's lift falls by 6 %
   from 9° to 10° where the gen-2 side's flattens (0.72, 0.77, 0.77, 0.83 at
