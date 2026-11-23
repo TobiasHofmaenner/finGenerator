@@ -84,3 +84,15 @@ So level 6 on the exact surface is used for the fins below (level 7 as a spot ch
     lost between two rows)? If yes, the sharp release is the blade's; if the break turns gradual, it was the mesh's.
 14. The gen-2 side as shipped, level 6, exact surface, rows 0, 4, 8, 9, 10, 11 deg. Level 6, faceted: 5 % point 9.2.
     Expected 9.2-9.6 deg; the hold floor is anchored on this fin and nothing here should move it by half a degree.
+
+Written 2026-11-23 16:13Z, BEFORE the laptop runs (the EPYC is on hold; items 12-14 of PREDICTION-7 stand and now run here).
+
+15. Spot check first: t/c 0.080, level 6, on the exact surface as it is written now (absolute deflection 1 um,
+    0.7 M triangles; the filed level-6 and level-7 polars were meshed on the first version, 2.6 M triangles, same
+    nose within 0.001 mm), on the laptop with 12 processes. Rows 4 and 9 deg.
+    Filed on the EPYC: 0.2527 at 4 deg, 0.5404 at 9 deg (a swinging row, windows 0.533-0.540).
+    If the surface and the machine change nothing: 4 deg within 0.5 %, 9 deg within 1.5 %.
+    If not, the corrected-surface result is not yet reproducible and nothing after it is read until that is found.
+
+Found (16:48Z): 0.2527 at 4 deg and 0.5401 at 9 deg (EPYC, first version of the surface: 0.2527, 0.5404), 1 057 339 cells
+against 1 057 207, mean wall y+ 44.95 against 44.99. The surface as written now and the laptop reproduce the filed result.
