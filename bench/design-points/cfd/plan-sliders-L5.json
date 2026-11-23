@@ -1,0 +1,23 @@
+{
+ "speed": 8.5,
+ "mesh_level": 5,
+ "end_time": 800,
+ "fin": "fin-sliders.json",
+ "variants": [
+  {
+   "name": "gen3-side-sliders-L5",
+   "angles": [
+    0,
+    4,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    14
+   ]
+  }
+ ]
+}

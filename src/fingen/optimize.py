@@ -354,9 +354,10 @@ class RiderSpec:
     # result was found with them), off under "frontier". On the lattice the
     # offsets spread the chord until five or six strips reach the knee criterion
     # together and draw a slender blade on a base flare; searched without them
-    # the fin is an ordinary one and reads under a tenth of a felt step worse
-    # (bench/design-points). The criterion was fitted on one fin of ordinary
-    # planform, so that tenth is not known to be real.
+    # the fin is an ordinary one and reads under a tenth of a felt step worse.
+    # In CFD the offset-shaped fin leaves its lift line at the same angle as
+    # the plain one and carries 12 % less side force there: the offsets had
+    # moved the criterion, not the fin (bench/design-points).
     edge_offsets: bool | None = None
 
     def __post_init__(self) -> None:

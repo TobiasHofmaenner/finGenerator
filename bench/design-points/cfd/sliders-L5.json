@@ -3,7 +3,7 @@
   "speed": 8.5,
   "mesh_level": 5,
   "end_time": 800,
-  "fin": "gen3-side-v8.5-lean55-sliders.json",
+  "fin": "fin-sliders.json",
   "variants": [
    {
     "name": "gen3-side-sliders-L5",

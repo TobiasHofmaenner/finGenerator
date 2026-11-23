@@ -2264,6 +2264,46 @@ rerun-held/`).
   the earlier cambered sections the ends moved by 0.08° at most and the
   limit lift by 0.007.
 
+### 10. The fin the search makes, drawn and run (2026-11-22 and 23)
+
+Record: `bench/design-points/`. Until this day no search winner of the
+lattice models had been drawn; the numbers of sections 5 to 7 are of fins
+nobody had looked at.
+
+- **With the twelve edge offsets the search drew a slender blade on a base
+  flare**, the chord spread until five or six strips reach the knee
+  criterion together. Without them it draws an ordinary raked fin that
+  scores 0.00–0.08 worse, a tenth of a felt step at most. The search now
+  leaves the offsets alone under frontier scoring (`RiderSpec.edge_offsets`).
+- **Every dimension of that fin is set by a gate or a bound**: depth by the
+  corridor (140 mm), base by the tab set (104 mm), tip width by its slider's
+  limit (0.60 of the base), sweep by the washout limit, thickness by the
+  bending safety factor. The score chooses camber and the two edge-shape
+  sliders, and area where the turn is hard for its speed.
+- **Which gates a rider gets decides the fin** (decision D13). On the
+  library's defaults, which is what the web quiz's job carries, the tab gate
+  designs the fin from 48° of lean and leaves no feasible fin at 55° for a
+  60 kg rider; the fins ridden in Bali were made with it off.
+- **In CFD the plain fin does what the model says.** For 8.5 m/s and 55°:
+  lift within 0.004 over its working range, drag within 6 % from −3.5° to
+  the knee on mesh levels 5 and 6, 5.2 N going straight against 4.6 N (the
+  difference at −4.5°, section 6), off its lift line at 9.1° where the
+  criterion's usual offset puts it.
+- **Tip width, the criterion's strongest lever, is real.** A twin with the
+  tip at 0.35 of the base instead of 0.60 leaves its line 1.5° earlier in
+  CFD and 1.8° earlier in the criterion; the aspect-ratio rule has no
+  difference. It is the first pair of polars that differs in tip width
+  alone.
+- **The offsets' hold was not.** The offset-shaped fin leaves its line at
+  the same angle as the plain one and carries 12 % less side force there;
+  the model had it 1 % ahead. A blade shaped to a criterion moves the
+  criterion. What the criterion can be trusted with is what it was checked
+  on: planforms a slider draws.
+- **One mesh level finer the gen-2 side's knee is at 9.2°, not 8.6°**
+  (`bench/knee/one-degree/`): level-5 knees are about half a degree early on
+  that fin, and the criterion's offset against the 5 % point is nearer 2.5°
+  than 2° there.
+
 ## What a fast method cannot do — the rest
 
 - **Post-stall magnitude on a low-aspect-ratio swept blade.** Strip methods get

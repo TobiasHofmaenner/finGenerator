@@ -128,6 +128,10 @@ def cases() -> list[tuple[str, FinParams, float, tuple[np.ndarray, np.ndarray]]]
         ("the same fin with its tip at 0.35 of the base, mesh level 5, one-degree steps",
          _fin("design-points/cfd/fin-sliders-tip035.json"), 8.5,
          _polar("design-points/cfd/tip035-L5.json", "gen3-side-sliders-tip035-L5")),
+        ("gen-3 side for the same turn as the search made it with the twelve edge offsets, "
+         "mesh level 5, one-degree steps",
+         _fin("design-points/cfd/fin-offsets.json"), 8.5,
+         _polar("design-points/cfd/offsets-L5.json", "gen3-side-L5")),
         # blades for the other setups, mesh level 5 (bench/phase2b)
         ("longboard single (stand-in, 240 mm, raked 45°), symmetric t/c 0.08, mesh level 5",
          _fin("phase2b/single-longboard/fins/single-longboard.json"), 5.0,

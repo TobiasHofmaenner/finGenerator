@@ -74,7 +74,27 @@ One rider: 60 kg, thruster side fin, PPA-CF, click tab, as the quiz would send i
 - **What drew them so.** The model pays for wetted area and for induced drag at the working force, so it wants span and little chord; the base length is a gate at one height only. The offsets then spread the chord so that five or six strips reach the knee criterion together (at 8.5 m/s and 55°: shares 0.56–0.60 from 53 to 117 mm of height) and so that the bending gate is met. With the offsets of that fin set to zero it reads hold 0.69 instead of 0.80, a knee at 7.8° instead of 9.3° and a bending safety factor of 1.21 instead of 1.51.
 - **What they were worth: 0.00 to 0.08 of score**, point by point against the first table. At most 0.4 N going straight and 0.2 N at the working force, a tenth of a felt step, and 0.01–0.03 of hold where hold is short of its target (up to 0.16 where it is in surplus and does not count).
 - That is less than a rider feels, and it comes from shaping the chord to a criterion fitted on one tunnel fin of ordinary planform; a base flare under a hollow trailing edge is also three-dimensional flow no strip sees. Since 2026-11-22 the search leaves the offsets alone under frontier scoring (`RiderSpec.edge_offsets`; on again by asking; every shipped generation-2 result keeps them). The shipped gen-2 planform carrying the foil of the 8.5 m/s, 55° fin reads 4.9 N going straight, 6.9 N at the working force and hold 0.74: the foil is the large lever, the planform a fraction of a step.
-- 3-D polars of both versions of the fin for 8.5 m/s and 55° through the knee are queued.
+- The 3-D polars of both versions say the same (next section): the offsets' hold was the criterion's, not the fin's.
+
+## In CFD: the fin for 8.5 m/s and 55°, with and without the offsets, and a narrow-tip twin
+
+`cfd/`: the fin searched on the sliders and camber (8 690 mm², `fin-sliders.json`), the same with its tip narrowed from 0.60 to 0.35 of the base (8 095 mm²), and the fin the search made with the edge offsets (8 142 mm², `fin-offsets.json`); each alone on a symmetry plane at 8.5 m/s, mesh level 6 (1.1–1.2 M cells, mean wall y⁺ 38–40) at −4.5° to +6° and mesh level 5 (0.57 M cells, y⁺ 68) in one-degree steps through the knee, old inlet, with `finGenerator-cfd` `scripts/polar_angles.py`. `lattice_beside.py` sets the lattice beside every row (perfect mirror). The knees are in `../knee/survey.md` and `../knee/one-degree/`.
+
+| | sliders and camber | tip at 0.35 | with the edge offsets |
+|---|---|---|---|
+| lift, lattice against CFD, −4.5° to +6° | within 0.004 | within 0.004 | 0.004–0.018 high |
+| at 8° and 9° | +0.9 %, +2.6 % | (past its knee) | +4.3 %, +6.1 % |
+| drag at −4.5°, −3.5°, −2.5°, level 6: CFD N (lattice N) | 5.99, 4.55, 4.45 (4.45, 4.45, 4.70) | | 5.09, 4.10, 3.95 (4.20, 4.12, 4.27) |
+| going straight (mean of −2.5° and −4.5°): CFD, lattice | 5.2 N, 4.6 N | | 4.5 N, 4.2 N |
+| drag from 0° to the knee, lattice over CFD: level 6, level 5 | 1.00–1.06, 0.97–0.99 | –, 0.97–0.98 | 1.02–1.10, 1.00–1.02 |
+| last row on its lift line; 5 % below at | 9°; 9.1° | 7°; 7.6° | 9°; 9.1° |
+| strip criterion, same mirror | 7.4° | 5.6° | 8.7° |
+| C_L at the last row on the line, and that times the area | 0.881, 7 650 | 0.774, 6 270 | 0.827, 6 730 |
+
+- **The fin does in CFD what the model says of it.** Lift within 0.004 over its working range, drag within 6 % from −3.5° to the knee on both meshes, 5.2 N going straight against the lattice's 4.6 N, the difference all at −4.5° as on every cambered blade at this mesh level (`../cambered-candidate/mesh-level-6/`). It leaves its lift line between 9° and 10°, where the criterion's usual offset puts it.
+- **Tip width is a real lever** (the twin): 1.5° of knee in CFD, 1.8° in the criterion, and 22 % more side force at the last row on the line for the wide tip against the model's 25 %.
+- **The edge offsets bought no hold.** The offset-shaped fin leaves its line at the same angle as the plain one (9.1°), with 6 % less lift there than the lattice gives it, and carries 12 % less side force at its knee than the plain fin, where the model had it 1 % ahead. The criterion reads its knee at 8.7°, half a degree before the simulation's 5 % point where every other fin has 1.7–2.0°: the offsets had moved the criterion, not the fin. What they did buy is 0.7 N going straight (4.5 against 5.2 N; the model said 0.35 N), from 6 % less area.
+- So leaving the offsets out costs a fifth of a felt step going straight and gains half a step of hold that the model could not see. The search without them is the better search, not only the plainer one.
 
 ## Where each dimension of that fin comes from
 

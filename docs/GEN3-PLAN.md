@@ -525,8 +525,14 @@ design turn given directly (1.0), with `skill` kept for existing rider files.
   reach the knee criterion together; searched on the sliders and camber
   alone the fin is an ordinary raked one and reads 0.00–0.06 worse in score,
   a tenth of a felt step at most. 3-D polars of both versions for one design
-  point are queued. Still parked on bounds: depth (corridor), base (tabs),
-  tip width (0.60).
+  point (`bench/design-points/cfd/`, 2026-11-23): the plain fin does what
+  the model says (lift within 0.004, drag within 6 % from −3.5° to the knee,
+  leaves its line at 9.1°); the offset-shaped one leaves its line at the
+  same angle and carries 12 % less side force there, where the model had it
+  1 % ahead: the offsets had moved the criterion, not the fin. A twin of the
+  plain fin with a narrow tip leaves its line 1.5° earlier (criterion: 1.8°),
+  the first test of that lever. Still parked on bounds: depth (corridor),
+  base (tabs), tip width (0.60).
 - `[ ]` **1.3 Turn-load drag.** Add drag at the peak force to the drive/speed
   reading (this is where fins differ 3×; trim differs 1.3×).
 - `[ ]` **1.4 Fold the peak-margin gate into one-sided forgiveness.** Floor by
