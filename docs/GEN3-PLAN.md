@@ -691,6 +691,12 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   radius). Levels 5 and 6 are coarser than that; level 7 is not, so its later
   break is not yet a result either. Fixed in `finGenerator-cfd`
   (`exact_surface`).
+  *Pinned, 2026-11-23 (Tobias: "rather relevant"):* every simulation and the
+  knee itself are of the rigid blade. The flex model's incidence change fed
+  into the lattice moves the knee by under 1.5 % in force on these prints (a
+  what-if; `bench/knee/one-degree/flex_knee_whatif.py`). To do once the rigid
+  blade is settled on the exact surface: one polar of the gen-3 side on its
+  flexed shape beside the rigid one.
   *Running:* the t/c 0.080 blade on the exact surface, levels 6 and 7
   (`bench/knee/one-degree/nose7-prediction.txt`); after it level 7 on the
   gen-3 side fin, the tunnel fin and the gen-2 side; rows behind the upper end

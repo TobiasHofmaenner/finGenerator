@@ -178,3 +178,19 @@ The case builder scales the fin to metres and then exports with the library's de
 #### What a blade does to a strip's nose
 
 On a finite blade a strip carries more of its lift at the nose than the same section in two dimensions, more so toward the tip of a swept blade ([Pol96]; at the root of rectangular wings 1.08 to 1.36 times at aspect ratios 2.5 to 1.0, computed and borne out by measured nose pressures at 1.4 and 1.0), and separation at the nose follows that loading, not the strip's lift. `nose_loading.py` reads it off the lattice (first chordwise panel's share of the strip's circulation over a two-dimensional plate's): on the gen-2 planform 1.03 at z/depth 0.76, 1.08 at 0.85, 1.14 at 0.92, 1.24 at 0.97; on the tunnel fin 1.11, 1.17, 1.23, 1.33. The strip criterion compares strip lift with the section's limit and has neither this nor the sweep factor of the measured swept-wing record ([Maki51], [HM64]; `../../section-gate/measured/README.md`). Both are known, parameter-free terms; the one fitted number (0.606 on the tunnel fin) presently stands in for them and for the table's sections ending later than measured ones.
+
+#### Flex: every simulation here is of the rigid blade (2026-11-23)
+
+All 2-D and 3-D runs use the unloaded shape; the knee is computed for the rigid blade. The flex model (`fingen.flex`: bending, and an incidence change per station from rake coupling and torsion) is used for the structural gates and a small lift change, and is not fed back into either. At 250 N and 8.5 m/s in PPA-CF it gives the gen-2 side a tip deflection of 5.5 mm and +0.2° at the tip, the gen-3 side 8.5 mm and −1.1°, the commercial-shaped tunnel fin 2.5 mm and +0.2°.
+
+`flex_knee_whatif.py` turns each lattice strip by that incidence change at the blade's own load and reads the knee again. **A what-if, not a result** (the twist has only a sign check against [Zar14], and no flexed blade has been simulated):
+
+| | rigid knee | with the flex model's twist |
+|---|---|---|
+| gen-2 side, PPA-CF | 7.06°, 224 N | 6.93°, 223 N |
+| gen-3 side, PPA-CF | 7.89°, 250 N | 7.96°, 252 N |
+| gen-3 side, PET-CF | 7.89°, 250 N | 7.99°, 253 N |
+| tunnel fin's shape, PPA-CF | 12.30°, 292 N | 12.08°, 291 N |
+
+Under 1.5 % in force and 0.25° in angle: the gen-3 side's tip twists off by a degree, but the strip that reaches its limit first sits at z/depth 0.65, where the change is −0.2°, and the inboard strips twist the other way. **Pinned, to run once the rigid blade is settled on the exact surface:** one polar of the gen-3 side on its flexed shape (deflection and incidence change per station from the flex model at the knee's force) beside the rigid one. A layup two to three times softer than these prints (commercial fins flex to about 10 % of their depth in the water, [Krz24]) would not be covered by this estimate.
+
