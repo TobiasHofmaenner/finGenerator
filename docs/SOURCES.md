@@ -34,6 +34,18 @@ First URANS (SST k-ω) simulation of a full thruster set, AoA 0–45°; quantifi
 interference and the optimal pre-stall AoA band for peak lift.
 **Cited for:** SST k-ω RANS/URANS as the CFD methodology; treating the fin set as an
 interacting system; URANS above stall; existence of a finite design-C_L band.
+Full text read 2026-11-23 (`bench/falk/falk-reference.md`): per-fin lift of the thruster, the
+method's limits (1.18 M cells for three fins, wall functions, steps of 2.5–5°, no experiment),
+and that it grades a set by coefficients and lift-to-drag against yaw with no rider or turn.
+
+### [ElAtm08] El-Atm, Kelson & Gudimetla (2008) — A Finite Element Analysis of the Hydrodynamic Performance of 3- and 4-Fin Surfboard Configurations
+*Proc. 9th Global Congress on Manufacturing & Management, paper 112.* [QUT eprints](https://eprints.qut.edu.au/214424/)
+CFX, k-ε (Reynolds-stress model as a check), generic fins "similar to FCS k2.1" (chord and
+height 112 mm, t/c 6 %), 0.74–0.81 M elements from 2 mm up, slip walls, 3–25 m/s, yaw 0–45°:
+thruster 0.93 at 26°, quad 0.95 at 37°, coefficients independent of speed. Quotes an FCS
+document (2007) with measured single fins M5 and G5: both peak at 22°, 1.15 and 1.02.
+**Cited for:** the measured maximum lift of two commercial fins (second-hand); an example of
+grading fin sets by lift-to-drag (`bench/falk/falk-reference.md`).
 
 ### [Falk20] Falk et al. (2020) — Hydrodynamics of Changing Fin Positions within a 4-Fin Surfboard Configuration
 *Applied Sciences 10(3):816, open access.* [DOI 10.3390/app10030816](https://doi.org/10.3390/app10030816)
