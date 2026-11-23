@@ -194,3 +194,19 @@ All 2-D and 3-D runs use the unloaded shape; the knee is computed for the rigid 
 
 Under 1.5 % in force and 0.25° in angle: the gen-3 side's tip twists off by a degree, but the strip that reaches its limit first sits at z/depth 0.65, where the change is −0.2°, and the inboard strips twist the other way. **Pinned, to run once the rigid blade is settled on the exact surface:** one polar of the gen-3 side on its flexed shape (deflection and incidence change per station from the flex model at the knee's force) beside the rigid one. A layup two to three times softer than these prints (commercial fins flex to about 10 % of their depth in the water, [Krz24]) would not be covered by this estimate.
 
+#### Flex as a lever: what a load-driven twist could buy (what-ifs, 2026-11-23)
+
+Tobias's idea: printing lets the flex be tuned finely, so a fin might be low in drag going straight and change shape for the turn. `twist_ceiling.py` asks the lattice what a twist that grows with the load could add to the force at the knee. **None of this is a result**: it is the strip criterion applied to a twisted lattice, with no structure behind the twist and no simulation of the twisted blade.
+
+| | gen-2 side | gen-3 side |
+|---|---|---|
+| rigid knee | 224 N | 250 N |
+| tip twisting off 2° at that force (zero at the root, growing as the square of the span) | +3.2 % | +1.4 % |
+| 4° | +6.7 % | +2.8 % |
+| 8° | +14.9 % | +5.7 % |
+| every strip at the share together (the ceiling) | +49 %, with 10–20° of twist | +24 %, with 6–14° |
+
+- **The direction is the right one.** A raked blade bending under load turns its outer part to less incidence (`fingen.flex`, rake coupling), which unloads the strips that reach their limit first, and it costs nothing going straight because there is no load to twist it.
+- **The gain per degree is small**, about 1.6 % of the knee's force per degree at the tip on the gen-2 side and 0.7 % on the gen-3 side, whose planform the search has already shaped so that its strips reach the share nearly together. The printed fins twist by 0.2° to 1° today.
+- The ceiling needs a twist no flex will give. What stays open is the other half of the idea (a section that gains camber under load, which a solid section does not do by itself: a soft trailing edge gives way, which takes camber off) and what flex does past the knee, where there is no model.
+

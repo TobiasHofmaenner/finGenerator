@@ -697,6 +697,16 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   what-if; `bench/knee/one-degree/flex_knee_whatif.py`). To do once the rigid
   blade is settled on the exact surface: one polar of the gen-3 side on its
   flexed shape beside the rigid one.
+  *Flex as a lever (Tobias, same day):* printing lets flex be tuned, so a fin
+  could be low in drag going straight and change shape for the turn. First
+  estimates (`bench/knee/one-degree/twist_ceiling.py`, what-ifs): a tip that
+  twists off under load is the right direction and free going straight, but
+  buys about 1.6 % of the knee's force per degree on the gen-2 side and 0.7 %
+  on the gen-3 side; today's prints twist 0.2–1°. Open and worth a look when
+  unpinned: how much twist a print can be given without failing the bending
+  gates (bead direction per layer couples bending and twist), a bench
+  measurement of twist under a tip load, camber under load for the centre
+  fin, and what flex does past the knee.
   *Running:* the t/c 0.080 blade on the exact surface, levels 6 and 7
   (`bench/knee/one-degree/nose7-prediction.txt`); after it level 7 on the
   gen-3 side fin, the tunnel fin and the gen-2 side; rows behind the upper end
