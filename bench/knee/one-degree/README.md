@@ -43,3 +43,57 @@ Lift against each polar's own line through 0° and 6°:
 - The lattice's lift on the generation-3 fin is within 0.2 % of level 5 up to 6° and 1 % at 8°. At their last rows on the line the wide-tipped fin carries 22 % more side force than its twin (C_L 0.881 at 9° on 8 690 mm² against 0.774 at 7° on 8 095 mm²); the model's hold says 25 %.
 - **The thin symmetric centre on level 6** (`results-L6-centre.json`, 2026-11-23): on its line to 9° (−0.6 %) and 6.1 % below it at 10°, where level 5 has it leave gradually from 8° (−1.5 %, −4.1 %, −5.1 %). The 5 % point is the same, 9.8° against 9.9°; the onset is a degree later and the break sharper. Neither mesh resolves this fin's nose (radius 0.23 mm at the base, cells of 0.39 and 0.19 mm), and most of the level-6 rows ran to the iteration cap from 6° on. The criterion has this blade at 4.9°: it takes its share of the lift at the end of the thin section's attached range, which is a step in drag and not a limit of lift (`../../section-tables/rerun-held/`, the controls).
 
+
+## A test with its prediction written first: a thin symmetric foil on the gen-2 side's planform (2026-11-23)
+
+The reading under test came out of the two controls on the thin centre (above, and `../../section-tables/mesh-recipe/`): a thin symmetric blade stays on its lift line until its most loaded strip reaches the END of its section's attached range, a share of one where the criterion takes 0.606, and falls away gradually behind it. A reading fitted on one blade is not tested by that blade. So a second one was made, the shipped gen-2 side's planform with a symmetric foil of t/c 0.05 at every station (`fin-gen2-planform-sym-tc050.json`), and what each reading says about it was written down before the run (`thin-sym-prediction.txt`): a share of one puts the onset at 6.3° and the 5 % point near 8°; the common share puts the onset at 3.8°; the aspect-ratio rule says 12°.
+
+`results-L5-thin-sym.json`, `results-L6-thin-sym.json`: 8.5 m/s, a symmetry plane at the base, mesh levels 5 and 6 (mean wall y⁺ 68 and 46; plans `plan-thin-sym-*.json`). Lift against each polar's own line through its rows up to 4°:
+
+| mesh | 5° | 6° | 7° | 8° | 9° | 10° | 12° | 5 % below at |
+|---|---|---|---|---|---|---|---|---|
+| level 5 | +0.2 % | −0.9 % | −2.2 % | −5.1 % | −7.6 % | −10.9 % | −17.7 % | 8.0° |
+| level 6 | | −0.3 % | −1.6 % | −5.3 % | −7.7 % | | | 7.9° |
+| the lattice on table v1, run through its sections' ends | −0.1 % | −0.5 % | −1.8 % | −3.7 % | −7.2 % | −10.7 % | −17.4 % | 8.4° |
+
+- **The prediction held on both meshes.** The blade is on its line to 6° and 5 % below it at 8.0°. The common share would have had it leave before 4°.
+- **The 5 % point follows the onset at the distance it has on the side blades**: 1.7° here (6.3° to 8.0°) and on the gen-1 centre (8.1° to 9.8°); on the six one-degree polars of side blades it is 1.0–2.6° behind the common share (2.0° on the gen-2 side at level 5).
+- **The rows from 5° up ran to the iteration cap and are still usable.** Each swings about a mean that holds: on level 5 the means of the last four windows of 100 iterations stay within 0.003 at 6° and 7°, 0.004 at 8°, 0.007 at 9° and 0.009 at 10° (lift 0.39 to 0.58), on level 6 within 0.003 at every row; the swing inside a window is 0.01 at 6° and grows to 0.09 at 12°. A deviation of 5 % is 0.026 in lift at 8°.
+- **The lattice needs no criterion for this blade.** Run through its sections' ends on table v1 (perfect mirror, `lattice_beside_polar.py`), it has the lift of level 5 within 3 % and of level 6 within 2 % at every row up to 12°, and it leaves its own line where the simulation does, row by row (the third line of the table). The same holds on the gen-1 centre up to 10° (lift within 1.8 % of level 5 and 3.5 % of level 6; own deviation −1.4 %, −3.5 %, −5.2 % at 8°, 9°, 10° against −1.5 %, −4.1 %, −5.1 % on level 5). Past 10° it falls short on that blade (−4.7 % at 11°, −7.5 % at 12° against level 5): the table levels a thin section's lift off three degrees behind its end, where the referee's control has it rising on.
+- **Its drag is not checked by these rows.** The lattice reads 9 % (level 6) to 21 % (level 5) less drag at 4° and 26–38 % less from 6° up. On this section in 2-D the fin recipe reads 30–43 % more drag than the resolved referee at 4° and about 10–45 % more from 6° to 9°, where neither settles (`../../section-tables/mesh-recipe/`, the thin symmetric section), so most of that gap is the wall-function mesh on a thin nose; how much is not is open.
+
+### Which blades follow their sections to the end
+
+`../survey.md` now carries both brackets for every blade: where the most loaded strip reaches the end of its section's attached lift (a share of one), and where the lattice's own polar, run through the ends, is 5 % below its line. The 5 % points below are the survey's (lines through 0…6° for a polar, 2° and 6° for the lattice).
+
+| blade | sections of its most loaded strips: t/c, end of the attached range, lift there | common share ° | share of one ° | lattice's own polar 5 % below at ° | simulation 5 % below at ° | lattice lift against the simulation |
+|---|---|---|---|---|---|---|
+| gen-2 planform, symmetric t/c 0.05 | 0.05; 5.1–5.5°; 0.52–0.57 | 3.8 | 6.3 | 8.6 | 8.0–8.1 | within 3 % to 12° |
+| gen-1 centre (t/c 0.046 at the base, 0.055 at the tip) | 0.05; 5.5°; 0.57 | 4.9 | 8.1 | 10.2 | 9.8–9.9 | within 3.5 % to 10° |
+| longboard single, raked 45° (t/c 0.08 at the base, 0.068 at the tip) | about 0.07 at Re 2.2–2.7e5; 6.9–7.4°; 0.72–0.77 | 6.1 | 10.1 | 12.8 | 11.6 | within 3.3 % to 14° |
+| gen-1 centre planform, t/c 0.09 at the base | 0.09–0.10; 11.3°; 1.1 | 9.5 | 15.7 | beyond 20 | 9.4 | +4 % to 9°, +14 % at 10°, +36 % at 14° |
+| side blades, flat inside and cambered (fourteen polars of ten blades) | | 5.6–13.9 | 12.5–25.3 | 16.4 to beyond 20 | 6–14 (the one-degree polars: 7.6–12.5) | |
+
+- **Three symmetric blades follow their sections to the end, and all three have thin sections where the load is highest**: ends at 5–7.5° with a lift of 0.52–0.77 there. The lattice's own polar is 0.4–1.2° late at the 5 % point on them. The longboard single belongs with them, which the record had as unexplained: its base is t/c 0.08, but its thickness tapers and its most loaded strips are short chords near the tip.
+- **The thick centre and every side blade leave their line at about 0.6 of what their sections carry**, with every strip still far inside its attached range (the thick centre's most loaded strip is at 6° of its own incidence where its section goes to 11.3°). The tunnel fin does the same in the tunnel, so that is not the simulation's doing alone.
+- What separates the two groups is not settled by these polars. Three readings of it, and a thickness series on one planform that tells them apart, are in the next section.
+
+## What separates the two groups: three readings, and a thickness series that tells them apart (2026-11-23, running)
+
+Written before the runs; `sym-series-prediction.txt` is the file as it stood when the container was started (06:20Z).
+
+The two groups differ in how much lift their sections carry at the end of the attached range (0.5–0.8 against 1.0–1.5), and no pair of polars varies that on one planform between a thin and a thick section. Three readings fit all the polars so far:
+
+- **A, what ships**: a blade leaves its line at the common share of its section's own limit, and thin symmetric sections are an exception.
+- **B**: a symmetric blade follows its sections to their ends, whatever the thickness, and the thick centre's early break is the wall-function mesh.
+- **C**: a strip carries the smaller of two things, its section's own end and a limit that does not depend on the nose: 0.606 of what a thick section of the family carries at that Reynolds number. A thin section ends first; a thick one never reaches its end.
+
+The series: the gen-2 side's planform with symmetric foils of t/c 0.066 and 0.080 (`fin-gen2-planform-sym-tc066.json`, `-tc080.json`; both are referee sections at Re 5.7e5), 8.5 m/s, mesh level 5, beside the t/c 0.05 blade above. Where each reading puts the onset, and the 5 % point 1.6–2.0° later (`series_pred.py`):
+
+| reading | t/c 0.066: onset, 5 % point | t/c 0.080: onset, 5 % point |
+|---|---|---|
+| A, the common share of its own limit | 5.0°, 6.7° | 6.9°, 8.7° |
+| B, a share of one | 8.3°, 10.1° | 11.3°, 13.1° |
+| C, the smaller of its own end and 0.606 of the thick section's limit | 7.2°, 9.0° | 7.2°, 9.0° |
+
+A has the t/c 0.066 blade let go earlier than the t/c 0.05 one (6.7° against 8.0°); B and C have it later. B has the t/c 0.080 blade hold four degrees longer than A or C.

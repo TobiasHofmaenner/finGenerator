@@ -1,0 +1,30 @@
+Written 2026-11-23 06:20Z, BEFORE the runs (the container is started after this file is on the EPYC).
+
+Blades: the shipped gen-2 side planform (140 mm deep, base 123.5, 9 734 mm2, thickness the same share of the chord
+at every station) with a symmetric foil of t/c 0.066 and of t/c 0.080. 8.5 m/s, mesh level 5, symmetry plane at the base.
+The same planform with t/c 0.050 is in bench/knee/one-degree (on its line to 6 deg, 5 % below it at 8.0 deg).
+
+What is known: thin symmetric blades (t/c 0.046 and 0.050) stay on their lift line until the most loaded strip reaches
+the END of its section's attached range (a share of one). The one thick symmetric blade (gen-1 centre planform, t/c
+0.09 at the base) and every side blade leave it at about 0.6 of that (bladehydro.KNEE_FRACTION = 0.606). On every
+blade so far the polar is 5 % below its line 1.6 to 2.0 deg after that onset.
+
+Three readings, and where each puts the ONSET (perfect mirror, section table v1 of 2026-11-22, series_pred.py beside this file):
+
+                                                             t/c 0.066          t/c 0.080
+  A  the common share of the section's own limit             5.0 deg (C_L 0.32)  6.9 deg (C_L 0.44)
+     (what ships)
+  B  a share of one: the blade follows its sections          8.3 deg (C_L 0.53) 11.3 deg (C_L 0.72)
+     to their ends, whatever the thickness
+  C  the smaller of the two: the section's own end, or       7.2 deg             7.2 deg
+     0.606 of what a thick section (t/c 0.09) carries
+     at that strip's Reynolds number
+
+So, with the 5 % point 1.6-2.0 deg later:  A: 6.7 and 8.7 deg.   B: 10.1 and 13.1 deg.   C: 9.0 and 9.0 deg.
+The lattice's own polar, run through its sections' ends with no criterion, is 5 % below its line at 10.0 and 13.5 deg.
+
+A says the t/c 0.066 blade lets go EARLIER than the t/c 0.050 one (6.7 against 8.0). B and C say later.
+B says the t/c 0.080 blade holds four degrees longer than C or A do.
+Which sections the readings lean on: t/c 0.066 and 0.080 are referee sections at Re 5.7e5 (ends 7.25 and 10.5 deg,
+lift there 0.77 and 1.05); at the strips' other Reynolds numbers (2e5 to 9e5) the table scales them from t/c 0.046
+and 0.09.

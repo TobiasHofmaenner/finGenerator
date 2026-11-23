@@ -1,0 +1,9 @@
+Written 2026-11-23 about 03:45Z, BEFORE the run (the container started seconds after).
+Blade: the shipped gen-2 side planform (140 mm deep, base 123, 9 734 mm2) with a symmetric foil of t/c 0.05 at every station.
+Strip criterion on the perfect mirror, section table v1 of 2026-11-22 (42 sections):
+  at the share of 0.606:                 knee at 3.8 deg (C_L 0.24)
+  at a share of one (the kink itself):   knee at 6.3 deg (C_L 0.39)
+Reading under test: a thin symmetric blade stays on its lift line until its most loaded strip reaches the END of its
+section's attached range (share one), and leaves it gradually from there. If that is right, this blade is on its line
+to about 6 deg and 5 % below it near 8 deg, about two degrees before the gen-1 centre (on its line to 8-9 deg, 5 % at 9.8).
+If the common share held, it would leave its line before 4 deg. The aspect-ratio rule has 12 deg.

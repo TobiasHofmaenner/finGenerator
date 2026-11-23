@@ -645,7 +645,27 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   gradually after it. (3) The test of that reading, with the prediction
   written down before the run: the gen-2 side planform with a symmetric foil
   of t/c 0.05, for which a share of one gives 6.3° and the common share
-  3.8° (`~/bench-results/thin-sym/PREDICTION.txt`; levels 5 and 6 running).
+  3.8° (`bench/knee/one-degree/thin-sym-prediction.txt`).
+  *In, 2026-11-23: the prediction held.* On both meshes the test blade is on
+  its line to 6° and 5 % below it at 8.0°. More than that: the lattice on
+  table v1, run through its sections' ends with no criterion at all, has that
+  blade's lift within 3 % at every row to 12° and leaves its own line where
+  the simulation does, row by row; the same on the gen-1 centre to 10° and on
+  the longboard single to 14°, whose most loaded strips turn out to be thin
+  too (its thickness tapers to 0.068 at the tip). So for a blade of thin
+  symmetric sections the lattice's own polar is the model, and hold can be
+  read off it. The thick centre (t/c 0.09) and every side blade still leave
+  their line at about 0.6 of what their sections carry, far inside the
+  attached range. *Running:* what separates the two groups. Three readings
+  fit every polar so far (the common share with thin sections as an
+  exception; a share of one for every symmetric blade; the smaller of the
+  section's own end and 0.606 of a thick section's limit), and a thickness
+  series on the gen-2 planform (symmetric t/c 0.066 and 0.080, level 5)
+  separates them by two to four degrees; predictions in
+  `bench/knee/one-degree/sym-series-prediction.txt`. Also running: rows
+  behind the upper end on seventeen sections, because past 10° the lattice
+  falls short on the thin centre where the table levels a thin section's
+  lift off and the referee has it rising on.
 - `[ ]` **2b.2 Twin.** (a) Set CFD of a twin (two keel-type side fins at
   production toe and cant) over leeway at two speeds, per-fin forces: the load
   share, the toe at which the pair makes no net side force going straight,

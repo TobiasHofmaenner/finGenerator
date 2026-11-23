@@ -13,6 +13,12 @@ lower bound. The tunnel fin [BW04] has a measurement: on its line at 12 deg,
 The strip criterion is solved twice: on a perfect mirror (the boundary condition
 of the CFD polars, a symmetry plane) and on the board mirror the model uses
 (bladehydro.BOARD_MIRROR_STRENGTH), which is the one KNEE_FRACTION is fitted on.
+
+Two more columns bracket it: where the most loaded strip reaches the END of its
+section's attached lift (a share of one), and where the lattice's own polar,
+run through its sections' ends with no criterion at all, is 5 % below its line.
+Thin symmetric blades follow those two; side blades and the thick centre leave
+their line long before (bench/knee/one-degree).
 """
 
 from __future__ import annotations
@@ -83,6 +89,25 @@ def strip_knee(fin: FinParams, speed: float, fraction: float, mirror: float,
     return alpha, lo.cl + (hi.cl - lo.cl) / 4.0 * (alpha - 2.0)
 
 
+def own_knee(fin: FinParams, speed: float, drop: float = 0.05, table: str = "v1") -> str:
+    """Where the lattice's own polar, run through its sections' ends with no criterion, is
+    `drop` below its line through 2 and 6 deg (perfect mirror; half-degree steps to 20 deg)."""
+    blade = lattice.blade_from_fin("blade", fin, nz=bladehydro.NZ, nx=bladehydro.NX)
+    pol = {"blade": lattice.strip_sections(fin, blade, speed, table)}
+
+    def cl(a: float) -> float:
+        return lattice.solve_viscous([blade], pol, speed, a, mirror_strength=1.0).loads["blade"].cl
+
+    lo, hi = cl(2.0), cl(6.0)
+    before = 0.0
+    for a in np.arange(6.5, 20.01, 0.5):
+        dep = cl(float(a)) / (lo + (hi - lo) / 4.0 * (a - 2.0)) - 1.0
+        if dep < -drop:
+            return f"{a - 0.5 + 0.5 * (-drop - before) / (dep - before):.1f}"
+        before = dep
+    return "beyond 20"
+
+
 def cases() -> list[tuple[str, FinParams, float, tuple[np.ndarray, np.ndarray]]]:
     shipped = _fin("mount/fins/side-shipped-gen2.json")
     centre = _fin("mount/fins/centre-ridden-gen1.json")
@@ -142,6 +167,14 @@ def cases() -> list[tuple[str, FinParams, float, tuple[np.ndarray, np.ndarray]]]
         ("gen-1 centre with t/c 0.09 instead of 0.046, mesh level 5", dataclasses.replace(centre, foil=dataclasses.replace(
             centre.foil, thickness_ratio=0.09)), 8.5,
          _polar("phase2b/centre-thick/results.json", "centre-gen1-tc090-L5")),
+        # the test with its prediction written first (bench/knee/one-degree, 2026-11-23): the
+        # gen-2 side's planform with a thin symmetric foil
+        ("gen-2 side's planform with a symmetric foil of t/c 0.05, mesh level 5, one-degree steps",
+         _fin("knee/one-degree/fin-gen2-planform-sym-tc050.json"), 8.5,
+         _polar("knee/one-degree/results-L5-thin-sym.json", "sym-tc050-gen2-planform-L5")),
+        ("the same, mesh level 6",
+         _fin("knee/one-degree/fin-gen2-planform-sym-tc050.json"), 8.5,
+         _polar("knee/one-degree/results-L6-thin-sym.json", "sym-tc050-gen2-planform-L6")),
         ("twin keel (stand-in, 95 mm deep), flat inside t/c 0.10, mesh level 5",
          _fin("phase2b/twin-keel/fins/twin-keel.json"), 7.0,
          _polar("phase2b/twin-keel/results.json", "twin-keel-L5")),
@@ -155,17 +188,22 @@ def main() -> None:
              "",
              "| blade | geometric aspect ratio | polar: 5 % below its line between ° | aspect-ratio rule ° | "
              "strip criterion °: perfect mirror / board mirror | C_L at the knee: rule / criterion (perfect mirror) | "
-             "highest C_L in the polar |",
-             "|---|---|---|---|---|---|---|"]
+             "highest C_L in the polar | most loaded strip at the end of its section's attached lift "
+             "(a share of one), perfect mirror ° | the lattice's own polar, run through its sections' "
+             "ends: 5 % below its line at ° |",
+             "|---|---|---|---|---|---|---|---|---|"]
     for name, fin, speed, (a, cl) in cases():
         slope0, ar_eff = hydro.lift_curve_slope(fin)
         a_rule = hydro.break_alpha_deg(fin, ar_eff)
         cl_rule = slope0 * math.radians(a_rule - hydro.zero_lift_alpha_deg(fin))
         a_full, cl_full = strip_knee(fin, speed, fraction, 1.0)
         a_board, _ = strip_knee(fin, speed, fraction, bladehydro.BOARD_MIRROR_STRENGTH)
+        a_one, _ = strip_knee(fin, speed, 1.0, 1.0)
         bracket, cl_max = polar_knee(a, cl)
-        lines.append(f"| {name} | {ar_eff / hydro.REFLECTION_FACTOR:.2f} | {bracket} | {a_rule:.1f} | "
-                     f"{a_full:.1f} / {a_board:.1f} | {cl_rule:.2f} / {cl_full:.2f} | {cl_max:.2f} |")
+        cells = [name, f"{ar_eff / hydro.REFLECTION_FACTOR:.2f}", bracket, f"{a_rule:.1f}",
+                 f"{a_full:.1f} / {a_board:.1f}", f"{cl_rule:.2f} / {cl_full:.2f}", f"{cl_max:.2f}",
+                 f"{a_one:.1f}", own_knee(fin, speed)]
+        lines.append("| " + " | ".join(cells) + " |")
     text = "\n".join(lines)
     print(text)
     if "md" in opt:
