@@ -2232,6 +2232,14 @@ Nothing in what a rider can choose moved, except the lowest hold on offer
   between a 2-D referee whose rows there never settle and a 3-D set CFD on
   wall functions that levels the whole blade at once; a strip driven past
   its lower end still wants a rule of its own, and a referee to fit it on.
+  *Both in, 2026-11-23* (`bench/phase2b/outside-fin/`): the gen-2 side alone
+  from −6° to −16° on mesh levels 5 and 6, which agree, levels off from −9°
+  at −0.29 to −0.35. A flat-inside strip's lift held 1.5° past its lower
+  end (`lattice.held_below`, one number fitted on that polar) puts the
+  lattice within 4 % rms of it and, unfitted, the four-fin set's front
+  outside fins within 6 % of their set CFD, the rear ones within 13 %, the
+  keel's unloaded fin 13–17 % high. The hold is on lift; the outside fin's
+  drag stays 19–43 % high in the lattice.
 - **Reynolds number above 5.7e5** rests on one section (4.5 % camber, t/c
   0.092 at 9.7e5). Root strips of side fins work at 7–9.5e5.
 - **The share is one number from one tunnel fin.** Two measured foils and

@@ -63,24 +63,30 @@ def main() -> None:
     lines = ["# The four-fin layout of [Falk20] through the lattice", "",
              "Written by `scripts/falk_quad_lattice.py`. Lattice with a perfect mirror (the set CFD has the "
              "fins on a flat wall), 10 m/s. Linear: attached flow, no section data. Viscous: strips on "
-             "section table v1. CFD: our set run on mesh level 5.", ""]
+             "section table v1. Held: the same with a flat-inside strip's lift held "
+             f"{lattice.LOWER_HOLD_DEG:g}° past the lower end of its attached range (`lattice.held_below`). "
+             "CFD: our set run on mesh level 5.", ""]
     for title, rel in RUNS:
         data = json.loads((BENCH / rel).read_text())
         foil = data.get("foil", {"family": "flat_inside", "thickness_ratio": 0.09, "camber_ratio": 0.0})
         fin, sp = quad(foil, data.get("layout", {}).get("rear_toe", 3.5))
         blades = lattice.set_blades(sp, nz=10, nx=2)
         pol = {b.name: lattice.strip_sections(fin, b, SPEED, "v1") for b in blades}
+        held = {name: lattice.held_below(p) for name, p in pol.items()}
         lines += [f"## {title}", "",
-                  "| leeway ° | fin | lift: linear lattice | viscous lattice | set CFD | [Falk20] | "
-                  "drag: viscous lattice | set CFD | [Falk20] |", "|---|---|---|---|---|---|---|---|---|"]
+                  "| leeway ° | fin | lift: linear lattice | viscous lattice | viscous, held | set CFD | "
+                  "[Falk20] | drag: viscous lattice | viscous, held | set CFD | [Falk20] |",
+                  "|---|---|---|---|---|---|---|---|---|---|---|"]
         for row in sorted(data["rows"], key=lambda r: r["angle"]):
             lee = row["angle"]
             lin = lattice.solve(blades, SPEED, lee, mirror_strength=1.0)
             vis = lattice.solve_viscous(blades, pol, SPEED, lee, mirror_strength=1.0).loads
+            hld = lattice.solve_viscous(blades, held, SPEED, lee, mirror_strength=1.0).loads
             for slot, name, col in zip(SLOTS, NAMES, REF_COLS, strict=True):
                 c = row["coeffs"][slot]
-                lines.append(f"| {lee:.0f} | {name} | {lin[slot].cl:.3f} | {vis[slot].cl:.3f} | {c['cl']:.3f} | "
-                             f"{ref[('CL', lee)][col]:.3f} | {vis[slot].cd:.3f} | {c['cd']:.3f} | "
+                lines.append(f"| {lee:.0f} | {name} | {lin[slot].cl:.3f} | {vis[slot].cl:.3f} | "
+                             f"{hld[slot].cl:.3f} | {c['cl']:.3f} | {ref[('CL', lee)][col]:.3f} | "
+                             f"{vis[slot].cd:.3f} | {hld[slot].cd:.3f} | {c['cd']:.3f} | "
                              f"{ref[('CD', lee)][col]:.3f} |")
         lines.append("")
     # the rear pair's toe, linear lattice, flat inside t/c 0.065 (the foil whose front pair matches theirs)

@@ -119,6 +119,9 @@ def cases() -> list[tuple[str, FinParams, float, tuple[np.ndarray, np.ndarray]]]
         # one mesh level finer on the fin the hold floor is anchored on (bench/knee/one-degree)
         ("gen-2 side as shipped, mesh level 6, one-degree steps", shipped, 8.5,
          _polar("knee/one-degree/results-L6-flat.json", "flat-inside-L6")),
+        ("gen-1 centre as ridden, symmetric, mesh level 6, one-degree steps",
+         _fin("mount/fins/centre-ridden-gen1.json"), 8.5,
+         _polar("knee/one-degree/results-L6-centre.json", "centre-gen1-L6")),
         # the generation-3 side for 8.5 m/s and 55 deg of lean, and its twin with a narrow tip
         # (bench/design-points/cfd): the first pair of polars that differs in tip width alone
         ("gen-3 side for 8.5 m/s, 55° (4.5 % camber, tip 0.60 of the base), mesh level 5, "

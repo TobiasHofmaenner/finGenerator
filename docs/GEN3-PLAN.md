@@ -669,8 +669,15 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   its line two degrees past the end and grows on at a third of the slope,
   and with it the lattice reads the four-fin set's front outside fin 51 %
   and 83 % above set CFD at 10° and 15° (before: 69 % and 94 %), the keel's
-  unloaded fin 35 % at 12°. The larger part is still open: a rule for a
-  strip driven past its lower end, and a referee to fit it on.
+  unloaded fin 35 % at 12°. The larger part needed a rule for a strip driven
+  past its lower end and a referee to fit it on: in, 2026-11-23
+  (`bench/phase2b/outside-fin/`, `lattice.held_below`). The gen-2 side alone
+  at −6° to −16° levels off from −9° (two meshes agree); a flat-inside
+  strip's lift held 1.5° past its lower end follows it within 4 % and puts
+  the four-fin set's outside fins within 6 % (front) and 13 % (rear) of
+  their set CFD and the keel twin's share at 0.64 against 0.66 at 12°. Not
+  closed: the outside fin's drag (19–43 % high in the lattice), and a share
+  from the lattice set in place of the fixed numbers.
 - `[ ]` **2b.3 Quad.** (a) Validation first: our set CFD on the commercial
   4-fin configuration of [Falk20] against its per-fin forces
   (`bench/falk/falk20_perfin_forces.csv`). (b) Our own quad over leeway at two

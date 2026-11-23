@@ -276,3 +276,39 @@ def test_viscous_set_keeps_the_side_fin_roles():
     assert left.cd_profile > 1.5 * right.cd_profile        # the flat face, loaded the wrong way
     with pytest.raises(ValueError):
         solve_viscous(blades, {**pol, "left": pol["left"][:-1]}, 8.5, 5.0)
+
+
+def test_a_flat_inside_blade_driven_from_its_curved_side_levels_off():
+    # bench/phase2b/outside-fin: the shipped gen-2 side alone at negative own incidence,
+    # mesh levels 5 and 6. It follows its lift line to -8 deg and levels off at -0.29 to
+    # -0.35 from -9 deg; the strips on the table carry it on to -0.51, because the 2-D
+    # referee's lift goes on growing behind a flat inside face's lower end. held_below
+    # holds a flat-inside strip's lift LOWER_HOLD_DEG past that end: one number, fitted here.
+    from fingen.lattice import LOWER_HOLD_DEG, held_below, solve_viscous, strip_sections
+
+    side = _field_fin("side-shipped-gen2.json")
+    blade = blade_from_fin("blade", side, nz=10, nx=2)
+    pol = strip_sections(side, blade, 8.5, "v1")
+    held = held_below(pol)
+    assert LOWER_HOLD_DEG == 1.5
+
+    def cl(polars, alpha):
+        return solve_viscous([blade], {"blade": polars}, 8.5, alpha).loads["blade"].cl
+
+    simulation = {-8.0: -0.258, -10.0: -0.295, -12.0: -0.310, -16.0: -0.349}
+    for alpha, ref in simulation.items():
+        assert cl(held, alpha) == pytest.approx(ref, rel=0.10)
+    assert cl(pol, -12.0) < 1.3 * simulation[-12.0]              # not held: 40 % too much
+    assert cl(pol, -16.0) < 1.4 * simulation[-16.0]
+    # up to the lower end and a little past it nothing changes
+    for alpha in (-6.0, 0.0, 6.0):
+        assert cl(held, alpha) == pytest.approx(cl(pol, alpha), abs=1e-9)
+    # only the lift of flat-inside strips is held: drag is the table's, a cambered blade's
+    # polars and table v0's (no attached range) come back as they are
+    assert all(np.array_equal(h.cd, p.cd) for h, p in zip(held, pol, strict=True))
+    cambered = dataclasses.replace(side, foil=dataclasses.replace(
+        side.foil, family=FoilFamily.CAMBERED, camber_ratio=0.03, camber_position=0.4))
+    pc = strip_sections(cambered, blade, 8.5, "v1")
+    assert all(h is p for h, p in zip(held_below(pc), pc, strict=True))
+    p0 = strip_sections(side, blade, 8.5, "v0")
+    assert all(h is p for h, p in zip(held_below(p0), p0, strict=True))

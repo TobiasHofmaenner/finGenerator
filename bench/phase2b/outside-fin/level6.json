@@ -1,0 +1,74 @@
+{
+ "plan": {
+  "speed": 8.5,
+  "mesh_level": 6,
+  "end_time": 800,
+  "fin": "../../mount/fins/side-shipped-gen2.json",
+  "variants": [
+   {
+    "name": "flat-inside-L6-negative",
+    "angles": [
+     -8,
+     -12,
+     -16,
+     -6,
+     -10
+    ]
+   }
+  ]
+ },
+ "variants": {
+  "flat-inside-L6-negative": {
+   "patch": {},
+   "rows": [
+    {
+     "alpha": -16.0,
+     "cl": -0.35153368863636364,
+     "cd": 0.17016594545454547,
+     "cm": 0.19632463863636362,
+     "iterations": 218.0,
+     "wall_s": 193.3
+    },
+    {
+     "alpha": -12.0,
+     "cl": -0.320301039375,
+     "cd": 0.12784969625,
+     "cm": 0.16395718937499998,
+     "iterations": 800.0,
+     "wall_s": 697.0
+    },
+    {
+     "alpha": -10.0,
+     "cl": -0.29764221874999996,
+     "cd": 0.1058674181875,
+     "cm": 0.14013128749999998,
+     "iterations": 800.0,
+     "wall_s": 687.3
+    },
+    {
+     "alpha": -8.0,
+     "cl": -0.253823838125,
+     "cd": 0.0821192454375,
+     "cm": 0.08987064206249999,
+     "iterations": 800.0,
+     "wall_s": 1020.2
+    },
+    {
+     "alpha": -6.0,
+     "cl": -0.163205569375,
+     "cd": 0.0579520789375,
+     "cm": 0.018289347418749997,
+     "iterations": 800.0,
+     "wall_s": 681.6
+    }
+   ],
+   "area_mm2": 9733.62607226676,
+   "foil": {
+    "family": "flat_inside",
+    "thickness_ratio": 0.09211512693674807,
+    "camber_ratio": 0.0,
+    "camber_position": 0.4
+   }
+  }
+ }
+}

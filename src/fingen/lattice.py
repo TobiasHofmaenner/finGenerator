@@ -41,6 +41,7 @@ module does not have.
 
 from __future__ import annotations
 
+import dataclasses
 import math
 from dataclasses import dataclass
 
@@ -439,6 +440,37 @@ def strip_sections(fin: FinParams, blade: Blade, speed: float,
     the shipped section `table` (sections.TABLES)."""
     return [sections.for_station(fin, speed, c * 1e3, z / blade.depth, table)
             for z, c in zip(blade.z_mid, blade.chord, strict=True)]
+
+
+# The fin on the outside of a turn is driven from its curved side: its flat inside
+# face is the suction side, and from a few degrees of leeway its strips are past the
+# lower end of their sections' attached range. The 2-D referee's lift goes on growing
+# there (rows that never settle); a blade does not. Alone on mesh levels 5 and 6 the
+# shipped gen-2 side levels off from -9 deg of own incidence at a lift of -0.29 to
+# -0.35, where the strips on the table carry it on to -0.51 (bench/phase2b/outside-fin).
+# One fitted number: a flat-inside strip's lift is HELD at its value LOWER_HOLD_DEG
+# past the lower end. 1.5 deg puts the lattice within 4 % rms of that polar from -6 to
+# -16 deg. Checked, not fitted: the four-fin set's outside fins (within 6 % at the
+# front, 13 % at the rear, from 36-94 % above) and the twin keel's (13 % above at 12
+# deg of leeway, from 35 %). Flat-inside sections only: a cambered section's table
+# already loses its lift behind the lower end, and holding it too reads the one
+# cambered set 21-23 % LOW.
+LOWER_HOLD_DEG = 1.5
+
+
+def held_below(polars: list[SectionPolar],
+               delta_deg: float = LOWER_HOLD_DEG) -> list[SectionPolar]:
+    """`polars` with the lift of every flat-inside section held at its value
+    `delta_deg` past the lower end of its attached range, for a blade that may be
+    driven from its curved side (the outside fin of a set). Drag and moment are the
+    table's. A polar without an attached range (table v0) is returned as it is."""
+    out = []
+    for p in polars:
+        if p.family is FoilFamily.FLAT_INSIDE and p.attached_deg is not None:
+            a0 = p.attached_deg[0] - delta_deg
+            p = dataclasses.replace(p, cl=np.where(p.alpha_deg < a0, p.cl_at(a0), p.cl))
+        out.append(p)
+    return out
 
 
 def solve_viscous(blades: list[Blade], polars: dict[str, list[SectionPolar]], speed: float,

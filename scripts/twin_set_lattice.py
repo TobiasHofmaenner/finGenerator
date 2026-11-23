@@ -6,7 +6,10 @@
 side fins on a flat wall at their toe and cant, swept over leeway, lift and
 drag per fin. For every leeway the same pair is solved with the linear lattice
 (attached flow, no section data) and the viscous one (strips on section table
-v1), with a perfect mirror (the CFD's wall).
+v1), with a perfect mirror (the CFD's wall). The viscous lattice is given twice:
+with the strips on the table as it is, and with a flat-inside strip's lift held
+past its lower end (`lattice.held_below`), which is what the fin on the outside
+of the turn needs.
 
 Lift is counted across the flow in the set's frame, the same direction for
 both fins, on each fin's own area. The share is the loaded fin's part of the
@@ -51,29 +54,36 @@ def main() -> None:
     sp = twin(fin, layout)
     blades = lattice.set_blades(sp, nz=10, nx=2)
     pol = {b.name: lattice.strip_sections(fin, b, speed, "v1") for b in blades}
+    held = {name: lattice.held_below(p) for name, p in pol.items()}
     lines = ["# A twin set through the lattice, beside its set CFD", "",
              f"Written by `scripts/twin_set_lattice.py`. Fin {data['fin_area_mm2']:.0f} mm² "
              f"({fin.foil.family.value}, t/c {fin.foil.thickness_ratio:g}), toe "
              f"{layout['toe']:g}°, cant {layout['cant']:g}°, ±{layout['side_y']:g} mm off the "
              f"centreline, {speed:g} m/s, CFD mesh level {data['mesh_level']}. Lattice with a "
-             f"perfect mirror.", "",
-             "| leeway ° | fin | lift: linear lattice | viscous lattice | set CFD | "
-             "drag: viscous lattice | set CFD |", "|---|---|---|---|---|---|---|"]
+             f"perfect mirror. \"Held\": a flat-inside strip's lift held "
+             f"{lattice.LOWER_HOLD_DEG:g}° past the lower end of its attached range "
+             f"(`lattice.held_below`).", "",
+             "| leeway ° | fin | lift: linear lattice | viscous lattice | viscous, held | "
+             "set CFD | drag: viscous lattice | viscous, held | set CFD |",
+             "|---|---|---|---|---|---|---|---|---|"]
     shares = []
     for row in sorted(data["rows"], key=lambda r: r["angle"]):
         lee = row["angle"]
         lin = lattice.solve(blades, speed, lee, mirror_strength=1.0)
         vis = lattice.solve_viscous(blades, pol, speed, lee, mirror_strength=1.0).loads
+        hld = lattice.solve_viscous(blades, held, speed, lee, mirror_strength=1.0).loads
         for slot in SLOTS:
             c = row["coeffs"][slot]
             lines.append(f"| {lee:g} | {slot} | {lin[slot].cl:+.3f} | {vis[slot].cl:+.3f} | "
-                         f"{c['cl']:+.3f} | {vis[slot].cd:.4f} | {c['cd']:.4f} |")
+                         f"{hld[slot].cl:+.3f} | {c['cl']:+.3f} | {vis[slot].cd:.4f} | "
+                         f"{hld[slot].cd:.4f} | {c['cd']:.4f} |")
         shares.append((lee, share({s: lin[s].cl for s in SLOTS}),
                        share({s: vis[s].cl for s in SLOTS}),
+                       share({s: hld[s].cl for s in SLOTS}),
                        share({s: row["coeffs"][s]["cl"] for s in SLOTS})))
     lines += ["", "| leeway ° | share of the loaded fin: linear lattice | viscous lattice | "
-                  "set CFD |", "|---|---|---|---|"]
-    lines += [f"| {lee:g} | {a:.2f} | {b:.2f} | {c:.2f} |" for lee, a, b, c in shares]
+                  "viscous, held | set CFD |", "|---|---|---|---|---|"]
+    lines += [f"| {lee:g} | {a:.2f} | {b:.2f} | {h:.2f} | {c:.2f} |" for lee, a, b, h, c in shares]
 
     # lattice only: the toe at which a fin carries nothing going straight, and the share over toe
     def right_cl(toe: float, lee: float) -> dict[str, float]:
