@@ -1,0 +1,14 @@
+Written 2026-11-23 08:16Z, with the level-5 series read (t/c 0.066: on its line to 6 deg, 5 % below at 8.55; t/c 0.080: 1 % below
+at 6 deg, 5 % below at about 8.5) and BEFORE the three controls below.
+
+1. t/c 0.080 on mesh level 6. Level 5 has cells of 0.39 mm on a nose radius of 0.24-0.35 mm at this blade's most loaded
+   strips: less than one cell per radius, and the three thicknesses let go at the same lift of that strip (0.53-0.58).
+   If the mesh is what ends the line, level 6 (0.19 mm) moves the 5 % point later by well over a degree. If the blade
+   is, it moves by about what it did on the other blades: 0.6 deg on the gen-2 side, nothing on the thin ones.
+2. t/c 0.066 at 5 m/s, level 5. The longboard single (5 m/s, raked 45 deg, most loaded strips of t/c 0.069) follows its
+   sections to their ends; this blade at 8.5 m/s lets go at 0.84 of them. Speed or planform? The table says a slower
+   blade lets go EARLIER (Reynolds number): common share of its own limit 4.5 deg, a share of one 7.5, the smaller of
+   its own end and 0.606 of the thick section's limit 6.4 (8.5 m/s: 5.0 / 8.3 / 7.2; found: onset 6.7).
+   If at 5 m/s the onset is LATER than at 8.5 m/s, the simulation's wall treatment is in it (mean wall y+ falls
+   with speed), and the longboard's polar is no evidence about rake.
+3. t/c 0.066 on mesh level 6: as 1.

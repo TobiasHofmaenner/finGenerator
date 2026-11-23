@@ -175,6 +175,13 @@ def cases() -> list[tuple[str, FinParams, float, tuple[np.ndarray, np.ndarray]]]
         ("the same, mesh level 6",
          _fin("knee/one-degree/fin-gen2-planform-sym-tc050.json"), 8.5,
          _polar("knee/one-degree/results-L6-thin-sym.json", "sym-tc050-gen2-planform-L6")),
+        # the thickness series on that planform (predictions filed first)
+        ("gen-2 side's planform, symmetric t/c 0.066, mesh level 5, one-degree steps",
+         _fin("knee/one-degree/fin-gen2-planform-sym-tc066.json"), 8.5,
+         _polar("knee/one-degree/results-L5-sym-tc066.json", "sym-tc066-gen2-planform-L5")),
+        ("gen-2 side's planform, symmetric t/c 0.080, mesh level 5, one-degree steps",
+         _fin("knee/one-degree/fin-gen2-planform-sym-tc080.json"), 8.5,
+         _polar("knee/one-degree/results-L5-sym-tc080.json", "sym-tc080-gen2-planform-L5")),
         ("twin keel (stand-in, 95 mm deep), flat inside t/c 0.10, mesh level 5",
          _fin("phase2b/twin-keel/fins/twin-keel.json"), 7.0,
          _polar("phase2b/twin-keel/results.json", "twin-keel-L5")),

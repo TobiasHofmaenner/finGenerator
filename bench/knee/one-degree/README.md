@@ -97,3 +97,26 @@ The series: the gen-2 side's planform with symmetric foils of t/c 0.066 and 0.08
 | C, the smaller of its own end and 0.606 of the thick section's limit | 7.2°, 9.0° | 7.2°, 9.0° |
 
 A has the t/c 0.066 blade let go earlier than the t/c 0.05 one (6.7° against 8.0°); B and C have it later. B has the t/c 0.080 blade hold four degrees longer than A or C.
+
+### The series on mesh level 5 (in, 2026-11-23 08:15Z)
+
+`results-L5-sym-tc066.json`, `results-L5-sym-tc080.json` (594 000 and 568 000 cells, mean wall y⁺ 70 and 73). Lift against each polar's own line through its rows up to 4°, and the lift the lattice gives the most loaded strip:
+
+| foil | 5° | 6° | 7° | 8° | 9° | 10° | 11° | 5 % below at | most loaded strip: lift at 6° and 7° | its section's lift at the end of the attached range |
+|---|---|---|---|---|---|---|---|---|---|---|
+| t/c 0.050 (above) | +0.2 % | −0.9 % | −2.2 % | −5.1 % | −7.6 % | −10.9 % | | 8.0° | 0.51, 0.57 | 0.53 |
+| t/c 0.066 | 0.0 % | +0.1 % | −1.5 % | −3.5 % | −6.2 % | −11.5 % | −14.5 % | 8.55° | 0.51, 0.60 | 0.71 |
+| t/c 0.080 | | −1.1 % | −2.6 % | −3.2 % | −7.0 % | −11.2 % | −14.2 % | 8.5° | 0.52, 0.60 | 0.97 |
+
+| reading | t/c 0.066: said, found | t/c 0.080: said, found |
+|---|---|---|
+| A, the common share of its own limit | 6.7°, 8.55° | 8.7°, 8.5° |
+| B, a share of one | 10.1°, 8.55° | 13.1°, 8.5° |
+| C, the smaller of its own end and 0.606 of the thick section's limit | 9.0°, 8.55° | 9.0°, 8.5° |
+
+- **B is out.** The t/c 0.080 blade is 5 % below its line four and a half degrees before a share of one has it there, and its most loaded strip is then at 0.62 of what its section carries.
+- **A is out on the t/c 0.066 blade.** It had that blade let go 1.3° before the t/c 0.050 one; it lets go half a degree after it.
+- **C is within half a degree on both, on the late side.**
+- **The three blades let go at the same lift of the most loaded strip**, between 0.51 and 0.60, though their sections carry 0.53, 0.71 and 0.97 at the end of the attached range. The thin one is at its section's end there; the other two are cut off at the same level with their sections' ends far away. That is what C says in other words, with the level a little under 0.606 of the thick section's limit (0.59–0.61 at these strips).
+- **Not yet a result about blades:** all three meshes have cells of 0.39 mm at a nose whose radius at the most loaded strips is 0.09 to 0.35 mm, so the mesh cannot tell these three noses apart, and a blade that lets go at one level whatever its nose is also what such a mesh would produce. Level 6 on the t/c 0.080 and 0.066 blades is running, with what each outcome would mean written first (`sym-series-controls-prediction.txt`). The same file has a third control, the t/c 0.066 blade at 5 m/s: the longboard single (5 m/s) follows its sections to their ends where this blade (8.5 m/s, sections of the same thickness) lets go at 0.84 of them, and speed and rake are confounded between the two.
+- The rows from 6° up ran to the cap; the means of their last four windows of 100 iterations hold within 0.001–0.003 at 6° to 8° on the t/c 0.066 blade and within 0.005 on the t/c 0.080 one (0.013 at 9°).

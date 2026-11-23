@@ -23,4 +23,6 @@
 | gen-1 centre with t/c 0.09 instead of 0.046, mesh level 5 | 1.53 | 9–10 (≈ 9.4) | 12.0 | 9.5 / 10.0 | 0.65 / 0.53 | 0.56 | 15.7 | beyond 20 |
 | gen-2 side's planform with a symmetric foil of t/c 0.05, mesh level 5, one-degree steps | 2.01 | 8–9 (≈ 8.1) | 12.0 | 3.8 / 3.9 | 0.75 / 0.24 | 0.64 | 6.3 | 8.6 |
 | the same, mesh level 6 | 2.01 | 7–8 (≈ 8.0) | 12.0 | 3.8 / 3.9 | 0.75 / 0.24 | 0.53 | 6.3 | 8.6 |
+| gen-2 side's planform, symmetric t/c 0.066, mesh level 5, one-degree steps | 2.01 | 8–9 (≈ 8.5) | 12.0 | 5.0 / 5.2 | 0.75 / 0.32 | 0.60 | 8.3 | 9.7 |
+| gen-2 side's planform, symmetric t/c 0.080, mesh level 5, one-degree steps | 2.01 | 8–9 (≈ 8.7) | 12.0 | 6.9 / 7.1 | 0.75 / 0.44 | 0.63 | 11.3 | 13.2 |
 | twin keel (stand-in, 95 mm deep), flat inside t/c 0.10, mesh level 5 | 0.61 | not within the polar | 23.7 | 26.8 / 30.9 | 0.73 / 0.95 | 1.02 | 46.9 | beyond 20 |
