@@ -686,7 +686,7 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   fin, not on a simulation, and stays as it is until a measured case says
   otherwise.
   *And the surface, found after level 7:* the STL handed to the mesher was
-  faceted through a tolerance in the wrong unit (a corner of 51–55° at the
+  faceted through the export's default relative tolerance (a corner of 51–55° at the
   leading edge of the outer blade, facets 0.066 mm off a nose of 0.25 mm
   radius). Levels 5 and 6 are coarser than that; level 7 is not, so its later
   break is not yet a result either. Fixed in `finGenerator-cfd`

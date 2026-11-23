@@ -74,15 +74,18 @@ run below their zero-lift angle (`bench/cambered-candidate/`,
   every level). `fingen.loft` draws fins with the same two splines: a 3-D
   mesh with a resolved nose needs that changed first.
 - **The 3-D fin surface was faceted far coarser than its sections**
-  (2026-11-23, `bench/knee/one-degree/`). `fincfd.case` scaled the fin to
-  metres and exported the STL with the default linear tolerance (1e-3 of the
-  unit, so a millimetre): 26 000 triangles, and on the outer blade a corner
+  (2026-11-23, `bench/knee/one-degree/`). `fincfd.case` exported the STL
+  with the library's default tolerance, which is relative (1e-3 of each
+  face's size, about 0.1 mm on a fin): 26 000 triangles, and on the outer blade a corner
   of 51–55° at the leading edge with facets up to 0.066 mm off a nose of
   0.23–0.26 mm radius. Levels 5 and 6 (nose faces 0.2–0.4 mm) are coarser
   than that; a nose split once more (level 7, 0.086 mm) is not, and its
   result cannot be told from the facets'. `CaseSpec.exact_surface` (400
-  points per section, facets to 2 µm; levels 7 and 8 set it) gives a nose
-  within 0.010 mm of the section with no corner above 9°. Cut the STL with
+  points per section, an ABSOLUTE deflection of 1 µm; levels 7 and 8 set it)
+  gives a nose within 0.010 mm of the section with no corner above 10°, in
+  14 s and 2.7 GB. Its first version passed 2e-6 to the relative setting and
+  needed 33 GB to write the same nose: measure what a new step takes before
+  it runs on a shared machine. Cut the STL with
   `bench/knee/one-degree/stl_nose.py` before any run whose nose faces are
   under 0.3 mm.
 - **A control one level finer is no control when both levels are on the same
