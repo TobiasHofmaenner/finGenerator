@@ -191,12 +191,8 @@ def cases() -> list[tuple[str, FinParams, float, tuple[np.ndarray, np.ndarray]]]
         ("the same, mesh level 7 (level 6 with the nose split once more)",
          _fin("knee/one-degree/fin-gen2-planform-sym-tc080.json"), 8.5,
          _polar("knee/one-degree/results-L7-sym-tc080.json", "sym-tc080-gen2-planform-L7")),
-        ("the same on the exact surface (facets to 2 µm), mesh level 6",
-         _fin("knee/one-degree/fin-gen2-planform-sym-tc080.json"), 8.5,
-         _polar("knee/one-degree/results-exact-L6-sym-tc080.json", "sym-tc080-gen2-planform-L6x")),
-        ("the same on the exact surface, mesh level 7",
-         _fin("knee/one-degree/fin-gen2-planform-sym-tc080.json"), 8.5,
-         _polar("knee/one-degree/results-exact-L7-sym-tc080.json", "sym-tc080-gen2-planform-L7x")),
+        # (the reruns on the exact surface, results-exact-L6/L7-sym-tc080.json, have no row below
+        # 4 deg for this table's line; the record has them: 5 % below at 9.0 and 9.1 deg)
         ("gen-2 side's planform, symmetric t/c 0.066, mesh level 5, at 5 m/s",
          _fin("knee/one-degree/fin-gen2-planform-sym-tc066.json"), 5.0,
          _polar("knee/one-degree/results-L5-sym-tc066-5ms.json", "sym-tc066-gen2-planform-5ms-L5")),
