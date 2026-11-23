@@ -187,6 +187,29 @@ Collapse parameter F = A/(κ cosΛ); basis of the Helmbold–Diederich equation.
 Source of the swept Helmbold form (a₀ → a₀cosΛ) reproduced in Anderson.
 **Cited for:** the minimal sweep correction to Helmbold.
 
+### [Maki51] Maki (1951) — The Use of Two-Dimensional Section Data to Estimate the Low-Speed Wing Lift Coefficient at Which Section Stall First Appears on a Swept Wing
+*NACA RM A51E15.* [NTRS PDF](https://ntrs.nasa.gov/api/citations/19930086754/downloads/19930086754.pdf)
+Span loading from lifting-surface theory against the section's maximum lift taken normal to the
+quarter-chord line and referred to the free stream (×cos²Λ; 0.92 becomes 0.46 at 45°), at the
+Reynolds number of the normal flow. Tested on a 45° wing of aspect ratio 6 (NACA 65-009 normal
+sections, Re 9×10⁶) with nose and flap changes: predicted wing lift at first stall 0.1–0.2 low,
+the increments from nose changes "usually quite accurate".
+**Cited for:** the strip knee criterion is this method without the sweep factor
+(`bench/section-gate/measured/README.md`, `docs/GEN3-PLAN.md` 2b.1).
+
+### [HM64] Harper & Maki (1964) — A Review of the Stall Characteristics of Swept Wings
+*NASA TN D-2373.* [NTRS PDF](https://ntrs.nasa.gov/api/citations/19640014908/downloads/19640014908.pdf)
+Reviews [Maki51]'s method over wings of varying sweep, aspect ratio, taper, camber and devices:
+for symmetric profiles first stall (sudden drag rise) is predicted "on the average about 20
+percent lower than the experimental value", always on that side, with design changes predicted
+correctly. Section pressures on 45° and 60° wings against the same section in two dimensions:
+the two-dimensional maximum is exceeded at every station but the outermost, more so inboard and
+with more sweep (spanwise boundary-layer flow as boundary-layer control); trailing-edge
+separation is suppressed, so the thin-section nose separation with its vortex appears "on
+sections of much greater thickness than on unswept wings", first at the tip. Effective section
+Reynolds number is lower by cos²Λ, so swept wings are "excessively sensitive" to it.
+**Cited for:** what measured swept wings say about reading a blade's knee from its sections.
+
 ### [DAT78] Hoak & Finck (1978) — USAF Stability and Control DATCOM, §4.1.3.2 & §7.1.2.2
 *AFFDL, Wright-Patterson AFB.* [Full scan (Datcom+ mirror)](https://www.holycows.net/datcom/Downloads/USAF%20Stability%20and%20Control%20DATCOM.pdf)
 The production wing lift-curve-slope equation with sweep, section-slope ratio κ and
@@ -305,6 +328,15 @@ y⁺ ≈ 0.1 for ω-based models, is a citing review's reading and was not check
 *SoarTech (UIUC LSATs).* [UIUC PDF](https://m-selig.ae.illinois.edu/uiuc_lsat/Low-Speed-Airfoil-Data-V1.pdf)
 Wind-tunnel polars for 34 airfoils at Re 3×10⁴–5×10⁵; large low-Re performance degradation.
 **Cited for:** low-Re validation data; Re-dependence motivating speed-dependent section choice.
+
+### [SDF89] Selig, Donovan & Fraser (1989) — Airfoils at Low Speeds
+*SoarTech 8.* [UIUC PDF](https://m-selig.ae.illinois.edu/uiuc_lsat/Airfoils-at-Low-Speeds.pdf)
+Princeton low-turbulence tunnel, more than 60 smooth models at Re 6×10⁴–3×10⁵, tabulated
+α, c_l, c_d (chapter 13) and lift plots through the stall. Three models are members of this
+project's foil families: NACA 0009, NACA 2.5411, NACA 6409.
+**Cited for:** `bench/section-gate/measured/`: the section table against measured sections of
+its own families at its two lower Reynolds numbers (upper ends 5–27 % high, lift curve bending
+from a lift of about 0.65 on the NACA 0009).
 
 ### [Win18] Winslow et al. (2018) — Basic Understanding of Airfoil Characteristics at Low Reynolds Numbers
 *J. Aircraft 55(3):1050–1061.* [DOI 10.2514/1.C034415](https://doi.org/10.2514/1.C034415)
