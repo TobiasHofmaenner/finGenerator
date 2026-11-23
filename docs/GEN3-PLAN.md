@@ -848,6 +848,20 @@ the ends of a section's range or past the knee: it separates early
   rider-spec migration (targets → floors/bands), CLI/web surface of levers.
 - `[ ]` **3.3 Field loop.** Omar's A/B result, then first gen-3 set; session
   log `riders/omar/sessions.md`.
+- `[ ]` **3.3b The drag yardstick** (raised by Tobias, 2026-11-23). Fin drag
+  is scored as a share of the rider's total drag, taken as weight over a
+  glide ratio of 5 (`optimize.BOARD_LIFT_TO_DRAG`, "a scale, not a model").
+  The system's glide ratio is weight over board drag plus fin drag; on the
+  lattice a whole set going straight takes it from 5 to 4.06 with gen-2 sides
+  and 4.54 with gen-3 sides at 8.5 m/s (60 kg rider; 4.46 and 4.75 at 6 m/s),
+  which is 1.6° of the wave face a rider needs to hold speed. What a rider
+  feels is the pull of the face less the drag, so on a marginal face that
+  step changes the sign of it; the scoring is linear and knows no wave. To
+  do: (a) a measured value for a surfboard's glide ratio (towing tests: Paine
+  1974; board simulations: Oggiano), the wave estimate here was 3.4;
+  (b) whether results are shown as break-even slope; (c) the share at the
+  rider's speeds, since fin drag grows with the square of speed and the
+  yardstick does not.
 - `[ ]` **3.4 The optimizer and its gates, looked at again** (Tobias,
   2026-11-23; last on the list, after the gen-3 model is settled). Which
   gates and bounds the generated fins run into, per rider and design point:
