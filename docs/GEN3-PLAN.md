@@ -633,6 +633,19 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   one or its highest lift behind the end with the common share. Either
   needs a referee for a thin symmetric blade first: a 3-D run with the nose
   resolved, or a tunnel polar.
+  *2026-11-23, two controls and a test.* (1) The gen-1 centre on mesh level
+  6: its 5 % point stays at 9.8° (level 5: 9.9°), the onset a degree later
+  (`bench/knee/one-degree/`). (2) The thin symmetric section in 2-D on the
+  fin recipe (wall functions, the nose cells of levels 5 and 6): it stops
+  settling at 5°, its drag steps and its lift goes on, as on the resolved
+  referee (`bench/section-tables/mesh-recipe/`). So the fin recipe is not
+  blind to that nose, and the centre's polar is what strips of such a
+  section give: on the line until the most loaded strip reaches the end of
+  its attached range (a share of one: 8.1° on that blade), falling away
+  gradually after it. (3) The test of that reading, with the prediction
+  written down before the run: the gen-2 side planform with a symmetric foil
+  of t/c 0.05, for which a share of one gives 6.3° and the common share
+  3.8° (`~/bench-results/thin-sym/PREDICTION.txt`; levels 5 and 6 running).
 - `[ ]` **2b.2 Twin.** (a) Set CFD of a twin (two keel-type side fins at
   production toe and cant) over leeway at two speeds, per-fin forces: the load
   share, the toe at which the pair makes no net side force going straight,
