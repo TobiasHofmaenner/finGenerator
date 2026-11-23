@@ -707,6 +707,22 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   gates (bead direction per layer couples bending and twist), a bench
   measurement of twist under a tip load, camber under load for the centre
   fin, and what flex does past the knee.
+  Where the optimizer stands: flex reaches the hydrodynamic scores as one
+  number, the flex model's total lift change, multiplying drive and hold and
+  clipped so it can only cost (`optimize.evaluate`; the clip was put in when
+  two sets converged on wash-in from the unvalidated torsion term). The
+  lattice sees the rigid blade. So no search can find a fin that uses flex.
+  In order: (1) measure twist under load on a printed fin; (2) feed the
+  incidence change per station into the lattice inside the evaluation;
+  (3) lift the clip if (1) supports it; (4) a design variable for flex (bead
+  direction or a stiffness distribution; the parameters have none today, and
+  the beam model has no bending-twist coupling term).
+  A second measure the same lattice could give, raised by the same question:
+  how a fin lets go. On levels 5 and 6 the gen-3 side's lift falls by 6 %
+  from 9° to 10° where the gen-2 side's flattens (0.72, 0.77, 0.77, 0.83 at
+  8°, 9°, 10°, 12°): a search that evens out the strips for hold makes them
+  reach their limits together. Nothing scores that; the spread of angles at
+  which the strips reach their limits would.
   *Running:* the t/c 0.080 blade on the exact surface, levels 6 and 7
   (`bench/knee/one-degree/nose7-prediction.txt`); after it level 7 on the
   gen-3 side fin, the tunnel fin and the gen-2 side; rows behind the upper end
