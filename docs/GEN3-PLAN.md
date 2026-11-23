@@ -862,7 +862,15 @@ the ends of a section's range or past the knee: it separates early
   (b) whether results are shown as break-even slope: Tobias sees a quiz
   use, as it is palpable; as the quiz stands drag is not a choice, so it
   fits the result and the performance step's text, not a question, and only
-  once (a) has a measured basis; (c) the share at the
+  once (a) has a measured basis. His fuller idea, same day: wave
+  characteristics as a quiz input for display only, an always-visible
+  energy-budget panel (pull of the face, total drag with the fins' slice,
+  what is spare, break-even slope against the wave's, speed from the drop),
+  never a search input. Cautions on record: the grip setting barely moves
+  it, the design turn, foil and fin count do; catching a wave is not a fin
+  matter; bands, not digits, until (a); a precomputed map from the answers to
+  fin drag is needed before a search has run. Check first: the same
+  arithmetic against measured riding speed by wave height; (c) the share at the
   rider's speeds, since fin drag grows with the square of speed and the
   yardstick does not.
 - `[ ]` **3.4 The optimizer and its gates, looked at again** (Tobias,
