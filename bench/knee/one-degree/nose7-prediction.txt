@@ -1,0 +1,61 @@
+Written 2026-11-23 11:01Z, with the level-7 rows 4, 7, 8, 9 deg of the symmetric t/c 0.080 blade read and BEFORE the runs below.
+
+Read: on level 7 (nose faces 0.086 mm, 2.4-4.2 per nose radius on the outer blade; levels 5 and 6: 0.75-1.2 and
+1.0-1.65) the t/c 0.080 blade is 0.3 % below its line at 7 deg, 0.75 % at 8 deg, 2.6 % at 9 deg; level 6: 0.6, 2.1,
+6.4 %; level 5: 2.6, 3.2, 7.0 %. Rows 7 and 8 deg settle (197 and 299 s) where they swung on level 6. So the branch
+of PREDICTION-3 that says "the unresolved nose is what makes these strips let go" is the one found: the level-5 and
+level-6 breaks of this blade are the mesh's.
+
+5. t/c 0.080, level 7, rows 10-13 deg. The lattice on table v1, run through its sections' ends, is 1.4, 1.8, 2.6 and
+   2.1 % below its line at 10, 11, 12, 13 deg and 17 % below at 14 (its own 5 % point: 13.2 deg).
+   If a resolved nose brings the blade to its sections: within 4 % of its line at 10 and 11 deg, 5 % point at 12-13.5.
+   If level 7 only moved the break by the degree seen so far: 5 % point at 9.5-10.5 deg.
+6. The gen-3 side fin for 8.5 m/s and 55 deg (4.5 % camber, t/c 0.083 growing to the tip; level 5: 2.1 % below its
+   line at 8 deg, 3.9 % at 9, 16 % at 10, so a sharp break between 9 and 10). Its nose radius at the loaded strips is
+   0.27-0.37 mm by the symmetric formula: about one level-5 face. Level 7, rows 8-11 deg.
+   If its break was the mesh's too: at 10 deg within 6 % of its line (level 5: 16 % below).
+   If the break is the blade's: 10 deg still more than 12 % below.
+   The strip criterion puts this fin's knee at 7.4 deg and was never fitted to it.
+7. The tunnel fin [BW04] (flat inside, t/c 0.09; the half-section's nose radius is four times a symmetric section's
+   of the same thickness, so levels 5 and 6 already put 3-7 faces on it). Level 5: 5 % point at about 12.5 deg; the
+   tunnel: on its line at 12 deg, 6 % below at 14. Level 7, rows 12-15 deg.
+   If the agreement with the tunnel was a coarse nose making up for a model that holds on too long: level 7 is within
+   3 % of its line at 14 deg.
+   If the flat-inside nose was resolved all along: the 5 % point stays within half a degree of 12.5.
+8. The gen-2 side as shipped (flat inside; level 5: 5 % point 8.6 deg, level 6: 9.2), level 7, rows 8-11 deg:
+   as 7; the hold floor is anchored on this fin. Expected to move by about what level 6 did (half a degree) or less.
+
+Written 2026-11-23 11:25Z, with level 7's 10 deg row of the t/c 0.080 blade read (8.4 % below its line; 5 % point 9.4 deg) and BEFORE the level-8 run.
+
+Item 5 of PREDICTION-4 as found: neither branch as written. Level 7 is not within 4 % at 10 deg (first branch), and
+its 5 % point, 9.4 deg, is a tenth under the second branch's 9.5-10.5. The break moved 0.7 deg later than level 6's
+and did not go away. The sequence of 5 % points is 8.5 (level 5), 8.7 (6), 9.4 (7): not converged.
+
+9. t/c 0.080 on level 8 (surface (5 8), features 8, a cell split from 15 deg of surface on; expected nose faces about
+   0.043 mm, 5-6.5 per nose radius on the outer strips; cell count not known before the mesher has run). Rows 4, 9,
+   10, 11 deg.
+   If level 7 has it: 5 % point within 0.3 deg of 9.4 (at 10 deg between 6 and 10 % below its line).
+   If the nose still sets it: later again by half a degree or more (at 10 deg less than 5 % below).
+   The first cell at the nose is then near y+ 5-10 with wall functions, which is outside what they are for; if rows
+   that settled on level 7 (4 deg: 0.2529) change by more than 1 %, the wall treatment is in the result and the
+   run says nothing about the nose.
+
+Written 2026-11-23 12:01Z, BEFORE the runs on the corrected surface.
+
+Found after level 7 was read and before level 8 produced a row (it was stopped): the fin surface the mesher was
+given (fin.stl, 25 952 triangles) has, on the outer blade, a corner of 51-55 deg at the leading edge and facets up
+to 0.066 mm off the section, on a nose radius of 0.23-0.26 mm; inboard (z 60 mm) 16 deg and 0.048 mm on 0.53 mm.
+Cause: the export's linear tolerance (1e-3) is taken in the scaled model's metres. With 400 points per section
+and facets to 2 um the same cuts are within 0.010 mm of the NACA form and no corner exceeds 9 deg (2.57 M
+triangles). Every 3-D polar so far was meshed on the coarse surface.
+
+10. t/c 0.080, level 6, on the exact surface, rows 4, 8, 9, 10 deg (level 6 before: 2.1, 6.4, 9.6 % below its line
+    at 8, 9, 10; nose faces 0.22 mm, three to four times the facets' error).
+    If the facets were below what level 6 sees: the three rows repeat within 1 % of lift.
+    If not: the level-5 and level-6 polars of every blade carry the faceted nose, not just a coarse one.
+11. t/c 0.080, level 7, on the exact surface, rows 4, 8, 9, 10, 11 deg (level 7 on the facets: 0.75, 2.6, 8.4 (not
+    settled), 9.2 % below; 5 % point 9.4-9.9; nose faces 0.086 mm, about the facets' error).
+    A corner at the leading edge is a sharper nose and lets go earlier, so on the round nose I expect the break
+    later: at 10 deg less than 5 % below its line. If the rows repeat within 1 %, the facets were not what level 7
+    resolved and its break stands as that level's.
+    Level 8 only after this is read.

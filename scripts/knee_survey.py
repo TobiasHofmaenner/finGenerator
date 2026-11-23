@@ -182,6 +182,18 @@ def cases() -> list[tuple[str, FinParams, float, tuple[np.ndarray, np.ndarray]]]
         ("gen-2 side's planform, symmetric t/c 0.080, mesh level 5, one-degree steps",
          _fin("knee/one-degree/fin-gen2-planform-sym-tc080.json"), 8.5,
          _polar("knee/one-degree/results-L5-sym-tc080.json", "sym-tc080-gen2-planform-L5")),
+        # the controls on that series (bench/knee/one-degree): one level finer, half the speed, and
+        # a finer nose (level 7), which moves the break where level 6 did not; all three on the
+        # coarsely faceted surface found afterwards (the record has the reruns)
+        ("the same, mesh level 6",
+         _fin("knee/one-degree/fin-gen2-planform-sym-tc080.json"), 8.5,
+         _polar("knee/one-degree/results-L6-sym-tc080.json", "sym-tc080-gen2-planform-L6")),
+        ("the same, mesh level 7 (level 6 with the nose split once more)",
+         _fin("knee/one-degree/fin-gen2-planform-sym-tc080.json"), 8.5,
+         _polar("knee/one-degree/results-L7-sym-tc080.json", "sym-tc080-gen2-planform-L7")),
+        ("gen-2 side's planform, symmetric t/c 0.066, mesh level 5, at 5 m/s",
+         _fin("knee/one-degree/fin-gen2-planform-sym-tc066.json"), 5.0,
+         _polar("knee/one-degree/results-L5-sym-tc066-5ms.json", "sym-tc066-gen2-planform-5ms-L5")),
         ("twin keel (stand-in, 95 mm deep), flat inside t/c 0.10, mesh level 5",
          _fin("phase2b/twin-keel/fins/twin-keel.json"), 7.0,
          _polar("phase2b/twin-keel/results.json", "twin-keel-L5")),

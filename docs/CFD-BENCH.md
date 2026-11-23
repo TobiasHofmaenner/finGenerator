@@ -73,6 +73,24 @@ run below their zero-lift angle (`bench/cambered-candidate/`,
   region, not a criterion (the mesher's curvature rule refines less area at
   every level). `fingen.loft` draws fins with the same two splines: a 3-D
   mesh with a resolved nose needs that changed first.
+- **The 3-D fin surface was faceted far coarser than its sections**
+  (2026-11-23, `bench/knee/one-degree/`). `fincfd.case` scaled the fin to
+  metres and exported the STL with the default linear tolerance (1e-3 of the
+  unit, so a millimetre): 26 000 triangles, and on the outer blade a corner
+  of 51–55° at the leading edge with facets up to 0.066 mm off a nose of
+  0.23–0.26 mm radius. Levels 5 and 6 (nose faces 0.2–0.4 mm) are coarser
+  than that; a nose split once more (level 7, 0.086 mm) is not, and its
+  result cannot be told from the facets'. `CaseSpec.exact_surface` (400
+  points per section, facets to 2 µm; levels 7 and 8 set it) gives a nose
+  within 0.010 mm of the section with no corner above 9°. Cut the STL with
+  `bench/knee/one-degree/stl_nose.py` before any run whose nose faces are
+  under 0.3 mm.
+- **A control one level finer is no control when both levels are on the same
+  side of what has to be resolved** (same record). Levels 5 and 6 agreed on a
+  thick symmetric blade's break within 0.2° with about one face on the nose
+  radius of the strips that let go; so did half the speed. Count the faces on
+  the nose radius of the most loaded strips (`strip_loads.py` prints them)
+  and say what the next level would have to change.
 - **The mesher ends "without any errors" on a mesh that lost its wall
   layers** (2026-11-21). snappyHexMesh takes a layer stack off again where it
   does not fit. A flat-inside section with a nose corner of 0.1 mm radius kept

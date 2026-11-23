@@ -120,3 +120,61 @@ A has the t/c 0.066 blade let go earlier than the t/c 0.05 one (6.7° against 8.
 - **The three blades let go at the same lift of the most loaded strip**, between 0.51 and 0.60, though their sections carry 0.53, 0.71 and 0.97 at the end of the attached range. The thin one is at its section's end there; the other two are cut off at the same level with their sections' ends far away. That is what C says in other words, with the level a little under 0.606 of the thick section's limit (0.59–0.61 at these strips).
 - **Not yet a result about blades:** all three meshes have cells of 0.39 mm at a nose whose radius at the most loaded strips is 0.09 to 0.35 mm, so the mesh cannot tell these three noses apart, and a blade that lets go at one level whatever its nose is also what such a mesh would produce. Level 6 on the t/c 0.080 and 0.066 blades is running, with what each outcome would mean written first (`sym-series-controls-prediction.txt`). The same file has a third control, the t/c 0.066 blade at 5 m/s: the longboard single (5 m/s) follows its sections to their ends where this blade (8.5 m/s, sections of the same thickness) lets go at 0.84 of them, and speed and rake are confounded between the two.
 - The rows from 6° up ran to the cap; the means of their last four windows of 100 iterations hold within 0.001–0.003 at 6° to 8° on the t/c 0.066 blade and within 0.005 on the t/c 0.080 one (0.013 at 9°).
+
+### The controls: level 6 and half the speed leave the break where it was, a finer nose moves it by 0.7° (2026-11-23)
+
+`results-L6-sym-tc080.json` (1 062 664 cells, mean wall y⁺ 45–47), `results-L5-sym-tc066-5ms.json` (the level-5 mesh at 5 m/s, mean wall y⁺ 42–44 against 70), predictions in `sym-series-controls-prediction.txt`. Then `results-L7-sym-tc080.json`: mesh level 7, which is level 6 with the surface split once more where a level-6 cell still sees more than 30° of it (`finGenerator-cfd`, `fincfd.case`): 1 276 353 cells, mean wall y⁺ 36–37, nose faces of 0.086 mm along the whole leading edge. Prediction in `sym-series-nose-prediction.txt`, written with the two controls read and before the run.
+
+Lift against each polar's own line through 0° and 4°:
+
+| | faces per nose radius at z/depth 0.76 / 0.85 / 0.92 | 6° | 7° | 8° | 9° | 10° | 11° | 5 % below at |
+|---|---|---|---|---|---|---|---|---|
+| t/c 0.080, level 5 | 0.80 / 0.74 / 0.75 | −1.1 % | −2.6 % | −3.2 % | −7.0 % | −11.2 % | −14.2 % | 8.5° |
+| t/c 0.080, level 6 | 1.27 / 1.10 / 0.99 | −0.2 % | −0.6 % | −2.1 % | −6.4 % | −9.6 % | | 8.7° |
+| t/c 0.080, level 7 | 3.19 / 2.77 / 2.45 | −0.2 % | −0.3 % | −0.75 % | −2.6 % | −8.4 % (not settled) | −9.2 % | 9.4° |
+| t/c 0.066, level 5, 8.5 m/s | 0.61 / 0.49 / 0.40 | +0.1 % | −1.5 % | −3.5 % | −6.2 % | −11.5 % | −14.5 % | 8.55° |
+| t/c 0.066, level 5, 5 m/s | the same mesh | +0.2 % | −1.5 % | −3.7 % | −7.6 % | −10.3 % | −13.4 % | 8.3° |
+
+- **Level 6 and half the speed both said "the blade, not the mesh"; level 7 says the mesh is in it.** Level 6 moved the t/c 0.080 blade's 5 % point by 0.2°; at 5 m/s the t/c 0.066 blade has the lift of 8.5 m/s within 0.2 % to 8°. By what was written before them, that was the blade's own break. Level 7 then has the same blade 2.6 % below its line at 9°, where levels 5 and 6 have it 7.0 and 6.4 % below: the branch of its prediction that says the unresolved nose made those strips let go. Its rows at 10° and 11° (written after 9° was read; `nose7-prediction.txt`, item 5) show the break is later, not gone: 8.4 and 9.2 % below, 5 % point at 9.4°. The 5 % points of the three levels are 8.5°, 8.7°, 9.4°, a sequence that has not settled; the lattice run through its sections' ends would have the blade 1.4 % below its line at 10° and 5 % below at 13.2°.
+- **Why one level did not show it and two did.** Levels 5 and 6 both put about one face or less on the nose radius of the strips that let go; level 7 puts two and a half to three. Halving the speed changes the wall units of the first cell, not what the mesh sees of the nose. A control one level finer is no control when both levels are on the same side of what has to be resolved: count the faces on the nose radius of the most loaded strips (`strip_loads.py` prints them).
+- **So the thickness series on levels 5 and 6 does not carry what was read from it.** The lift at which the outer strips let go rises with the resolution of the nose and has not been shown to settle, so "the same level whatever the thickness" is at least partly the mesh, and none of the three readings above is refuted or supported. What level 7 still shows: the thick blade leaves its line three to four degrees before its sections' ends would have it. The gen-3 side fin's level-5 polar (about one face per nose radius, a sharp break between 9° and 10°) is open in the same way; the flat-inside blades less so, because the curved side of a half-section's nose has four times the radius of a symmetric section of the same thickness.
+- Rows: level 6 from 7° up ran to the cap, swinging about means that hold within 0.001 (7°, 8°), 0.004 (9°) and 0.009 (10°) over the last three windows of 150 iterations. On level 7 the rows to 8° stop settled after 146–250 iterations, where 7° and 8° swung on level 6; 9° swings by ±0.02 about 0.554; 10° was still falling at the cap (windows 0.598, 0.595, 0.579: 5.5 to 8.4 % below the line, so the 5 % point is 9.4–9.9°); 11° holds within 0.001.
+
+#### The surface the mesher was given (found 2026-11-23, after level 7 was read)
+
+`stl_nose.py` cuts the fin's STL at a span station and lists the facets around the leading edge. On the surface every 3-D polar so far was meshed on (25 952 triangles):
+
+| span station | chord | nose radius | corner at the leading edge | facets off the section (first 3 % of chord) |
+|---|---|---|---|---|
+| 60 mm (z/depth 0.43) | 75 mm | 0.53 mm | 16° | up to 0.048 mm |
+| 106 mm (0.76) | 37 mm | 0.26 mm | 55° | up to 0.066 mm |
+| 119 mm (0.85) | 33 mm | 0.23 mm | 51° and 19° | up to 0.058 mm |
+
+The case builder scales the fin to metres and then exports with the library's default linear tolerance, 1e-3 of the model's unit: a metre-scale tolerance of one millimetre, so only the angular rule shapes the facets, and it does not act on the surface between its edges. With 400 points per section and facets to 2 µm (`exact_surface` in `fincfd.case`, set by mesh levels 7 and 8; 2.57 million triangles) the same cuts are within 0.010 mm of the NACA form and no corner exceeds 9°; with the default 100 points per section and fine facets a corner of 31° stays at the leading edge.
+
+- **What it does to the record above.** Nose faces of 0.31–0.43 mm (level 5) and 0.22 mm (level 6) are three to seven times the facets' error; whether they see it is being run (level 6 on the exact surface, `plan-exact-tc080-L6.json`). Level 7's faces (0.086 mm) are the size of the error: its later break may be the faceted nose and not a better resolved one, and it is read as neither until it has been repeated on the exact surface (`plan-exact-tc080-L7.json`). Level 8 was stopped before it produced a row. Predictions for both reruns: `nose7-prediction.txt`, items 10 and 11.
+- **The order was wrong.** `docs/CFD-BENCH.md` has had the rule since 2026-11-21 (the 2-D referee's outline): compare the surface with the analytic shape at the scale of the cells asked for, before refining. The level-7 mesh was run first and the surface looked at after.
+
+#### Strip loads from the surface pressure
+
+`strip_loads.py` sums the pressure on the fin patch of a saved row over the lattice's ten strips (`strip-loads.json`: all seven runs; `strip-loads.txt`: the tables), and sets each strip beside the lattice's strip on table v1, run through its sections' ends.
+
+- **Until a strip lets go, the lattice has every strip's lift within 1–2 %** on the t/c 0.066 and 0.080 blades, at every angle and on every mesh (the t/c 0.050 blade's inboard strips run 2–5 % above the lattice from 5° on). The two strips at the tip are the exception: the one at z/depth 0.97 gains 5–24 % on the lattice as the angle rises, the last is cut off by the mesh's rounded tip. The lift line of a blade is the sum of strips that each behave as the lattice says.
+- **The strips that let go first are at z/depth 0.76 to 0.92**, by a collapse of the suction peak at the nose while the inboard strips' peaks go on rising. The lattice's strip lift where the simulation's strip is 5 % short:
+
+| | z/depth 0.76 | 0.85 | 0.92 | what the section carries there at the end of its attached range |
+|---|---|---|---|---|
+| t/c 0.050, level 5 | 0.58 | 0.56 | 0.49 | 0.53–0.51 |
+| t/c 0.050, level 6 | 0.55 | 0.46 | 0.47 | |
+| t/c 0.066, level 5 | 0.58 | 0.49 | 0.47 | 0.71–0.68 |
+| t/c 0.066, level 5, 5 m/s | 0.56 | 0.47 | 0.49 | |
+| t/c 0.080, level 5 | 0.62 | 0.50 | 0.49 | 0.97–0.92 |
+| t/c 0.080, level 6 | 0.63 | 0.58 | 0.50 | |
+| t/c 0.080, level 7 | 0.70 | 0.66 | 0.68 | |
+
+  The same level on three thicknesses, two meshes and two speeds is what a nose the mesh cannot see produces; level 7 lifts it at the two strips that go first. (Rows that swing are one instant of the swing: ±0.05 on these numbers.)
+- **The suction peak itself was clipped.** Lowest pressure coefficient on the strips at z/depth 0.65–0.92 at 7°, before any of them has let go: −2.2 to −2.9 on level 6, −3.4 to −4.1 on level 7.
+
+#### What a blade does to a strip's nose
+
+On a finite blade a strip carries more of its lift at the nose than the same section in two dimensions, more so toward the tip of a swept blade ([Pol96]; at the root of rectangular wings 1.08 to 1.36 times at aspect ratios 2.5 to 1.0, computed and borne out by measured nose pressures at 1.4 and 1.0), and separation at the nose follows that loading, not the strip's lift. `nose_loading.py` reads it off the lattice (first chordwise panel's share of the strip's circulation over a two-dimensional plate's): on the gen-2 planform 1.03 at z/depth 0.76, 1.08 at 0.85, 1.14 at 0.92, 1.24 at 0.97; on the tunnel fin 1.11, 1.17, 1.23, 1.33. The strip criterion compares strip lift with the section's limit and has neither this nor the sweep factor of the measured swept-wing record ([Maki51], [HM64]; `../../section-gate/measured/README.md`). Both are known, parameter-free terms; the one fitted number (0.606 on the tunnel fin) presently stands in for them and for the table's sections ending later than measured ones.

@@ -210,6 +210,21 @@ sections of much greater thickness than on unswept wings", first at the tip. Eff
 Reynolds number is lower by cos²Λ, so swept wings are "excessively sensitive" to it.
 **Cited for:** what measured swept wings say about reading a blade's knee from its sections.
 
+### [Pol96] Polhamus (1996) — A Survey of Reynolds Number and Wing Geometry Effects on Lift Characteristics in the Low Speed Stall Region
+*NASA CR-4745.* [NTRS PDF](https://ntrs.nasa.gov/api/citations/19970001869/downloads/19970001869.pdf)
+Sections first (stall types against leading-edge radius and Reynolds number, after Gault 1957;
+NACA 6-series, Re 7×10⁵–3×10⁷), then rectangular, swept and delta wings. On a finite wing the
+chordwise loading differs from the section's at the same lift ("induced camber"): measured on
+rectangular wings of RAE 101 section (Brebner et al. 1965, Re 1.6×10⁶) the root carries the nose
+pressures of the two-dimensional section at 1.03, 1.08, 1.23, 1.36 times its lift for aspect
+ratios 4, 2.5, 1.4, 1.0, and separation at the nose follows that nose loading. On swept wings the
+same effect relieves the nose near the root and loads it near the tip ("only in the mid-semispan
+region" does simple sweep theory apply), so nose separation starts outboard. Read in part
+(sections 1.4, 2.3.1, 3.2, concluding remarks).
+**Cited for:** a strip's nose loading as the quantity that ends its attached range on a blade;
+the lattice gives 1.03–1.24 times the two-dimensional value on the outer strips of the gen-2
+planform (`bench/knee/one-degree/README.md`).
+
 ### [DAT78] Hoak & Finck (1978) — USAF Stability and Control DATCOM, §4.1.3.2 & §7.1.2.2
 *AFFDL, Wright-Patterson AFB.* [Full scan (Datcom+ mirror)](https://www.holycows.net/datcom/Downloads/USAF%20Stability%20and%20Control%20DATCOM.pdf)
 The production wing lift-curve-slope equation with sweep, section-slope ratio κ and

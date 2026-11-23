@@ -656,16 +656,47 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   symmetric sections the lattice's own polar is the model, and hold can be
   read off it. The thick centre (t/c 0.09) and every side blade still leave
   their line at about 0.6 of what their sections carry, far inside the
-  attached range. *Running:* what separates the two groups. Three readings
-  fit every polar so far (the common share with thin sections as an
-  exception; a share of one for every symmetric blade; the smaller of the
-  section's own end and 0.606 of a thick section's limit), and a thickness
-  series on the gen-2 planform (symmetric t/c 0.066 and 0.080, level 5)
-  separates them by two to four degrees; predictions in
-  `bench/knee/one-degree/sym-series-prediction.txt`. Also running: rows
-  behind the upper end on seventeen sections, because past 10° the lattice
-  falls short on the thin centre where the table levels a thin section's
-  lift off and the referee has it rising on.
+  attached range. What separates the two groups was put to a thickness series
+  on the gen-2 planform (symmetric t/c 0.050, 0.066, 0.080) with three
+  readings and their predictions written first.
+  *In, 2026-11-23: the series carries no verdict, because its break is partly
+  the mesh's.* On level 5 the three blades are 5 % below their lines at 8.0°,
+  8.55° and 8.5°, their outer strips letting go at the same lift whatever the
+  thickness; one level finer and half the speed left that where it was. A
+  nose split once more (level 7: 2.5–3.2 faces on the nose radius of the outer
+  strips, levels 5 and 6 about one) moves the t/c 0.080 blade's 5 % point to
+  9.4°, and the sequence 8.5°, 8.7°, 9.4° has not settled. So the level-5 and
+  level-6 breaks of blades with thin noses are lower bounds, the three
+  readings are open, and a control one level finer is no control when both
+  levels are on the same side of what has to be resolved
+  (`bench/knee/one-degree/README.md`; count the faces on the nose radius of
+  the most loaded strips). What the same runs do establish: read strip by
+  strip from the surface pressure, the simulation has the lattice's strip
+  lift within 1–2 % on every strip until one lets go.
+  *The measured side, same day* (`bench/section-gate/measured/`,
+  `docs/SOURCES.md`): three sections measured at Re 1e5–3e5 are members of the
+  foil families ([SDF89]), and the table's sections end 5–27 % higher than
+  they do, like the gate's NACA 0012 and 4415; the strip criterion is the
+  classical method for swept wings ([Maki51], [HM64]: first stall from
+  section data, about 20 % early on measured wings and always on that side)
+  without its sweep factor; and toward the tip a strip carries more of its
+  lift at the nose than its section does in two dimensions ([Pol96]; 1.03 to
+  1.24 times on the outer strips of the gen-2 planform, from the lattice).
+  The one fitted share stands in for all three. It is fitted on the tunnel
+  fin, not on a simulation, and stays as it is until a measured case says
+  otherwise.
+  *And the surface, found after level 7:* the STL handed to the mesher was
+  faceted through a tolerance in the wrong unit (a corner of 51–55° at the
+  leading edge of the outer blade, facets 0.066 mm off a nose of 0.25 mm
+  radius). Levels 5 and 6 are coarser than that; level 7 is not, so its later
+  break is not yet a result either. Fixed in `finGenerator-cfd`
+  (`exact_surface`).
+  *Running:* the t/c 0.080 blade on the exact surface, levels 6 and 7
+  (`bench/knee/one-degree/nose7-prediction.txt`); after it level 7 on the
+  gen-3 side fin, the tunnel fin and the gen-2 side; rows behind the upper end
+  on seventeen sections, because past 10° the lattice falls short on the
+  thin centre where the table levels a thin section's lift off and the
+  referee has it rising on.
 - `[ ]` **2b.2 Twin.** (a) Set CFD of a twin (two keel-type side fins at
   production toe and cant) over leeway at two speeds, per-fin forces: the load
   share, the toe at which the pair makes no net side force going straight,
