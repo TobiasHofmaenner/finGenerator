@@ -859,7 +859,10 @@ the ends of a section's range or past the knee: it separates early
   step changes the sign of it; the scoring is linear and knows no wave. To
   do: (a) a measured value for a surfboard's glide ratio (towing tests: Paine
   1974; board simulations: Oggiano), the wave estimate here was 3.4;
-  (b) whether results are shown as break-even slope; (c) the share at the
+  (b) whether results are shown as break-even slope: Tobias sees a quiz
+  use, as it is palpable; as the quiz stands drag is not a choice, so it
+  fits the result and the performance step's text, not a question, and only
+  once (a) has a measured basis; (c) the share at the
   rider's speeds, since fin drag grows with the square of speed and the
   yardstick does not.
 - `[ ]` **3.4 The optimizer and its gates, looked at again** (Tobias,
