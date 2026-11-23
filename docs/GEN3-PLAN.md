@@ -848,6 +848,15 @@ the ends of a section's range or past the knee: it separates early
   rider-spec migration (targets → floors/bands), CLI/web surface of levers.
 - `[ ]` **3.3 Field loop.** Omar's A/B result, then first gen-3 set; session
   log `riders/omar/sessions.md`.
+- `[ ]` **3.4 The optimizer and its gates, looked at again** (Tobias,
+  2026-11-23; last on the list, after the gen-3 model is settled). Which
+  gates and bounds the generated fins run into, per rider and design point:
+  for each winner the active ones and how far each is from the next, what the
+  fin would be without each (one gate lifted at a time), and whether the gate
+  is a fact about the board, the print or the rider, or a leftover from an
+  earlier model. Starts from what is already known: every dimension of a
+  gen-3 winner is set by a gate or a bound (`bench/design-points/`), and D13
+  (which gates a quiz rider gets) is open.
 
 ## Parallel track (in flight, independent of gen 3)
 
