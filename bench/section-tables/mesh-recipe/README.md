@@ -28,3 +28,24 @@ Three sections of `../thin-cambered/` and `../results.json` again, same driver a
 So: level-2 and level-3 polars of cambered fins read high below about −3° of own incidence, because the nose is under-resolved there, and are not a referee for drag going straight. Mesh level 5 (`finGenerator-cfd`, level 2 with one more surface refinement) is.
 
 Driver options added for this check: a section may carry its own `wall` and `surface_level` (`finGenerator-cfd/scripts/section_polar.py`).
+
+## The thin symmetric section on the same recipe (2026-11-23)
+
+Question, from the centre fin: the resolved referee has a symmetric section of t/c 0.046 end its attached range at 5.1° in a step of drag, with the lift going on behind it (`../rerun-held/`, the controls). Level-5 and level-6 polars of the gen-1 centre, which carries that section, stay on their lift line to 8–9° (`../../knee/one-degree/`). Is the 3-D recipe blind to what happens at that nose?
+
+`sym-tc046.json`: the section at Re 5.7e5 with wall functions and surface cells of 0.375 mm and 0.19 mm (the nose cells of mesh levels 5 and 6 on that fin), old inlet.
+
+| | 4° | 5° | 6° | 7° | 8° | 9° | 10° | 12° |
+|---|---|---|---|---|---|---|---|---|
+| wall functions, 0.375 mm: c_l | 0.444 | 0.55* | 0.63* | 0.72* | 0.69* | 0.81* | 0.88* | 1.00* |
+| c_d | 0.0200 | 0.042* | 0.069* | 0.095* | 0.108* | 0.142* | 0.175* | 0.234* |
+| wall functions, 0.19 mm: c_l | 0.431 | 0.53* | 0.63* | 0.68* | 0.76* | 0.83* | 0.82* | 0.88* |
+| c_d | 0.0182 | 0.036* | 0.068* | 0.086* | 0.111* | 0.135* | 0.153* | 0.202* |
+| resolved referee and its control: c_l | 0.432 | 0.516 | 0.59* | 0.72* | 0.66* | 0.79* | 0.90* | 1.00* |
+| c_d | 0.0140 | 0.0307 | 0.048* | 0.079* | 0.098* | 0.121* | 0.157* | 0.227* |
+
+(* not settled in 3000 iterations.)
+
+- **It is not blind.** On the fin recipe the section stops settling at 5° too, its drag steps there, and its lift goes on at about two thirds of the slope to 0.9–1.0 at 12°: the same polar as the resolved one, with 30–40 % more drag at 4° and 5°.
+- So the centre's polar is what strips of this section give: on the line until the most loaded strip reaches 5.1°, which is 8.1° of the blade's incidence, and falling away gradually after it because each strip keeps lifting. The strip criterion, which takes 0.606 of the lift at the section's end, reads that blade at 4.9°: for a section that ends in a kink and not in a loss of lift, the share is the wrong thing to take. `docs/GEN3-PLAN.md` 2b.1 has the test of that reading.
+
