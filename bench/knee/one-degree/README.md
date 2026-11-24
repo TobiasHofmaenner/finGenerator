@@ -256,6 +256,21 @@ Corrected 2026-11-24: the case sinks the fin 2 mm below the floor, and the strip
   The same level on three thicknesses, two meshes and two speeds is what a nose the mesh cannot see produces; level 7 lifts it at the two strips that go first. (Rows that swing are one instant of the swing: ±0.05 on these numbers.)
 - **The suction peak itself was clipped.** Lowest pressure coefficient on the strips at z/depth 0.65–0.92 at 7°, before any of them has let go: −2.2 to −2.9 on level 6, −3.4 to −4.1 on level 7.
 
+#### The swaps: section and planform taken apart (2026-11-24, running)
+
+Level 6, exact surface, 8.5 m/s, on the laptop (`~/bench-results/levers10`). Predictions: `nose7-prediction.txt`, items 22–24 with the forecasts added under them.
+
+| lift against the line through 0° and 4° | 7° | 8° | 9° | 10° | 11° | 12° | 5 % below at | lift there |
+|---|---|---|---|---|---|---|---|---|
+| gen-2 side (flat inside, t/c 0.092) | | −1.7 % | −5.7 % | −11.1 % | −14.6 % | | 8.8° | 0.75 |
+| **gen-2 planform with the gen-3 section** (4.5 % camber, t/c 0.083; `results-swap-gen2-planform-gen3-section-L6.json`) | −0.5 % | −1.5 % | −6.3 % | −9.9 % | −12.0 % | −13.9 % | **8.7°** | 0.81 |
+| gen-3 side (the same section on its own planform) | | −0.2 % | −0.6 % | −1.6 % | −3.0 % | −4.0 % | 12.1° | 1.07 |
+
+- **On the gen-2 planform the cambered section breaks at the angle the flat-inside one does, 8 % higher in lift** (1 029 850 cells, mean wall y⁺ 45; rows to 8° settled, from 9° at the cap with window means within ±0.5 %). Neither of item 22's alternatives: not at the gen-2 side's lift (0.75), not above 0.85. The forecast from the gen-3 fin's share (0.81 of the section's limit: 9.3–9.8°) is missed by more than half a degree.
+- **Strips** (`strip-loads.txt`, run `gen2-planform-gen3-section-L6x`): the ones at z/depth 0.76 and 0.85 are the first to be 5 % short, at 8.1° of blade angle, at 0.75 and 0.72 of their sections' limit and 5.6° and 5.0° of incidence. Between the flat-inside fins' share (0.70) and the gen-3 fin's (0.81).
+- **A lower reading until level 7 is in.** This planform thins to 0.78 of its base thickness at the tip, so the cambered foil is t/c 0.067–0.072 on the strips that let go, with 0.8–1.4 level-6 faces on the nose radius (the gen-3 fin, which thickens to its tip, has 1.8–2.7 on a local t/c of 0.092). Queued behind the other two swaps.
+- **What it already says:** the section alone does not carry the gen-3 fin to 12°. On this planform the same foil is worth 8 % in lift and nothing in angle. The rest is the gen-3 planform and its thickness schedule: the outer sections there are a third thicker (t/c 0.092–0.096 against 0.067–0.072), and its wide tip keeps the outer strips' incidence lower at the same blade angle (7.7° at 12° of blade angle, where the gen-2 planform has 8.9°).
+
 #### What a blade does to a strip's nose
 
 On a finite blade a strip carries more of its lift at the nose than the same section in two dimensions, more so toward the tip of a swept blade ([Pol96]; at the root of rectangular wings 1.08 to 1.36 times at aspect ratios 2.5 to 1.0, computed and borne out by measured nose pressures at 1.4 and 1.0), and separation at the nose follows that loading, not the strip's lift. `nose_loading.py` reads it off the lattice (first chordwise panel's share of the strip's circulation over a two-dimensional plate's): on the gen-2 planform 1.03 at z/depth 0.76, 1.08 at 0.85, 1.14 at 0.92, 1.24 at 0.97; on the tunnel fin 1.11, 1.17, 1.23, 1.33. The strip criterion compares strip lift with the section's limit and has neither this nor the sweep factor of the measured swept-wing record ([Maki51], [HM64]; `../../section-gate/measured/README.md`). Both are known, parameter-free terms; the one fitted number (0.606 on the tunnel fin) presently stands in for them and for the table's sections ending later than measured ones.
