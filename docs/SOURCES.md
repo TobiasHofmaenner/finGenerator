@@ -28,23 +28,36 @@ flat pressure side, half-NACA-0009 section (span 120 mm, base 100 mm, AR 3, t/c 
 **Cited for:** baseline fin geometry defaults; near-Re-invariance of the polars over the fin's
 operating range; lift-curve break (stall onset) at α ≈ 12–14°; force nondimensionalisation.
 
-### [Smi16] Smith, Pearce, Brandner, Clarke & Xue (2016) — Steady and unsteady loads acting on a hydrofoil immersed in a turbulent boundary layer
-*Proc. 20th Australasian Fluid Mechanics Conference, Perth, paper 588.*
-[PDF](https://people.eng.unimelb.edu.au/imarusic/proceedings/20/588%20Paper.pdf). Journal version, not
-read (paywalled): Smith, Brandner, Pearce, Venning, Moreau & Clarke (2021), *J. Fluids and Structures*
-102:103225, [DOI 10.1016/j.jfluidstructs.2021.103225](https://doi.org/10.1016/j.jfluidstructs.2021.103225).
-The tunnel of [BW04] and [Zar14]. A NACA 0012, unswept trapezoid, root 120 mm, tip 80 mm, in two
-spans, 120 mm (a fin's size) and 240 mm, hung from the ceiling on a six-component balance. Normal
-force and pitching moment in half-degree steps to 25° (20° on the long one) at Re 0.2–1.0·10⁶ on the
-mean chord, with the ceiling's boundary layer at 33 mm (natural, 1.9 m into the test section), 65 mm
-and 99 mm (thickened by jets). Plots only. What it reports: the stall angle rises by about 6° from
-Re 0.4·10⁶ to 1.0·10⁶ (both spans, 99 mm layer); on the short foil at Re 0.8·10⁶ the normal force
-peaks at 0.95–0.98 near 20–22° and drops at once with the 33 mm layer, 1.5° later with 65 mm, and
-with 99 mm it rounds off at 0.868: a sudden, leading-edge kind of stall turned gradual.
-**Cited for:** how far the measured break of a fin-sized blade moves with Reynolds number and with
-the wall's boundary layer, as context for the one tunnel fin the knee record has
-(`bench/knee/one-degree/`). A candidate third measured break once the journal version is in hand.
-Not used in any model.
+### [Smi21] Smith, Brandner, Pearce, Venning, Moreau & Clarke (2021) — Steady and unsteady loading on a hydrofoil immersed in a turbulent boundary layer
+*J. Fluids and Structures 102:103225.* [DOI 10.1016/j.jfluidstructs.2021.103225](https://doi.org/10.1016/j.jfluidstructs.2021.103225)
+(read in full 2026-11-24; an open four-page forerunner is Smith, Pearce, Brandner, Clarke & Xue,
+[20th AFMC 2016, paper 588](https://people.eng.unimelb.edu.au/imarusic/proceedings/20/588%20Paper.pdf)).
+The tunnel of [BW04] and [Zar14]. Two NACA 0012 blades, unswept trapezoids with a 120 mm root and
+an 80 mm tip, machined aluminium to 0.8 µm: span 240 mm and span 120 mm, a fin's size. Hung from
+the ceiling on a six-component balance; normal force, axial force and pitching moment (body axes,
+on mean chord × span) in half-degree steps from −1° to past stall, up and down, at Re 0.2–1.2·10⁶
+on the mean chord (0.1 m). The ceiling's boundary layer is measured (natural: 19.1 mm at 0.7 m into
+the test section, 32.3 mm at 1.9 m, both with Table 3's integral values) and thickened by jets up
+to 107 mm, so the blade stands in it by 8 % to 90 % of its span. Plots only.
+- *Long blade in the thin natural layer (8 % of span):* normal-force slope 0.066 per degree, rising
+  to 0.08 between 5° and 9° (earlier at lower Re) and falling again; a sudden stall at 16° (Re
+  0.4·10⁶) to 17° (1.2·10⁶) from a normal force of 1.0–1.1 to 0.7; back on the line only 3° (Re
+  0.4·10⁶) to 5.5° (1.0·10⁶) lower on the way down. The authors read the slope's bump and the sudden
+  stall as a laminar separation bubble that shortens and then bursts.
+- *Short blade, Re 1.0·10⁶:* slope 0.045 per degree; sudden stall at 21.0° with 16 % of the span in
+  the layer, at 23.0° with 47 %; from 59 % on the stall is gradual (23.5° and later) and the bump in
+  the slope is gone. Fully immersed (81 %) the stall is gradual at every Reynolds number and moves
+  from 21.5° at Re 0.4·10⁶ to about 26°.
+- *Long blade against immersion, Re 1.0·10⁶:* the loop narrows from 5° (8 %) to 2° (45 %), by the
+  stall coming earlier while the reattachment stays.
+- *Unsteady:* past stall the normal force gains three to four orders of magnitude of power at
+  reduced frequencies below 0.2; the ceiling layer itself adds a broad peak at 0.2.
+**Cited for:** context for the knee record's one tunnel fin (`bench/knee/one-degree/`): on smooth
+blades of a fin's size in this tunnel the break is a laminar bubble's, it moves by 2–3° with the
+wall layer the blade stands in and by 1° (thin layer) to 5° (thick layer) with Reynolds number, and
+a blade that has let go comes back 3–5° lower. None of that is in a fully turbulent steady
+simulation or in the strip rule. Two further measured breaks with a defined geometry (16–17° and
+21°), not yet simulated. Not used in any model.
 
 ### [Falk19] Falk et al. (2019) — Computational hydrodynamics of a typical 3-fin surfboard setup
 *Journal of Fluids and Structures 90:297–314.* [DOI 10.1016/j.jfluidstructs.2019.07.006](https://doi.org/10.1016/j.jfluidstructs.2019.07.006)

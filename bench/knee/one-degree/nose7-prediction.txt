@@ -515,3 +515,11 @@ Strip loads of the tip-0.35 fin (bench/knee/one-degree/strip-loads.json, run gen
     between 9.5 and 11 deg: still earlier than the tip-0.60 fin by more than the criterion's 1.8 deg.
     If neither moves it: the tip lever is twice what the criterion reads (4 deg and 24 % in lift against 1.8 deg and 14 %),
     and the strip rule is wrong for narrow tips, where it matters to the hold scale of the quiz.
+
+Added 2026-11-24 16:59Z: item 45 as found (laptop, 4 processes, the same mesh).
+    6 deg 0.7219 (settled after 171 iterations): 0.4 % below the line. 7 deg 0.7852 (settled after 167): 0.8 % below.
+    The first alternative, and by more than it asked: the fin is on its line to 7 deg and 5.2 % below it at 8 deg, a swinging
+    row. 5 % point 7.9-8.0 deg. I expected the second (bending away from 5 deg, the gen-2 side's kind) and was wrong.
+    It also takes back a line of the note above: "fall 5 % short at 4.8-5.1 deg of blade angle, at 0.42-0.57 of their sections'
+    limit" was read between rows at 4 and 8 deg, four degrees apart. With rows at 6 and 7 deg on the line, the outer strips
+    cannot have gone at 5 deg. The strip loads are being read again with the two rows in.
