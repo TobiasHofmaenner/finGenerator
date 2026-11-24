@@ -1,1 +1,1 @@
-{"speed": 8.5, "mesh_level": 6, "end_time": 800, "exact_surface": true, "fin": "side-shipped-gen2.json", "variants": [{"name": "flat-inside-L6x", "angles": [4, 0, 9, 10, 8, 11, 12, 13, 14]}]}
+{"speed": 8.5, "mesh_level": 6, "end_time": 800, "exact_surface": true, "fin": "side-shipped-gen2.json", "variants": [{"name": "flat-inside-L6x", "angles": [4, 0, 9, 10, 8, 11]}]}

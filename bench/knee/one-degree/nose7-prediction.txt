@@ -205,6 +205,12 @@ Written 2026-11-24 09:02Z, BEFORE the EPYC's follow-up queue (nose10, started wh
     If the corner is being rounded off by the level-6 faces: level 7 leaves its line earlier (more than 3 %
     below level 6 at 13 or 14 deg).
 
+2026-11-24 10:19Z: item 25 dropped before it ran. It asked what each fin carries after its break, and the tunnel fin's rows at
+15 and 16 deg (item 18) show that this recipe is wrong past a break: its lift falls where the tunnel's rises. The
+plan on the EPYC is set back to the six rows that exist, so that step of the queue ends at once.
+2026-11-24 10:19Z: item 26's rows set to 4, 12, 13, 14 deg before it ran (15 and 16 deg are past the break; 12 deg is a settled row
+to compare). Level 6: 0.8977 at 12 deg. If level 6 has it: within 1 % at 4, 12, 13 deg; 14 deg swings (0.94-1.01).
+
 Written 2026-11-24 09:41Z, BEFORE the EPYC's third queue (nose11, started when nose10 ends): the thin symmetric blades on
 the exact surface.
 
