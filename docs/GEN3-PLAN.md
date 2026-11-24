@@ -779,21 +779,50 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   Level 6 was enough for the thick symmetric blade and is not for this fin,
   so no level is the recipe for every fin, and the tunnel fin's agreement on
   level 6 has to be shown on level 7 before it counts (queued). The gen-2
-  side is the same on level 7 as on level 6 (8.8°): a flat-inside nose is a
-  corner, the flow leaves there on any mesh, and it is the round nose that
-  refinement keeps moving. The swap of
+  side reads the same on level 7 as on level 6 (8.8°). The swap of
   the gen-3 section onto the gen-2 planform (8.7°, 8 % more lift than the
   flat-inside section at the same angle) is on level 6 too.
+  *In, 13:45Z: the level-7 meshes were not sound, and I had not read their
+  logs.* The recipe's smallest accepted cell volume was an absolute number.
+  On level 7 the untouched cells of a fin under 108 mm of base (the gen-3
+  planform, the tunnel fin) are below it: the mesher then counts every one
+  as an error from the start and lets collapsed cells through (715 693
+  flagged faces on the gen-3 fin's mesh, which ran; the tunnel fin's and the
+  level-8 probe diverged). On the gen-2 planform the cells are just above it,
+  and the mesher refuses part of the snap instead: the mesh ends "without
+  errors" with points up to a cell width (0.09 mm) off the surface. So
+  neither "level 7 does not confirm level 6 on the gen-3 side" (its rows at
+  14° and 15° are in: break at 13.0–13.1° on that mesh) nor "level 7 confirms
+  level 6" on the gen-2 side and the thick symmetric blade stands until the
+  four are rerun, and the corner-against-round-nose reading I drew from the
+  pair is withdrawn. Fixed in finGenerator-cfd (the threshold follows the
+  finest cell; every mesh up to level 6 is written as before; the polar
+  driver prints the mesher's summary). Level 6 is untouched by this.
+  *In, 13:36Z: the planform swap.* The gen-3 planform with the gen-2 side's
+  flat-inside section is 5 % below its line at 11.1°, at a lift of 0.98
+  (gen-2 side: 8.8°, 0.75). On level 6 the lift at the 5 % point comes apart
+  into a planform factor of 1.31–1.32 and a section factor of 1.08–1.09; the
+  criterion has 1.21–1.24 and 1.00–1.02. The share at which the first strip
+  lets go is 0.70 (flat inside) and 0.75 (cambered) on the gen-2 planform,
+  0.77 and 0.81 on the gen-3 planform: it does not go with the section
+  family alone, so "a share per section family" is not the change either.
+  Candidates, untested: the mesh (the gen-2 planform's outer chords have
+  200 cells where the gen-3 planform's have 290) and the thickness of the
+  outer sections (t/c 0.077 against 0.101). The tunnel fin at 20° carries
+  0.76 on level 6 (tunnel 1.02); with the volume around it refined the rows
+  before the break move by 0.5 %.
   Nothing in the library is changed on this yet. Before `KNEE_FRACTION`
   becomes a share per section family (and `HOLD_FLOOR_KNEE`, the hold anchor
   and the quiz's hold scale are read again in the same change): the level
   check of both side fins, and the swaps that take section and planform
   apart.
-  *Running:* level 7 on the gen-3 side (with the 13° row) and the gen-2 side,
-  the tunnel fin to 16° and on level 7, the gen-2 side to 14°; on the laptop
-  the gen-2 planform with the gen-3 section, the gen-3 planform with the
-  gen-2 section, and the gen-3 fin with a narrow tip
-  (`bench/knee/one-degree/nose7-prediction.txt`, items 17–26).
+  *Running or queued (2026-11-24, 14:00Z):* level 7 again, with the threshold
+  fixed, on the tunnel fin, the gen-2 side, the gen-3 side and the thick
+  symmetric blade; level 8 on the gen-3 side if its probe meshes cleanly;
+  the thin symmetric blades on level 7; the tunnel fin at 16° and 20° with
+  the volume refined; on the laptop the gen-3 fin with a narrow tip and the
+  first swap on level 7
+  (`bench/knee/one-degree/nose7-prediction.txt`, items 22–38).
   *In, built into a table that is not shipped:* rows behind the upper end on
   eighteen sections (`bench/section-tables/rerun-held`), run because past 10°
   the lattice falls short on the thin centre where the table levels a thin

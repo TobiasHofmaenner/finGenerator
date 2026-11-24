@@ -292,3 +292,73 @@ Item 19 as found, 11:48Z (EPYC, level 7 exact; 1 215 487 cells, mean wall y+ 39)
 deg (level 6: 0.4764 / 0.7226), window means 0.744-0.763 at 9 deg (0.744-0.755) and 0.771-0.780 at 10 deg
 (0.769-0.775). Within 1 % at the settled rows and inside each other's swing at the others: level 6 has this fin.
 5 % point 8.7 deg (level 6: 8.8). Peak memory of the whole queue (nose9): 3.4 GiB.
+
+Written 2026-11-24 13:46Z, with items 23 and 32 and the tunnel fin's failed level-7 run read, BEFORE any run below.
+
+Items 23, 32, 26 as found.
+23. gen-3 planform with the gen-2 section (flat inside, t/c 0.092), level 6 exact, laptop (1 169 314 cells, y+ 41):
+    0.2808 / 0.5531 at 0 / 4 deg; 0.8128 / 0.8715 / 0.9290 / 0.9868 at 8-11 deg = -1.5 / -2.5 / -3.4 / -4.2 % of the
+    line; 12 deg swings (windows 0.944 / 0.901 / 0.912, -14 to -18 %); 13 deg 0.872 (-25 %). 5 % point 11.1 deg at
+    a lift of 0.99. Item 23's first alternative in lift ("near 1.0"), 0.4 deg before its range; the share forecast
+    of 23' (9.6-10.2 deg at 0.89-0.93) is missed by a degree. The most loaded strip (z/depth 0.65) is at 0.77 of
+    its section's limit and 7.0 deg of incidence when it lets go, where the same section family on the gen-2
+    planform and on the tunnel fin lets go at 0.70 and 6.0 deg. The share does not go with the section family alone.
+32. gen-3 side, level 7, rows 14 and 15 deg: 1.0225 (windows 1.013-1.020, range 0.97-1.06) and 1.0306 (1.005-1.050)
+    after 1.1361 at 13 deg: -4.6 % at 13 deg, -19 % at 14 on the line through level 6's 0 deg and level 7's 4 deg.
+    5 % point 13.0-13.1 deg (expected 13.2-14.0: 0.1 deg early; both rows swing, not one).
+26. the tunnel fin on level 7 did not run: the mesher ended "with 828882 illegal faces" and the solver diverged in
+    the first row.
+
+What the mesher's logs say, which I had not read for the level-7 meshes (the rule is to read them):
+  - The recipe's minVol is 1e-13 m3, an absolute volume, checked on every face's pyramid to its cell centre. An
+    untouched cube of edge a has pyramids of a3/6. Level 6: 7e-13 to 1.1e-12 (the threshold is 9-16 % of it).
+    Level 7 on the gen-2 planform (base 122 mm, a = 0.095 mm): 1.44e-13, the threshold is 69 % of the cube.
+    Level 7 on the gen-3 planform (104 mm) and the tunnel fin (102 mm): 9.2e-14 and 8.5e-14, BELOW the threshold.
+  - Below it, every finest cell is an error before snapping starts (760 836 on the gen-3 fin), and the mesher
+    accepts a move as long as the errors do not exceed that count. Quality control is off. The surface is fully
+    snapped (the last move still wanted 0.2 um mean, 7 um max), and a few dozen bad cells pass: gen-3 level 7:
+    12 faces over 65 deg, 20 collapsed (solver ran); tunnel fin level 7: 6 and 23 (diverged); gen-3 level 8: 29
+    and 26 (diverged). MY STATEMENT OF 11:50Z THAT LEVEL 7 ENDS WITHOUT ANY WAS WRONG for the gen-3 fin.
+  - At 69 % (gen-2 side level 7, symmetric t/c 0.080 level 7: both "finished without any errors") the mesher
+    refuses every move that squeezes a finest cell by a third. On the gen-2 side its last move still wanted
+    3.8 um mean and 91 um max (a cell is 95 um); level 6 of the gen-3 fin: 0.4 um mean. Part of that surface is
+    not on the fin. "Level 7 confirms level 6 on the gen-2 side" (8.7 / 8.8 deg) and on the symmetric t/c 0.080
+    blade (9.1 / 9.0) were read off such meshes.
+Fix (finGenerator-cfd): minVol = a fifth of the finest cube's pyramid, never above 1e-13, so every mesh up to
+level 6 is written as before; the polar driver files and prints the mesher's summary (cells, flagged faces, what
+the last snapping move still wanted).
+
+34. Mesh probes on the laptop with the fix (2 processes, 20 iterations): the tunnel fin on level 7 and the gen-3
+    side on level 8. Expected: both end without flagged faces, the last move wants under 1 um mean, the solver
+    runs its 20 iterations. If level 8 still ends with bad cells at the feature angle of 15 deg, it is the
+    recipe's and not the threshold's.
+35. the tunnel fin, level 7, rows 4, 12, 13, 14 deg (item 26 again). Level 6: 0.4447 / 0.8977 / 0.9496 / 14 deg
+    swinging 0.94-1.01. If level 6 has it: within 1 % at 4, 12, 13 deg.
+    I held the flat-inside corner to make that fin insensitive to the level; with the gen-2 side's level-7 mesh
+    now in doubt, that rests on nothing. No forecast beyond the two alternatives of item 26.
+36. gen-3 side, level 7 on a clean mesh, rows 4, 12, 13, 14 deg. The flagged mesh was fully snapped and steady:
+    expected within 0.5 % of it at 4, 12, 13 deg (0.5875 / 1.0832 / 1.1361) and 14 deg past the break again.
+37. gen-2 side, level 7 fully snapped, rows 4, 8, 9, 10 deg. Partly snapped: 0.4758 / 0.7179 / 0.744-0.763 /
+    0.771-0.780; level 6: 0.4765 / 0.7227 / 0.7544 / 0.7690.
+    If the unsnapped points did not matter: within 1 % of both at 4 and 8 deg, 9 deg again 5-7 % below the line.
+    If they tripped the outer strips: 9 deg within 3 % of the line (above 0.775) and the break a degree later.
+    I lean to the first (six in ten): level 6, which is snapped to 0.4 um, has the same break.
+38. symmetric t/c 0.080 on the gen-2 planform, level 7 fully snapped, rows 4, 8, 9, 10 deg: the same question
+    for the blade on which "levels 6 and 7 agree" was first read (9.0 / 9.1 deg). Outer nose radius 0.17 mm, less
+    than two level-7 cells: here unsnapped points are a large part of the nose. Even odds on a later break.
+Tonight's queue on the EPYC (items 27, 28: symmetric t/c 0.066 and 0.050 on level 7) and the laptop's swap on
+level 7 (item 22'') get the fixed threshold before they start; nothing is predicted anew for them.
+
+2026-11-24 13:51Z: items 29 and 30 as far as they are in (EPYC, nose11; read after the above was written).
+29. the tunnel fin at 20 deg on the level-6 mesh as it is: 0.7574 (windows 0.754 / 0.774 / 0.756, range 0.72-0.79).
+    Expected 0.84-0.90: missed low by 10 %. The lift goes on falling past 16 deg (0.86) on this mesh; level 2 on
+    the facets held 0.862 at 20 deg. Tunnel 1.02.
+30. the volume shells: 0.4429 at 4 deg and 0.9446 at 13 deg, 0.4 % and 0.5 % below the mesh as it is (0.4447,
+    0.9496): inside both bounds, the volume does not matter before the break. Rows 16 and 20 deg running.
+Also read after the above: the symmetric t/c 0.080 blade's level-7 mesh, last move still wanting 5.4 um mean and
+95 um max (its level 6: 0.3 um and 24 um); gen-2 side level 6 0.3 / 13 um; tunnel fin level 6 0.4 / 63 um.
+2026-11-24 13:54Z, numbers of the note above measured off the block meshes: the gen-2 planform's base is 123.5 mm, its
+level-7 cell 0.0965 mm and that cube's pyramid 1.50e-13 (the threshold is 67 % of it, not 69 %); gen-3 planform
+9.1e-14; tunnel fin 7.9e-14. Queue as changed before the probes were in: the thin symmetric blades are taken out of
+nose11 (their plans emptied) and run last in the EPYC's next queue with the fixed kit; the laptop takes the gen-2
+side, the symmetric t/c 0.080 blade and the first swap on level 7 after the narrow-tip run.

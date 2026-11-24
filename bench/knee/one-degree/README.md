@@ -159,6 +159,8 @@ The case builder exported with the library's default tolerance, which is relativ
 
 `results-exact-L6-sym-tc080.json` (1 057 207 cells, mean wall y⁺ 45), `results-exact-L7-sym-tc080.json` (1 261 916 cells, y⁺ 36). Predictions: `nose7-prediction.txt`, items 10 and 11, and what was found under item 11's date.
 
+**In doubt since 2026-11-24:** this level-7 mesh is not fully on the surface (its last snapping move still wanted 5.4 µm on average and 95 µm at most, a cell being 95 µm; level 6: 0.3 µm). See "Level 7 as it was meshed" below. The agreement of the two levels stands only when the rerun is in (`nose7-prediction.txt`, item 38).
+
 | lift against the line through 0° and 4° | 8° | 9° | 10° | 11° | 5 % below at |
 |---|---|---|---|---|---|
 | level 6, faceted surface | −2.1 % | −6.4 % | −9.6 % | | 8.7° |
@@ -181,40 +183,65 @@ The case builder exported with the library's default tolerance, which is relativ
 |---|---|---|---|---|---|---|---|---|
 | gen-3 side, level 5, faceted surface | −2.1 % | −3.9 % | −16.0 % | −17.7 % | −20.6 % | | | 9.1° |
 | **gen-3 side, level 6, exact surface** | −0.2 % | −0.6 % | −1.6 % | −3.0 % | −4.0 % | −17.6 % | −24.0 % | **12.1°** |
-| **gen-3 side, level 7, exact surface** (against level 6's line) | | | −0.8 % | −1.6 % | −3.1 % | −4.1 % | | **past 13°** |
+| **gen-3 side, level 7, exact surface** (line through level 6's 0° and its own 4°; a mesh the mesher flags, below) | | | −1.3 % | −2.2 % | −3.6 % | −4.6 % | −19 % | **13.0–13.1°** |
 | gen-2 side, level 6, faceted surface | −1.6 % | −4.0 % | −10.7 % | | −14.3 % | | | 9.2° |
 | **gen-2 side, level 6, exact surface** | −1.7 % | −5.7 % | −11.1 % | −14.6 % | | | | **8.8°** |
-| **gen-2 side, level 7, exact surface** (against level 6's line) | −2.4 % | −4.6 to −7.0 % | −9.8 to −10.9 % | | | | | **8.7°** |
+| **gen-2 side, level 7, exact surface** (against level 6's line; a mesh not fully on the surface, below) | −2.4 % | −4.6 to −7.0 % | −9.8 to −10.9 % | | | | | **8.7°** |
 
 - **The gen-3 side fin's break at 9° to 10° was the surface and the mesh. On the exact surface it lies between 12° and 13°.** Rows to 11° stop settled after 166–200 iterations. At 12° the row runs to the cap but holds 1.071–1.076 over its last 150 iterations (lift 1.073, 4.0 % below the line). At 13° and 14° it swings (0.91–1.04 and 0.88–1.04) about means of 0.98 and 0.95.
 - **In the simulation its lift falls when it breaks: 345 N at 12°, 314 N at 13°, 306 N at 14°.** I had expected a 5 % point at 9.3–9.9° (item 13), and with the rows to 11° in hand wrote here that the fall of lift in one degree seen on level 5 "does not exist on this surface". It does, three degrees later. **It is not evidence of how the fin lets go**: on the tunnel fin the same recipe has a fall after the break that the tunnel does not have (next section).
 - **The gen-2 side stays where it was, within 0.4°**: 5 % below at 8.8° (9.2° on the facets), rows from 9° at the cap, their window means within ±1.5 % (8.7–8.9° for the 5 % point). Its lift goes on rising through the break: 260, 272, 277, 286 N at 8° to 11°.
 - **So the two fins are much further apart than the strip criterion has them.** Criterion: 6.6° and 7.4°, 234 N and 258 N (10 % apart). Simulation on the exact surface: 8.8° and 12.1°, about 270 N and 345 N (28 % apart), the gen-3 fin on 11 % less area.
 - A cambered thin nose is where the faceted surface cost most: three degrees here, against 0.3° on the thick symmetric blade and 0.4° the other way on the flat-inside one. Every earlier polar of a cambered fin in this record (the 3 % camber planform, the candidate, the tip-width pair) is on that surface and is a lower bound on its break by an unknown amount.
-- **Level 7 does not confirm level 6 on this fin** (`results-exact-L7-gen3-side.json`; 1 431 211 cells, mean wall y⁺ 31; items 17 and 20). Lift at 4°, 10°, 11°, 12°: 0.5875, 0.9771, 1.0343, 1.0832, which is 0.4–1.4 % above level 6. At 13°, where level 6 swings about 0.93–0.98, level 7 is attached: the row runs to the cap holding 1.1349–1.1377. The break level 6 put between 12° and 13° was the mesh's, as level 5's at 9° to 10° had been. The 5 % point on level 7 is past 13° and not bracketed; rows at 14° and 15° are queued (item 32). **Level 8 cannot check it as the recipe stands** (item 33): on this fin the mesher ends with illegal faces (29 over 65° of non-orthogonality, 26 collapsed) and the solver diverges within 18 iterations (laptop probe; 2.15 M cells, 4.1 GiB). Whether level 7 has this fin's break is open.
+- **Level 7 does not confirm level 6 on this fin** (`results-exact-L7-gen3-side.json`; 1 431 211 cells, mean wall y⁺ 31; items 17 and 20). Lift at 4°, 10°, 11°, 12°: 0.5875, 0.9771, 1.0343, 1.0832, which is 0.4–1.4 % above level 6. At 13°, where level 6 swings about 0.93–0.98, level 7 is attached: the row runs to the cap holding 1.1349–1.1377. The break level 6 put between 12° and 13° was the mesh's, as level 5's at 9° to 10° had been. **Rows at 14° and 15° (item 32) bracket it: 1.0225 and 1.0306, both swinging** (window means 1.013–1.020 and 1.005–1.050, inside the last window 0.97–1.06 and 0.94–1.09), after 1.1361 at 13°. The 5 % point on that mesh is 13.0–13.1°, at a lift of 1.14 (366 N), a degree after level 6's. **But that mesh carries 715 693 faces the mesher flags, and the level-8 probe (item 33: flagged faces, solver diverging within 18 iterations) failed for the same reason: a threshold of the recipe, not the level.** See "Level 7 as it was meshed" below. Whether level 7 has this fin's break is open until both are rerun.
 - **So "level 6 on the exact surface" is not a recipe for every fin.** It held on the symmetric t/c 0.080 blade (9.0° and 9.1° on levels 6 and 7) with 1.1–1.7 faces on the nose radius of the strips that let go. This fin has 1.8–2.7 and is not settled: the count of faces on the nose radius does not say when a nose is resolved. What differs is where the break is: at 6–7° of strip incidence on the symmetric blade, at 7–8° here, under a deeper suction peak (−4.2 against −3.3 on level 6).
-- **Level 7 confirms level 6 on the gen-2 side** (`results-exact-L7-gen2-side.json`; 1 215 487 cells, mean wall y⁺ 39; item 19): 0.4758 and 0.7179 at 4° and 8° (level 6: 0.4764, 0.7226), window means 0.744–0.763 at 9° (0.744–0.755) and 0.771–0.780 at 10° (0.769–0.775). Its 5 % point is 8.7° on level 7 and 8.8° on level 6.
-- **So refinement moves the round nose and not the cornered one.** A flat-inside section's nose is a right-angle corner, and the flow leaves at the corner whatever the mesh does. The cambered fin's round nose holds its suction peak longer the finer it is meshed. The tunnel fin is flat inside too; its level-7 run is next (item 26).
+- **Level 7 reads the gen-2 side as level 6 does** (`results-exact-L7-gen2-side.json`; 1 215 487 cells, mean wall y⁺ 39; item 19): 0.4758 and 0.7179 at 4° and 8° (level 6: 0.4764, 0.7226), window means 0.744–0.763 at 9° (0.744–0.755) and 0.771–0.780 at 10° (0.769–0.775). Its 5 % point is 8.7° on level 7 and 8.8° on level 6. **Not a confirmation yet (found the same afternoon):** that level-7 mesh is not fully on the surface (below), so the two levels agreeing says less than I wrote here at noon. Rerun queued (item 37).
+- **Withdrawn until those reruns are in: "refinement moves the round nose and not the cornered one".** I read the pair of level checks as a flat-inside corner fixing the break on any mesh and a round nose holding longer the finer it is meshed. One of the two level-7 meshes was unsnapped in places and the other flagged; the reading rests on neither.
 
 #### The tunnel fin on the exact surface (2026-11-24)
 
 `results-exact-L6-bw04.json` (EPYC, 8 processes; 1 269 598 cells, mean wall y⁺ 34; level 6, 7 m/s) and `results-exact-L6-bw04-laptop.json` (the same plan to 14° on 12 processes; its long wall times are the laptop's sleep). The two agree to four digits on every settled row. Predictions: `nose7-prediction.txt`, items 12 and 18.
 
-| | 11° | 12° | 13° | 14° | 15° | 16° |
-|---|---|---|---|---|---|---|
-| lift, level 6, exact surface | 0.8435 | 0.8977 | 0.9496 | 0.94–1.01 (swings) | 0.89 | 0.86 |
-| against its line through 0° and 4° (0.2135, 0.4447) | −0.7 % | −1.0 % | −1.6 % | −1.5 to −8 %, about −5 % | −17 % | −25 % |
-| level 5, faceted surface (`results-L5bw04.json`) | −1.7 % | −1.9 % | −8.2 % | −13.0 % | | −30 % |
-| tunnel [BW04]: lift | | 0.775 | | 0.82 | | 0.89 |
-| tunnel, against its stated line (0.05 per degree from −3.5°) | | on it | | −6.3 % | | −8.7 % |
+| | 11° | 12° | 13° | 14° | 15° | 16° | 20° |
+|---|---|---|---|---|---|---|---|
+| lift, level 6, exact surface | 0.8435 | 0.8977 | 0.9496 | 0.94–1.01 (swings) | 0.89 | 0.86 | 0.75–0.77 (swings) |
+| against its line through 0° and 4° (0.2135, 0.4447) | −0.7 % | −1.0 % | −1.6 % | −1.5 to −8 %, about −5 % | −17 % | −25 % | −45 % |
+| level 5, faceted surface (`results-L5bw04.json`) | −1.7 % | −1.9 % | −8.2 % | −13.0 % | | −30 % | |
+| tunnel [BW04]: lift | | 0.775 | | 0.82 | | 0.89 | 1.02 |
+| tunnel, against its stated line (0.05 per degree from −3.5°) | | on it | | −6.3 % | | −8.7 % | −13 % |
 
 (Tunnel points past 12° are read off the paper's figure, ±0.03 in lift, which is ±3.5 % here.)
 
 - Rows at 11° to 13° stop settled after 176–186 iterations. **The row at 14° swings, and its filed value is the mean of its last 150 iterations only.** On the laptop the three windows of 150 iterations before the cap average 1.006, 0.944, 1.000 (range inside the last 0.973–1.021) and the row is filed as 0.9989; on the EPYC they average 0.996, 0.960, 0.944 (0.857–1.014) and it is filed as 0.9448. Rows at 15° and 16° swing by ±0.04 about 0.89–0.91 and 0.84–0.88.
 - **With the surface right, the simulation begins to break where the tunnel does**: steady and 1.6 % below its line at 13°, swinging about 5 % below it at 14°, where the tunnel has the fin on its line at 12° and 6 % below at 14°. Level 5 on the facets had it 8 % below at 13° already. I first read the laptop's filed 0.9989 as "2.3 % below at 14°, later than the tunnel"; that was one window of a swing, and the second machine showed it.
 - **Past the break the two part, and the simulation is the one that is wrong.** Its lift falls: 0.95 at 13°, 0.89 at 15°, 0.86 at 16°. The tunnel's goes on rising at about two thirds of its slope: 0.82, 0.89, 0.96, 1.02 at 14°, 16°, 18°, 20°. This is the boundary `docs/CFD-BENCH.md` already names (steady, fully turbulent RANS levels off near 0.87 where the measured fin climbs to 1.10 at 24°); the exact surface has not moved it. **So this recipe says where a fin begins to let go. It does not say what the fin carries afterwards, nor how abruptly it lets go.**
+- **At 20° the simulation carries 0.76 where the tunnel has 1.02** (item 29; window means 0.754, 0.774, 0.756, inside the last 0.72–0.79). I expected it on the old plateau, 0.84–0.90, which was read on levels 2 and 5 to 16° and on level 2 at 20° (0.862). On this mesh the lift goes on falling past 16°, where level 2 held 0.86: what the simulation carries past the break depends on the mesh as well. The same fin with the volume around it refined (item 30) is running: 0.4429 and 0.9446 at 4° and 13°, which is 0.4 % and 0.5 % below this mesh, so the volume mesh does not matter before the break.
 - The simulation's line is 16 % steeper than the tunnel's (0.0578 against 0.05 per degree; a third of that is the tunnel wall's boundary layer, `docs/CFD-BENCH.md`), so in lift the simulation carries 0.95 at 13° where the tunnel's line has 0.825.
 - **What it means for the other fins.** This is the one break in the record with a measurement beside it, and on level 6 with the exact surface the recipe has its onset within about half a degree. The 5 % points of the two side fins above stand on the same recipe. Their rows past those points do not: the fall of the gen-3 fin's lift from 12° to 13° and the gen-2 side's lift rising on through its break are both in the regime where this recipe has the tunnel fin falling and the tunnel has it rising.
+
+#### Level 7 as it was meshed: a volume threshold that did not scale (found 2026-11-24, 13:45Z)
+
+The tunnel fin's level-7 run (item 26) stopped in its first row: the mesher ended "with 828882 illegal faces" and the solver diverged. That sent me to the mesher's logs of every exact-surface mesh, which I had not read for the level-7 ones.
+
+The recipe's `minVol` was 1e-13 m³: the smallest volume the mesher accepts for the pyramid from a face to its cell's centre. It is an absolute number, and the mesh scales with the fin's base chord. An untouched cube of edge a has pyramids of a³/6.
+
+| mesh | finest cell | its pyramid over the threshold | faces flagged at the end | what the last snapping move still wanted, mean / largest |
+|---|---|---|---|---|
+| gen-2 side, level 6 | 0.193 mm | 12 | none | 0.3 µm / 13 µm |
+| symmetric t/c 0.080, level 6 | 0.193 mm | 12 | none | 0.3 µm / 24 µm |
+| gen-3 side, level 6 | 0.163 mm | 7.3 | none | 0.4 µm / 55 µm |
+| tunnel fin, level 6 | 0.156 mm | 6.4 | none | 0.4 µm / 63 µm |
+| **gen-2 side, level 7** | 0.096 mm | 1.5 | none | **3.8 µm / 91 µm** |
+| **symmetric t/c 0.080, level 7** | 0.096 mm | 1.5 | none | **5.4 µm / 95 µm** |
+| **gen-3 side, level 7** | 0.082 mm | 0.91 | **715 693** (12 over 65° of non-orthogonality, 20 collapsed) | 0.2 µm / 7 µm |
+| **tunnel fin, level 7** | 0.078 mm | 0.79 | **828 882** (6 and 23); solver diverged | 0.2 µm / 3 µm |
+| **gen-3 side, level 8** (probe) | 0.041 mm | 0.11 | **3 115 616** (29 and 26); solver diverged | |
+
+- **Below the threshold every finest cell is an error before snapping starts** (760 836 faces on the gen-3 fin). The mesher accepts a snapping move when it leaves no more errors than it began with, so its quality control is switched off: the surface is snapped in full, and the few dozen cells that the snap collapses or skews pass with the rest. The gen-3 fin's solver ran on them; the tunnel fin's and level 8's did not.
+- **Just above it the mesher refuses the snap instead.** With the threshold at two thirds of a cube's pyramid, a move that squeezes a finest cell by a third fails the check and is scaled back, to nothing where it has to be (a scaling of zero appears 25 times in the gen-2 side's log and never in the gen-3 fin's). The mesh ends "without any errors" and part of its surface is not on the fin: ten times the level-6 meshes' residual on average, a whole cell at most. Where on the blade those points are, I have not looked.
+- **So no level-7 result in this record stands as it was read**: not the thick symmetric blade's agreement of levels 6 and 7 (9.0° and 9.1°), not the gen-2 side's (8.8° and 8.7°), not the gen-3 side's later break (13.0–13.1° against 12.1°). What I told Tobias at 11:50Z, that levels 6 and 7 end without flagged faces, was wrong for the gen-3 fin. **Level 6 is not touched by this**: the threshold is 8–16 % of its finest cells' pyramids, all four meshes end clean and are on the surface to under half a micrometre on average.
+- **Fixed in finGenerator-cfd** (`fincfd.case._min_vol`): a fifth of the finest cube's pyramid, and never above 1e-13, so every mesh up to level 6 is written as it was. The polar driver now prints and files what the mesher says of each mesh (`mesh` in a results file: cells, flagged faces and the failed checks, what the last snapping move still wanted).
+- **Rerun with it** (`nose7-prediction.txt`, items 34–38): the tunnel fin, the gen-2 side, the gen-3 side and the thick symmetric blade on level 7; the gen-3 side on level 8 if its mesh is then clean. The thin symmetric blades (items 27, 28) and the first swap on level 7 (item 22″) had not started and get the fixed threshold.
 
 #### Strip loads of the three fins (2026-11-24)
 
@@ -237,7 +264,7 @@ The case builder exported with the library's default tolerance, which is relativ
 - **A candidate for the flat-inside level, not tested:** the generator draws a right-angle corner where the flat face meets the outer surface at the nose (`fingen.foil`), and the 3-D surface has it. The table's flat-inside sections were run with that corner rounded to 0.5 mm (`../../section-tables/flat-corner/`: no difference at +2°; not compared at high angles), which is what a sanded print has. So on a flat-inside fin the simulation and the table's section do not have the same nose.
 - **Nose loading is not the difference**: 1.02, 1.05, 1.09, 1.14 at z/depth 0.65 to 0.92 on the gen-3 planform, 1.03, 1.08, 1.14 at 0.76 to 0.92 on the gen-2 planform (`nose_loading.py`).
 - **The face count uses the local section** (corrected 2026-11-24: it had used the base thickness; the gen-3 fin thickens to 1.16 of it at the tip, the gen-2 planform thins to 0.78). The gen-3 fin has 1.8–2.7 level-6 faces on the nose radius of the strips that let go, more than the symmetric blade on which levels 6 and 7 agreed (1.1–1.7). The gen-2 planform with the gen-3 foil has 0.8–1.4: that swap on level 6 is a lower reading until its level-7 run is in.
-- **Running, to take section and planform apart** (laptop, `~/bench-results/levers10`; `nose7-prediction.txt`, items 22–24 and what the strip picture forecasts for them): the gen-2 planform with the gen-3 section, the gen-3 planform with the gen-2 section, and the gen-3 fin with its tip at 0.35 of the base. On the EPYC after the level checks: the tunnel fin on level 7 (item 26), then the thin symmetric blades on level 7 (items 27, 28). The gen-2 side to 14° (item 25) was dropped: rows past a break.
+- **Run since, to take section and planform apart** (laptop, `~/bench-results/levers10`; `nose7-prediction.txt`, items 22–24 and what the strip picture forecasts for them): the gen-2 planform with the gen-3 section and the gen-3 planform with the gen-2 section are in ("The swaps" below); the gen-3 fin with its tip at 0.35 of the base is running. The tunnel fin on level 7 (item 26) failed in the mesher ("Level 7 as it was meshed"). The gen-2 side to 14° (item 25) was dropped: rows past a break.
 
 #### Strip loads from the surface pressure
 
@@ -261,7 +288,7 @@ Corrected 2026-11-24: the case sinks the fin 2 mm below the floor, and the strip
   The same level on three thicknesses, two meshes and two speeds is what a nose the mesh cannot see produces; level 7 lifts it at the two strips that go first. (Rows that swing are one instant of the swing: ±0.05 on these numbers.)
 - **The suction peak itself was clipped.** Lowest pressure coefficient on the strips at z/depth 0.65–0.92 at 7°, before any of them has let go: −2.2 to −2.9 on level 6, −3.4 to −4.1 on level 7.
 
-#### The swaps: section and planform taken apart (2026-11-24, running)
+#### The swaps: section and planform taken apart (2026-11-24)
 
 Level 6, exact surface, 8.5 m/s, on the laptop (`~/bench-results/levers10`). Predictions: `nose7-prediction.txt`, items 22–24 with the forecasts added under them.
 
@@ -269,12 +296,34 @@ Level 6, exact surface, 8.5 m/s, on the laptop (`~/bench-results/levers10`). Pre
 |---|---|---|---|---|---|---|---|---|
 | gen-2 side (flat inside, t/c 0.092) | | −1.7 % | −5.7 % | −11.1 % | −14.6 % | | 8.8° | 0.75 |
 | **gen-2 planform with the gen-3 section** (4.5 % camber, t/c 0.083; `results-swap-gen2-planform-gen3-section-L6.json`) | −0.5 % | −1.5 % | −6.3 % | −9.9 % | −12.0 % | −13.9 % | **8.7°** | 0.81 |
+| **gen-3 planform with the gen-2 section** (flat inside, t/c 0.092; `results-swap-gen3-planform-gen2-section-L6.json`) | | −1.5 % | −2.5 % | −3.4 % | −4.2 % | −14 to −18 % | **11.1°** | 0.98 |
 | gen-3 side (the same section on its own planform) | | −0.2 % | −0.6 % | −1.6 % | −3.0 % | −4.0 % | 12.1° | 1.07 |
 
 - **On the gen-2 planform the cambered section breaks at the angle the flat-inside one does, 8 % higher in lift** (1 029 850 cells, mean wall y⁺ 45; rows to 8° settled, from 9° at the cap with window means within ±0.7 %). Neither of item 22's alternatives: not at the gen-2 side's lift (0.75), not above 0.85. The forecast from the gen-3 fin's share (0.81 of the section's limit: 9.3–9.8°) is missed by more than half a degree.
 - **Strips** (`strip-loads.txt`, run `gen2-planform-gen3-section-L6x`): the ones at z/depth 0.76 and 0.85 are the first to be 5 % short, at 8.1° of blade angle, at 0.75 and 0.72 of their sections' limit and 5.6° and 5.0° of incidence. Between the flat-inside fins' share (0.70) and the gen-3 fin's (0.81).
 - **A lower reading until level 7 is in.** This planform thins to 0.78 of its base thickness at the tip, so the cambered foil is t/c 0.067–0.072 on the strips that let go, with 0.8–1.4 level-6 faces on the nose radius (the gen-3 fin, which thickens to its tip, has 1.8–2.7 on a local t/c of 0.092). Queued behind the other two swaps.
 - **What it already says:** the section alone does not carry the gen-3 fin to 12°. On this planform the same foil is worth 8 % in lift and nothing in angle. The rest is the gen-3 planform and its thickness schedule: the outer sections there are a third thicker (t/c 0.092–0.096 against 0.067–0.072), and its wide tip keeps the outer strips' incidence lower at the same blade angle (7.7° at 12° of blade angle, where the gen-2 planform has 8.9°).
+
+**The planform swap (in 2026-11-24, 13:36Z; item 23).** 1 169 314 cells, mean wall y⁺ 41. Lift 0.2808 and 0.5531 at 0° and 4°; 0.8128, 0.8715, 0.9290 at 8° to 10° (stopped settled after 176–194 iterations), 0.9868 at 11° (at the cap, steady to 0.0001); 12° swings (window means 0.944, 0.901, 0.912), 13° 0.87.
+
+- **The planform carries most of it.** With the gen-2 side's flat-inside section the gen-3 planform breaks at 11.1° at a lift of 0.98 (317 N at 11°), against 8.8° and 0.75 on the gen-2 planform. Item 23's first alternative in lift ("near 1.0"), 0.4° before its range. The forecast from the flat-inside fins' share (item 23′: 9.6–10.2° at 0.89–0.93) is missed by a degree.
+- **On level 6 the lift at the 5 % point comes apart into two factors:**
+
+| lift at the 5 % point (angle), level 6 | gen-2 planform | gen-3 planform | planform alone |
+|---|---|---|---|
+| flat inside, t/c 0.092 | 0.75 (8.8°) | 0.98 (11.1°) | ×1.31, +2.3° |
+| 4.5 % camber, t/c 0.083 | 0.81 (8.7°) | 1.07 (12.1°) | ×1.32, +3.4° |
+| section alone | ×1.08, −0.1° | ×1.09, +1.0° | |
+| strip criterion, lift at its knee | 0.649 and 0.650 | 0.788 and 0.803 | ×1.21 to ×1.24; section ×1.00 to ×1.02 |
+
+  The criterion has the planform's direction and two thirds of its size, and the section at nothing where the simulation has 8–9 %.
+- **The share at which a strip lets go does not go with the section family alone** (`strip-loads.txt`, run `gen3-planform-gen2-section-L6x`). On this fin every strip is within 4 % of the lattice at 11°; the most loaded one (z/depth 0.65) is then at 0.77 of its section's limit and 7.0° of incidence. The same flat-inside family lets go at 0.70 and 6.0° on the gen-2 planform and on the tunnel fin. By planform, the first strip to go: gen-2 planform 0.70 (flat inside) and 0.75 (cambered); gen-3 planform 0.77 and 0.81. Each section's limit is already read at the strip's own thickness and Reynolds number, so this is something the lattice with its section table does not carry.
+- **What differs between the planforms, as candidates and not tested:**
+  - *The mesh.* It scales with the base chord, and the gen-2 planform's outer chords are small against its base (tip at 0.37 of it, against 0.60). The strip that lets go first has 200 level-6 cells on its chord on the gen-2 side (38.9 mm) and 290 on the gen-3 planform (47.7 mm). The level-7 check that would rule this out for the gen-2 side is in doubt (below).
+  - *Thickness.* Flat inside, the first strip to go is t/c 0.077 on the gen-2 side, 0.090 on the tunnel fin, 0.101 here. The table has the limit and the end of each, and the share should be the same if the table were all.
+  - *Not sweep:* 28.0°, 25.9° and 25.0° on the gen-2 side, the gen-3 planform and the tunnel fin.
+- Like the gen-3 side, this fin's strips are all 5 % short within one degree of each other (11.1° to 11.8°, read between the rows at 11° and 12°, the second of them past the break).
+- **Limits of this table.** Level 6 only. The cambered section on the gen-2 planform is a lower reading (above). On level 7 the gen-3 side reads 13.0–13.1° at 1.14, which would put the section at ×1.16 on the gen-3 planform, on a mesh that is flagged. Nothing in `bladehydro.knee` is changed by it yet.
 
 #### What a blade does to a strip's nose
 

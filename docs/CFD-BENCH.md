@@ -101,6 +101,20 @@ run below their zero-lift angle (`bench/cambered-candidate/`,
   with the measurement at 6 %. Print the window means of every row at the
   cap (`bench/knee/one-degree/hist.py`) and quote their spread, not the filed
   number.
+- **A threshold of the mesh recipe that is an absolute size has to be read
+  against the finest cell before a finer level or a smaller fin is run**
+  (2026-11-24). `minVol` was 1e-13 m³. On level 7 the untouched cells of a
+  fin under 108 mm of base are below it: the mesher counts every one as an
+  error before it snaps, accepts any move that leaves no more errors than
+  that, and ends "with 715693 illegal faces" on a mesh that then runs (or
+  diverges, as two others did). On a larger fin the cells are just above it
+  and the mesher refuses part of the snap instead: it ends "without any
+  errors" with points a cell width off the surface. Three level checks were
+  read off such meshes (`bench/knee/one-degree`, "Level 7 as it was
+  meshed"). The threshold now follows the finest cell, and `polar_angles.py`
+  prints a `mesh:` line per mesh (flagged faces, and what the last snapping
+  move still wanted: a fraction of a micrometre on a sound mesh). Read it
+  before any force.
 - **The mesher ends "without any errors" on a mesh that lost its wall
   layers** (2026-11-21). snappyHexMesh takes a layer stack off again where it
   does not fit. A flat-inside section with a nose corner of 0.1 mm radius kept
