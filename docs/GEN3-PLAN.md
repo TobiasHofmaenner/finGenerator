@@ -827,6 +827,11 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   and the quiz's hold scale are read again in the same change): the level
   check of both side fins, and the swaps that take section and planform
   apart.
+  *In, 16:08Z: the tunnel fin's rows at 14°, 15° and 18° on the refined volume.*
+  1.003, 1.04–1.05 and a swinging 1.05: no break before 16°, 5 % point at
+  16.1° against about 13.6° in the tunnel. The refined simulation is two to
+  three degrees late on the one measured fin. The gen-2 side with the same
+  shells is running on the EPYC (item 40).
   *Running or queued (2026-11-24, 14:45Z):* the tunnel fin at 14°, 15° and
   18° with the volume refined, then the gen-2 side and the gen-3 side with
   the same refinement; level 7 again, with the threshold fixed, on the

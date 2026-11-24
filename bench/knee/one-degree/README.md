@@ -223,17 +223,17 @@ The case builder exported with the library's default tolerance, which is relativ
 
 Tobias asked why the simulation is wrong past a break: the method, how it is applied, or the mesh. The one thing never varied in this record was the volume mesh off the wall: on every level the cells are a quarter of the background cell from 7 mm off the fin and half of it beyond. `CaseSpec.volume_shells` refines it: on the tunnel fin, cells of 0.625 mm to 10 mm off the wall, 1.25 mm to 25 mm, 2.5 mm to 50 mm, on the level-6 surface mesh (`results-exact-L6-bw04-shells.json`; 2 365 973 cells against 1 269 598, mean wall y⁺ 34, mesher clean, peak 5.1 GiB with 8 processes). Predictions: `nose7-prediction.txt`, items 29–31 and 39–41.
 
-| tunnel fin, 7 m/s | 4° | 13° | 16° | 20° |
-|---|---|---|---|---|
-| level 6, volume as it was | 0.4447 | 0.9496 | 0.84–0.88 (swings) | 0.75–0.77 (swings) |
-| **level 6, volume refined** | 0.4429 | 0.9447 | **1.07–1.08** (range 1.06–1.10) | 0.78, 0.86, 0.92 over three windows (range 0.71–1.00), not settled |
-| against the line through 0.2135 and its own 4° | | −1.5 % | −4.2 to −5.1 % | |
-| tunnel [BW04]: lift | | about 0.80 (0.775 at 12°, 0.82 at 14°) | 0.89 | 1.02 |
-| tunnel, against its stated line | | on it at 12°, −6.3 % at 14° | −8.7 % | −13 % |
+| tunnel fin, 7 m/s | 4° | 13° | 14° | 15° | 16° | 18° | 20° |
+|---|---|---|---|---|---|---|---|
+| level 6, volume as it was | 0.4447 | 0.9496 | 0.97–1.02 (swings) | 0.89 | 0.84–0.88 (swings) | – | 0.75–0.77 (swings) |
+| **level 6, volume refined** | 0.4429 | 0.9447 | 1.003 (range 0.992–1.014) | 1.042–1.053 over three windows (range 1.028–1.061) | **1.07–1.08** (range 1.06–1.10) | 1.05–1.07 over three windows (range 0.95–1.09) | 0.78, 0.86, 0.92 over three windows (range 0.71–1.00), not settled |
+| against the line through 0.2135 and its own 4° | | −1.5 % | −1.3 % | −1.9 to −3.0 % | −4.2 to −5.1 % | −14 to −16 % | |
+| tunnel [BW04]: lift | | about 0.80 (0.775 at 12°) | 0.82 | | 0.89 | 0.96 | 1.02 |
+| tunnel, against its stated line | | on it at 12° | −6.3 % | | −8.7 % | −11 % | −13 % |
 
 - **Before the break the volume does not matter**: 0.4 % and 0.5 % at 4° and 13°, as item 30 required.
 - **At 16° it decides the row.** On the mesh as it was the fin has broken there (0.86, 25 % below its line, drag 0.189). With the volume refined it carries 1.08, about 5 % below its line, at the same drag (0.186). I had not forecast this row.
-- **So where this fin's lift is 5 % below its line depends on the volume mesh: about 14° as meshed, about 16° refined, 13–14° in the tunnel.** The agreement "within about half a degree" on level 6 (above) owed something to a coarse volume. With the volume resolved, the simulation holds the lift about two degrees longer than the tunnel does. That is the direction in which the two-dimensional recipe misses a measured section (`docs/CFD-BENCH.md`: the resolved recipe peaks 19 % high and 2° late against [SK81]). One row says it; rows at 14°, 15° and 18° are running (item 39).
+- **So where this fin's lift is 5 % below its line depends on the volume mesh: about 14° as meshed, about 16° refined, 13–14° in the tunnel.** The agreement "within about half a degree" on level 6 (above) owed something to a coarse volume. With the volume resolved, the simulation holds the lift about two degrees longer than the tunnel does. That is the direction in which the two-dimensional recipe misses a measured section (`docs/CFD-BENCH.md`: the resolved recipe peaks 19 % high and 2° late against [SK81]). Rows at 14°, 15° and 18° bear it out (in 16:08Z; item 39): the two meshes carry the same lift at 14° and part between 14° and 15°, and on the refined volume the lift is 1.3 % and 2–3 % below its line there, each row swinging by about 1 %. At 18° the row swings between 0.95 and 1.09 about 1.05, below the 16° row. **The 5 % point on the refined volume is at 16.1°, the highest lift about 1.08 at 16–17°; the tunnel's 5 % point is at about 13.6° (12° on its line, 14° at −6.3 ± 3.5 %), so the simulation is two to three degrees late.** Against the forecast: 14° came out 0.7 % above the range given for it, 15° at its upper edge, 18° as said.
 - **At 20° neither mesh has the tunnel's 1.02**, and the refined row does not settle: it fell to 0.71 and was climbing through 0.92 at the cap. A steady solver on a flow that is not steady; a time-accurate run on this mesh (item 31) is what could say what the model carries there.
 - **Every 5 % point in this record is on the volume mesh as it was.** The gen-2 side and the gen-3 side run next with the same shells (items 40, 41). If both move by about the tunnel fin's two degrees, the ratios between fins may stand while the angles do not. If they move by different amounts, the ratios are the mesh's too.
 
