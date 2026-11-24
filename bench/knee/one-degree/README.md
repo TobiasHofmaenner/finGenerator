@@ -166,46 +166,88 @@ The case builder exported with the library's default tolerance, which is relativ
 | **level 6, exact surface** | −1.4 % | −5.0 % | −8.8 % | | **9.0°** |
 | **level 7, exact surface** | −0.5 % | −4.8 % | −8.4 % | −10.4 % | **9.1°** |
 
-- **On the exact surface one more level at the nose no longer moves the break.** Lift agrees within 0.8 % at every row between 1.0–1.7 and 2.4–3.2 faces on the nose radius of the outer strips. The 5 % point of this blade is 9.0–9.1°.
+- **On the exact surface one more level at the nose no longer moves the break.** Lift agrees within 0.8 % at every row between 1.1–1.7 and 2.4–4.1 faces on the nose radius of the outer strips. The 5 % point of this blade is 9.0–9.1°.
 - **The faceted surface was visible to both levels, in opposite directions.** Level 6 read the break 0.3° early on it. Level 7 read it late: at 9° the faceted nose carried 2.5 % more lift than the round one, which I had expected the other way round (a corner as the sharper nose). The sequence 8.5°, 8.7°, 9.4° that looked like a mesh not yet converged was a surface changing under the mesh.
 - **Rows.** Level 7: 8° stops settled after 177 iterations; 9° holds its mean within 0.002 over three windows; 10° and 11° drift down by 0.02 and 0.01 over the last 450 iterations. Level 6: all rows from 8° at the cap, means within 0.003 (8°), 0.007 (9°), 0.009 (10°).
-- **The strips, on both levels:** the ones at z/depth 0.65 to 0.92 are 5 % short of the lattice at blade angles of 8.0° to 8.8°, at a lattice strip lift of 0.57–0.69, which is 0.61–0.72 of what their sections carry and 3.3–4.1° of incidence before their sections' ends. With the nose loading of those strips (1.03, 1.08, 1.14 at z/depth 0.76, 0.85, 0.92) the share is 0.73–0.76 at all three.
+- **The strips, on both levels:** the ones at z/depth 0.65 to 0.92 are 5 % short of the lattice at blade angles of 8.0° to 8.7°, at a lattice strip lift of 0.56–0.70, which is 0.61–0.72 of what their sections carry and 3.3–4.1° of incidence before their sections' ends. With the nose loading of those strips (1.03, 1.08, 1.14 at z/depth 0.76, 0.85, 0.92) the share is 0.73–0.76 at all three.
 - **Reproduced on the surface as it is written now and on another machine** (`results-exact-L6-sym-tc080-laptop.json`; absolute deflection of 1 µm, 0.7 million triangles, 12 processes on the laptop): 0.2527 at 4° and 0.5401 at 9° against 0.2527 and 0.5404, 1 057 339 cells against 1 057 207.
 - **What that is and is not.** It is this recipe's answer for this blade, no longer the mesh's or the surface's: wall functions, a boundary layer turbulent from the nose. It is two degrees after the strip criterion's onset (6.9°) and four before the lattice run through its sections' ends (13.2°). Whether the gap to the sections' ends is the blade (three dimensions) or the recipe (wall functions against the table's resolved wall) is not separated by it. The thinner blades of the series have not been rerun on the exact surface, so the three readings stay open.
 
 #### The gen-3 side fin and the gen-2 side on the exact surface (2026-11-24)
 
-`results-exact-L6-gen3-side.json` (1 206 026 cells, mean wall y⁺ 40), `results-exact-L6-gen2-side.json` (1 009 563 cells, y⁺ 48); level 6, 8.5 m/s. Predictions: `nose7-prediction.txt`, items 13 and 14, and what was found under item 16's date.
+`results-exact-L6-gen3-side.json` (1 206 026 cells, mean wall y⁺ 40), `results-exact-L6-gen2-side.json` (1 009 563 cells, y⁺ 48); level 6, 8.5 m/s. Predictions: `nose7-prediction.txt`, items 13, 14 and 16, each with what was found.
 
-| lift against the line through 0° and 4° | 8° | 9° | 10° | 11° | 12° | 5 % below at |
+| lift against the line through 0° and 4° | 8° | 9° | 10° | 11° | 12° | 13° | 14° | 5 % below at |
+|---|---|---|---|---|---|---|---|---|
+| gen-3 side, level 5, faceted surface | −2.1 % | −3.9 % | −16.0 % | −17.7 % | −20.6 % | | | 9.1° |
+| **gen-3 side, level 6, exact surface** | −0.2 % | −0.6 % | −1.6 % | −3.0 % | −4.0 % | −17.6 % | −24.0 % | **12.1°** |
+| gen-2 side, level 6, faceted surface | −1.6 % | −4.0 % | −10.7 % | | −14.3 % | | | 9.2° |
+| **gen-2 side, level 6, exact surface** | −1.7 % | −5.7 % | −11.1 % | −14.6 % | | | | **8.8°** |
+
+- **The gen-3 side fin's break at 9° to 10° was the surface and the mesh. On the exact surface it lies between 12° and 13°.** Rows to 11° stop settled after 166–200 iterations. At 12° the row runs to the cap but holds 1.071–1.076 over its last 150 iterations (lift 1.073, 4.0 % below the line). At 13° and 14° it swings (0.91–1.04 and 0.88–1.04) about means of 0.98 and 0.95.
+- **Its lift falls when it breaks: 345 N at 12°, 314 N at 13°, 306 N at 14°.** I had expected a 5 % point at 9.3–9.9° (item 13), and with the rows to 11° in hand wrote here that the fall of lift in one degree seen on level 5 "does not exist on this surface". It does, three degrees later than level 5 had it.
+- **The gen-2 side stays where it was, within 0.4°**: 5 % below at 8.8° (9.2° on the facets), rows from 9° at the cap and swinging. Its lift goes on rising through the break: 260, 272, 277, 286 N at 8° to 11°.
+- **So the two fins are much further apart than the strip criterion has them.** Criterion: 6.6° and 7.4°, 234 N and 258 N (10 % apart). Simulation on the exact surface: 8.8° and 12.1°, about 270 N and 345 N (28 % apart), the gen-3 fin on 11 % less area.
+- A cambered thin nose is where the faceted surface cost most: three degrees here, against 0.3° on the thick symmetric blade and 0.4° the other way on the flat-inside one. Every earlier polar of a cambered fin in this record (the 3 % camber planform, the candidate, the tip-width pair) is on that surface and is a lower bound on its break by an unknown amount.
+- **Not yet something to build on.** The level check of both fins is running (level 7; items 17, 19 and 20, the last adding the 13° row), and the tunnel fin (next) says this recipe holds a fin at least as long as the tunnel did.
+
+#### The tunnel fin on the exact surface (2026-11-24)
+
+`results-exact-L6-bw04-laptop.json` (1 269 598 cells, mean wall y⁺ 34; level 6, 7 m/s; run on the laptop, whose long wall times are its sleep). The EPYC's run of the same plan has the same row at 4° to four digits (0.4447, 0.0345) and goes on to 16°. Prediction: `nose7-prediction.txt`, item 12.
+
+| | 11° | 12° | 13° | 14° |
+|---|---|---|---|---|
+| lift, level 6, exact surface | 0.8435 | 0.8977 | 0.9496 | 0.9989 |
+| against its line through 0° and 4° (0.2135, 0.4447) | −0.7 % | −1.0 % | −1.6 % | −2.3 % |
+| level 5, faceted surface (`results-L5bw04.json`) | −1.7 % | −1.9 % | −8.2 % | −13.0 % |
+| tunnel [BW04], against its stated line (0.05 per degree from −3.5°) | | on it (0.775) | | −6.3 % (0.82 read off the figure, ±0.03) |
+
+- Rows at 11° to 13° stop settled after 176–186 iterations; 14° runs to the cap and swings between 0.973 and 1.021.
+- **With the surface right, the simulation has this fin within 2.3 % of its line at 14°, where the tunnel has it 6 % below** and level 5 on the facets had it 13 % below. The measured point carries a reading error of ±3.5 %, so at 14° alone the two are about one reading error apart; the tunnel's point at 16° (0.89, 8.7 % below its line) and the EPYC's rows at 15° and 16° will say more.
+- The simulation's line is 16 % steeper than the tunnel's (0.0578 against 0.05 per degree; a third of that is the tunnel wall's boundary layer, `docs/CFD-BENCH.md`), so in lift the simulation carries 0.90 at 12° where the tunnel measured 0.775.
+- **What it means for the other fins.** On level 5 and the faceted surface this recipe read the one measured break about a degree early (12.5° against a tunnel curve that crosses 5 % between 12° and 14°). On level 6 and the exact surface it is level with the measurement or late. The 5 % points of the two side fins above are then upper readings of where a printed fin lets go, and what the recipe is good for is the difference between two fins.
+
+#### Strip loads of the three fins (2026-11-24)
+
+`strip-loads.txt`, runs `gen3-side-sliders-L6x`, `flat-inside-L6x`, `bw04-L6x-laptop` (level 6, exact surface). Prediction: `nose7-prediction.txt`, item 21.
+
+| the strip is 5 % short of the lattice at | z/depth 0.38 | 0.52 | 0.65 | 0.76 | 0.85 | 0.92 |
 |---|---|---|---|---|---|---|
-| gen-3 side, level 5, faceted surface | −2.1 % | −3.9 % | −16.0 % | −17.7 % | −20.6 % | 9.1° |
-| **gen-3 side, level 6, exact surface** | −0.2 % | −0.6 % | −1.6 % | −3.0 % | | **beyond 11°** |
-| gen-2 side, level 6, faceted surface | −1.6 % | −4.0 % | −10.7 % | | −14.3 % | 9.2° |
-| **gen-2 side, level 6, exact surface** | −1.7 % | −5.7 % | −11.1 % | −14.6 % | | **8.8°** |
+| gen-2 side: blade angle | 10.3° | 9.7° | 8.8° | 8.2° | 8.6° | 9.5° |
+| lattice strip lift there | 0.87 | 0.92 | 0.97 | 0.99 | 0.95 | 0.85 |
+| share of the section's limit | 0.55 | 0.60 | 0.66 | 0.70 | 0.68 | 0.62 |
+| gen-3 side: blade angle | 12.7° | 12.2° | 12.1° | 11.7° | 12.0° | 12.2° |
+| lattice strip lift there | 1.17 | 1.25 | 1.28 | 1.18 | 1.08 | 0.97 |
+| share of the section's limit | 0.72 | 0.78 | 0.81 | 0.75 | 0.69 | 0.63 |
+| faces on the nose radius, gen-3 side | 3.2 | 2.7 | 2.4 | 2.3 | 2.1 | 1.8 |
 
-- **The gen-3 side fin's break at 9° to 10° was the surface and the mesh.** On the exact surface every row to 11° stops settled after 166–200 iterations, the lift goes on to 1.02 at 11° (0.90 was the highest anywhere on level 5), and the blade is 3 % below its line there. The fall of lift in one degree that the level-5 polar showed, which was read as a sharp release, does not exist on this surface. I had expected a 5 % point at 9.3–9.9°.
-- **The gen-2 side stays where it was, within 0.4°**: 5 % below at 8.8° (9.2° on the facets), rows from 9° at the cap and swinging. Its break is gradual on both surfaces.
-- **So the two fins are much further apart than the strip criterion has them.** Criterion: 6.6° and 7.4°. Simulation on the exact surface: 8.8° and beyond 11°. At 11° the gen-3 side makes 328 N on 8 690 mm², the gen-2 side 286 N on 9 734 mm².
-- A cambered thin nose is where the faceted surface cost most: more than two degrees here, against 0.3° on the thick symmetric blade and 0.4° the other way on the flat-inside one. Every earlier polar of a cambered fin in this record (the 3 % camber planform, the candidate, the tip-width pair) is on that surface and is a lower bound on its break by an unknown amount.
-- Running: this fin to 14° and on level 7, the tunnel fin, the gen-2 side on level 7 (`nose7-prediction.txt`, items 16–19).
+- **Up to its last attached row each fin's strips are on the lattice**: within 1 % inboard on all three, 3–5 % short at z/depth 0.65–0.85 on the gen-3 fin at 11° and 12°. The two strips at the tip gain 10–80 % on the lattice as the angle rises, as on the symmetric blades.
+- **The most loaded strip's share of its section's limit at the last attached row** (lattice, same mirror): tunnel fin 0.66 at 13° (0.70 at 14°, where its strips at z/depth 0.76 and 0.85 are the first to lose ground); gen-2 side 0.68 at 8° (0.74 at 9°); symmetric t/c 0.080 blade 0.70–0.72; **gen-3 side 0.81 at 12°**. The two flat-inside fins and the symmetric blade let go at one share, about 0.70, on planforms as different as the tunnel fin's and the gen-2 side's: the strip rule carries the planform. The cambered fin holds to 0.81 or more of a limit that is already the highest of the four (1.58 against 1.42 on the gen-2 side's strip). One share for every section, as `bladehydro.knee` has it, reads the cambered fin early by that ratio.
+- **The gen-3 fin lets go all at once, the gen-2 side from the outside in.** On the gen-3 fin every strip from the root to the tip falls 5 % short within 11.7° to 12.8° of blade angle. On the gen-2 side the strips at z/depth 0.65–0.85 go at 8.2° to 8.8°, the ones inboard of them hold to 9.7°, 10.3°, 10.5°, and the root strip is not 5 % short at 11°. That is the fall of lift on the one and the flattening on the other. The lattice's strips alone do not show it: the angles at which the six strips from z/depth 0.38 to 0.92 reach a common share are spread over 3.7° on the gen-3 fin and 4.7° on the gen-2 side. Once the mid-span strips of the gen-3 fin go, their neighbours go with them.
+- **Nose suction before letting go**, lowest pressure coefficient on the strips at z/depth 0.52–0.85: gen-3 side −3.6 to −4.2 (12°), gen-2 side −1.6 to −2.2 (8°), tunnel fin −1.9 to −2.4 (13°), symmetric blade −2.4 to −3.3 (8°). All on level 6, whose faces clip the peak (on the symmetric blade level 7 reads −5.2 where level 6 reads −2.8), so this compares fins only loosely. Both flat-inside fins let go at the same level.
+- **A candidate for the flat-inside level, not tested:** the generator draws a right-angle corner where the flat face meets the outer surface at the nose (`fingen.foil`), and the 3-D surface has it. The table's flat-inside sections were run with that corner rounded to 0.5 mm (`../../section-tables/flat-corner/`: no difference at +2°; not compared at high angles), which is what a sanded print has. So on a flat-inside fin the simulation and the table's section do not have the same nose.
+- **Nose loading is not the difference**: 1.02, 1.05, 1.09, 1.14 at z/depth 0.65 to 0.92 on the gen-3 planform, 1.03, 1.08, 1.14 at 0.76 to 0.92 on the gen-2 planform (`nose_loading.py`).
+- **The face count uses the local section** (corrected 2026-11-24: it had used the base thickness; the gen-3 fin thickens to 1.16 of it at the tip, the gen-2 planform thins to 0.78). The gen-3 fin has 1.8–2.7 level-6 faces on the nose radius of the strips that let go, more than the symmetric blade on which levels 6 and 7 agreed (1.1–1.7). The gen-2 planform with the gen-3 foil has 0.8–1.4: that swap on level 6 is a lower reading until its level-7 run is in.
+- **Running, to take section and planform apart** (laptop, `~/bench-results/levers10`; `nose7-prediction.txt`, items 22–24 and what the strip picture forecasts for them): the gen-2 planform with the gen-3 section, the gen-3 planform with the gen-2 section, and the gen-3 fin with its tip at 0.35 of the base. On the EPYC after the level checks: the gen-2 side to 14° and the tunnel fin on level 7 (items 25, 26).
 
 #### Strip loads from the surface pressure
 
-`strip_loads.py` sums the pressure on the fin patch of a saved row over the lattice's ten strips (`strip-loads.json`: all seven runs; `strip-loads.txt`: the tables), and sets each strip beside the lattice's strip on table v1, run through its sections' ends.
+`strip_loads.py` sums the pressure on the fin patch of a saved row over the lattice's ten strips (`strip-loads.json`: every run; `strip-loads.txt`: the tables; `strip_loads_all.sh` makes both), and sets each strip beside the lattice's strip on table v1, run through its sections' ends.
 
-- **Until a strip lets go, the lattice has every strip's lift within 1–2 %** on the t/c 0.066 and 0.080 blades, at every angle and on every mesh (the t/c 0.050 blade's inboard strips run 2–5 % above the lattice from 5° on). The two strips at the tip are the exception: the one at z/depth 0.97 gains 5–24 % on the lattice as the angle rises, the last is cut off by the mesh's rounded tip. The lift line of a blade is the sum of strips that each behave as the lattice says.
+Corrected 2026-11-24: the case sinks the fin 2 mm below the floor, and the strips were cut 2 mm too far inboard on the fin. With the stations right the numbers of this section moved by 0.03 at most, the face count at the nose is read at the nose of every strip, and the last strip is no longer empty. All runs were extracted again.
+
+- **Until a strip lets go, the lattice has every strip's lift within 1–2 %** on the t/c 0.066 and 0.080 blades, at every angle and on every mesh (the t/c 0.050 blade's inboard strips run 2–5 % above the lattice from 5° on). The two strips at the tip are the exception: the one at z/depth 0.97 gains 5–15 % on the lattice as the angle rises, the last 15–50 %. The lift line of a blade is the sum of strips that each behave as the lattice says.
 - **The strips that let go first are at z/depth 0.76 to 0.92**, by a collapse of the suction peak at the nose while the inboard strips' peaks go on rising. The lattice's strip lift where the simulation's strip is 5 % short:
 
 | | z/depth 0.76 | 0.85 | 0.92 | what the section carries there at the end of its attached range |
 |---|---|---|---|---|
-| t/c 0.050, level 5 | 0.58 | 0.56 | 0.49 | 0.53–0.51 |
-| t/c 0.050, level 6 | 0.55 | 0.46 | 0.47 | |
-| t/c 0.066, level 5 | 0.58 | 0.49 | 0.47 | 0.71–0.68 |
-| t/c 0.066, level 5, 5 m/s | 0.56 | 0.47 | 0.49 | |
-| t/c 0.080, level 5 | 0.62 | 0.50 | 0.49 | 0.97–0.92 |
-| t/c 0.080, level 6 | 0.63 | 0.58 | 0.50 | |
-| t/c 0.080, level 7 | 0.70 | 0.66 | 0.68 | |
+| t/c 0.050, level 5 | 0.58 | 0.55 | 0.49 | 0.53–0.51 |
+| t/c 0.050, level 6 | 0.57 | 0.44 | 0.47 | |
+| t/c 0.066, level 5 | 0.61 | 0.48 | 0.46 | 0.71–0.68 |
+| t/c 0.066, level 5, 5 m/s | 0.58 | 0.47 | 0.48 | |
+| t/c 0.080, level 5 | 0.65 | 0.50 | 0.48 | 0.97–0.92 |
+| t/c 0.080, level 6 | 0.63 | 0.57 | 0.50 | |
+| t/c 0.080, level 7 | 0.71 | 0.66 | 0.68 | |
 
   The same level on three thicknesses, two meshes and two speeds is what a nose the mesh cannot see produces; level 7 lifts it at the two strips that go first. (Rows that swing are one instant of the swing: ±0.05 on these numbers.)
 - **The suction peak itself was clipped.** Lowest pressure coefficient on the strips at z/depth 0.65–0.92 at 7°, before any of them has let go: −2.2 to −2.9 on level 6, −3.4 to −4.1 on level 7.

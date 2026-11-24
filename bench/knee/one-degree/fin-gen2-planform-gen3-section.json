@@ -1,0 +1,46 @@
+{
+ "fin": {
+  "outline": {
+   "depth": 139.99994698314623,
+   "base": 123.49867679477296,
+   "sweep": 28.013933890380756,
+   "tip_width_ratio": 0.37126371935226554,
+   "le_fullness": 0.16555211840572628,
+   "te_shape": 0.017722349267631277,
+   "le_dx": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "te_dx": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "foil": {
+   "family": "cambered",
+   "thickness_ratio": 0.08346834034093867,
+   "camber_ratio": 0.044826588806811576,
+   "camber_position": 0.4,
+   "te_thickness": 0.7
+  },
+  "thickness_tip_factor": 0.7836797893888201,
+  "grooves": {
+   "count": 0,
+   "length": 60.0,
+   "pitch": 6.0,
+   "width": 3.0,
+   "depth_ratio": 0.35,
+   "span_start": 0.45,
+   "surface": "outer"
+  }
+ },
+ "note": "the shipped gen-2 side (bench/mount/fins/side-shipped-gen2.json) with the foil of the gen-3 side fin (bench/design-points/cfd/fin-sliders.json): cambered 4.5 %, t/c 0.083"
+}

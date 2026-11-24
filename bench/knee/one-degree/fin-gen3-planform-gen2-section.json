@@ -1,0 +1,46 @@
+{
+ "fin": {
+  "outline": {
+   "depth": 139.99600129588345,
+   "base": 104.00458086728334,
+   "sweep": 25.93739104922339,
+   "tip_width_ratio": 0.599978775888063,
+   "le_fullness": 0.41942653641172806,
+   "te_shape": -0.2207044869216812,
+   "le_dx": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "te_dx": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "foil": {
+   "family": "flat_inside",
+   "thickness_ratio": 0.09211512693674807,
+   "camber_ratio": 0.0,
+   "camber_position": 0.4,
+   "te_thickness": 0.7
+  },
+  "thickness_tip_factor": 1.1574069355355106,
+  "grooves": {
+   "count": 0,
+   "length": 60.0,
+   "pitch": 6.0,
+   "width": 3.0,
+   "depth_ratio": 0.35,
+   "span_start": 0.45,
+   "surface": "outer"
+  }
+ },
+ "note": "the gen-3 side fin (bench/design-points/cfd/fin-sliders.json) with the foil of the shipped gen-2 side (bench/mount/fins/side-shipped-gen2.json): flat inside, t/c 0.092"
+}

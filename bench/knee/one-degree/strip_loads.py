@@ -8,7 +8,8 @@ patch's points and faces and the kinematic pressure at the points, at the row's 
 a swinging row is one instant of it) and adds to the JSON, per angle and per lattice strip (the
 ten strips of `bladehydro`, by span station): the pressure force across the chord plane over
 (q c dz), the lowest pressure coefficient, and the median face size at the nose (first 1 % of
-chord). Friction is not in it. The fin's tip is rounded off in the mesh, so the last strip is empty.
+chord). Stations are the fin's: the case sinks it 2 mm below the floor, so its innermost 2 mm are
+not in the flow. Friction is not in it. The fin's tip is rounded off in the mesh, so the last strip is empty.
 
 `table` prints, from the JSON: each strip's CFD lift over the lattice's (table v1, perfect mirror,
 run through its sections' ends), normalised by the same ratio at the lowest angle; and per strip
@@ -26,6 +27,9 @@ import numpy as np
 
 from fingen import bladehydro, lattice
 from fingen.optimize import fin_from_dict
+
+
+SINK_M = 0.002   # the case sinks the fin 2 mm below the floor (fincfd.case.write_case)
 
 
 def read_vtk(path: Path) -> tuple[np.ndarray, list[np.ndarray], np.ndarray]:
@@ -76,10 +80,11 @@ def extract(fin_path: str, base: Path, run: str, out: Path) -> None:
             cen[k], av[k], pf[k] = c, a, p[face].mean()
         fy = pf * av[:, 1]
         sgn = 1.0 if fy.sum() > 0 else -1.0
-        idx = np.searchsorted(edges, cen[:, 2]) - 1
+        zf = cen[:, 2] + SINK_M                                   # station on the fin
+        idx = np.searchsorted(edges, zf) - 1
         x0 = pts[:, 0].min() * 1e3 - x_le.min()
-        s = (cen[:, 0] * 1e3 - x0 - np.interp(cen[:, 2] * 1e3, z, x_le)) \
-            / np.interp(cen[:, 2] * 1e3, z, chord)
+        s = (cen[:, 0] * 1e3 - x0 - np.interp(zf * 1e3, z, x_le)) \
+            / np.interp(zf * 1e3, z, chord)
         size = np.sqrt(np.linalg.norm(av, axis=1)) * 1e3
         force, cpmin, nose = [], [], []
         for k in range(len(blade.dz)):
@@ -116,13 +121,20 @@ def table(fin_path: str, speed: float, run: str, src: Path) -> None:
         got.append((a, cfd, ld.cl_local.copy(), ld.alpha_eff_deg.copy(),
                     [None if v is None else v / q for v in rows[key]["lowest_p_kinematic"]]))
     nose = rows[sorted(rows, key=float)[0]]["nose_face_mm"]
-    radius = 1.1019 * fin.foil.thickness_ratio ** 2 * blade.chord * 1e3
+    # nose radius of the local section (the thickness schedule runs to the tip factor); a
+    # flat-inside section's outer surface is the upper half of a section twice as thick,
+    # and its other side meets the flat face in a corner no radius describes
+    t_local = fin.foil.thickness_ratio * (1.0 + (fin.thickness_tip_factor - 1.0) * blade.z_mid / blade.depth)
+    if fin.foil.family.value == "flat_inside":
+        t_local = 2.0 * t_local
+    radius = 1.1019 * t_local ** 2 * blade.chord * 1e3
 
     def row(label: str, vals, fmt: str = "{:6.2f}") -> None:
         print(f"{label:22s}" + " ".join(
             "     –" if v is None or not np.isfinite(v) else fmt.format(v) for v in vals))
 
-    print(f"{run}: symmetric t/c {fin.foil.thickness_ratio}, {speed} m/s")
+    print(f"{run}: {fin.foil.family.value}, t/c {fin.foil.thickness_ratio:.3f}, "
+          f"camber {fin.foil.camber_ratio:.3f}, {speed} m/s")
     row("strip z/depth", blade.z_mid / blade.depth)
     row("chord mm", blade.chord * 1e3, "{:6.1f}")
     row("faces per nose radius", [None if v is None else r / v

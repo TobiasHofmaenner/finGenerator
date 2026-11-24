@@ -730,9 +730,10 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   a kilowatt; fatigue, feel and an earlier spin-out are the costs to look at.
   A second measure the same lattice could give, raised by the same question:
   how a fin lets go, as the spread of angles at which its strips reach their
-  limits. (Withdrawn, 2026-11-24: the example first given here, the gen-3
-  side's lift falling by 6 % from 9° to 10° on level 5, was the faceted
-  surface. On the exact surface that fin is attached and steady to 11°.)
+  limits. (The example first given here, the gen-3 side's lift falling by
+  6 % from 9° to 10° on level 5, was the faceted surface. On the exact
+  surface the fall is at 12° to 13°, 9 %, and the gen-2 side has none; the
+  lattice's strips one by one do not show the difference, below.)
   *In, 14:06Z: on the exact surface levels 6 and 7 agree* (lift within 0.8 %
   at every row; the t/c 0.080 blade is 5 % below its line at 9.0–9.1°). The
   drift 8.5°, 8.7°, 9.4° over three levels was the surface, not the mesh. That
@@ -741,21 +742,44 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   at 0.61–0.72 of what their sections carry. The thinner blades of the series
   are not rerun yet, so the three readings stay open.
   *In, 2026-11-24, level 6 on the exact surface:* the gen-2 side is 5 % below
-  its line at 8.8° (9.2° on the facets). The gen-3 side fin is not within 5 %
-  of leaving its line by 11° (3 % below, steady, lift 1.02), where its
-  level-5 polar on the facets had it break at 9.1° with a fall of lift: that
-  break was the surface. The strip criterion has the two fins at 6.6° and
-  7.4°; the simulation now has them at 8.8° and beyond 11°, so the criterion
-  under-rates the cambered fin against the flat-inside one by more than two
-  degrees, and every earlier polar of a cambered fin is a lower bound on its
-  break. Nothing in the library is changed on this yet: it needs the level
-  check and the tunnel fin first.
-  *Running:* the gen-3 side to 14° and on level 7, the tunnel fin, the gen-2
-  side on level 7 (`bench/knee/one-degree/nose7-prediction.txt`, items
-  16–19); rows behind the upper end
-  on seventeen sections, because past 10° the lattice falls short on the
-  thin centre where the table levels a thin section's lift off and the
-  referee has it rising on.
+  its line at 8.8° (9.2° on the facets) and its lift goes on rising through
+  the break. The gen-3 side fin is attached and steady to 12° (4 % below its
+  line, lift 1.07) and breaks between 12° and 13°, where its lift falls by
+  9 % (345 N to 314 N): the break its level-5 polar on the facets showed at
+  9° to 10° was the surface, by three degrees, and the fall of lift is real
+  but comes that much later. The tunnel fin, at 7 m/s, is within 2.3 % of its
+  line at 14°, where the tunnel reads 6 % below (±3.5 % of reading error): on
+  the exact surface the recipe holds the one measured fin at least as long
+  as the tunnel did, so the simulation's breaks are upper readings and the
+  difference between two fins is what it is good for.
+  The strip criterion has the two side fins at 6.6° and 7.4°, 10 % apart in
+  force; the simulation has them at 8.8° and 12.1°, 28 % apart, the gen-3 fin
+  on 11 % less area. The strips say why (`strip_loads.py`): the most loaded
+  strip is at about 0.70 of its section's limit when the tunnel fin, the
+  gen-2 side and the thick symmetric blade let go, three planforms and two
+  section families at one share, and at 0.81 on the cambered gen-3 fin. So
+  the rule's planform reading holds, and one share for every section reads a
+  cambered fin early. The gen-3 fin also lets go along its whole span within
+  one degree, the gen-2 side from the outside in over more than two, which
+  the lattice's strips taken one by one do not show. A flat-inside section as
+  the generator draws it has a right-angle corner at the nose of its flat
+  face; the table's flat-inside sections were run with that corner rounded
+  to 0.5 mm, so there the simulation and the table do not have the same
+  nose (not tested in three dimensions).
+  Nothing in the library is changed on this yet. Before `KNEE_FRACTION`
+  becomes a share per section family (and `HOLD_FLOOR_KNEE`, the hold anchor
+  and the quiz's hold scale are read again in the same change): the level
+  check of both side fins, and the swaps that take section and planform
+  apart.
+  *Running:* level 7 on the gen-3 side (with the 13° row) and the gen-2 side,
+  the tunnel fin to 16° and on level 7, the gen-2 side to 14°; on the laptop
+  the gen-2 planform with the gen-3 section, the gen-3 planform with the
+  gen-2 section, and the gen-3 fin with a narrow tip
+  (`bench/knee/one-degree/nose7-prediction.txt`, items 17–26).
+  *In, not yet in the table:* rows behind the upper end on seventeen
+  sections (`bench/section-tables/rerun-held`), run because past 10° the
+  lattice falls short on the thin centre where the table levels a thin
+  section's lift off and the referee has it rising on.
 - `[ ]` **2b.2 Twin.** (a) Set CFD of a twin (two keel-type side fins at
   production toe and cant) over leeway at two speeds, per-fin forces: the load
   share, the toe at which the pair makes no net side force going straight,

@@ -119,3 +119,79 @@ Items 13 and 14 as found (level 6, exact surface, EPYC; lift against the line th
     right, holds a flat-inside fin longer than the tunnel measured.
 19. gen-2 side, level 7 exact, rows 4, 8, 9, 10 deg: within 1 % of level 6 exact (0.7227, 0.7544, 0.7690) if level 6
     has it; 9 and 10 deg swing, so 2 % there.
+
+Written 2026-11-24 08:53Z, with rows 12-14 of the gen-3 side fin (EPYC) and the tunnel fin's laptop polar read, BEFORE the runs below.
+
+Items 16 and 12 as found (level 6, exact surface; lift against the line through 0 and 4 deg).
+16. gen-3 side fin, rows 12, 13, 14 deg (EPYC): 1.0729 / 0.9760 / 0.9515, that is -4.0 % / -17.6 % / -23.9 %.
+    12 deg ran to the cap but holds to 1.0708..1.0756 over the last window; 13 and 14 deg swing (0.91..1.04,
+    0.88..1.04) about means 9-11 % BELOW the lift at 12 deg. 5 % point 12.1 deg: the second alternative of
+    item 16 ("breaks like the others, a few degrees after the criterion: 12-13 deg"). The lift falls in the
+    next degree; the gen-2 side's does not (0.7227 / 0.7544 / 0.7690 / 0.7935 at 8-11 deg).
+12. the tunnel fin [BW04] on the laptop (1 269 598 cells, y+ 34, 7 m/s): 0.2135 / 0.4447 at 0 / 4 deg;
+    0.8435 / 0.8977 / 0.9496 / 0.9989 at 11 / 12 / 13 / 14 deg = -0.7 / -1.0 / -1.6 / -2.3 %. 14 deg at the cap,
+    swinging 0.973..1.021. The tunnel: on its line (slope 0.05 per deg as stated) at 12 deg, 0.82 at 14 deg
+    read off the figure (+-0.03), 6.3 % (+-3.5) below. No 5 % point by 14 deg in the simulation. Level 5 on
+    the facets had 8.2 % below at 13 deg.
+
+20. gen-3 side fin, level 7 exact: row 13 deg added to rows 4, 10, 11, 12 (the level check of the break itself).
+    If level 6 has the break: within 1 % of level 6 at 10, 11, 12 deg (0.9687, 1.0197, 1.0729) and at 13 deg a
+    swinging row with a mean below the lift at 12 deg.
+    If the break at 12-13 deg is the mesh's again: 13 deg steady with lift above 1.10.
+21. Strip loads of the gen-3 side and the gen-2 side from the level-6 exact rows. The lattice has the gen-3
+    fin's most loaded strip (strip 4 of 10) at 0.606 of its section's limit at 7.4 deg, so at about 0.83 of it
+    at 12 deg; the gen-2 side's (strip 5) at about 0.74 at 8.8 deg. Expected: strips within 3 % of the lattice's
+    lift up to the last attached row; on the gen-3 fin the first strips to fall short at 13 deg are the outer
+    ones (z/depth 0.65-0.92), as on the symmetric blades.
+
+Three swaps, level 6 exact, 8.5 m/s, on the laptop (criterion on the simulation's mirror in brackets:
+knee angle / lift coefficient there). In lift the criterion has the planform as the whole difference between
+the two fins (0.65 against 0.80) and the section as none; the simulation has 0.75 against 1.07 at the 5 % points.
+22. gen-2 planform with the gen-3 section (4.5 % camber, t/c 0.083) [5.6 deg / 0.650; gen-2 side 6.6 deg / 0.649].
+    If the criterion reads the section right: 5 % point at the gen-2 side's lift (0.75), which this fin
+    reaches at about 7.7 deg.
+    If the cambered section is what carries the gen-3 fin: 5 % point at a lift above 0.85, beyond 9.5 deg.
+23. gen-3 planform with the gen-2 section (flat inside, t/c 0.092) [7.6 deg / 0.788; gen-3 side 7.4 deg / 0.803].
+    If the planform carries it: 5 % point at a lift near 1.0, at 11.5-12.5 deg.
+    If the section does: at a lift of 0.80-0.90, at 9-10 deg.
+24. gen-3 side fin with its tip at 0.35 of the base [5.6 deg / 0.694; tip 0.60: 7.4 deg / 0.803]. On the facets,
+    level 5: 7.6 deg against 9.1 deg. On the exact surface tip 0.60 is at 12.1 deg.
+    If the tip lever is what the criterion says (1.8 deg, 14 % in lift): 5 % point at 10-10.5 deg.
+    If the pair's difference was the facets on a short chord: within 1 deg of 12.1.
+
+Added 2026-11-24 09:26Z, with the strip loads of the level-6 exact rows read (gen-2 side, gen-3 side, tunnel fin) and
+after the first swap run (item 22) had rows at 4, 0, 7 and 8 deg, which I saw only as this was written
+(0.5550 / 0.3039 / 0.7398 / 0.7939: 0.5 % and 1.5 % below its line at 7 and 8 deg); no row of items 23, 24 exists.
+21 as found: strips are on the lattice (within 1-5 %) to each fin's last attached row. The most loaded strip's
+    share of its section's limit at that row, and one degree on: tunnel fin 0.66 at 13 deg (0.70 at 14, where
+    its strips at z/depth 0.76-0.85 begin to fall short); gen-2 side 0.68 at 8 deg (0.74 at 9); gen-3 side
+    0.81 at 12 deg; the symmetric t/c 0.080 blade 0.70-0.72. The two flat-inside fins let go at the same share
+    (about 0.70) on very different planforms; the cambered fin holds to 0.81 or more. On the gen-3 fin every
+    strip from root to tip falls short within 11.7-12.8 deg; on the gen-2 side the outer ones go at 8.2-8.8 deg
+    and the inboard ones hold to 10.5 deg and beyond.
+If the share goes with the section (0.70 flat inside, 0.81 cambered) and the lattice has the planforms right:
+22'. gen-2 planform with the gen-3 section: 5 % point at 9.3-9.8 deg, at a lift of 0.86-0.90.
+23'. gen-3 planform with the gen-2 section: 5 % point at 9.6-10.2 deg, at a lift of 0.89-0.93.
+24'. gen-3 side, tip 0.35: its most loaded strip reaches 0.81 at about 9.1 deg; 5 % point at 9.3-9.8 deg.
+
+Added 2026-11-24 09:30Z: a count I should have made before item 22 started. The gen-2 planform thins to 0.78 of its base
+thickness at the tip, so with the gen-3 foil its outer strips are t/c 0.067-0.072, not 0.083: nose radius 0.15-0.29 mm
+at z/depth 0.65-0.92, which is 0.8-1.4 level-6 faces (the symmetric t/c 0.080 blade, where levels 6 and 7 agreed,
+had 1.1-1.7; the gen-3 side fin has 1.8-2.7, its tip thickens). Item 22 on level 6 is therefore a lower reading
+of that fin's break until level 7 has been run on it (queued on the laptop behind items 23 and 24: rows 4, 8-12 deg).
+22''. level 7 against level 6 on the swap fin: within 1 % per row if level 6 has it; a later break if not.
+
+Written 2026-11-24 09:02Z, BEFORE the EPYC's follow-up queue (nose10, started when nose9 ends).
+
+25. gen-2 side, level 6 exact, rows 12, 13, 14 deg added (its mesh is on the EPYC). The question is what each
+    fin carries after its break. Gen-3 side: 345 N at 12 deg, then 314 and 306 N at 13 and 14 deg (swinging).
+    Gen-2 side so far: 0.7227 / 0.7544 / 0.7690 / 0.7935 at 8-11 deg, 286 N at 11 deg.
+    Expected: lift goes on rising slowly, 0.80-0.83 at 12 deg, 0.82-0.86 at 13, 0.83-0.88 at 14 (300-315 N at
+    13 deg), no row below the one before it by more than 2 %. Then the two fins carry the same force from
+    13 deg on, and the gen-3 fin's fall is a fall back to the gen-2 side's level, not below it.
+26. the tunnel fin [BW04], level 7 exact, 7 m/s, rows 4, 13, 14, 15, 16 deg: the level check on a flat-inside
+    nose, whose corner at the flat face no mesh resolves. Level 6: 0.4447 at 4 deg, 0.9496 at 13, 0.9989 at 14
+    (swinging 0.973..1.021).
+    If level 6 has it: within 1 % at 4 and 13 deg, within 2.5 % at 14.
+    If the corner is being rounded off by the level-6 faces: level 7 leaves its line earlier (more than 3 %
+    below level 6 at 13 or 14 deg).
