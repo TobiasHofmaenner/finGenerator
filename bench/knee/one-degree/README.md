@@ -173,6 +173,23 @@ The case builder exported with the library's default tolerance, which is relativ
 - **Reproduced on the surface as it is written now and on another machine** (`results-exact-L6-sym-tc080-laptop.json`; absolute deflection of 1 µm, 0.7 million triangles, 12 processes on the laptop): 0.2527 at 4° and 0.5401 at 9° against 0.2527 and 0.5404, 1 057 339 cells against 1 057 207.
 - **What that is and is not.** It is this recipe's answer for this blade, no longer the mesh's or the surface's: wall functions, a boundary layer turbulent from the nose. It is two degrees after the strip criterion's onset (6.9°) and four before the lattice run through its sections' ends (13.2°). Whether the gap to the sections' ends is the blade (three dimensions) or the recipe (wall functions against the table's resolved wall) is not separated by it. The thinner blades of the series have not been rerun on the exact surface, so the three readings stay open.
 
+#### The gen-3 side fin and the gen-2 side on the exact surface (2026-11-24)
+
+`results-exact-L6-gen3-side.json` (1 206 026 cells, mean wall y⁺ 40), `results-exact-L6-gen2-side.json` (1 009 563 cells, y⁺ 48); level 6, 8.5 m/s. Predictions: `nose7-prediction.txt`, items 13 and 14, and what was found under item 16's date.
+
+| lift against the line through 0° and 4° | 8° | 9° | 10° | 11° | 12° | 5 % below at |
+|---|---|---|---|---|---|---|
+| gen-3 side, level 5, faceted surface | −2.1 % | −3.9 % | −16.0 % | −17.7 % | −20.6 % | 9.1° |
+| **gen-3 side, level 6, exact surface** | −0.2 % | −0.6 % | −1.6 % | −3.0 % | | **beyond 11°** |
+| gen-2 side, level 6, faceted surface | −1.6 % | −4.0 % | −10.7 % | | −14.3 % | 9.2° |
+| **gen-2 side, level 6, exact surface** | −1.7 % | −5.7 % | −11.1 % | −14.6 % | | **8.8°** |
+
+- **The gen-3 side fin's break at 9° to 10° was the surface and the mesh.** On the exact surface every row to 11° stops settled after 166–200 iterations, the lift goes on to 1.02 at 11° (0.90 was the highest anywhere on level 5), and the blade is 3 % below its line there. The fall of lift in one degree that the level-5 polar showed, which was read as a sharp release, does not exist on this surface. I had expected a 5 % point at 9.3–9.9°.
+- **The gen-2 side stays where it was, within 0.4°**: 5 % below at 8.8° (9.2° on the facets), rows from 9° at the cap and swinging. Its break is gradual on both surfaces.
+- **So the two fins are much further apart than the strip criterion has them.** Criterion: 6.6° and 7.4°. Simulation on the exact surface: 8.8° and beyond 11°. At 11° the gen-3 side makes 328 N on 8 690 mm², the gen-2 side 286 N on 9 734 mm².
+- A cambered thin nose is where the faceted surface cost most: more than two degrees here, against 0.3° on the thick symmetric blade and 0.4° the other way on the flat-inside one. Every earlier polar of a cambered fin in this record (the 3 % camber planform, the candidate, the tip-width pair) is on that surface and is a lower bound on its break by an unknown amount.
+- Running: this fin to 14° and on level 7, the tunnel fin, the gen-2 side on level 7 (`nose7-prediction.txt`, items 16–19).
+
 #### Strip loads from the surface pressure
 
 `strip_loads.py` sums the pressure on the fin patch of a saved row over the lattice's ten strips (`strip-loads.json`: all seven runs; `strip-loads.txt`: the tables), and sets each strip beside the lattice's strip on table v1, run through its sections' ends.

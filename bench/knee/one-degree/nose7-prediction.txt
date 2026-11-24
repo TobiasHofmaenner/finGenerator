@@ -96,3 +96,26 @@ Written 2026-11-23 16:13Z, BEFORE the laptop runs (the EPYC is on hold; items 12
 
 Found (16:48Z): 0.2527 at 4 deg and 0.5401 at 9 deg (EPYC, first version of the surface: 0.2527, 0.5404), 1 057 339 cells
 against 1 057 207, mean wall y+ 44.95 against 44.99. The surface as written now and the laptop reproduce the filed result.
+
+Written 2026-11-24 07:51Z, with the EPYC's level-6 exact-surface polars of the gen-3 side fin and the gen-2 side read, BEFORE the runs below.
+
+Items 13 and 14 as found (level 6, exact surface, EPYC; lift against the line through 0 and 4 deg).
+13. gen-3 side fin (1 206 026 cells, y+ 40): 8 deg -0.2 %, 9 deg -0.6 %, 10 deg -1.6 %, 11 deg -3.0 %; every row
+    stops settled after 166-200 iterations; lift 1.02 at 11 deg. No 5 % point within the polar. I had expected
+    9.3-9.9 deg and asked whether the lift still falls in one degree: it does not fall at all. The level-5 polar on
+    the faceted surface (3.9 % below at 9 deg, 16 % at 10) was the surface and the mesh, by more than two degrees.
+14. gen-2 side (1 009 563 cells, y+ 48): 8 deg -1.7 % (settled), 9 deg -5.7 %, 10 deg -11.1 %, 11 deg -14.6 % (at the
+    cap, swinging); 5 % point 8.8 deg. Expected 9.2-9.6; it moved 0.4 deg the other way from level 6 on the facets.
+
+16. gen-3 side fin, level 6 exact, rows 12, 13, 14 deg added. The lattice on table v1 run through its sections' ends
+    has this blade 5 % below its line at 17.3 deg; the strip criterion puts its knee at 7.4 deg.
+    If the blade now follows its sections: under 6 % below its line at 14 deg.
+    If it breaks like the others, a few degrees after the criterion: 5 % point at 12-13 deg.
+17. gen-3 side fin, level 7 exact, rows 4, 10, 11, 12 deg: the level check for a cambered thin nose.
+    If level 6 has it: lift within 1 % of level 6 at each row.
+18. The tunnel fin [BW04], level 6 exact, 7 m/s, rows 0, 4, 11, 12, 13, 14, 15, 16 deg (item 12 again, on the EPYC;
+    the laptop slept through the night). Tunnel: on its line at 12 deg, 6 % below at 14. Level 5, faceted: 12.5 deg.
+    After the gen-3 fin the question is sharper: a 5 % point past 14 deg means the simulation, once its surface is
+    right, holds a flat-inside fin longer than the tunnel measured.
+19. gen-2 side, level 7 exact, rows 4, 8, 9, 10 deg: within 1 % of level 6 exact (0.7227, 0.7544, 0.7690) if level 6
+    has it; 9 and 10 deg swing, so 2 % there.

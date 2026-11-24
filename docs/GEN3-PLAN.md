@@ -729,11 +729,10 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   vibration takes is estimated at the order of 10 W against a drag power above
   a kilowatt; fatigue, feel and an earlier spin-out are the costs to look at.
   A second measure the same lattice could give, raised by the same question:
-  how a fin lets go. On levels 5 and 6 the gen-3 side's lift falls by 6 %
-  from 9° to 10° where the gen-2 side's flattens (0.72, 0.77, 0.77, 0.83 at
-  8°, 9°, 10°, 12°): a search that evens out the strips for hold makes them
-  reach their limits together. Nothing scores that; the spread of angles at
-  which the strips reach their limits would.
+  how a fin lets go, as the spread of angles at which its strips reach their
+  limits. (Withdrawn, 2026-11-24: the example first given here, the gen-3
+  side's lift falling by 6 % from 9° to 10° on level 5, was the faceted
+  surface. On the exact surface that fin is attached and steady to 11°.)
   *In, 14:06Z: on the exact surface levels 6 and 7 agree* (lift within 0.8 %
   at every row; the t/c 0.080 blade is 5 % below its line at 9.0–9.1°). The
   drift 8.5°, 8.7°, 9.4° over three levels was the surface, not the mesh. That
@@ -741,9 +740,19 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   criterion's onset, four before its sections' ends; its outer strips let go
   at 0.61–0.72 of what their sections carry. The thinner blades of the series
   are not rerun yet, so the three readings stay open.
-  *Running:* level 6 on the exact surface for the tunnel fin, the gen-3 side
-  fin and the gen-2 side (`bench/knee/one-degree/nose7-prediction.txt`, items
-  12–14); rows behind the upper end
+  *In, 2026-11-24, level 6 on the exact surface:* the gen-2 side is 5 % below
+  its line at 8.8° (9.2° on the facets). The gen-3 side fin is not within 5 %
+  of leaving its line by 11° (3 % below, steady, lift 1.02), where its
+  level-5 polar on the facets had it break at 9.1° with a fall of lift: that
+  break was the surface. The strip criterion has the two fins at 6.6° and
+  7.4°; the simulation now has them at 8.8° and beyond 11°, so the criterion
+  under-rates the cambered fin against the flat-inside one by more than two
+  degrees, and every earlier polar of a cambered fin is a lower bound on its
+  break. Nothing in the library is changed on this yet: it needs the level
+  check and the tunnel fin first.
+  *Running:* the gen-3 side to 14° and on level 7, the tunnel fin, the gen-2
+  side on level 7 (`bench/knee/one-degree/nose7-prediction.txt`, items
+  16–19); rows behind the upper end
   on seventeen sections, because past 10° the lattice falls short on the
   thin centre where the table levels a thin section's lift off and the
   referee has it rising on.
