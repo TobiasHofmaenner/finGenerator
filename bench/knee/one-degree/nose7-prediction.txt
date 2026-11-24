@@ -283,6 +283,11 @@ Items 17 and 20 as found (EPYC, level 7, exact surface; 1 431 211 cells, mean wa
 What this does to the tunnel fin's agreement on level 6 is item 26's to say (level 7, rows 12-14 deg, queued
 next): if level 7 holds that fin steady at 14 deg, level 6 agreed with the tunnel by being too coarse.
 
+2026-11-24 11:50Z: item 33 does not go to the EPYC as the recipe stands. The laptop probe (2 processes, the gen-3 side fin at 12
+deg): 2 151 516 cells, peak 4.1 GiB, but the mesher ends "with 3115616 illegal faces" (29 faces over 65 deg of
+non-orthogonality, 26 collapsed ones, where levels 6 and 7 end without any) and the solver diverges at iteration 18.
+Level 8 needs work on the recipe before it can say anything; so whether level 7 has this fin's break is open.
+
 Item 19 as found, 11:48Z (EPYC, level 7 exact; 1 215 487 cells, mean wall y+ 39): gen-2 side 0.4758 / 0.7179 at 4 / 8
 deg (level 6: 0.4764 / 0.7226), window means 0.744-0.763 at 9 deg (0.744-0.755) and 0.771-0.780 at 10 deg
 (0.769-0.775). Within 1 % at the settled rows and inside each other's swing at the others: level 6 has this fin.
