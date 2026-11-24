@@ -343,6 +343,23 @@ Level 6, exact surface, 8.5 m/s, on the laptop (`~/bench-results/levers10`). Pre
 - Like the gen-3 side, this fin's strips are all 5 % short within one degree of each other (11.1° to 11.8°, read between the rows at 11° and 12°, the second of them past the break).
 - **Limits of this table.** Level 6 only. The cambered section on the gen-2 planform is a lower reading (above). On level 7 the gen-3 side reads 13.0–13.1° at 1.14, which would put the section at ×1.16 on the gen-3 planform, on a mesh that is flagged. Nothing in `bladehydro.knee` is changed by it yet.
 
+#### The narrow tip on the exact surface: 8°, and not yet believed (2026-11-24, 16:20Z)
+
+The gen-3 side fin with its tip at 0.35 of the base instead of 0.60 (`fin-gen3-tip035.json`, 8 095 mm²), level 6, exact surface, volume as meshed, on the laptop (`results-exact-L6-gen3-tip035.json`: 1 155 529 cells, no flagged faces, snap residual 0.42 µm, mean wall y⁺ 39). Prediction: `nose7-prediction.txt`, item 24 and the two forecasts under it.
+
+| lift against the line through 0° and 4° | 8° | 9° | 10° | 11° | 12° | 13° | 5 % below at | lift there |
+|---|---|---|---|---|---|---|---|---|
+| gen-3 side, tip 0.60 (above) | −0.2 % | −0.6 % | −1.6 % | −3.0 % | −4.0 % | −17.6 % | 12.1° | 1.07 |
+| **the same, tip 0.35** | −5.3 % (−3.1 to −5.4 over three windows) | −8.0 % | −10.3 % | −12.1 % | −16.3 % | −18.7 % | at or just before 8° | 0.81 |
+
+(0.3234 and 0.5908 at 0° and 4°; 0.8131, 0.8509, 0.8899, 0.9310, 0.9416, 0.9698 from 8° to 13°. Every row from 8° on ran to the iteration cap and swings by 1.5–2.5 %. There is no row between 4° and 8° yet: 6° and 7° are running, item 45.)
+
+- **None of the forecasts.** The criterion's lever said 10–10.5° (1.8° before the wide tip), the strip share 9.3–9.8°, the strip incidence 10.0–10.5°, and "the pair's difference was the facets" within a degree of 12.1°. The fin leaves its line four degrees before its twin, at a lift of 0.81 against 1.07: a ratio of 0.76 where the criterion has 0.86.
+- **It is the outer quarter of the span** (`strip-loads.txt`, run `gen3-side-tip035-L6x`). The four strips at z/depth 0.76–0.97 (chords 32 to 18 mm) carry 0.76–0.81 of the lattice's lift at 8°, normalised at 4°, and fall 5 % short at 4.8–5.1° of blade angle, at 0.42–0.57 of their sections' limit and 1.2–3.7° of section incidence. No strip of any other fin in this record lets go below 0.66 of its limit. Inboard of z/depth 0.52 the strips hold to 11–12.6°.
+- **Those four strips are the coarsest in the record, twice over.** Faces per nose radius: 1.6, 1.4, 1.25, 1.0 (the wide tip: 1.8–2.7). And the volume: as meshed the cells are 0.33 mm from 3 mm off the wall and 0.65 mm from 7 mm, a 150th of the root chord and a 50th of these. The volume moved the tunnel fin's break by two degrees with a tip chord of 45 mm (above). I had counted neither before the run.
+- **The exact surface moved the wide tip and not the narrow one.** On the facets at level 5 the pair read 9.1° and 7.6° (lines through 0° and 6°); on the exact surface at level 6, 12.1° and about 8°. A blade whose noses are still under-resolved after the change would do that.
+- **So 8° is a lower reading of this fin's break**, as the cambered section on the gen-2 planform is. Queued on the EPYC (items 46, 47): this fin with the volume shells, and on level 7. If neither moves it, the tip lever is about twice what the strip rule reads, and the rule is wrong for narrow tips.
+
 #### What a blade does to a strip's nose
 
 On a finite blade a strip carries more of its lift at the nose than the same section in two dimensions, more so toward the tip of a swept blade ([Pol96]; at the root of rectangular wings 1.08 to 1.36 times at aspect ratios 2.5 to 1.0, computed and borne out by measured nose pressures at 1.4 and 1.0), and separation at the nose follows that loading, not the strip's lift. `nose_loading.py` reads it off the lattice (first chordwise panel's share of the strip's circulation over a two-dimensional plate's): on the gen-2 planform 1.03 at z/depth 0.76, 1.08 at 0.85, 1.14 at 0.92, 1.24 at 0.97; on the tunnel fin 1.11, 1.17, 1.23, 1.33. The strip criterion compares strip lift with the section's limit and has neither this nor the sweep factor of the measured swept-wing record ([Maki51], [HM64]; `../../section-gate/measured/README.md`). Both are known, parameter-free terms; the one fitted number (0.606 on the tunnel fin) presently stands in for them and for the table's sections ending later than measured ones.

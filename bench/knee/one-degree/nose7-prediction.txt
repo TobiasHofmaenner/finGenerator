@@ -473,3 +473,45 @@ The same construction for the simulation's line: through the origin, fitted to i
     the stall moves 1.5 deg when the layer grows from a third to half of the span, so at 3-6 % I count it as small.
 What this run cannot decide: the foil is unswept and symmetric with twice a fin's aspect ratio, at a Reynolds number where
 the measurement shows laminar effects. It tests the method on a second measured break, not our planforms.
+
+(From ~/bench-results/levers10/PREDICTION-10.txt:)
+Added 2026-11-24 16:23Z: item 24 as found, and item 45, written with the tip-0.35 polar's rows read (below) and BEFORE its strip
+loads (extraction running) and before any row at 5, 6 or 7 deg exists.
+24 as found (laptop, level 6 exact, 1 155 529 cells, no flagged faces, snap residual 0.42 um mean / 40 um max, y+ 39):
+    0.3234 / 0.5908 at 0 / 4 deg (line 0.3234 + 0.06685 per deg); 0.8131 / 0.8509 / 0.8899 / 0.9310 / 0.9416 / 0.9698 at
+    8 / 9 / 10 / 11 / 12 / 13 deg = -5.3 / -8.0 / -10.3 / -12.1 / -16.3 / -18.7 %. Every row from 8 deg on ran to the cap and
+    swings by 1.5-2.5 % (8 deg: windows 0.832 / 0.814 / 0.812, range 0.800-0.827, so -3.1 to -5.4 %).
+    The 5 % point is at or just before 8 deg, at a lift of about 0.81; there is no row between 4 and 8 deg to place it.
+    Forecast: 10-10.5 deg (the criterion's lever), within 1 deg of 12.1 (facets), 9.3-9.8 (share), 10.0-10.5 (incidence).
+    None: the fin leaves its line 1.3-2.5 deg before the earliest of them, 4 deg before the tip-0.60 fin (12.1 deg, lift 1.07)
+    where the criterion has 1.8 deg. In lift at the 5 % point: 0.81 against 1.07, a ratio of 0.76 (criterion 0.694 / 0.803 = 0.86).
+    Not counted before the run, as it should have been: faces per nose radius on this fin's narrower outer chords.
+    Until that count and a level-7 run are in, 8 deg is a lower reading of this fin's break (as item 22 was).
+45. the same fin and mesh, rows 6 and 7 deg (laptop, 4 processes beside the level-7 reruns).
+    If the fin holds its line and breaks near 8 deg: 6 deg within 2 % of the line (0.7245: above 0.710), 7 deg 2-4 % below
+    (line 0.7914: 0.760-0.776); 5 % point 7.6-8.0 deg.
+    If it bends away early (as the gen-2 side does, from its outer strips): 6 deg already 2.5-4 % below (0.696-0.706),
+    7 deg 4-5 % below; then "5 % point" is 7.0-7.5 deg and the fin is of the gen-2 side's kind.
+    I expect the second: every row from 8 to 13 deg swings and the lift goes on rising, which is the gen-2 side's picture.
+
+Added 2026-11-24 16:25Z, with the tip-0.35 fin's strip loads read (level 6 as meshed) and the first two rows of item 40 seen in passing
+(gen-2 side with shells: 1 559 091 cells, clean; 0.4747 / 0.7191 at 4 / 8 deg, as meshed 0.4765 / 0.7227). No row of items 45-47 exists.
+Strip loads of the tip-0.35 fin (bench/knee/one-degree/strip-loads.json, run gen3-side-tip035-L6x): the four strips at
+    z/depth 0.76-0.97 (chords 32-18 mm) carry 0.76-0.81 of the lattice's lift at 8 deg (normalised at 4 deg) and fall 5 % short
+    at 4.8-5.1 deg of blade angle, at 0.42-0.57 of their sections' limit and 1.2-3.7 deg of section incidence. No other fin of
+    the record lets a strip go below 0.66. The strips inboard of z/depth 0.52 hold to 11-12.6 deg. Faces per nose radius on the
+    four: 1.6 / 1.4 / 1.25 / 1.0 (the tip-0.60 fin: 1.8-2.7).
+    Two things are coarser on these strips than on any strip that has held: the nose (above), and the volume against the chord.
+    As meshed the cells are 0.33 mm from 3 mm off the wall and 0.65 mm from 7 mm: a 150th of the root chord, a 50th of these.
+46. the tip-0.35 fin, level 6 with the shells of item 30, rows 4, 8, 9, 10, 11, 12 deg (EPYC).
+    If the outer strips' early break is the volume's: 8 deg within 2 % of its line (above 0.841; as meshed 0.813), the 5 %
+    point at 9.5 deg or later.
+    If it is not: 8 and 9 deg within 1.5 % of the rows as meshed (0.813, 0.851).
+47. the tip-0.35 fin, level 7 (minVol scaled), volume as meshed, rows 4, 8, 9, 10 deg (EPYC).
+    If it is the nose: 8 deg within 2 % of its line, as above.
+    If not: within 1.5 % of the level-6 rows.
+    I do not know which. The tunnel fin (tip chord 45 mm) moved 2 deg with the volume and its noses have 2-3 faces; this
+    fin's outer chords are half that, so I lean to the volume carrying most of it, and to the truth being a break
+    between 9.5 and 11 deg: still earlier than the tip-0.60 fin by more than the criterion's 1.8 deg.
+    If neither moves it: the tip lever is twice what the criterion reads (4 deg and 24 % in lift against 1.8 deg and 14 %),
+    and the strip rule is wrong for narrow tips, where it matters to the hold scale of the quiz.
