@@ -187,6 +187,7 @@ The case builder exported with the library's default tolerance, which is relativ
 | gen-2 side, level 6, faceted surface | −1.6 % | −4.0 % | −10.7 % | | −14.3 % | | | 9.2° |
 | **gen-2 side, level 6, exact surface** | −1.7 % | −5.7 % | −11.1 % | −14.6 % | | | | **8.8°** |
 | **gen-2 side, level 7, exact surface** (against level 6's line; a mesh not fully on the surface, below) | −2.4 % | −4.6 to −7.0 % | −9.8 to −10.9 % | | | | | **8.7°** |
+| **gen-2 side, level 7, exact surface, mesh fully on the surface** (threshold scaled, 2026-11-24 17:55Z; line through level 6's 0° and its own 4°) | −2.3 % | −5.7 % | −9.7 % | | | | | **8.8°** |
 
 - **The gen-3 side fin's break at 9° to 10° was the surface and the mesh. On the exact surface it lies between 12° and 13°.** Rows to 11° stop settled after 166–200 iterations. At 12° the row runs to the cap but holds 1.071–1.076 over its last 150 iterations (lift 1.073, 4.0 % below the line). At 13° and 14° it swings (0.91–1.04 and 0.88–1.04) about means of 0.98 and 0.95.
 - **In the simulation its lift falls when it breaks: 345 N at 12°, 314 N at 13°, 306 N at 14°.** I had expected a 5 % point at 9.3–9.9° (item 13), and with the rows to 11° in hand wrote here that the fall of lift in one degree seen on level 5 "does not exist on this surface". It does, three degrees later. **It is not evidence of how the fin lets go**: on the tunnel fin the same recipe has a fall after the break that the tunnel does not have (next section).
@@ -237,7 +238,7 @@ Tobias asked why the simulation is wrong past a break: the method, how it is app
 - **At 20° neither mesh has the tunnel's 1.02**, and the refined row does not settle: it fell to 0.71 and was climbing through 0.92 at the cap. A steady solver on a flow that is not steady; a time-accurate run on this mesh (item 31) is what could say what the model carries there.
 - **Every 5 % point in this record is on the volume mesh as it was.** The gen-2 side and the gen-3 side run next with the same shells (items 40, 41). If both move by about the tunnel fin's two degrees, the ratios between fins may stand while the angles do not. If they move by different amounts, the ratios are the mesh's too.
 
-#### The gen-2 side with the volume refined: it does not move (2026-11-24, 17:17Z)
+#### The gen-2 side with the volume refined, and on a sound level 7: it does not move (2026-11-24, 17:17Z and 17:55Z)
 
 The same shells on the shipped gen-2 side, level 6, on the EPYC (`results-exact-L6-gen2-side-shells.json`: 1 559 091 cells against 1 009 563, no flagged faces, snap residual 0.30 µm, mean wall y⁺ 48). Prediction: `nose7-prediction.txt`, item 40 (even odds between "moves as the tunnel fin does" and "its break is its outer noses'").
 
@@ -251,7 +252,8 @@ The same shells on the shipped gen-2 side, level 6, on the EPYC (`results-exact-
 - **The 5 % point is where it was: 8.7° against 8.8°.** Rows at 4° and 8° settle within 0.5 % of the old mesh, the row at 9° is 1.5 % lower and swings as the old one does. The second alternative of item 40.
 - **So the volume mesh is not one correction for every fin.** It moved the tunnel fin's 5 % point from about 14° to 16.1°, and leaves this fin's alone. The two differ in where they break: this fin at 8–9° from its outer noses (local t/c 0.077, strips at 0.70 of their limit, nose suction −1.6 to −2.2), the tunnel fin five degrees later. A break that starts at the nose does not ask the cells off the wall.
 - Past the break the refined volume carries 2–3 % more (10° and 11°), in rows that swing by ±3 %: not read.
-- **With level 7 on a clean mesh, this fin's 8.8° would be the first break angle of the record shown against both the surface level and the volume.** That rerun is on the laptop (item 37); its first two rows, 4° and 8°, are within 0.7 % of level 6.
+- **Level 7 on a sound mesh has the same break** (laptop, `results-exact-L7y-gen2-side.json`, item 37: 1 215 487 cells, no flagged faces, snap residual 0.55 µm against 3.8 µm on the first level-7 mesh, mean wall y⁺ 41). 0.4796, 0.7244, 0.7609, 0.7882 at 4°, 8°, 9°, 10°: within 0.9 % of level 6 up to 9°, and 2.3 %, 5.7 %, 9.7 % below the line. 5 % point 8.8°.
+- **So this fin's 8.8° is the first break angle of the record shown against both the surface level and the volume**: 8.8° on level 6, 8.7° with the volume refined, 8.8° on level 7. It is the number of this recipe (steady, turbulent from the nose, wall functions), not yet of a fin in water: the one measured fin breaks before the refined simulation does.
 
 #### Level 7 as it was meshed: a volume threshold that did not scale (found 2026-11-24, 13:45Z)
 

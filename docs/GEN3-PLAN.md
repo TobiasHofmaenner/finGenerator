@@ -844,6 +844,13 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   hydrofoil of [Zar14] on this recipe (items 42–44), and the NACA 0012
   blades of [Smi21], whose stall is a laminar bubble's and moves with the
   wall layer: context for how far any quiet-tunnel break binds a fin.
+  *In, 17:55Z: level 7 on a sound mesh has the gen-2 side at 8.8° too.* With
+  the volume check that makes 8.8° the first break angle of the record that
+  neither a finer surface nor a finer volume moves. *And two more measured
+  blades* ([Smi21], `bench/smith2021/`): the lattice run to its sections'
+  ends has their breaks within 0.8°, the strip criterion is 6–7° early on
+  them; they stall at 0.81–0.97 of their sections' limit. The share is the
+  nose's: about 0.7 on the thin swept tunnel fin, 0.76–0.84 on [Zar14].
   *Running or queued (2026-11-24, 14:45Z):* the tunnel fin at 14°, 15° and
   18° with the volume refined, then the gen-2 side and the gen-3 side with
   the same refinement; level 7 again, with the threshold fixed, on the
