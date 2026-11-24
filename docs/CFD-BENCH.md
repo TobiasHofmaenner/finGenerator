@@ -94,6 +94,13 @@ run below their zero-lift angle (`bench/cambered-candidate/`,
   radius of the strips that let go; so did half the speed. Count the faces on
   the nose radius of the most loaded strips (`strip_loads.py` prints them)
   and say what the next level would have to change.
+- **A swinging row's filed value is the mean of its last 150 iterations,
+  one sample of the swing** (2026-11-24). The tunnel fin at 14° on level 6
+  filed 0.999 on one machine and 0.945 on another (12 and 8 processes, every
+  settled row identical to four digits): 2.3 % or 7.6 % below its line,
+  with the measurement at 6 %. Print the window means of every row at the
+  cap (`bench/knee/one-degree/hist.py`) and quote their spread, not the filed
+  number.
 - **The mesher ends "without any errors" on a mesh that lost its wall
   layers** (2026-11-21). snappyHexMesh takes a layer stack off again where it
   does not fit. A flat-inside section with a nose corner of 0.1 mm radius kept

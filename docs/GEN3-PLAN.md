@@ -747,11 +747,12 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   line, lift 1.07) and breaks between 12° and 13°, where its lift falls by
   9 % (345 N to 314 N): the break its level-5 polar on the facets showed at
   9° to 10° was the surface, by three degrees, and the fall of lift is real
-  but comes that much later. The tunnel fin, at 7 m/s, is within 2.3 % of its
-  line at 14°, where the tunnel reads 6 % below (±3.5 % of reading error): on
-  the exact surface the recipe holds the one measured fin at least as long
-  as the tunnel did, so the simulation's breaks are upper readings and the
-  difference between two fins is what it is good for.
+  but comes that much later. The tunnel fin, at 7 m/s, is steady and 1.6 %
+  below its line at 13° and swings about 5 % below it at 14° (two runs of
+  that row, window means 1.5 to 8 % below), where the tunnel has it on its
+  line at 12° and 6 % below at 14° (±3.5 % of reading error): on level 6 and
+  the exact surface the recipe puts the one measured break within about half
+  a degree of the measurement.
   The strip criterion has the two side fins at 6.6° and 7.4°, 10 % apart in
   force; the simulation has them at 8.8° and 12.1°, 28 % apart, the gen-3 fin
   on 11 % less area. The strips say why (`strip_loads.py`): the most loaded
@@ -776,10 +777,15 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   the gen-2 planform with the gen-3 section, the gen-3 planform with the
   gen-2 section, and the gen-3 fin with a narrow tip
   (`bench/knee/one-degree/nose7-prediction.txt`, items 17–26).
-  *In, not yet in the table:* rows behind the upper end on seventeen
-  sections (`bench/section-tables/rerun-held`), run because past 10° the
-  lattice falls short on the thin centre where the table levels a thin
-  section's lift off and the referee has it rising on.
+  *In, built into a table that is not shipped:* rows behind the upper end on
+  eighteen sections (`bench/section-tables/rerun-held`), run because past 10°
+  the lattice falls short on the thin centre where the table levels a thin
+  section's lift off and the referee has it rising on. With them the table
+  is unchanged inside every attached range, and the lattice then carries
+  8–11 % MORE lift than the level-5 and level-6 polars of the thin symmetric
+  blades at 11–12°, where the shipped table is within 4 %. Those polars are
+  on the faceted surface; the thin symmetric blades on the exact surface
+  (queued, items 27 and 28) decide which table is right there.
 - `[ ]` **2b.2 Twin.** (a) Set CFD of a twin (two keel-type side fins at
   production toe and cant) over leeway at two speeds, per-fin forces: the load
   share, the toe at which the pair makes no net side force going straight,

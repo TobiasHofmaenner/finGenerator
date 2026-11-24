@@ -189,7 +189,7 @@ The case builder exported with the library's default tolerance, which is relativ
 - **The gen-2 side stays where it was, within 0.4°**: 5 % below at 8.8° (9.2° on the facets), rows from 9° at the cap and swinging. Its lift goes on rising through the break: 260, 272, 277, 286 N at 8° to 11°.
 - **So the two fins are much further apart than the strip criterion has them.** Criterion: 6.6° and 7.4°, 234 N and 258 N (10 % apart). Simulation on the exact surface: 8.8° and 12.1°, about 270 N and 345 N (28 % apart), the gen-3 fin on 11 % less area.
 - A cambered thin nose is where the faceted surface cost most: three degrees here, against 0.3° on the thick symmetric blade and 0.4° the other way on the flat-inside one. Every earlier polar of a cambered fin in this record (the 3 % camber planform, the candidate, the tip-width pair) is on that surface and is a lower bound on its break by an unknown amount.
-- **Not yet something to build on.** The level check of both fins is running (level 7; items 17, 19 and 20, the last adding the 13° row), and the tunnel fin (next) says this recipe holds a fin at least as long as the tunnel did.
+- **Not yet something to build on.** The level check of both fins is running (level 7; items 17, 19 and 20, the last adding the 13° row). The tunnel fin (next) is the measured check of the recipe.
 
 #### The tunnel fin on the exact surface (2026-11-24)
 
@@ -202,10 +202,10 @@ The case builder exported with the library's default tolerance, which is relativ
 | level 5, faceted surface (`results-L5bw04.json`) | −1.7 % | −1.9 % | −8.2 % | −13.0 % |
 | tunnel [BW04], against its stated line (0.05 per degree from −3.5°) | | on it (0.775) | | −6.3 % (0.82 read off the figure, ±0.03) |
 
-- Rows at 11° to 13° stop settled after 176–186 iterations; 14° runs to the cap and swings between 0.973 and 1.021.
-- **With the surface right, the simulation has this fin within 2.3 % of its line at 14°, where the tunnel has it 6 % below** and level 5 on the facets had it 13 % below. The measured point carries a reading error of ±3.5 %, so at 14° alone the two are about one reading error apart; the tunnel's point at 16° (0.89, 8.7 % below its line) and the EPYC's rows at 15° and 16° will say more.
-- The simulation's line is 16 % steeper than the tunnel's (0.0578 against 0.05 per degree; a third of that is the tunnel wall's boundary layer, `docs/CFD-BENCH.md`), so in lift the simulation carries 0.90 at 12° where the tunnel measured 0.775.
-- **What it means for the other fins.** On level 5 and the faceted surface this recipe read the one measured break about a degree early (12.5° against a tunnel curve that crosses 5 % between 12° and 14°). On level 6 and the exact surface it is level with the measurement or late. The 5 % points of the two side fins above are then upper readings of where a printed fin lets go, and what the recipe is good for is the difference between two fins.
+- Rows at 11° to 13° stop settled after 176–186 iterations. **The row at 14° swings, and its filed value is the mean of its last 150 iterations only.** On the laptop the three windows of 150 iterations before the cap average 1.006, 0.944, 1.000 (range inside the last 0.973–1.021); the EPYC's run of the same row (8 processes instead of 12, the other rows identical to four digits) has 0.996, 0.960, 0.944 (0.857–1.014) and files 0.9448. Against the line that is between 1.5 % and 8 % below, about 5 % over the six windows.
+- **With the surface right, the simulation breaks where the tunnel does**: steady and 1.6 % below its line at 13°, swinging about 5 % below it at 14°, where the tunnel has the fin on its line at 12° and 6.3 % below at 14° (reading error ±3.5 %). Level 5 on the facets had it 8 % below at 13° already. I first read the laptop's filed 0.9989 as "2.3 % below at 14°, later than the tunnel"; that was one window of a swing, and the second machine showed it.
+- The simulation's line is 16 % steeper than the tunnel's (0.0578 against 0.05 per degree; a third of that is the tunnel wall's boundary layer, `docs/CFD-BENCH.md`), so in lift the simulation carries 0.95 at 13° where the tunnel's line has 0.825.
+- **What it means for the other fins.** This is the one break in the record with a measurement beside it, and on level 6 with the exact surface the recipe has it within about half a degree. The 5 % points of the two side fins above stand on the same recipe. The EPYC's rows at 15° and 16° (tunnel: 8.7 % below at 16°, lift still rising) are to come.
 
 #### Strip loads of the three fins (2026-11-24)
 

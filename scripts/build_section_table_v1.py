@@ -89,6 +89,12 @@ interpolated point by point, the same section had two half-height steps at its
 neighbours' angles — in thickness, in camber and in Reynolds number at once —
 and the referee's quarter-degree cliff read as a ramp a degree wide.
 
+The shipped file is the build of 2026-11-22. Since 2026-11-24 the record also has rows
+behind the upper end on eighteen sections, and this script builds with them (same table
+inside every attached range, the referee's lift and drag behind the upper ends); that
+build is not shipped until the thin symmetric blades have been simulated on the exact
+surface (bench/section-tables/rerun-held/README.md).
+
 The report reads the finished table THROUGH THE LIBRARY (`sections.polar`), the
 way the model reads it, and adds for every section the ends a table built
 without it predicts: how well the table is known between its sections. The
@@ -157,9 +163,11 @@ OFFSETS = ("step", "step_up", "log_level", "log_step_below", "log_step_above", "
            "d_alpha0", "retention", "lift_step_below", "lift_step_above", "g", "h",
            "reach_below", "reach_above")
 FITTED = ENDS + OFFSETS
-# what happens behind an end and has one sign on every section of the referee (less lift
-# behind the upper end, more drag behind either): carried in Reynolds number by a ratio
+# what happens behind an end is the size of something (lift lost or gained behind the upper
+# end, more drag behind either): carried in Reynolds number by a ratio, one per sign
 RATIO_KEYS = ("lift_step_above", "log_step_below", "log_step_above")
+# ... of these, the ones whose steps above zero are kept at every Reynolds number (`_re_ratios`)
+GAIN_KEPT = ("lift_step_above",)
 # (a step of None: v0's own, at the factor of the end it lies behind)
 NEUTRAL = {"d_lower": 0.0, "d_lower_out": 0.0, "d_upper": 0.0, "d_upper_out": 0.0,
            "log_level": 0.0, "log_step_below": None, "log_step_above": None, "slope": 1.0,
@@ -563,38 +571,72 @@ def _re_shift(stretches: list[dict], breaks: list[float], x: np.ndarray, log_re:
 
 
 def _re_ratios(y: np.ndarray, member: list, multi: list, log_re: np.ndarray,
-               breaks: list[float], ref: float) -> list[float]:
+               breaks: list[float], ref: float, fit_gain: bool = True) -> dict[str, list[float]]:
     """A step quantity at every Reynolds number that was run, over the same quantity at
     the reference one: the sum over the sites run at both (and over the distances behind
-    the end) of the one, over that of the other.
+    the end) of the one, over that of the other. Two ratios, by the sign the step has at
+    the reference Reynolds number (`neg`, `pos`).
 
     A step is the size of something: the lift a section loses behind its upper end, the
-    drag it gains behind either. On the referee's sections the first is never above
-    zero and the second never below, and both shrink toward low Reynolds number (the
-    lift lost falls to an eighth between 5.7e5 and 1.4e5). Carried by a slope instead,
-    as the ends are, the change read on a section with a hard stall was added to
-    sections with none: a section that keeps its lift past the end at 5.7e5 (4.5 %
-    camber, t/c 0.08) then had 0.24 MORE lift behind the end than at it at 1.4e5, and
-    every eighth node of the table no drag step at all."""
-    out = []
+    drag it gains behind either. The drag steps are never below zero. The lift step has
+    both signs: a section whose stall starts at the trailing edge loses lift behind its
+    end, and that shrinks toward low Reynolds number (to an eighth between 5.7e5 and
+    1.4e5); a thin one keeps its lift or gains (a bubble from the nose that grows with
+    the angle), and that does not shrink. One ratio for both read 0.02 at 1.4e5 once
+    the thin sections had rows there: gains and losses cancelling in the sums. A fitted
+    ratio for the gains read 4.5 there: sums over steps that are near zero at the
+    reference Reynolds number. So lift gained is kept as it is at every Reynolds number
+    (`fit_gain` off, GAIN_KEPT): on the one thin section run on behind its end at two of
+    them (symmetric, t/c 0.046) it is +0.18, +0.26, +0.30, +0.34 at 1.4e5 and +0.20,
+    +0.14, +0.27, +0.38 at 5.7e5, two to five degrees behind the end.
+    Carried by a slope instead, as the ends are, the change read on a section with a
+    hard stall was added to sections with none: a section that keeps its lift past the
+    end at 5.7e5 (4.5 % camber, t/c 0.08) then had 0.24 MORE lift behind the end than
+    at it at 1.4e5, and every eighth node of the table no drag step at all."""
+    out: dict[str, list[float]] = {"neg": [], "pos": []}
     # (read within three degrees of the end, where every march has rows; further out a
     # section has rows only if it was run on, and the last row's step is held)
     near = [j for j in range(y.shape[1]) if BEHIND[j] <= 3.0 + 1e-9]
     for b in breaks:
-        num = den = 0.0
+        num, den = {"neg": 0.0, "pos": 0.0}, {"neg": 0.0, "pos": 0.0}
         for k in multi:
             m = member[k][np.argsort(log_re[member[k]])]
             if log_re[m[0]] <= min(b, ref) + 1e-9 and log_re[m[-1]] >= max(b, ref) - 1e-9:
-                num += sum(float(np.interp(b, log_re[m], y[m, j])) for j in near)
-                den += sum(float(np.interp(ref, log_re[m], y[m, j])) for j in near)
-        out.append(max(num / den, 0.0) if abs(den) > 1e-12 else 1.0)
+                for j in near:
+                    at_ref = float(np.interp(ref, log_re[m], y[m, j]))
+                    sign = "neg" if at_ref < 0.0 else "pos"
+                    num[sign] += float(np.interp(b, log_re[m], y[m, j]))
+                    den[sign] += at_ref
+        for sign in out:
+            out[sign].append(max(num[sign] / den[sign], 0.0) if abs(den[sign]) > 1e-12 else 1.0)
+    if not fit_gain:
+        out["pos"] = [1.0] * len(breaks)
     return out
 
 
-def _ratio_at(ratios: list[float], breaks: list[float], log_re: float) -> float:
-    """The ratio of `_re_ratios` at any Reynolds number: straight between the ones run,
-    kept outside them."""
-    return float(np.interp(log_re, breaks, ratios)) if breaks else 1.0
+def _ratio_at(ratios: dict[str, list[float]], breaks: list[float], log_re: float,
+              at_ref: np.ndarray | float) -> np.ndarray:
+    """The ratio of `_re_ratios` at any Reynolds number, for steps of the value `at_ref` at
+    the reference one (by their sign): straight between the Reynolds numbers run, kept
+    outside them."""
+    at_ref = np.asarray(at_ref, dtype=float)
+    if not breaks:
+        return np.ones_like(at_ref)
+    neg, pos = (float(np.interp(log_re, breaks, ratios[sign])) for sign in ("neg", "pos"))
+    return np.where(at_ref < 0.0, neg, pos)
+
+
+def _site_at_ref(y: np.ndarray, log_re: np.ndarray, ratios: dict[str, list[float]],
+                 breaks: list[float]) -> np.ndarray:
+    """The steps at the reference Reynolds number that fit one site's nodes best (`y`: a row
+    per node, at `log_re`), each node being the family's ratio times them. The ratio goes
+    with the sign of the answer: tried as a loss first, as a gain where that does not give
+    a loss."""
+    def best(sign_value: float) -> np.ndarray:
+        r = np.array([float(_ratio_at(ratios, breaks, float(v), sign_value)) for v in log_re])
+        return (r[:, None] * y).sum(axis=0) / max(float((r ** 2).sum()), 1e-12)
+    as_loss, as_gain = best(-1.0), best(+1.0)
+    return np.where(as_loss < 0.0, as_loss, as_gain)
 
 
 def fit_family(nodes: list[dict]) -> dict:
@@ -607,8 +649,9 @@ def fit_family(nodes: list[dict]) -> dict:
     span; and what each site still misses, spread to its neighbourhood (`_spread`).
     At a node the result is that node's own value — v1 reproduces the referee where
     it has been asked. The steps behind an end (RATIO_KEYS) change with Reynolds
-    number by a ratio, one per family (`_re_ratios`): those are the node's own value
-    at the reference Reynolds number and the family's ratio times it elsewhere."""
+    number by a ratio, one per family and sign of the step (`_re_ratios`): those are the
+    node's own value at the reference Reynolds number and the family's ratio times it
+    elsewhere."""
     key_of = [(round(n["tc"], 6), round(n["camber"], 6)) for n in nodes]
     sites = sorted(set(key_of))
     member = [np.array([k for k, key in enumerate(key_of) if key == s]) for s in sites]
@@ -628,12 +671,11 @@ def fit_family(nodes: list[dict]) -> dict:
         y = np.array([np.atleast_1d(n["rans"][key] if key in ENDS else n["corr"][key])
                       for n in nodes], dtype=float)
         if key in RATIO_KEYS:
-            ratios[key] = _re_ratios(y, member, multi, log_re, breaks, ref)
+            ratios[key] = _re_ratios(y, member, multi, log_re, breaks, ref,
+                                     fit_gain=key not in GAIN_KEPT)
             slopes[key] = [{"sites": [], "slopes": []} for _ in breaks[1:]]
-            r = np.array([_ratio_at(ratios[key], breaks, float(v)) for v in log_re])
             # the value at the reference Reynolds number that fits a site's nodes best
-            at_ref = np.array([(r[m, None] * y[m]).sum(axis=0)
-                               / max(float((r[m] ** 2).sum()), 1e-12) for m in member])
+            at_ref = np.array([_site_at_ref(y[m], log_re[m], ratios[key], breaks) for m in member])
             coef, *_ = np.linalg.lstsq(design, at_ref, rcond=None)
             planes[key] = coef.tolist()
             left[key] = (at_ref - design @ coef).tolist()
@@ -677,7 +719,7 @@ def fitted(fit: dict, key: str, tc: float, camber: float, re: float):
          + _re_shift(fit["re_slopes"][key], fit["re_breaks"], x, float(np.log10(re)),
                      fit["log_re_ref"]))
     if key in fit.get("re_ratios", {}):
-        v = v * _ratio_at(fit["re_ratios"][key], fit["re_breaks"], float(np.log10(re)))
+        v = v * _ratio_at(fit["re_ratios"][key], fit["re_breaks"], float(np.log10(re)), v)
     v = np.atleast_1d(v)
     return float(v[0]) if v.size == 1 else v
 
@@ -881,14 +923,15 @@ def report(nodes: list[dict], fits: dict, v0: TableV0, path: Path) -> str:
                           f"{np.mean(lo_st['slopes']) * octave:+.2f}°, the upper end "
                           f"{np.mean(up_st['slopes']) * octave:+.2f}°."]
         if fit["re_breaks"]:
-            names = {"lift_step_above": "lift lost behind the upper end",
-                     "log_step_above": "drag step (log) behind the upper end",
-                     "log_step_below": "drag step (log) behind the lower end"}
+            names = {("lift_step_above", "neg"): "lift lost behind the upper end",
+                     ("lift_step_above", "pos"): "lift gained behind the upper end (kept)",
+                     ("log_step_above", "pos"): "drag step (log) behind the upper end",
+                     ("log_step_below", "pos"): "drag step (log) behind the lower end"}
             lines += ["  Steps behind an end, over their size at the reference Reynolds number, at "
                       + ", ".join(f"{10 ** b:.2g}" for b in fit["re_breaks"]) + ": "
-                      + "; ".join(f"{names[k]} "
-                                  + ", ".join(f"{r:.2f}" for r in fit["re_ratios"][k])
-                                  for k in RATIO_KEYS) + "."]
+                      + "; ".join(f"{name} "
+                                  + ", ".join(f"{r:.2f}" for r in fit["re_ratios"][k][sign])
+                                  for (k, sign), name in names.items()) + "."]
         for end, rows in miss.items():
             d = np.array([v for f, v in rows if f == fam and np.isfinite(v)])
             if len(d):
