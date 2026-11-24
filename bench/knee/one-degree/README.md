@@ -181,6 +181,7 @@ The case builder exported with the library's default tolerance, which is relativ
 |---|---|---|---|---|---|---|---|---|
 | gen-3 side, level 5, faceted surface | −2.1 % | −3.9 % | −16.0 % | −17.7 % | −20.6 % | | | 9.1° |
 | **gen-3 side, level 6, exact surface** | −0.2 % | −0.6 % | −1.6 % | −3.0 % | −4.0 % | −17.6 % | −24.0 % | **12.1°** |
+| **gen-3 side, level 7, exact surface** (against level 6's line) | | | −0.8 % | −1.6 % | −3.1 % | −4.1 % | | **past 13°** |
 | gen-2 side, level 6, faceted surface | −1.6 % | −4.0 % | −10.7 % | | −14.3 % | | | 9.2° |
 | **gen-2 side, level 6, exact surface** | −1.7 % | −5.7 % | −11.1 % | −14.6 % | | | | **8.8°** |
 
@@ -189,7 +190,9 @@ The case builder exported with the library's default tolerance, which is relativ
 - **The gen-2 side stays where it was, within 0.4°**: 5 % below at 8.8° (9.2° on the facets), rows from 9° at the cap, their window means within ±1.5 % (8.7–8.9° for the 5 % point). Its lift goes on rising through the break: 260, 272, 277, 286 N at 8° to 11°.
 - **So the two fins are much further apart than the strip criterion has them.** Criterion: 6.6° and 7.4°, 234 N and 258 N (10 % apart). Simulation on the exact surface: 8.8° and 12.1°, about 270 N and 345 N (28 % apart), the gen-3 fin on 11 % less area.
 - A cambered thin nose is where the faceted surface cost most: three degrees here, against 0.3° on the thick symmetric blade and 0.4° the other way on the flat-inside one. Every earlier polar of a cambered fin in this record (the 3 % camber planform, the candidate, the tip-width pair) is on that surface and is a lower bound on its break by an unknown amount.
-- **Not yet something to build on.** The level check of both fins is running (level 7; items 17, 19 and 20, the last adding the 13° row). The tunnel fin (next) is the measured check of the recipe.
+- **Level 7 does not confirm level 6 on this fin** (`results-exact-L7-gen3-side.json`; 1 431 211 cells, mean wall y⁺ 31; items 17 and 20). Lift at 4°, 10°, 11°, 12°: 0.5875, 0.9771, 1.0343, 1.0832, which is 0.4–1.4 % above level 6. At 13°, where level 6 swings about 0.93–0.98, level 7 is attached: the row runs to the cap holding 1.1349–1.1377. The break level 6 put between 12° and 13° was the mesh's, as level 5's at 9° to 10° had been. The 5 % point on level 7 is past 13° and not bracketed; rows at 14° and 15° are queued (item 32), and a level-8 run once its memory is measured (item 33).
+- **So "level 6 on the exact surface" is not a recipe for every fin.** It held on the symmetric t/c 0.080 blade (9.0° and 9.1° on levels 6 and 7) with 1.1–1.7 faces on the nose radius of the strips that let go. This fin has 1.8–2.7 and is not settled: the count of faces on the nose radius does not say when a nose is resolved. What differs is where the break is: at 6–7° of strip incidence on the symmetric blade, at 7–8° here, under a deeper suction peak (−4.2 against −3.3 on level 6).
+- **The gen-2 side's level-7 run is in progress** (item 19); the tunnel fin's follows (item 26), which says whether level 6 agreed with the tunnel by being too coarse.
 
 #### The tunnel fin on the exact surface (2026-11-24)
 
@@ -266,7 +269,7 @@ Level 6, exact surface, 8.5 m/s, on the laptop (`~/bench-results/levers10`). Pre
 | **gen-2 planform with the gen-3 section** (4.5 % camber, t/c 0.083; `results-swap-gen2-planform-gen3-section-L6.json`) | −0.5 % | −1.5 % | −6.3 % | −9.9 % | −12.0 % | −13.9 % | **8.7°** | 0.81 |
 | gen-3 side (the same section on its own planform) | | −0.2 % | −0.6 % | −1.6 % | −3.0 % | −4.0 % | 12.1° | 1.07 |
 
-- **On the gen-2 planform the cambered section breaks at the angle the flat-inside one does, 8 % higher in lift** (1 029 850 cells, mean wall y⁺ 45; rows to 8° settled, from 9° at the cap with window means within ±0.5 %). Neither of item 22's alternatives: not at the gen-2 side's lift (0.75), not above 0.85. The forecast from the gen-3 fin's share (0.81 of the section's limit: 9.3–9.8°) is missed by more than half a degree.
+- **On the gen-2 planform the cambered section breaks at the angle the flat-inside one does, 8 % higher in lift** (1 029 850 cells, mean wall y⁺ 45; rows to 8° settled, from 9° at the cap with window means within ±0.7 %). Neither of item 22's alternatives: not at the gen-2 side's lift (0.75), not above 0.85. The forecast from the gen-3 fin's share (0.81 of the section's limit: 9.3–9.8°) is missed by more than half a degree.
 - **Strips** (`strip-loads.txt`, run `gen2-planform-gen3-section-L6x`): the ones at z/depth 0.76 and 0.85 are the first to be 5 % short, at 8.1° of blade angle, at 0.75 and 0.72 of their sections' limit and 5.6° and 5.0° of incidence. Between the flat-inside fins' share (0.70) and the gen-3 fin's (0.81).
 - **A lower reading until level 7 is in.** This planform thins to 0.78 of its base thickness at the tip, so the cambered foil is t/c 0.067–0.072 on the strips that let go, with 0.8–1.4 level-6 faces on the nose radius (the gen-3 fin, which thickens to its tip, has 1.8–2.7 on a local t/c of 0.092). Queued behind the other two swaps.
 - **What it already says:** the section alone does not carry the gen-3 fin to 12°. On this planform the same foil is worth 8 % in lift and nothing in angle. The rest is the gen-3 planform and its thickness schedule: the outer sections there are a third thicker (t/c 0.092–0.096 against 0.067–0.072), and its wide tip keeps the outer strips' incidence lower at the same blade angle (7.7° at 12° of blade angle, where the gen-2 planform has 8.9°).

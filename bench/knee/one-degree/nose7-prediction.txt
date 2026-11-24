@@ -240,3 +240,45 @@ Items 18 and 12 as found, 10:17Z (EPYC, level 6 exact; the laptop's run agrees o
     with lift still rising (0.82, 0.89, 0.96). The onset agrees within about half a degree; item 12's "no 5 %
     point by 14 deg" was one window of the swing. Past the break the simulation's lift falls where the tunnel's
     rises: rows past a break say nothing about how a fin lets go, which withdraws the reading of item 16's fall.
+
+Written 2026-11-24 11:06Z, BEFORE any of it is run. Question (Tobias, 2026-11-24): why is the simulation wrong past a break,
+the method, how it is applied, or the mesh? On three surface meshes the tunnel fin levels off at 0.86-0.89 where
+the tunnel climbs to 1.02 at 20 deg and 1.10 at 24. Never varied: the volume mesh off the wall (on every level the
+cells are a quarter of the background cell from 7 mm off the wall, half of it beyond). Time-accurate runs were made
+once, on level 2, where the flow sat still.
+
+29. the tunnel fin at 20 deg, level 6, exact surface, mesh as it is (row added to the EPYC's polar). Tunnel: 1.02
+    (read off the figure, +-0.03). Level 2 on the facets: 0.862 steady, 0.853 time-accurate.
+    Expected: on the plateau, 0.84-0.90, swinging.
+30. the same fin with the volume near it refined (CaseSpec.volume_shells: cells of 0.625 mm to 10 mm off the wall,
+    1.25 mm to 25 mm, 2.5 mm to 50 mm; an estimated 2.5 M cells against 1.27 M), rows 4, 13, 16, 20 deg.
+    4 and 13 deg: within 0.5 % and 1 % of level 6 (0.4447, 0.9496). If not, the volume matters before the break
+    too and the knee record is open again.
+    20 deg: if the plateau is the model's, within 5 % of item 29 and below 0.92. If the coarse volume was losing
+    the separated layer's lift, above 0.95, toward the tunnel's 1.02. I expect the first.
+    16 deg (tunnel 0.89; level 6: window means 0.84-0.88): reported as a spread.
+31. (not started; a day of EPYC time, on Tobias's word) item 30's mesh at 20 deg run time-accurately.
+
+2026-11-24 11:25Z, measured on the laptop before anything goes to the EPYC (2 processes, mesh and 20 iterations): the mesh of
+item 30 has 2 365 973 cells and the job peaked at 4.6 GiB (level 6 as it is: 1 269 598 cells, 3.3 GiB with 8
+processes on the EPYC). Expected on the EPYC with 8 processes: about 6 GiB, under the 24 GiB cap with no swap.
+
+Written 2026-11-24 11:26Z, with the gen-3 side fin's level-7 rows read, BEFORE the runs below.
+
+Items 17 and 20 as found (EPYC, level 7, exact surface; 1 431 211 cells, mean wall y+ 31):
+    4 / 10 / 11 / 12 / 13 deg: 0.5875 / 0.9771 / 1.0343 / 1.0832 / 1.1361. Level 6: 0.5854 / 0.9687 / 1.0197 /
+    1.0729 / 0.93-0.98 (swinging). Rows 4-12 deg are 0.4-1.4 % above level 6. At 13 deg level 7 is attached: at
+    the cap but holding 1.1349..1.1377, 4-5 % below the line. Item 20's second alternative: the break level 6
+    showed between 12 and 13 deg is the mesh's again. Level 6 is NOT enough for this fin, with 1.8-2.7 faces on
+    the nose radius of its outer strips, though it was for the symmetric t/c 0.080 blade with 1.1-1.7.
+    The 5 % point on level 7 is past 13 deg and not bracketed.
+
+32. gen-3 side fin, level 7, rows 14 and 15 deg added, to bracket it.
+    Expected: 5 % point at 13.2-14.0 deg; one of the two rows swinging.
+33. gen-3 side fin, level 8 (nose faces halved again, feature angle 15 deg), rows 4, 12, 13, 14 deg: does it stop
+    moving? After the memory of that mesh has been measured on the laptop.
+    If level 7 has it: within 1 % of level 7 at 12 and 13 deg and the same row past the break.
+    If not: attached further, and this recipe has no mesh at which the cambered fin's break settles within
+    what we can run.
+What this does to the tunnel fin's agreement on level 6 is item 26's to say (level 7, rows 12-14 deg, queued
+next): if level 7 holds that fin steady at 14 deg, level 6 agreed with the tunnel by being too coarse.

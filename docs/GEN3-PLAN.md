@@ -772,6 +772,15 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   face; the table's flat-inside sections were run with that corner rounded
   to 0.5 mm, so there the simulation and the table do not have the same
   nose (not tested in three dimensions).
+  *In, 11:25Z: level 7 does not confirm level 6 on the gen-3 side.* Lift to
+  12° is 0.4–1.4 % higher, and at 13°, where level 6 has broken, level 7 is
+  attached and steady (1.136, 4 % below the line). Its break is past 13° and
+  not bracketed; the 12.1° above is a lower reading, as level 5's 9.1° was.
+  Level 6 was enough for the thick symmetric blade and is not for this fin,
+  so no level is the recipe for every fin, and the tunnel fin's agreement on
+  level 6 has to be shown on level 7 before it counts (queued). The swap of
+  the gen-3 section onto the gen-2 planform (8.7°, 8 % more lift than the
+  flat-inside section at the same angle) is on level 6 too.
   Nothing in the library is changed on this yet. Before `KNEE_FRACTION`
   becomes a share per section family (and `HOLD_FLOOR_KNEE`, the hold anchor
   and the quiz's hold scale are read again in the same change): the level
