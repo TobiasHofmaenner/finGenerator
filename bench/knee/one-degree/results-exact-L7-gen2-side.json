@@ -1,0 +1,65 @@
+{
+ "plan": {
+  "speed": 8.5,
+  "mesh_level": 7,
+  "end_time": 800,
+  "fin": "side-shipped-gen2.json",
+  "variants": [
+   {
+    "name": "flat-inside-L7x",
+    "angles": [
+     4,
+     8,
+     9,
+     10
+    ]
+   }
+  ]
+ },
+ "variants": {
+  "flat-inside-L7x": {
+   "patch": {},
+   "rows": [
+    {
+     "alpha": 4.0,
+     "cl": 0.47610676296296295,
+     "cd": 0.03134214962962963,
+     "cm": -0.26141421851851854,
+     "iterations": 133.0,
+     "wall_s": 945.8
+    },
+    {
+     "alpha": 8.0,
+     "cl": 0.7182379827586207,
+     "cd": 0.05744668344827586,
+     "cm": -0.35878101379310345,
+     "iterations": 141.0,
+     "wall_s": 163.4
+    },
+    {
+     "alpha": 9.0,
+     "cl": 0.762734576875,
+     "cd": 0.07030720925,
+     "cm": -0.37842054375,
+     "iterations": 800.0,
+     "wall_s": 890.8
+    },
+    {
+     "alpha": 10.0,
+     "cl": 0.779790073125,
+     "cd": 0.0838431796875,
+     "cm": -0.38267272,
+     "iterations": 800.0,
+     "wall_s": 893.0
+    }
+   ],
+   "area_mm2": 9733.62607226676,
+   "foil": {
+    "family": "flat_inside",
+    "thickness_ratio": 0.09211512693674807,
+    "camber_ratio": 0.0,
+    "camber_position": 0.4
+   }
+  }
+ }
+}

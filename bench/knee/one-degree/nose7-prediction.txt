@@ -282,3 +282,8 @@ Items 17 and 20 as found (EPYC, level 7, exact surface; 1 431 211 cells, mean wa
     what we can run.
 What this does to the tunnel fin's agreement on level 6 is item 26's to say (level 7, rows 12-14 deg, queued
 next): if level 7 holds that fin steady at 14 deg, level 6 agreed with the tunnel by being too coarse.
+
+Item 19 as found, 11:48Z (EPYC, level 7 exact; 1 215 487 cells, mean wall y+ 39): gen-2 side 0.4758 / 0.7179 at 4 / 8
+deg (level 6: 0.4764 / 0.7226), window means 0.744-0.763 at 9 deg (0.744-0.755) and 0.771-0.780 at 10 deg
+(0.769-0.775). Within 1 % at the settled rows and inside each other's swing at the others: level 6 has this fin.
+5 % point 8.7 deg (level 6: 8.8). Peak memory of the whole queue (nose9): 3.4 GiB.
