@@ -415,10 +415,61 @@ Peak memory of nose11: 5.1 GiB. nose12 started 14:41Z with item 39.
 2026-11-24 14:43Z: item 34, the rest: the level-8 probe's solver ran its 20 iterations too (the old mesh diverged at 18); peak
 3.7 GiB with 2 processes.
 
-Added 2026-11-24 16:15Z. Item 39 as found (EPYC, the tunnel fin on the shell mesh; windows of the last 3 x 150 iterations):
+Added 2026-11-24 16:09Z. Item 39 as found (EPYC, the tunnel fin on the shell mesh; windows of the last 3 x 150 iterations):
     14 deg 1.0030 (0.998 / 1.000 / 1.003, range 0.992-1.014): 1.3 % below the line (1.0164). Forecast 0.981-0.996: 0.7 % above it.
     15 deg 1.0424 (1.045 / 1.053 / 1.042, range 1.028-1.061): 1.9-3.0 % below the line (1.0738). Forecast 1.025-1.042: at its upper edge.
     18 deg 1.0502 (1.066 / 1.046 / 1.049, range 0.946-1.090): 14-16 % below the line; swinging, mean below the 16 deg row, as forecast.
     The first alternative: no break before 16 deg. 5 % point 16.1 deg, highest lift about 1.08 at 16-17 deg. The tunnel's 5 % point
     is at about 13.6 deg. The second alternative (a flow with two states) is not what the rows show: 14, 15 and 16 deg lie on one curve.
     Mesh line as before (2 365 973 cells, no flagged faces, 0.39 um). nose12 peak so far 4.5 GiB.
+
+Written 2026-11-24 16:10Z, BEFORE any run of the [Zar14] hydrofoil on the level-6 recipe exists (no mesh, no row).
+What I have seen: the measured forces (bench/zarruk/measured, Type I stainless, Re 0.6e6 on the mean chord), the early
+simulation of this foil (bench/zarruk/cfd-polar.json: background cell 15 mm, surface (4 5) = 0.47 mm, STL tolerance 10 um:
+0.3508 / 0.5704 / 0.5943 at 4 / 8 / 10 deg at Re 0.6e6, broken before 8 deg), the lattice on it (bench/zarruk/lattice.md),
+and item 39 as found (the tunnel fin on the refined volume: 5 % point 16.1 deg against about 13.6 deg in the tunnel).
+
+Why: Tobias asked (2026-11-24) whether all these tests hang on one tunnel reference. For the 3-D break they do: [BW04].
+[Zar14] is a second measured break (unswept NACA 0009 trapezoid, span 300, chords 120 -> 60 mm, tabulated forces in
+half-degree steps) that has never been run on the recipe the knee record uses.
+
+The measurement, Re 0.6e6: 0.3456 / 0.6319 at 4 / 8 deg; 0.7021 / 0.7409 / 0.7744 / 0.8044 at 9 / 9.5 / 10 / 10.5 deg;
+0.7761 at 11 deg, then 0.77-0.76 to 14 deg. Drag 0.045 / 0.050 at 10 / 10.5 deg and 0.105 at 11 deg, 0.157 at 12 deg.
+Against the line through the origin fitted to its 4 and 8 deg rows (0.0805 per deg): -2.9 / -3.8 / -4.8 / -12.3 % at
+9.5 / 10 / 10.5 / 11 deg. So: 5 % point 10.5 deg, highest lift 0.804 at 10.5 deg, a sudden stall between 10.5 and 11 deg
+(lift -3.5 %, drag doubled). At Re 0.4e6: 11.0 deg, 0.761. The measured curve has a kink at 4.5-5.5 deg (slope 0.089 per
+deg below it, 0.073 above): the paper puts the low-Re behaviour down to laminar flow; a fully turbulent model has no such kink.
+
+The run: the paper's tunnel (0.6 x 0.6 x 2.6 m, ceiling no-slip, other walls slip), foil rotated, one mesh per angle, 7.0 m/s.
+Everything about the mesh and the solver is the knee record's level 6: background cell = root chord / 10 = 12 mm, surface
+(5 6) = 0.1875 mm, features 6, three cells between levels, volume at level 1 to 0.3 root chords, exact surface (400 points
+per section, 1 um), minVol scaled, no layers, wall functions, inflow 5 % over a tenth of the mean chord, 800 iterations,
+a row = the mean of its last 160. Nose radius at the most loaded strip (z/span 0.59, chord 85 mm): 0.75 mm = 4 faces
+(the fins of the record have 0.8-2.7).
+The same construction for the simulation's line: through the origin, fitted to its own 4 and 8 deg rows.
+
+42. As meshed, rows 4, 8, 10, 11, 12 deg (13 deg if the lift still rises at 12).
+    4 deg: 0.345-0.360. 8 deg: 0.67-0.70 (the measurement has 0.632 there because of its kink).
+    Three readings of where it breaks:
+    a. the recipe lets the first strip go at the share it does on every level-6 fin of the record (0.66-0.81 of its
+       section's limit; the lattice has this foil's most loaded strip at 0.76 at 10.5 deg): 5 % point at 9.2-11.2 deg, at a
+       lift of 0.78-0.90. Then the recipe as meshed has a second tunnel break within about a degree, as it had the
+       tunnel fin's (14 deg against 13.6).
+    b. it follows its 2-D sections (the lattice's own polar: 14.5-15.5 deg): within 3 % of its line through 12 deg and
+       still rising at 13 deg.
+    c. between: 5 % point at 11.2-13 deg.
+    I expect a or the lower half of c: 5 % point at 10-12 deg. The nose is better resolved here than on any fin, which
+    argues for later than the fins' share; the as-meshed volume argues for earlier.
+    Agreement with the tunnel, as I will count it: 5 % point within 1 deg of 10.5 deg AND highest lift within 0.05 of 0.80.
+43. With the volume shells of item 30 ((0.010 4) (0.025 3) (0.05 2)), rows 4, 10, 11, 12, 13 deg (14 if still rising).
+    4 and the last attached row within 1 % of item 42's.
+    If the volume matters here as on the tunnel fin: 5 % point 1.5-2.5 deg later than item 42's. Then two measured breaks
+    say the better-resolved simulation is late, and the method (fully turbulent model, wall functions) is the common cause.
+    If the tunnel fin's two degrees are a swept blade's (a separated layer running out along the span through coarse
+    cells): within 0.5 deg of item 42's.
+    I lean to the first, by about 1-2 deg.
+44. Ceiling boundary layer at the foil: measured 19 mm; the early run had 8.2 mm (uniform inflow 0.7 m upstream). I expect
+    8-10 mm again. That is 3 % of the span instead of 6 %; [Smith et al. 2016] (same tunnel, NACA 0012, span 120 mm) find
+    the stall moves 1.5 deg when the layer grows from a third to half of the span, so at 3-6 % I count it as small.
+What this run cannot decide: the foil is unswept and symmetric with twice a fin's aspect ratio, at a Reynolds number where
+the measurement shows laminar effects. It tests the method on a second measured break, not our planforms.

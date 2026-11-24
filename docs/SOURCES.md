@@ -28,6 +28,24 @@ flat pressure side, half-NACA-0009 section (span 120 mm, base 100 mm, AR 3, t/c 
 **Cited for:** baseline fin geometry defaults; near-Re-invariance of the polars over the fin's
 operating range; lift-curve break (stall onset) at α ≈ 12–14°; force nondimensionalisation.
 
+### [Smi16] Smith, Pearce, Brandner, Clarke & Xue (2016) — Steady and unsteady loads acting on a hydrofoil immersed in a turbulent boundary layer
+*Proc. 20th Australasian Fluid Mechanics Conference, Perth, paper 588.*
+[PDF](https://people.eng.unimelb.edu.au/imarusic/proceedings/20/588%20Paper.pdf). Journal version, not
+read (paywalled): Smith, Brandner, Pearce, Venning, Moreau & Clarke (2021), *J. Fluids and Structures*
+102:103225, [DOI 10.1016/j.jfluidstructs.2021.103225](https://doi.org/10.1016/j.jfluidstructs.2021.103225).
+The tunnel of [BW04] and [Zar14]. A NACA 0012, unswept trapezoid, root 120 mm, tip 80 mm, in two
+spans, 120 mm (a fin's size) and 240 mm, hung from the ceiling on a six-component balance. Normal
+force and pitching moment in half-degree steps to 25° (20° on the long one) at Re 0.2–1.0·10⁶ on the
+mean chord, with the ceiling's boundary layer at 33 mm (natural, 1.9 m into the test section), 65 mm
+and 99 mm (thickened by jets). Plots only. What it reports: the stall angle rises by about 6° from
+Re 0.4·10⁶ to 1.0·10⁶ (both spans, 99 mm layer); on the short foil at Re 0.8·10⁶ the normal force
+peaks at 0.95–0.98 near 20–22° and drops at once with the 33 mm layer, 1.5° later with 65 mm, and
+with 99 mm it rounds off at 0.868: a sudden, leading-edge kind of stall turned gradual.
+**Cited for:** how far the measured break of a fin-sized blade moves with Reynolds number and with
+the wall's boundary layer, as context for the one tunnel fin the knee record has
+(`bench/knee/one-degree/`). A candidate third measured break once the journal version is in hand.
+Not used in any model.
+
 ### [Falk19] Falk et al. (2019) — Computational hydrodynamics of a typical 3-fin surfboard setup
 *Journal of Fluids and Structures 90:297–314.* [DOI 10.1016/j.jfluidstructs.2019.07.006](https://doi.org/10.1016/j.jfluidstructs.2019.07.006)
 First URANS (SST k-ω) simulation of a full thruster set, AoA 0–45°; quantifies inter-fin
@@ -510,7 +528,10 @@ wet-frequency Rayleigh quotient.
 Tapered NACA0009 cantilever hydrofoils (metal + CFRP): tip deflection/twist vs load; layup
 orientation causes bend-twist coupling.
 **Cited for:** validating the cantilever model for foil-sectioned fins; anisotropic stiffness
-as a directional knockdown.
+as a directional knockdown. Its force polars (tabulated in half-degree steps, sudden stall at
+10.5–11° at Re 0.4–0.6·10⁶; `bench/zarruk/measured/`) are the second measured break of a 3-D blade
+the project has: the lattice and the strip criterion are read against them in `bench/zarruk/`, and
+the simulation recipe in `bench/zarruk/knee/` (started 2026-11-24).
 
 ### [Ahn02] Ahn, Montero, Odell, Roundy & Wright (2002) — Anisotropic material properties of FDM ABS
 *Rapid Prototyping Journal 8(4):248–257.* [DOI 10.1108/13552540210441166](https://doi.org/10.1108/13552540210441166)
