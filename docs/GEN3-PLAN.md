@@ -832,6 +832,18 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   16.1° against about 13.6° in the tunnel. The refined simulation is two to
   three degrees late on the one measured fin. The gen-2 side with the same
   shells is running on the EPYC (item 40).
+  *In, 16:20Z and 16:58Z: the gen-3 side with its tip at 0.35 of the base.*
+  On its line to 7° and 5 % below it at 7.9–8.0°, four degrees before its
+  twin with the tip at 0.60, where the criterion has 1.8°. Its outer strips
+  go at 0.68–0.69 of their limit, the share of the other narrow tips; they
+  are also the coarsest strips of the record. A lower reading until the
+  shells and level 7 have been run on it (items 46, 47, EPYC).
+  *In, 17:17Z: the gen-2 side with the volume refined does not move*
+  (8.7° against 8.8°). The volume is the tunnel fin's matter, not every
+  fin's. *And a second and third measured break are being set up:* the
+  hydrofoil of [Zar14] on this recipe (items 42–44), and the NACA 0012
+  blades of [Smi21], whose stall is a laminar bubble's and moves with the
+  wall layer: context for how far any quiet-tunnel break binds a fin.
   *Running or queued (2026-11-24, 14:45Z):* the tunnel fin at 14°, 15° and
   18° with the volume refined, then the gen-2 side and the gen-3 side with
   the same refinement; level 7 again, with the threshold fixed, on the

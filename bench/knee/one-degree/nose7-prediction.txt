@@ -523,3 +523,9 @@ Added 2026-11-24 16:59Z: item 45 as found (laptop, 4 processes, the same mesh).
     It also takes back a line of the note above: "fall 5 % short at 4.8-5.1 deg of blade angle, at 0.42-0.57 of their sections'
     limit" was read between rows at 4 and 8 deg, four degrees apart. With rows at 6 and 7 deg on the line, the outer strips
     cannot have gone at 5 deg. The strip loads are being read again with the two rows in.
+
+Added 2026-11-24 17:18Z. Item 40 as found (EPYC, gen-2 side, level 6 with the shells; 1 559 091 cells, no flagged faces, 0.30 um / 13 um, y+ 48):
+    0.4747 / 0.7191 / 0.7434 / 0.7822 / 0.8178 at 4 / 8 / 9 / 10 / 11 deg; against the rows as meshed -0.4 / -0.5 / -1.5 / +1.7 / +3.1 %.
+    Against the line through 0.2177 (0 deg, as meshed) and its own 4 deg: -1.7 / -6.6 / -9.1 / -11.5 %; 5 % point 8.7 deg (as meshed 8.8).
+    4 and 8 deg settled (180 iterations); 9, 10, 11 deg at the cap, swinging by 1.7 / 3 / 5 % (9 deg: windows 0.7405 / 0.7373 / 0.7438).
+    The second alternative: the break is not the volume's. 4 deg within 0.5 % as required.

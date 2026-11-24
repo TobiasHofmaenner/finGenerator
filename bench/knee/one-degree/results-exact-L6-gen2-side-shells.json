@@ -1,0 +1,95 @@
+{
+ "plan": {
+  "speed": 8.5,
+  "mesh_level": 6,
+  "end_time": 800,
+  "exact_surface": true,
+  "volume_shells": [
+   [
+    0.01,
+    4
+   ],
+   [
+    0.025,
+    3
+   ],
+   [
+    0.05,
+    2
+   ]
+  ],
+  "fin": "side-shipped-gen2.json",
+  "variants": [
+   {
+    "name": "flat-inside-L6x-shells",
+    "angles": [
+     4,
+     8,
+     9,
+     10,
+     11
+    ]
+   }
+  ]
+ },
+ "variants": {
+  "flat-inside-L6x-shells": {
+   "patch": {},
+   "rows": [
+    {
+     "alpha": 4.0,
+     "cl": 0.47473600555555556,
+     "cd": 0.031088989722222224,
+     "cm": -0.26098059444444444,
+     "iterations": 180.0,
+     "wall_s": 726.9
+    },
+    {
+     "alpha": 8.0,
+     "cl": 0.7190634432432432,
+     "cd": 0.057162597837837836,
+     "cm": -0.3599391216216216,
+     "iterations": 183.0,
+     "wall_s": 247.2
+    },
+    {
+     "alpha": 9.0,
+     "cl": 0.7433850825,
+     "cd": 0.0709381595,
+     "cm": -0.36887444187499996,
+     "iterations": 800.0,
+     "wall_s": 1048.9
+    },
+    {
+     "alpha": 10.0,
+     "cl": 0.78218649625,
+     "cd": 0.083757266125,
+     "cm": -0.385022576875,
+     "iterations": 800.0,
+     "wall_s": 1033.3
+    },
+    {
+     "alpha": 11.0,
+     "cl": 0.817843336875,
+     "cd": 0.0966365346875,
+     "cm": -0.39829777375000003,
+     "iterations": 800.0,
+     "wall_s": 1063.7
+    }
+   ],
+   "area_mm2": 9733.62607226676,
+   "foil": {
+    "family": "flat_inside",
+    "thickness_ratio": 0.09211512693674807,
+    "camber_ratio": 0.0,
+    "camber_position": 0.4
+   },
+   "mesh": {
+    "cells": 1559091,
+    "illegal_faces": 0,
+    "snap_wanted_mean_m": 3.03295e-07,
+    "snap_wanted_max_m": 1.29923e-05
+   }
+  }
+ }
+}
