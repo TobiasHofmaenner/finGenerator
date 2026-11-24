@@ -730,10 +730,11 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   a kilowatt; fatigue, feel and an earlier spin-out are the costs to look at.
   A second measure the same lattice could give, raised by the same question:
   how a fin lets go, as the spread of angles at which its strips reach their
-  limits. (The example first given here, the gen-3 side's lift falling by
-  6 % from 9° to 10° on level 5, was the faceted surface. On the exact
-  surface the fall is at 12° to 13°, 9 %, and the gen-2 side has none; the
-  lattice's strips one by one do not show the difference, below.)
+  limits. (No example stands for it: the gen-3 side's lift falling by 6 %
+  from 9° to 10° on level 5 was the faceted surface, and the fall at 12° to
+  13° on the exact surface is a row past the break, where the same recipe
+  has the tunnel fin falling and the tunnel has it rising. A release measure
+  needs unsteady simulation or a tester's word.)
   *In, 14:06Z: on the exact surface levels 6 and 7 agree* (lift within 0.8 %
   at every row; the t/c 0.080 blade is 5 % below its line at 9.0–9.1°). The
   drift 8.5°, 8.7°, 9.4° over three levels was the surface, not the mesh. That
@@ -744,15 +745,19 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   *In, 2026-11-24, level 6 on the exact surface:* the gen-2 side is 5 % below
   its line at 8.8° (9.2° on the facets) and its lift goes on rising through
   the break. The gen-3 side fin is attached and steady to 12° (4 % below its
-  line, lift 1.07) and breaks between 12° and 13°, where its lift falls by
-  9 % (345 N to 314 N): the break its level-5 polar on the facets showed at
-  9° to 10° was the surface, by three degrees, and the fall of lift is real
-  but comes that much later. The tunnel fin, at 7 m/s, is steady and 1.6 %
+  line, lift 1.07) and breaks between 12° and 13°: the break its level-5 polar
+  on the facets showed at 9° to 10° was the surface, by three degrees. In the
+  simulation its lift falls there by 9 % (345 N to 314 N) while the gen-2
+  side's rises on; that is not evidence of how either lets go (the tunnel
+  fin, next). The tunnel fin, at 7 m/s, is steady and 1.6 %
   below its line at 13° and swings about 5 % below it at 14° (two runs of
   that row, window means 1.5 to 8 % below), where the tunnel has it on its
   line at 12° and 6 % below at 14° (±3.5 % of reading error): on level 6 and
-  the exact surface the recipe puts the one measured break within about half
-  a degree of the measurement.
+  the exact surface the recipe puts the onset of the one measured break within
+  about half a degree of the measurement. Past it the simulation's lift
+  falls (17 % and 25 % below its line at 15° and 16°) where the tunnel's
+  goes on rising (9 % below at 16°): the recipe says where a fin begins to
+  let go, not what it carries afterwards nor how abruptly it goes.
   The strip criterion has the two side fins at 6.6° and 7.4°, 10 % apart in
   force; the simulation has them at 8.8° and 12.1°, 28 % apart, the gen-3 fin
   on 11 % less area. The strips say why (`strip_loads.py`): the most loaded
@@ -760,9 +765,9 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   gen-2 side and the thick symmetric blade let go, three planforms and two
   section families at one share, and at 0.81 on the cambered gen-3 fin. So
   the rule's planform reading holds, and one share for every section reads a
-  cambered fin early. The gen-3 fin also lets go along its whole span within
-  one degree, the gen-2 side from the outside in over more than two, which
-  the lattice's strips taken one by one do not show. A flat-inside section as
+  cambered fin early. (In the simulation the gen-3 fin lets go along its whole
+  span within one degree and the gen-2 side from the outside in over more
+  than two; rows past the break, not to be built on.) A flat-inside section as
   the generator draws it has a right-angle corner at the nose of its flat
   face; the table's flat-inside sections were run with that corner rounded
   to 0.5 mm, so there the simulation and the table do not have the same

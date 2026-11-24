@@ -181,6 +181,15 @@ had 1.1-1.7; the gen-3 side fin has 1.8-2.7, its tip thickens). Item 22 on level
 of that fin's break until level 7 has been run on it (queued on the laptop behind items 23 and 24: rows 4, 8-12 deg).
 22''. level 7 against level 6 on the swap fin: within 1 % per row if level 6 has it; a later break if not.
 
+Added 2026-11-24 09:41Z (item 24 has not started): the same four breaks read as strip incidence instead of strip lift.
+The lattice's highest strip incidence at the last attached row and at the next: symmetric t/c 0.080 6.4 / 7.2 deg
+(8 / 9 deg of blade angle), gen-2 side 5.9 / 6.7 (8 / 9), tunnel fin 5.7 / 6.2 (13 / 14), gen-3 side 7.7 / 8.4 (12 / 13).
+The two flat-inside fins agree in this measure as they do in share (about 6.0 deg); the cambered fin, with the
+thickest nose (local t/c 0.092), holds to about 7.9 deg. For items 22 and 23 this reading forecasts the same
+angles as the share does (9.0 and 9.7 deg for the first strip). For item 24 it differs:
+24''. gen-3 side, tip 0.35, if its strips let go at 7.9 deg of incidence as the tip-0.60 fin's do: the first at
+      9.8 deg of blade angle, 5 % point at 10.0-10.5 deg (the share forecasts 9.3-9.8).
+
 Written 2026-11-24 09:02Z, BEFORE the EPYC's follow-up queue (nose10, started when nose9 ends).
 
 25. gen-2 side, level 6 exact, rows 12, 13, 14 deg added (its mesh is on the EPYC). The question is what each
@@ -195,3 +204,33 @@ Written 2026-11-24 09:02Z, BEFORE the EPYC's follow-up queue (nose10, started wh
     If level 6 has it: within 1 % at 4 and 13 deg, within 2.5 % at 14.
     If the corner is being rounded off by the level-6 faces: level 7 leaves its line earlier (more than 3 %
     below level 6 at 13 or 14 deg).
+
+Written 2026-11-24 09:41Z, BEFORE the EPYC's third queue (nose11, started when nose10 ends): the thin symmetric blades on
+the exact surface.
+
+Why now: the rows behind the upper end of eighteen 2-D sections are in. A table built with them has a thin
+section's lift going on behind its end, as the referee has it; the lattice on that table then carries 8-10 %
+MORE lift than the level-5 polars of the thin symmetric blades at 11-12 deg (t/c 0.066 at 11 deg: simulation
+0.601, shipped table 0.622, rebuilt table 0.664; t/c 0.050 at 12 deg: 0.641, 0.625, 0.693), where the shipped
+table is within 3 %. Those polars are on the faceted surface with 0.2-0.7 faces on the nose radius, so they do
+not decide it. The rebuilt table is not shipped until these are in.
+
+27. symmetric t/c 0.066 on the gen-2 planform, level 7, exact surface (about 1.7-2.8 faces on the nose radius of
+    the outer strips), rows 4, 7, 8, 9, 10, 11, 12 deg. Level 5 on the facets: 5 % below its line at 8.5 deg; lift
+    0.494 / 0.539 / 0.566 / 0.601 at 8 / 9 / 10 / 11 deg.
+    If the level-5 polar was the surface and the mesh, as on the cambered fin: 5 % point later than 9.5 deg and
+    lift at 10 and 11 deg above 0.60 and 0.64 (toward the rebuilt table's 0.626, 0.664).
+    If the thin blade lets go where level 5 had it: 5 % point at 8.3-9.0 deg and lift at 11 deg within 3 % of 0.60.
+28. symmetric t/c 0.050, level 7, exact surface (about 1.0-1.6 faces on the nose radius: still short of the count
+    at which two levels agreed on t/c 0.080), rows 4, 6, 7, 8, 9, 10, 12 deg. Level 5: 8.1 deg; level 6: 8.0 deg;
+    lift 0.492 / 0.539 / 0.578 / 0.641 at 8 / 9 / 10 / 12 deg.
+    Same two alternatives (rebuilt table: 0.490 / 0.544 / 0.597 / 0.693). Whatever it shows needs level 8 before
+    it is read as this blade's break.
+
+Items 18 and 12 as found, 10:17Z (EPYC, level 6 exact; the laptop's run agrees on every settled row).
+18. the tunnel fin: -0.7 / -1.0 / -1.6 % at 11 / 12 / 13 deg, settled. 14 deg swings: window means 0.944-1.006 over
+    the two machines (filed 0.9989 on the laptop, 0.9448 on the EPYC), 1.5-8 % below the line, about 5 %. 15 and
+    16 deg: 0.89 and 0.86, 17 % and 25 % below. Tunnel: on its line at 12 deg, 6.3 % below at 14, 8.7 % below at 16
+    with lift still rising (0.82, 0.89, 0.96). The onset agrees within about half a degree; item 12's "no 5 %
+    point by 14 deg" was one window of the swing. Past the break the simulation's lift falls where the tunnel's
+    rises: rows past a break say nothing about how a fin lets go, which withdraws the reading of item 16's fall.
