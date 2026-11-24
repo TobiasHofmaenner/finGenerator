@@ -362,3 +362,52 @@ level-7 cell 0.0965 mm and that cube's pyramid 1.50e-13 (the threshold is 67 % o
 9.1e-14; tunnel fin 7.9e-14. Queue as changed before the probes were in: the thin symmetric blades are taken out of
 nose11 (their plans emptied) and run last in the EPYC's next queue with the fixed kit; the laptop takes the gen-2
 side, the symmetric t/c 0.080 blade and the first swap on level 7 after the narrow-tip run.
+
+Written 2026-11-24 14:30Z, with the tunnel fin's refined-volume row at 16 deg read and its 20 deg row at iteration 535 of 800
+(windows 1.18 / 0.93 / 0.79, falling), BEFORE the runs below.
+
+Item 34 as found: both probe meshes end without flagged faces with the scaled threshold. Tunnel fin level 7:
+1 517 854 cells, last move wanting 0.40 um mean / 63 um max, solver ran its 20 iterations. Gen-3 side level 8:
+2 151 516 cells, 0.69 um / 41 um, mesher 2408 s on the loaded laptop, peak 3.4 GiB so far (2 processes).
+Level 8's failure was the threshold, not the feature angle.
+
+Item 30 so far (tunnel fin, level 6 surface, volume shells: cells of 0.625 mm to 10 mm off the wall, 1.25 mm to
+25 mm, 2.5 mm to 50 mm; 2 365 973 cells, y+ 37, mesher clean, 0.39 um):
+    4 deg 0.4429, 13 deg 0.9447 (settled after 254 iterations): 0.4 % and 0.5 % below the mesh as it is.
+    16 deg: windows 1.074 / 1.073 / 1.084 (range 1.055-1.104), drag 0.186. THE MESH AS IT IS HAS 0.84-0.88 THERE.
+    On the line through 0.2135 (level 6's 0 deg) and its own 4 deg: 1.5 % below at 13 deg, 4.2-5.1 % at 16 deg.
+    The tunnel: on its line at 12 deg, 6.3 % below at 14 (+-3.5), 8.7 % below at 16 (lift 0.89).
+  I did not forecast this row ("reported as a spread"). It says the volume mesh, which I had never varied, decides
+  where this fin breaks in the simulation: about 14 deg as meshed, about 16 deg with the volume refined, the
+  tunnel at 13-14 deg. The agreement "within half a degree" on level 6 then owes something to a coarse volume.
+  It is one row; what follows is to pin it down and to see whether the side fins move with it.
+
+39. the tunnel fin on the shell mesh, rows 14, 15, 18 deg added.
+    If the 16 deg row is what it looks like (bending slowly, no break before 16): 14 deg at 0.981-0.996 (2-3.5 %
+    below the line, which has 1.0164 there), 15 deg at 1.025-1.042 (3-4.5 % below 1.0738), both settled or
+    swinging by under 1 %.
+    18 deg: past the break: swinging, mean below the 16 deg row (under 1.07). The tunnel has 0.96.
+    If instead 14 deg comes out below 0.97 or 15 deg below 1.00: the 16 deg row is a second state of a flow that can sit in
+    two, and no row of this fin past 13 deg is one number.
+40. the gen-2 side, level 6, the same shells, rows 4, 8, 9, 10, 11 deg. As meshed: 0.4765 / 0.7227 / 0.7544 /
+    0.7690 / 0.7935 (5 % point 8.8 deg).
+    4 deg within 0.5 %.
+    If the volume moves this fin as it does the tunnel fin: 9 deg within 3 % of the line (above 0.776), the 5 %
+    point at 10 deg or later.
+    If this fin's break is its outer noses' and not the volume's: 8 and 9 deg within 1.5 % of the rows as meshed.
+    Even odds. The tunnel fin's first strips to go were the outer ones too.
+41. the gen-3 side, level 6, the same shells, rows 4, 12, 13, 14, 15 deg. As meshed: 0.5854 / 1.0729 / swinging
+    0.93-0.98 at 13.
+    If the volume moves it: 13 deg attached and above 1.12, 14 deg above 1.15.
+    If not: 13 deg swinging below 1.02 as on the mesh as it is.
+    I lean to the first (two in three): the flagged level-7 mesh already held it at 13 deg.
+What rides on 40 and 41: every 5 % point in this record is on the volume mesh as it is. If both side fins move
+by about the tunnel fin's two degrees, the ratios between fins (planform 1.31, section 1.08) may stand while the
+angles do not; if they move by different amounts, the ratios are the mesh's too.
+Memory on the EPYC: the tunnel fin's shell mesh peaked at 5.1 GiB with 8 processes; the side fins' shell meshes
+are the same recipe on the same scale (expected 5-6 GiB), cap 24 GiB with no swap.
+
+2026-11-24 14:43Z: item 30's last row as found. 20 deg on the shell mesh: filed 0.9198; windows 0.780 / 0.861 / 0.920, range in
+the last 0.85-1.00, after falling to 0.71: not settled, climbing at the cap. Neither alternative of item 30 (within
+5 % of 0.757 and below 0.92, or above 0.95): a slow swing between them. The steady solver has no answer there.
+Peak memory of nose11: 5.1 GiB. nose12 started 14:41Z with item 39.

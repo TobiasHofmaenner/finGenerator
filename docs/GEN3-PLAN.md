@@ -809,20 +809,32 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   Candidates, untested: the mesh (the gen-2 planform's outer chords have
   200 cells where the gen-3 planform's have 290) and the thickness of the
   outer sections (t/c 0.077 against 0.101). The tunnel fin at 20° carries
-  0.76 on level 6 (tunnel 1.02); with the volume around it refined the rows
-  before the break move by 0.5 %.
+  0.76 on level 6 (tunnel 1.02).
+  *In, 14:40Z: the volume mesh moves the tunnel fin's break by two degrees.*
+  With the cells around the fin refined (the one thing this record had never
+  varied) the rows before the break move by 0.5 %, and at 16° the fin
+  carries 1.08, about 5 % below its line, where the mesh as it was has it
+  broken at 0.86 and the tunnel has 0.89 (9 % below its line). So the 5 %
+  point of the one measured fin is about 14° as meshed, about 16° with the
+  volume refined, 13–14° in the tunnel: the agreement "within half a
+  degree" above owed something to a coarse volume, and the better-resolved
+  simulation holds on about two degrees longer than the measurement. Every
+  5 % point above is on the volume mesh as it was. Whether the side fins
+  move with it, and by the same amount, is running (items 40, 41); until
+  then the angles and the ratios between fins are both open.
   Nothing in the library is changed on this yet. Before `KNEE_FRACTION`
   becomes a share per section family (and `HOLD_FLOOR_KNEE`, the hold anchor
   and the quiz's hold scale are read again in the same change): the level
   check of both side fins, and the swaps that take section and planform
   apart.
-  *Running or queued (2026-11-24, 14:00Z):* level 7 again, with the threshold
-  fixed, on the tunnel fin, the gen-2 side, the gen-3 side and the thick
-  symmetric blade; level 8 on the gen-3 side if its probe meshes cleanly;
-  the thin symmetric blades on level 7; the tunnel fin at 16° and 20° with
-  the volume refined; on the laptop the gen-3 fin with a narrow tip and the
-  first swap on level 7
-  (`bench/knee/one-degree/nose7-prediction.txt`, items 22–38).
+  *Running or queued (2026-11-24, 14:45Z):* the tunnel fin at 14°, 15° and
+  18° with the volume refined, then the gen-2 side and the gen-3 side with
+  the same refinement; level 7 again, with the threshold fixed, on the
+  tunnel fin, the gen-2 side, the gen-3 side and the thick symmetric blade;
+  level 8 on the gen-3 side (its probe meshes cleanly now); the thin
+  symmetric blades on level 7; on the laptop the gen-3 fin with a narrow tip
+  and the first swap on level 7
+  (`bench/knee/one-degree/nose7-prediction.txt`, items 22–41).
   *In, built into a table that is not shipped:* rows behind the upper end on
   eighteen sections (`bench/section-tables/rerun-held`), run because past 10°
   the lattice falls short on the thin centre where the table levels a thin

@@ -1,0 +1,86 @@
+{
+ "plan": {
+  "speed": 7.0,
+  "mesh_level": 6,
+  "end_time": 800,
+  "exact_surface": true,
+  "volume_shells": [
+   [
+    0.01,
+    4
+   ],
+   [
+    0.025,
+    3
+   ],
+   [
+    0.05,
+    2
+   ]
+  ],
+  "fin": "bw04-replica.json",
+  "variants": [
+   {
+    "name": "bw04-L6x-shells",
+    "angles": [
+     4,
+     13,
+     16,
+     20
+    ]
+   }
+  ]
+ },
+ "variants": {
+  "bw04-L6x-shells": {
+   "patch": {},
+   "rows": [
+    {
+     "alpha": 4.0,
+     "cl": 0.442923415,
+     "cd": 0.0339680401875,
+     "cm": -0.114744184375,
+     "iterations": 800.0,
+     "wall_s": 0.0
+    },
+    {
+     "alpha": 13.0,
+     "cl": 0.9446123490196078,
+     "cd": 0.11828334705882353,
+     "cm": -0.17578438235294117,
+     "iterations": 254.0,
+     "wall_s": 0.0
+    },
+    {
+     "alpha": 16.0,
+     "cl": 1.08184844375,
+     "cd": 0.1852753875,
+     "cm": -0.204303331875,
+     "iterations": 800.0,
+     "wall_s": 0.0
+    },
+    {
+     "alpha": 20.0,
+     "cl": 0.9198132275,
+     "cd": 0.270233786875,
+     "cm": -0.21798126812500002,
+     "iterations": 800.0,
+     "wall_s": 0.0
+    }
+   ],
+   "area_mm2": 9565.511624908922,
+   "foil": {
+    "family": "flat_inside",
+    "thickness_ratio": 0.09,
+    "camber_ratio": 0.0,
+    "camber_position": 0.4
+   },
+   "mesh": {
+    "cells": 2365973,
+    "illegal_faces": 0,
+    "snap_wanted_mean_m": 3.8871e-07,
+    "snap_wanted_max_m": 6.30871e-05
+   }
+  }
+ }
+}
