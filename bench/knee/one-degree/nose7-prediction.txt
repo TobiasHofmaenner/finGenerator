@@ -560,3 +560,32 @@ Added 2026-11-24 17:56Z. Item 37 as found (laptop, gen-2 side, level 7 with minV
     9 deg at the cap (windows 0.766 / 0.764 / 0.761, range 0.742-0.778), 10 deg likewise (0.770-0.822).
     The first alternative, as leaned to: the unsnapped points did not matter. 5 % point 8.8 deg.
     With item 40 (shells: 8.7 deg) this fin's break is shown against surface level and volume.
+
+Added 2026-11-25 08:06Z: what came in overnight on the EPYC, each against its item (lines: level 6's 0 deg row and the mesh's own 4 deg).
+41 as found. gen-3 side, level 6 with the shells (2 116 586 cells, clean, 0.40 um, y+ 40): 0.5831 / 1.0609 / 0.9918 / 1.0272 / 1.0270 at
+    4 / 12 / 13 / 14 / 15 deg = -4.5 / -15.7 / -17.4 / -21.5 %. 12 deg steady inside 1.051-1.067; 13 deg swinging 0.914-1.032.
+    The second alternative ("13 deg swinging below 1.02 as on the mesh as it is"). 5 % point 12.0 deg (as meshed 12.1).
+    I had leaned to the first, two in three: wrong.
+46 as found. tip 0.35, level 6 with the shells (2 020 407 cells, clean, 0.42 um): 0.5884 / 0.8000 / 0.8456 / 0.8914 / 0.9402 / 0.9346 at
+    4 / 8 / 9 / 10 / 11 / 12 deg; against the rows as meshed -0.4 / -1.6 / -0.6 / +0.2 / +1.0 / -0.7 %. 8 deg is 6.3 % below its line.
+    "It is not the volume": 9 deg inside the 1.5 % asked, 8 deg at 1.6 %. I had leaned to the volume: wrong.
+47 as found. tip 0.35, level 7 (1 385 034 cells, clean, 0.93 um, y+ 33): 0.5967 / 0.8522 / 0.8737 / 0.9078 at 4 / 8 / 9 / 10 deg
+    = -2.1 / -6.9 / -9.8 %. 8 deg settled after 163 iterations. "If it is the nose: 8 deg within 2 % of its line": at 2.1 %.
+    5 % point 8.6 deg (level 6: 7.9-8.0). The nose is worth 0.6 deg, not the four degrees to the twin.
+36 as found. gen-3 side, level 7 on a sound mesh (1 431 211 cells, clean, 0.90 um, y+ 34): 0.5901 / 1.0838 / 1.1367 / 1.0100 at
+    4 / 12 / 13 / 14 deg; against the flagged mesh +0.4 / +0.1 / +0.1 % at 4, 12, 13 deg, as forecast (within 0.5 %); 14 deg past
+    the break again. -4.3 / -5.3 / -20.3 %: 5 % point 12.7 deg, the drop between 13 and 14 deg. 13 deg at the cap, steady.
+35 as found. tunnel fin, level 7 on a sound mesh (1 517 854 cells, clean, 0.40 um, y+ 29): 0.4465 / 0.8978 / 0.9508 at 4 / 12 / 13 deg,
+    +0.4 / 0.0 / +0.1 % against level 6: "level 6 has it" to 13 deg. 14 deg: windows 0.986 / 0.976 / 0.865, range in the last
+    0.82-0.94: the row leaves 0.98 for 0.86 before the cap (level 6: swinging 0.97-1.02). The fin is at its edge at 14 deg on both.
+
+Added 2026-11-25 08:07Z. Items 42 and 44 as found ([Zar14] foil as meshed, EPYC; bench/zarruk/knee/results-L6x.json; 2.84-2.89 M cells per
+    angle, no flagged faces, 0.3-0.5 um, y+ 26-34):
+    4 deg 0.3288 (forecast 0.345-0.360: below it; the lattice has 0.312). 8 deg 0.6147, settled (forecast 0.67-0.70: below it;
+    measured 0.632). The simulation's polar bends between 4 and 8 deg as the measurement's does; I had it straight.
+    10 deg 0.6854 at the cap (windows 0.697 / 0.684 / 0.685, range 0.633-0.745), 11 deg 0.6933 (0.577-0.768), 12 deg 0.5991, 13 deg 0.5971.
+    Against the line through the origin fitted to 4 and 8 deg (0.0779 per deg): -1.4 % at 8 deg, -12.0 % at 10 deg. Drag 0.033 at 8 deg
+    (measured 0.032), 0.079 at 10 deg (measured 0.045). So: stalled between 8 and 10 deg; highest lift 0.69 (measured 0.804 at 10.5).
+    None of a, b, c as written: earlier than a's range in lift (0.78-0.90) and at or before its early end in angle (9.2 deg);
+    I had expected 10-12 deg. The agreement test fails (highest lift 0.11 low). Rows at 9 and 9.5 deg are needed to place it.
+    44: the ceiling's layer is 20-23 mm at the probe, not 8-10 mm (measured 19).

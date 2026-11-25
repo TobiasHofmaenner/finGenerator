@@ -1,0 +1,71 @@
+{
+ "plan": {
+  "speed": 8.5,
+  "mesh_level": 7,
+  "end_time": 800,
+  "fin": "gen3-sliders.json",
+  "variants": [
+   {
+    "name": "gen3-side-sliders-L7y",
+    "angles": [
+     4,
+     12,
+     13,
+     14
+    ]
+   }
+  ]
+ },
+ "variants": {
+  "gen3-side-sliders-L7y": {
+   "patch": {},
+   "rows": [
+    {
+     "alpha": 4.0,
+     "cl": 0.5901412266666667,
+     "cd": 0.03779751133333333,
+     "cm": -0.29576067333333333,
+     "iterations": 148.0,
+     "wall_s": 999.2
+    },
+    {
+     "alpha": 12.0,
+     "cl": 1.083776340909091,
+     "cd": 0.10848296136363636,
+     "cm": -0.44075702045454546,
+     "iterations": 216.0,
+     "wall_s": 300.7
+    },
+    {
+     "alpha": 13.0,
+     "cl": 1.1367399437499999,
+     "cd": 0.12052565625,
+     "cm": -0.45486201687500005,
+     "iterations": 800.0,
+     "wall_s": 1064.6
+    },
+    {
+     "alpha": 14.0,
+     "cl": 1.0100056531250001,
+     "cd": 0.14773249125000001,
+     "cm": -0.41042173125000003,
+     "iterations": 800.0,
+     "wall_s": 1051.8
+    }
+   ],
+   "area_mm2": 8690.385183970273,
+   "foil": {
+    "family": "cambered",
+    "thickness_ratio": 0.08346834034093867,
+    "camber_ratio": 0.044826588806811576,
+    "camber_position": 0.4
+   },
+   "mesh": {
+    "cells": 1431211,
+    "illegal_faces": 0,
+    "snap_wanted_mean_m": 8.96864e-07,
+    "snap_wanted_max_m": 5.57384e-05
+   }
+  }
+ }
+}

@@ -851,6 +851,14 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   ends has their breaks within 0.8°, the strip criterion is 6–7° early on
   them; they stall at 0.81–0.97 of their sections' limit. The share is the
   nose's: about 0.7 on the thin swept tunnel fin, 0.76–0.84 on [Zar14].
+  *In overnight, read 2026-11-25:* the volume moves no fin but the tunnel
+  fin (gen-3 side 12.0° against 12.1°, tip 0.35 unchanged); level 7 on sound
+  meshes moves the two cambered fins by 0.6–0.7° (gen-3 side 12.7°, tip 0.35
+  8.6°) and neither flat-inside one. **The tip lever is four degrees on
+  every mesh, where the criterion has 1.8°.** And the recipe is *early* on the
+  second measured blade: the hydrofoil of [Zar14] stalls between 8° and 10°
+  as meshed against 10.5–11° in the tunnel (`bench/zarruk/knee/`); its
+  refined-volume polar is running.
   *Running or queued (2026-11-24, 14:45Z):* the tunnel fin at 14°, 15° and
   18° with the volume refined, then the gen-2 side and the gen-3 side with
   the same refinement; level 7 again, with the threshold fixed, on the

@@ -1,0 +1,71 @@
+{
+ "plan": {
+  "speed": 8.5,
+  "mesh_level": 7,
+  "end_time": 800,
+  "fin": "gen3-tip035.json",
+  "variants": [
+   {
+    "name": "gen3-side-tip035-L7y",
+    "angles": [
+     4,
+     8,
+     9,
+     10
+    ]
+   }
+  ]
+ },
+ "variants": {
+  "gen3-side-tip035-L7y": {
+   "patch": {},
+   "rows": [
+    {
+     "alpha": 4.0,
+     "cl": 0.5967184466666667,
+     "cd": 0.03705221433333334,
+     "cm": -0.32714886000000004,
+     "iterations": 148.0,
+     "wall_s": 914.6
+    },
+    {
+     "alpha": 8.0,
+     "cl": 0.8521959424242425,
+     "cd": 0.06618788424242424,
+     "cm": -0.41093332727272724,
+     "iterations": 163.0,
+     "wall_s": 215.3
+    },
+    {
+     "alpha": 9.0,
+     "cl": 0.873673239375,
+     "cd": 0.0785782596875,
+     "cm": -0.408046288125,
+     "iterations": 800.0,
+     "wall_s": 1035.4
+    },
+    {
+     "alpha": 10.0,
+     "cl": 0.907756724375,
+     "cd": 0.090710392375,
+     "cm": -0.414903730625,
+     "iterations": 800.0,
+     "wall_s": 1019.8
+    }
+   ],
+   "area_mm2": 8095.368900065992,
+   "foil": {
+    "family": "cambered",
+    "thickness_ratio": 0.08346834034093867,
+    "camber_ratio": 0.044826588806811576,
+    "camber_position": 0.4
+   },
+   "mesh": {
+    "cells": 1385034,
+    "illegal_faces": 0,
+    "snap_wanted_mean_m": 9.30151e-07,
+    "snap_wanted_max_m": 5.70106e-05
+   }
+  }
+ }
+}

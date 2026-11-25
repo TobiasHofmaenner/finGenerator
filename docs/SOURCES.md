@@ -544,7 +544,7 @@ orientation causes bend-twist coupling.
 as a directional knockdown. Its force polars (tabulated in half-degree steps, sudden stall at
 10.5–11° at Re 0.4–0.6·10⁶; `bench/zarruk/measured/`) are the second measured break of a 3-D blade
 the project has: the lattice and the strip criterion are read against them in `bench/zarruk/`, and
-the simulation recipe in `bench/zarruk/knee/` (started 2026-11-24).
+the simulation recipe in `bench/zarruk/knee/` (2026-11-25: as meshed it stalls one to two and a half degrees early).
 
 ### [Ahn02] Ahn, Montero, Odell, Roundy & Wright (2002) — Anisotropic material properties of FDM ABS
 *Rapid Prototyping Journal 8(4):248–257.* [DOI 10.1108/13552540210441166](https://doi.org/10.1108/13552540210441166)

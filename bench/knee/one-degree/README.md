@@ -255,6 +255,32 @@ The same shells on the shipped gen-2 side, level 6, on the EPYC (`results-exact-
 - **Level 7 on a sound mesh has the same break** (laptop, `results-exact-L7y-gen2-side.json`, item 37: 1 215 487 cells, no flagged faces, snap residual 0.55 µm against 3.8 µm on the first level-7 mesh, mean wall y⁺ 41). 0.4796, 0.7244, 0.7609, 0.7882 at 4°, 8°, 9°, 10°: within 0.9 % of level 6 up to 9°, and 2.3 %, 5.7 %, 9.7 % below the line. 5 % point 8.8°.
 - **So this fin's 8.8° is the first break angle of the record shown against both the surface level and the volume**: 8.8° on level 6, 8.7° with the volume refined, 8.8° on level 7. It is the number of this recipe (steady, turbulent from the nose, wall functions), not yet of a fin in water: the one measured fin breaks before the refined simulation does.
 
+#### Four fins against the surface level and the volume (in overnight, read 2026-11-25 08:00Z)
+
+All on the exact surface, level-7 meshes with the threshold scaled and no flagged faces (snap residual 0.4–0.9 µm). EPYC and laptop; predictions `nose7-prediction.txt`, items 35–37, 40, 41, 46, 47.
+
+| lift 5 % below its own line at | level 6 | level 6, volume refined | level 7 |
+|---|---|---|---|
+| gen-2 side (flat inside) | 8.8° | 8.7° | 8.8° |
+| gen-3 side, tip 0.60 (cambered) | 12.1° | 12.0° | 12.7°; the drop comes between 13° and 14° (level 6: between 12° and 13°) |
+| the same, tip 0.35 | 7.9–8.0° | broken at 8° as before (6.3 % below; no rows at 6° and 7° on this mesh) | 8.6° |
+| tunnel fin (flat inside; tunnel: about 13.6°) | about 14° | 16.1° | on its line at 13° (−2.1 %); at 14° the row falls from 0.98 to 0.86 inside its last 150 iterations (level 6 swings about 1.00 there) |
+
+Rows (lift; against the line through the level-6 row at 0° and the mesh's own row at 4°):
+
+- *gen-3 side, volume refined* (`results-exact-L6-gen3-side-shells.json`, 2 116 586 cells, y⁺ 40): 0.5831, 1.0609, 0.9918, 1.0272, 1.0270 at 4°, 12°, 13°, 14°, 15°: −4.5 % at 12° (steady inside 1.051–1.067), then −15.7 %, −17.4 %, −21.5 % in rows that swing by ±5 %. As meshed: −4.0 % and −17.6 % at 12° and 13°.
+- *gen-3 side, level 7* (`results-exact-L7y-gen3-side.json`, 1 431 211 cells, y⁺ 34): 0.5901, 1.0838, 1.1367, 1.0100 at 4°, 12°, 13°, 14°: −4.3 %, −5.3 %, −20.3 %. The row at 13° ran to the cap and is steady (1.1356–1.1382). Within 0.4 % of the flagged level-7 mesh at 4°, 12° and 13°: that mesh's rows stand.
+- *tip 0.35, volume refined* (`results-exact-L6-gen3-tip035-shells.json`, 2 020 407 cells, y⁺ 39): 0.5884, 0.8000, 0.8456, 0.8914, 0.9402, 0.9346 at 4°, 8°–12°: within 1.6 % of the rows as meshed.
+- *tip 0.35, level 7* (`results-exact-L7y-gen3-tip035.json`, 1 385 034 cells, y⁺ 33): 0.5967, 0.8522, 0.8737, 0.9078 at 4°, 8°, 9°, 10°: −2.1 % at 8° (settled after 163 iterations; level 6 swings 5 % below there), −6.9 %, −9.8 %.
+- *tunnel fin, level 7* (`results-exact-L7y-bw04.json`, 1 517 854 cells, y⁺ 29): 0.4465, 0.8978, 0.9508 at 4°, 12°, 13°, within 0.4 % of level 6; 14° as in the table.
+
+What it says:
+
+- **The volume moves the tunnel fin and no other.** Both side fins and the narrow-tipped one break where they did (items 40, 41, 46). I had leaned to the gen-3 side moving (two in three) and to the narrow tip's break being the volume's: both wrong. The tunnel fin leaves its line slowly and late (−1.5 %, −1.3 %, −2.9 %, −4.4 % from 13° to 16° on the refined volume); the others go in one step.
+- **Level 7 moves the two cambered fins by 0.6–0.7° and not the two flat-inside ones.** Gen-3 side 12.1° to 12.7°, with the drop a full degree later; tip 0.35 from 8.0° to 8.6°; gen-2 side 8.8° on both; tunnel fin within 0.4 % to 13° and at its edge at 14° on both. That is the statement withdrawn on 2026-11-24 (refinement moves the round nose and not the cornered one), now on sound meshes. Whether level 7 is the end of it on the cambered fins is level 8's to say (gen-3 side, item 33, queued).
+- **The tip lever stands at four degrees on every mesh**: 12.1° against 8.0° on level 6, 12.7° against 8.6° on level 7, and the refined volume changes neither. In lift at the 5 % point 1.12 against 0.87 on level 7, a ratio of 0.77 (level 6: 0.76). The strip criterion has 1.8° and 0.86. So the criterion reads half the lever of the tip's width, and the cause is not the meshes checked here. `bladehydro.knee` is not changed yet: the change has to come with the share's dependence on the nose (`../../smith2021/`) and with `HOLD_FLOOR_KNEE`, the hold anchor and the quiz's hold scale read again.
+- **Where the record's angles now stand** (this recipe: steady, turbulent from the nose, wall functions): gen-2 side 8.8°, shown against level and volume. Gen-3 side 12.0–12.7°, tip 0.35 at 8.0–8.6°: the volume does not matter, the level by 0.6–0.7°, level 8 open. Tunnel fin 14–16°: the level does not matter to 13°, the volume by two degrees, and the tunnel has 13.6°.
+
 #### Level 7 as it was meshed: a volume threshold that did not scale (found 2026-11-24, 13:45Z)
 
 The tunnel fin's level-7 run (item 26) stopped in its first row: the mesher ended "with 828882 illegal faces" and the solver diverged. That sent me to the mesher's logs of every exact-surface mesh, which I had not read for the level-7 ones.
@@ -377,7 +403,7 @@ The gen-3 side fin with its tip at 0.35 of the base instead of 0.60 (`fin-gen3-t
 - **That is the share and the suction of the narrow-tipped fins of this record, not of its twin.** First strip to go: tunnel fin 0.66–0.70 (tip 0.45), gen-2 planform 0.70–0.75 (tip 0.37), this fin 0.68–0.69 (tip 0.35), and its wide-tipped twin 0.77–0.81 with the same section, at a nose suction of −3.6 to −4.2. So the share goes with the width of the outer chords.
 - **Those strips are also the coarsest in the record, twice over.** Faces per nose radius: 1.6, 1.4, 1.25, 1.0 (the wide tip: 1.8–2.7). And the volume: as meshed the cells are 0.33 mm from 3 mm off the wall and 0.65 mm from 7 mm, a 150th of the root chord and a 50th of these. The volume moved the tunnel fin's break by two degrees with a tip chord of 45 mm (above), though not the gen-2 side's, which is as narrow (above). I had counted neither before the run.
 - **The exact surface moved the wide tip and not the narrow one.** On the facets at level 5 the pair read 9.1° and 7.6° (lines through 0° and 6°); on the exact surface at level 6, 12.1° and about 8°. A blade whose noses are still under-resolved after the change would do that.
-- **So 8° is a lower reading of this fin's break**, as the cambered section on the gen-2 planform is. Queued on the EPYC (items 46, 47): this fin with the volume shells, and on level 7. If neither moves it, the tip lever is about twice what the strip rule reads, and the rule is wrong for narrow tips.
+- **Checked since (2026-11-25, section "Four fins against the surface level and the volume" above): the refined volume leaves this break where it is, level 7 moves it to 8.6°, and its twin moves by the same 0.6°.** The four degrees between the two tips are not the mesh's. The tip lever is about twice what the strip rule reads.
 
 #### What a blade does to a strip's nose
 
