@@ -31,3 +31,7 @@ Running (EPYC; 4.38–4.40 million cells, no flagged faces). In so far: 0.327 at
 ## Next
 
 Rows at 9° and 9.5° as meshed, to place the stall; and level 7 (eight faces on the nose radius instead of four), rows 8° to 11°, forecast item 49. Both queued on the EPYC.
+
+The level-7 mesh at 10° (laptop, mesh only, 2026-11-25 10:02Z): 3 502 279 cells against 2 872 462, no faces flagged, snap residual 0.73 µm mean (level 6: 0.43 µm; the sound level-7 fin meshes 0.55–1.37 µm). Memory: surface export and mesher 5.1 GiB, 20 iterations with 8 processes 6.4 GiB (6.3 GiB of it process memory by the cgroup's own count). Released on the EPYC at 10:08Z under its 24 GiB cap.
+
+What kind of stall this foil has in its tunnel, and what that means for reading these rows: `../../knee/one-degree/README.md`, "The blades by Gault's ordinate".

@@ -342,6 +342,30 @@ tabulated C_l, pressure and wake drag, −20°…+40°. Maximum lift at Re 0.75�
 **Cited for:** the measured cambered section the 2-D referee is gated on beside [SK81]
 (`bench/ref-osu-naca4415-re0.75M.dat`).
 
+### [Gau57] Gault (1957) — A Correlation of Low-Speed, Airfoil-Section Stalling Characteristics with Reynolds Number and Airfoil Geometry
+*NACA TN 3963.* [NTRS PDF](https://ntrs.nasa.gov/api/citations/19930084707/downloads/19930084707.pdf)
+(added 2026-11-25; read in full)
+About 700 stalls of some 260 section shapes from the NACA low-turbulence two-dimensional tunnels
+(Re 0.7–25×10⁶, smooth surfaces, no devices), each classed by the look of its lift curve as
+trailing-edge stall (well-rounded peak), leading-edge stall (no change of slope before the peak, then
+an abrupt drop), thin-airfoil stall (rounded peak, usually after a discontinuity when the long bubble
+forms) or a combination of the first two, and plotted against Reynolds number and ONE ordinate: the
+suction side's height above the chord line at 1.25 % chord (Fig. 1, Table I). Below Re about 10⁶ the
+leading-edge and combined types do not occur, and thin-airfoil stall reaches thicker and more cambered
+sections as the Reynolds number falls: read off Fig. 1, at 10⁶ every section up to an ordinate of
+1.7 % stalls that way and the one at 1.89 % (the NACA 0012's value) from the leading edge; at 0.7×10⁶
+the sections at 1.41 %, 1.65 %, 1.89 % and 2.24 % do, with trailing-edge stalls between them from
+1.8 %. Above about 2.4 % the stall is from the trailing edge at every Reynolds number shown (the NACA
+230 series excepted).
+The author's own limits: "appropriate only to airfoils … in flows of very low turbulence and with
+aerodynamically smooth surfaces", the ordinate "has no apparent physical significance", the classing
+was "admittedly arbitrary" in some cases, and the NACA 230 series does not fit.
+**Cited for:** what kind of stall each blade of the knee record has, and so what a fully turbulent
+simulation can be expected to share with its tunnel (`bench/knee/one-degree/README.md`, "The blades by
+Gault's ordinate"): the NACA 0009 of [Zar14] (1.42 %, Re 0.6×10⁶) and the NACA 0012 of [Smi21]
+(1.89 %, Re 0.4–1.2×10⁶) both sit where a laminar bubble sets the stall; the flat-inside fins (2.8–2.9 %
+on the curved side) sit with the trailing-edge stalls, the cambered gen-3 section (1.77 %) on the border.
+
 ### [McC87] McCroskey (1987) — A Critical Assessment of Wind Tunnel Results for the NACA 0012 Airfoil
 *NASA TM 100019 / USAAVSCOM TR 87-A-5.* [NTRS 19880002254](https://ntrs.nasa.gov/citations/19880002254)
 (added 2026-11-21)
