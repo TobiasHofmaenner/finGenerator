@@ -859,6 +859,18 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   second measured blade: the hydrofoil of [Zar14] stalls between 8° and 10°
   as meshed against 10.5–11° in the tunnel (`bench/zarruk/knee/`); its
   refined-volume polar is running.
+  *Two NACA reports read, 2026-11-25 10:25Z* ([Gau57], [JS37]): the two
+  measured symmetric blades stall by a laminar bubble the simulation does
+  not have, so their break angles do not judge the recipe on the fins
+  (`bench/knee/one-degree/README.md`, "The blades by Gault's ordinate"); and
+  sections of our own families measured in a turbulent stream at a fin's
+  Reynolds numbers put the table 12–25 % high on the 9 % cambered section
+  nearest the gen-3 side's and about right at 12 %, with the thickness
+  trend of the limit the other way round
+  (`bench/section-gate/measured/README.md`). The unswept measured blades
+  stall where a strip reaches its section's *measured* maximum: the
+  "share" on them is the table's excess. For the criterion's rework: a
+  section limit anchored to measurement, times what sweep takes.
   *Running or queued (2026-11-24, 14:45Z):* the tunnel fin at 14°, 15° and
   18° with the volume refined, then the gen-2 side and the gen-3 side with
   the same refinement; level 7 again, with the threshold fixed, on the
@@ -1024,6 +1036,11 @@ the ends of a section's range or past the knee: it separates early
   earlier model. Starts from what is already known: every dimension of a
   gen-3 winner is set by a gate or a bound (`bench/design-points/`), and D13
   (which gates a quiz rider gets) is open.
+  Added 2026-11-25: the section table charges nothing in hold for a thinner
+  section at these Reynolds numbers, where a turbulent-stream tunnel has
+  about 0.1 of section lift per 3 % of thickness ([JS37],
+  `bench/section-gate/measured/README.md`); check which winners sit at a
+  thickness bound for that reason.
 
 ## Parallel track (in flight, independent of gen 3)
 

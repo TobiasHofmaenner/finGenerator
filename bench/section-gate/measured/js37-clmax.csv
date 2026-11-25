@@ -1,0 +1,85 @@
+# Section maximum lift against Reynolds number, copied from Table I ("Important airfoil section
+#   characteristics", report page 39) of Jacobs & Sherman (1937), NACA Report 586 [JS37]:
+#   https://ntrs.nasa.gov/api/citations/19930091662/downloads/19930091662.pdf
+# NACA variable-density tunnel: rectangular wings of aspect ratio 6 (5 x 30 in, polished metal), the
+# measured wing maximum raised by 7 % to a section value (rounded-tip correction and 4 % for the centre
+# section's load, the report's "third approximation"). The tunnel's stream is turbulent: re_effective is
+# the test Reynolds number times the tunnel's turbulence factor, 2.64 (the Reynolds number at which the
+# authors apply the value to free air); re_test = re_effective / 2.64 is what the model ran at.
+# peak: the report's type of lift-curve peak (sketched under its Table I). A = the lift drops at once
+#   from its peak to a lower level; B = it falls quickly after the peak; C = an upper branch up to the peak
+#   and a separate lower branch behind it, the path between them not observed; D = rounded peak, gradual fall.
+# Copied by eye from the page image at 440 dpi; the values of the NACA 0009, 0012, 4409, 4412 and 4415
+# checked against the points of the report's Figs. 28 and 32 (within 0.02).
+section,re_effective_millions,cl_max,peak
+0009,8.290,1.39,A
+0009,6.100,1.28,A
+0009,3.410,0.94,D
+0009,1.760,0.88,D
+0009,0.882,0.86,D
+0009,0.446,0.85,D
+0009,0.223,0.83,D
+0009,0.112,0.78,D
+0012,8.370,1.66,A
+0012,8.450,1.65,A
+0012,6.280,1.62,A
+0012,3.540,1.49,A
+0012,1.740,1.18,A
+0012,0.871,0.91,D
+0012,0.449,0.89,D
+0015,8.610,1.66,A
+0015,5.990,1.60,A
+0015,3.350,1.48,C
+0015,1.730,1.28,C
+0015,0.874,1.09,C
+0015,0.438,0.98,D
+0015,0.222,0.89,D
+0015,0.113,0.90,D
+0018,7.840,1.53,A
+0018,6.240,1.53,A
+0018,3.300,1.42,C
+0018,1.730,1.26,D
+0018,0.866,1.15,C
+0018,0.430,1.03,A
+0018,0.214,0.96,D
+0018,0.109,0.86,D
+2412,8.240,1.72,A
+2412,6.100,1.68,A
+2412,3.420,1.53,C
+2412,1.730,1.33,D
+2412,0.879,1.16,D
+2412,0.438,1.08,D
+2412,0.218,1.08,D
+2412,0.110,1.03,D
+4409,8.080,1.77,A
+4409,5.970,1.70,D
+4409,3.340,1.50,C
+4409,1.700,1.29,D
+4409,0.869,1.26,D
+4409,0.438,1.23,D
+4409,0.218,1.21,D
+4409,0.110,1.09,D
+4412,7.920,1.74,D
+4412,6.100,1.70,D
+4412,3.270,1.61,D
+4412,1.680,1.46,D
+4412,0.874,1.36,D
+4412,0.433,1.31,D
+4412,0.219,1.32,D
+4412,0.111,1.20,D
+4415,7.920,1.72,C
+4415,6.280,1.66,D
+4415,3.340,1.56,D
+4415,1.730,1.48,D
+4415,0.882,1.41,D
+4415,0.431,1.35,D
+4415,0.219,1.34,D
+4415,0.110,1.34,D
+6412,8.210,1.82,D
+6412,6.020,1.75,D
+6412,3.350,1.64,D
+6412,1.700,1.54,D
+6412,0.882,1.48,D
+6412,0.441,1.47,D
+6412,0.219,1.46,D
+6412,0.110,1.45,D

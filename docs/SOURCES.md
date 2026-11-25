@@ -317,6 +317,28 @@ crediting leading-edge vortex lift on unswept planforms; low Re-sensitivity.
 The original NACA 4-digit definition: thickness polynomial and two-parabola camber line.
 **Cited for:** the exact section equations implemented in `foil.py`.
 
+### [JS37] Jacobs & Sherman (1937) — Airfoil Section Characteristics as Affected by Variations of the Reynolds Number
+*NACA Report 586.* [NTRS PDF](https://ntrs.nasa.gov/api/citations/19930091662/downloads/19930091662.pdf)
+(added 2026-11-25; text, Table I and Figs. 9, 28, 32–36 read; the drag figures and the appendix on
+the tunnel's calibration skimmed)
+Sections of the NACA families, among them the 0009, 0012, 0015, 0018, 2412, 4409, 4412, 4415 and 6412, in
+the variable-density tunnel at tank pressures from a quarter to 20 atmospheres: test Reynolds numbers
+4×10⁴ to 3.1×10⁶ on polished 5 × 30 in rectangular wings. The tunnel's stream is turbulent; the
+report applies each result to free air at an "effective" Reynolds number of 2.64 times the test
+value. Section values are derived from the wing's: the maximum lift is raised by 7 % (rounded-tip
+tests and 4 % for the centre section's load). Table I gives the section maximum lift, lift slope,
+zero-lift angle and minimum drag at each Reynolds number, with the type of lift-curve peak. Below a
+critical Reynolds number, higher for a smaller nose radius (about 10⁶ effective for the NACA 0012 by
+the text; the 0009's values begin to rise at 3×10⁶), "separation of the laminar boundary layer will always be present at a point
+near the nose" and the symmetric sections' maximum is "of the order of 0.8", changing "little with
+either R or the section thickness"; camber adds its lift at zero incidence on top of that. The lift
+slope "begins to display abnormal variations" below about 8×10⁵, and the authors rate their drag and
+moment results below that as "relatively inaccurate".
+**Cited for:** the section table's limits against sections of its own families measured in a
+turbulent stream at a fin's Reynolds numbers (`bench/section-gate/measured/README.md`,
+`js37-clmax.csv`): 12–25 % high on the NACA 4409, 2–30 % on the 0009, within about 10 % at 12 %
+thickness; the measured maximum of a thin section does not grow with the Reynolds number there.
+
 ### [AvD59] Abbott & von Doenhoff (1959) — Theory of Wing Sections
 *Dover, 704 pp.* [Google Books record](https://books.google.com/books/about/Theory_of_Wing_Sections.html?id=lWe8AQAAQBAJ)
 Complete NACA construction: thickness ⊥ camber line, r_LE = 1.1019 (t/c)²·c, plus tabulated
