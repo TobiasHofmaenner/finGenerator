@@ -26,4 +26,8 @@ Run: `finGenerator-cfd/scripts/zarruk_knee.py`: the paper's tunnel (0.6 × 0.6 �
 
 ## With the volume refined
 
-Running (EPYC; 4.38–4.40 million cells). 4° is in: 0.327, within 0.5 % of the mesh above.
+Running (EPYC; 4.38–4.40 million cells, no flagged faces). In so far: 0.327 at 4°, within 0.5 % of the mesh above; **0.679 at 10°, swinging 0.63–0.72, drag 0.077: stalled as on the mesh as it was.** The volume does not place this stall (item 43, second alternative; I had leaned to the first).
+
+## Next
+
+Rows at 9° and 9.5° as meshed, to place the stall; and level 7 (eight faces on the nose radius instead of four), rows 8° to 11°, forecast item 49. Both queued on the EPYC.

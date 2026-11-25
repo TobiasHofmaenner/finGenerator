@@ -595,3 +595,18 @@ Added 2026-11-25 08:58Z. Item 38 as found (laptop, symmetric t/c 0.080 on the ge
     origin and 4 deg: -0.4 / -1.3 / -6.9 % (10 deg: windows 0.607 / 0.601 / 0.584, falling). The partly snapped level-7 mesh and
     level 6 both had 0.5404 at 9 deg (-4.8 and -5.0 %). A later break (even odds given): 5 % point 9.7 deg against 9.0 / 9.1.
     So "levels 6 and 7 agree on the thick symmetric blade" (2026-11-23) was the unsnapped mesh's doing.
+
+Added 2026-11-25 09:00Z, with items 42 and 44 read, the first rows of item 43 (shells: 4 deg 0.3272; 10 deg 0.6788, windows 0.682 / 0.703 /
+0.678, range 0.630-0.716, drag 0.077: stalled as on the mesh as it was, 0.6854 / 0.079) and the first row of item 48 (short blade
+of [Smi21], 4 deg: 0.2006, measured 0.184, lattice 0.197; ceiling layer 28 mm at the probe, measured 19). No level-7 mesh of the
+[Zar14] foil exists.
+43 so far: the second alternative (within 0.5 deg of item 42's): at 10 deg the refined volume changes nothing. I had leaned to
+    "later by 1-2 deg". The remaining rows (11-14 deg) are past the stall on both meshes.
+49. the [Zar14] foil at level 7, volume as meshed, rows 8, 9, 10, 11 deg (EPYC, after its memory has been seen on the laptop).
+    Level 6 has four faces on the nose radius at the most loaded strip, level 7 eight. On the record's round-nosed blades
+    level 7 moved the break by 0.6-0.7 deg (symmetric t/c 0.080: 9.0 to 9.7 deg; gen-3 side 12.1 to 12.7; tip 0.35 8.0 to 8.6),
+    with one to three faces on the radius at level 6.
+    If the early stall is the nose's resolution: 10 deg attached (lift above 0.75, drag below 0.055), stall at 10.5-12 deg.
+    If it is not: 10 deg stalled as on level 6 (lift 0.66-0.71, drag above 0.07). Then neither the volume nor the surface level
+    places this foil's stall, and the early stall is the method's (wall functions on a thin nose at this Reynolds number).
+    I expect level 7 to move it by half a degree to a degree: 9 deg attached, 10 deg stalled or swinging between the two.
