@@ -871,6 +871,14 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   stall where a strip reaches its section's *measured* maximum: the
   "share" on them is the table's excess. For the criterion's rework: a
   section limit anchored to measurement, times what sweep takes.
+  *The first swap on level 7 (2026-11-25, 11:49Z):* the gen-3 section on
+  the gen-2 planform breaks at 9.5° at a lift of 0.86, not at level 6's 8.7°
+  at 0.81: the largest move with level 7 of any fin (0.8°), on the fin with
+  the fewest faces on its outer noses. On level 7 the cambered section is
+  worth +0.7° and ×1.14 in lift on the gen-2 planform (the criterion: ×1.00
+  to ×1.02). Level 8 started on the laptop on this fin (item 50) and on the
+  gen-3 side (item 33, taken off the EPYC's queue): whether the recipe has
+  a mesh on which a round nose's break stops moving.
   *Running or queued (2026-11-24, 14:45Z):* the tunnel fin at 14°, 15° and
   18° with the volume refined, then the gen-2 side and the gen-3 side with
   the same refinement; level 7 again, with the threshold fixed, on the

@@ -610,3 +610,36 @@ of [Smi21], 4 deg: 0.2006, measured 0.184, lattice 0.197; ceiling layer 28 mm at
     If it is not: 10 deg stalled as on level 6 (lift 0.66-0.71, drag above 0.07). Then neither the volume nor the surface level
     places this foil's stall, and the early stall is the method's (wall functions on a thin nose at this Reynolds number).
     I expect level 7 to move it by half a degree to a degree: 9 deg attached, 10 deg stalled or swinging between the two.
+
+Added 2026-11-25 11:46Z. Item 22'' as found (laptop, gen-2 planform with the gen-3 section, level 7 with minVol scaled:
+    1 252 077 cells, no flagged faces, snap residual 1.37 um mean / 83 um max, y+ 37).
+    0.5558 / 0.8012 / 0.8417 / 0.8722 / 0.8957 / 0.9497 at 4 / 8 / 9 / 10 / 11 / 12 deg; against level 6
+    +0.1 / +0.9 / +3.7 / +3.8 / +2.4 / +3.9 %. Against the line through 0.3039 (0 deg, level 6) and its own 4 deg:
+    -0.8 / -3.3 / -6.6 / -10.1 / -10.4 %. 4 and 8 deg settled (141, 143 iterations); from 9 deg at the cap, window means
+    within 0.4 % (9 deg: 0.8452 / 0.8466 / 0.8406, range in the last 0.818-0.858; 10 deg: 0.8693 / 0.8697 / 0.8715).
+    5 % point 9.5 deg at a lift of 0.86 (level 6: 8.7 deg at 0.81). The second alternative: level 6 did not have it.
+    It lands inside item 22' (9.3-9.8 deg at 0.86-0.90, from the gen-3 fin's share of 0.81).
+    Strips (strip-loads.json, run gen2-planform-gen3-section-L7y): the ones at z/depth 0.76 and 0.85 are first, 5 % short
+    at 8.4 deg of blade angle (level 6: 8.1), at 0.76 and 0.74 of their sections' limit (0.75, 0.72). Their noses have
+    1.9 and 1.6 level-7 faces on the radius (1.1 and 0.9 on level 6), and their lowest pressure at 8 deg is -3.75 and
+    -3.66 against -3.17 and -2.94 on level 6: the suction peak is still growing with the level.
+    This is the largest move with level 7 of any fin (0.8 deg; the others 0.6-0.7), on the fin with the fewest faces.
+
+Written 2026-11-25 11:46Z, BEFORE any level-8 row of either fin exists (the gen-3 side's level-8 probe mesh of item 34 ran 20
+iterations for memory; no force was read from it). Both on the laptop, 12 processes beside the [Smi21] polar.
+33, a lean added. gen-3 side, level 8, rows 4, 12, 13, 14 deg (moved from the EPYC's queue to the laptop).
+    Level 7 has 3.6-5.4 faces on the nose radius of the strips that let go, level 8 twice that.
+    Level 6 to 7 moved the 5 % point by 0.6-0.8 deg on four round-nosed blades whose counts ran from 0.8 to 2.7,
+    with little sign that the better-resolved ones moved less (0.6 at 1.8-2.7, 0.8 at 0.8-1.4).
+    I expect it to move again, by less: 12 deg within 1 % of level 7 (1.0838), 13 deg 0.5-2 % above level 7
+    (1.142-1.160; level 7 1.1367, 5.3 % below the line), the 5 % point at 12.9-13.4 deg (level 7: 12.7).
+    14 deg: dropped as on level 7 (two in three) or holding near 1.19-1.21 (one in three).
+    If it is within 0.2 deg of 12.7: about 4-5 faces per nose radius is enough for this recipe, and the fins
+    with fewer on level 7 (the swap 1.4-1.9, tip 0.35 and the symmetric t/c 0.080 blade 2-3.4) are lower readings still.
+    If it moves 0.5 deg or more: the recipe has no mesh we can run on which a round nose's break is settled.
+50. gen-2 planform with the gen-3 section, level 8, rows 4, 8, 9, 10, 11 deg (behind item 33).
+    Level 8 gives its first strips 3.1-3.8 faces per nose radius, what the gen-3 side has on level 7.
+    I expect a later break again: 9 deg within 2.5 % of the line (0.849 or more; level 7 0.8417), the 5 % point at
+    9.8-10.3 deg (level 7: 9.5), at a lift of 0.88-0.92.
+    If it stays within 0.2 deg of 9.5: this fin's level-7 reading stands, and the section is worth 0.7 deg on the
+    gen-2 planform (9.5 against the flat-inside 8.8).
