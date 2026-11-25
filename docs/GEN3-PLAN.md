@@ -879,6 +879,16 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   to ×1.02). Level 8 started on the laptop on this fin (item 50) and on the
   gen-3 side (item 33, taken off the EPYC's queue): whether the recipe has
   a mesh on which a round nose's break stops moving.
+  *Level 8 on the gen-3 side (2026-11-25, 14:40Z):* rows before the
+  break rise another 1 % (12° 1.094, 13° 1.147); the strips let go between
+  13° and 14° as on level 7 (level 6: between 12° and 13°). The 5 % point
+  reads 12.1°, 12.7°, 13.3° on the three levels, a measure that half a
+  percent at 4° moves by half a degree on this fin. The level also thins
+  the wall cell (y⁺ 40, 34, 22), so the series runs toward the resolved
+  wall, which is late against tunnels on a round nose: finer is not nearer
+  a fin in water here. Rows at 13.5° on levels 7 and 8 running (item 51).
+  For the rework this means the simulation cannot give the cambered fin's
+  absolute hold; the flat-inside fins' it gives the same on every mesh.
   *Running or queued (2026-11-24, 14:45Z):* the tunnel fin at 14°, 15° and
   18° with the volume refined, then the gen-2 side and the gen-3 side with
   the same refinement; level 7 again, with the threshold fixed, on the

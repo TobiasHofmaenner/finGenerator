@@ -262,7 +262,7 @@ All on the exact surface, level-7 meshes with the threshold scaled and no flagge
 | lift 5 % below its own line at | level 6 | level 6, volume refined | level 7 |
 |---|---|---|---|
 | gen-2 side (flat inside) | 8.8° | 8.7° | 8.8° |
-| gen-3 side, tip 0.60 (cambered) | 12.1° | 12.0° | 12.7°; the drop comes between 13° and 14° (level 6: between 12° and 13°) |
+| gen-3 side, tip 0.60 (cambered) | 12.1° | 12.0° | 12.7°; the drop comes between 13° and 14° (level 6: between 12° and 13°). Level 8: 13.3°, section below |
 | the same, tip 0.35 | 7.9–8.0° | broken at 8° as before (6.3 % below; no rows at 6° and 7° on this mesh) | 8.6° |
 | tunnel fin (flat inside; tunnel: about 13.6°) | about 14° | 16.1° | on its line at 13° (−2.1 %); at 14° the row falls from 0.98 to 0.86 inside its last 150 iterations (level 6 swings about 1.00 there) |
 | symmetric t/c 0.080 on the gen-2 planform (in 2026-11-25 08:58Z) | 9.0° | not run | 9.7° |
@@ -284,6 +284,22 @@ What it says:
 - **Level 7 moves the round-nosed blades by 0.6–0.8° and not the two flat-inside ones.** The symmetric t/c 0.080 blade goes from 9.0° to 9.7°: "levels 6 and 7 agree" on that blade was the first level-7 mesh's unsnapped points, which held its outer noses where level 6 had them. Gen-3 side 12.1° to 12.7°, with the drop a full degree later; tip 0.35 from 8.0° to 8.6°; gen-2 side 8.8° on both; tunnel fin within 0.4 % to 13° and at its edge at 14° on both. That is the statement withdrawn on 2026-11-24 (refinement moves the round nose and not the cornered one), now on sound meshes. The gen-3 section on the gen-2 planform, in later, moves most (8.7° to 9.5°) and has the fewest faces on its outer noses (0.9–1.1 per nose radius on level 6, 1.6–1.9 on level 7); its lowest pressure at 8° is still 18–24 % deeper on level 7 than on level 6. Whether level 7 is the end of it on the cambered fins is level 8's to say: the gen-3 side (item 33) and this fin (item 50), both started on the laptop 2026-11-25 11:47Z.
 - **The tip lever stands at four degrees on every mesh**: 12.1° against 8.0° on level 6, 12.7° against 8.6° on level 7, and the refined volume changes neither. In lift at the 5 % point 1.12 against 0.87 on level 7, a ratio of 0.77 (level 6: 0.76). The strip criterion has 1.8° and 0.86. So the criterion reads half the lever of the tip's width, and the cause is not the meshes checked here. `bladehydro.knee` is not changed yet: the change has to come with the share's dependence on the nose (`../../smith2021/`) and with `HOLD_FLOOR_KNEE`, the hold anchor and the quiz's hold scale read again.
 - **Where the record's angles now stand** (this recipe: steady, turbulent from the nose, wall functions): gen-2 side 8.8°, shown against level and volume. Gen-3 side 12.0–12.7°, tip 0.35 at 8.0–8.6°: the volume does not matter, the level by 0.6–0.7°, level 8 open. Tunnel fin 14–16°: the level does not matter to 13°, the volume by two degrees, and the tunnel has 13.6°.
+
+#### Level 8 on the gen-3 side: the rows rise another 1 %, the strips let go in the same degree as on level 7 (2026-11-25, 14:37Z)
+
+Laptop, `results-exact-L8y-gen3-side.json`: 2 151 516 cells, no flagged faces, snap residual 0.69 µm, mean wall y⁺ 22 (0.2 to 75; level 6: 40, level 7: 34). Prediction: `nose7-prediction.txt`, item 33, with a lean added before any row.
+
+| gen-3 side, 8.5 m/s | 4° | 12° | 13° | 14° | 5 % below its own line at | on level 6's line |
+|---|---|---|---|---|---|---|
+| level 6 | 0.5854 | 1.0729 | 0.9760 (dropped) | 0.9515 | 12.1° | 12.1° |
+| level 7 | 0.5901 | 1.0838 | 1.1367 | 1.0100 (dropped) | 12.7° | 13.1° |
+| **level 8** | 0.5871 | 1.0937 | 1.1465 | 1.1477 (at the cap; windows 1.170, 1.156, 1.149, range 1.119–1.170) | **13.3°** | 13.35° |
+
+- **Before the break every row rises about 1 % a level.** 12°: +1.0 %, then +0.9 %. 13°: +0.9 % from level 7 to 8. On level 8 the rows at 12° and 13° settle (198 and 301 iterations); level 7 needed the cap at 13°.
+- **The strips let go in the same degree on levels 7 and 8** (`strip-loads.txt`, runs `gen3-side-sliders-L7y` and `-L8y`). At 13° every strip is within 5 % of the lattice on both (0.95–0.99 and 0.96–1.00 of its value at 4°); at 14° the outer ones are not. On level 6 that happens between 12° and 13°. At 14° on level 8 the strips from z/depth 0.76 outward have gone and the row is still falling at the cap; on level 7 the whole fin has dropped there. Past the break: not read further.
+- **The 5 % point is a poor measure on this fin.** Its curve runs 3–5 % below its line for two degrees before it drops, so half a percent in the row at 4° (0.5854, 0.5901, 0.5871 on the three levels) moves the point by up to half a degree. On each mesh's own line: 12.1°, 12.7°, 13.3°, a steady 0.6° a level. On one line: 12.1°, 13.1°, 13.35°, a degree and then a quarter. Item 33's test was written on the first measure and by its letter the second alternative holds ("0.5° or more: no mesh we can run settles it"). I do not think the measure carries that; what the rows show is a break between 13° and 14° on both levels. Rows at 13.5° on both are queued to say whether the two agree closer than a degree (item 51).
+- **The level is also the wall.** These meshes have no layers, so each level thins the wall cell wherever it refines the surface: mean y⁺ 40, 34, 22. The series is one in the wall treatment too, and its direction (the suction peak held longer: lowest pressure at 12° on the strips at z/depth 0.52–0.76 is −4.1 to −4.2, −4.3 to −4.7, −4.6 to −4.8 on levels 6, 7, 8) is the one `docs/CFD-BENCH.md` has for a resolved wall against wall functions. A resolved wall on a round nose is in turn late against tunnels in 2-D (`bench/section-gate/`). So finer is not nearer a fin in water here; it is nearer what this turbulence model does with a wall it resolves.
+- **Where the gen-3 side's angle stands on this recipe:** the break between 13° and 14° on levels 7 and 8; the 5 % point 12.7–13.3°. Against the gen-2 side's 8.8°, which neither level nor volume moves: four to four and a half degrees. The recipe gives the round-nosed cambered fin more with each level and the flat-inside one the same.
 
 #### The blades by Gault's ordinate (2026-11-25, 10:12Z): a reading of a correlation, not a result
 

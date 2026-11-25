@@ -643,3 +643,36 @@ iterations for memory; no force was read from it). Both on the laptop, 12 proces
     9.8-10.3 deg (level 7: 9.5), at a lift of 0.88-0.92.
     If it stays within 0.2 deg of 9.5: this fin's level-7 reading stands, and the section is worth 0.7 deg on the
     gen-2 planform (9.5 against the flat-inside 8.8).
+
+Added 2026-11-25 14:37Z. Item 33 as found (laptop, gen-3 side, level 8 with minVol scaled: 2 151 516 cells, no flagged faces,
+    snap residual 0.69 um mean / 41 um max, y+ 22 (0.2 to 75); peak memory 5.7 GiB with 12 processes).
+    0.5871 / 1.0937 / 1.1465 / 1.1477 at 4 / 12 / 13 / 14 deg. 4, 12 and 13 deg settled (147, 198, 301 iterations);
+    14 deg at the cap, windows 1.1697 / 1.1560 / 1.1488 (falling), range in the last 1.119-1.170.
+    Against level 7: -0.5 / +0.9 / +0.9 / +13.6 % (level 7 had dropped at 14 deg; level 8 has not, within 800 iterations).
+    Against the line through 0.3192 (0 deg, level 6) and its own 4 deg: -2.6 / -3.7 / -8.7 %: 5 % point 13.3 deg
+    at a lift of 1.15 (level 7: 12.7 at 1.12; level 6: 12.1 at 1.07).
+    Forecast: 12 deg within 1 % of level 7 (met, +0.9 %); 13 deg 0.5-2 % above (met, +0.9 %); 5 % point 12.9-13.4 (met);
+    14 deg dropped, or holding near 1.19-1.21: neither (1.15, falling slowly).
+    The test as I wrote it: moved 0.53 deg on own lines, so by its letter "0.5 deg or more: no mesh we can run settles it".
+    I do not think it carries that. The measure is badly conditioned on this fin: its curve runs 3-5 % below the line
+    for two degrees before it drops, and the 4 deg row differs by 0.5-0.8 % between levels (0.5854 / 0.5901 / 0.5871),
+    which moves the point by up to half a degree. On ONE line (level 6's) the three levels read 12.1 / 13.1 / 13.35 deg.
+    Strips (strip-loads.json; level 7 pulled from the EPYC for this): at 13 deg every strip is within 5 % of the lattice
+    on level 7 (0.95-0.99) and on level 8 (0.96-1.00); at 14 deg the outer ones are not, on both. On level 6 that
+    happens between 12 and 13 deg. So the strips let go in the same degree on levels 7 and 8, one degree later than on 6.
+    Lowest pressure at 12 deg, strips at z/depth 0.52 / 0.65 / 0.76: -4.05 / -4.22 / -4.08 on level 6, -4.40 / -4.69 / -4.32
+    on level 7, -4.56 / -4.60 / -4.79 on level 8.
+    Not controlled: there are no layers, so each level also thins the wall cell (y+ 40 / 34 / 22). The level series is
+    a series in the wall treatment too, and its direction (holding the peak longer) is the one docs/CFD-BENCH.md
+    has for a resolved wall against wall functions.
+
+Written 2026-11-25 14:40Z, BEFORE either row exists (item 50 is meshing; no row of it read).
+51. gen-3 side at 13.5 deg on level 8 (added to the mesh of item 33) and on level 7 (meshed again on the laptop, with
+    its row at 4 deg as the check against the EPYC's mesh: within 0.3 % of 0.5901). Do the two levels agree closer
+    than the degree between their rows?
+    Lines: level 8 1.2235 at 13.5 deg, level 7 1.2337.
+    Level 8: attached, 1.156-1.178 (3.7-5.5 % below its line), settled or steady at the cap.
+    Level 7: I do not know. Its 13 deg row needed the cap and stayed steady (1.1356-1.1382), its 14 deg row dropped.
+    Even odds between holding (1.150-1.170) and dropped (below 1.08).
+    Both holding: the break is between 13.5 and 14 deg on both levels, and level 7 has this fin to half a degree.
+    Level 7 dropped, level 8 holding: level 8 is later by half a degree to a degree, and the level has not stopped.
