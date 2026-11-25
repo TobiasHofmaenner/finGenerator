@@ -589,3 +589,9 @@ Added 2026-11-25 08:07Z. Items 42 and 44 as found ([Zar14] foil as meshed, EPYC;
     None of a, b, c as written: earlier than a's range in lift (0.78-0.90) and at or before its early end in angle (9.2 deg);
     I had expected 10-12 deg. The agreement test fails (highest lift 0.11 low). Rows at 9 and 9.5 deg are needed to place it.
     44: the ceiling's layer is 20-23 mm at the probe, not 8-10 mm (measured 19).
+
+Added 2026-11-25 08:58Z. Item 38 as found (laptop, symmetric t/c 0.080 on the gen-2 planform, level 7 with minVol scaled: 1 262 711 cells, no
+    flagged faces, 0.72 um / 52 um, y+ 39): 0.2515 / 0.5011 / 0.5583 / 0.5853 at 4 / 8 / 9 / 10 deg. Against the line through the
+    origin and 4 deg: -0.4 / -1.3 / -6.9 % (10 deg: windows 0.607 / 0.601 / 0.584, falling). The partly snapped level-7 mesh and
+    level 6 both had 0.5404 at 9 deg (-4.8 and -5.0 %). A later break (even odds given): 5 % point 9.7 deg against 9.0 / 9.1.
+    So "levels 6 and 7 agree on the thick symmetric blade" (2026-11-23) was the unsnapped mesh's doing.
