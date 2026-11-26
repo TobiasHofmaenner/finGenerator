@@ -940,6 +940,27 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   (0.99–1.13). Level 7 breaks between 13° and 13.5°, level 8 between 13.5°
   and 14°: half a degree apart, so the level has not stopped on this fin
   either (5 % point 12.1°, 12.7°, 13.6°).
+  *The narrow tip on level 8 (item 55, 2026-11-26, 14:04Z):* 9.6° (levels 6,
+  7: 8.0°, 8.6°; forecast 8.9–9.3° missed). It moved a degree, as its twin
+  did, so the tip lever is 4.1°, 4.1°, 4.0° on three levels and neither
+  angle is settled. Where the criterion's 1.8° comes from is now taken
+  apart (`lever_by_share.py`, `share_brackets.py`): the lattice read at one
+  share of the most loaded strip gives 1.9° at the onset share (0.606) and
+  2.6–2.8° at the share the meshes' strips let go at (0.80–0.85), so two
+  thirds of the difference in angle is where on the curve the criterion
+  marks. The last third is a difference in share: on level 8 the wide tip
+  holds with its most loaded strip at 0.87 of its limit, the narrow tip and
+  the swap fin have let go by 0.84–0.85 (level 7: 0.85 against 0.79). In
+  force, which is what hold is counted in, that is the whole difference:
+  the criterion rates the narrow tip at 0.86 of the wide one, the meshes at
+  0.76, 0.77, 0.79. Read at one strip position (z/depth 0.76) the three
+  fins agree (0.82–0.84), so the correction made here earlier today ("one
+  share of the section's own limit holds across planforms") holds for that
+  strip and NOT for the most loaded one, which is what `bladehydro.knee`
+  reads. Open between resolution (the gap narrowed with the level) and a
+  sweep term (the break starting in the outer quarter wherever the most
+  loaded strip is); all three fins have 26–28° of sweep. Goes on the list
+  for the criterion's rework; nothing is changed.
   *Running or queued (2026-11-24, 14:45Z):* the tunnel fin at 14°, 15° and
   18° with the volume refined, then the gen-2 side and the gen-3 side with
   the same refinement; level 7 again, with the threshold fixed, on the

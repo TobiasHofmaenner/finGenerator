@@ -858,3 +858,24 @@ Written 2026-11-26 12:59Z, BEFORE the run is started.
     If it lands at 9.2 deg or later: the flat-inside nose moves with the level too, later than the round ones
     started to, and the gen-2 end of the hold comparison is as open as the gen-3 end.
     Memory: the level-8 step of the fin on this planform (item 50) peaked at 5.7 GiB on the laptop with 12 processes.
+
+Added 2026-11-26 14:02Z. Item 55 as found (laptop, the narrow-tipped gen-3 fin on level 8: 2 086 092 cells, no flagged faces, snap
+    residual 0.71 um, y+ 22 (0.3 to 75); the step's peak 4.4 GiB with 12 processes):
+    0.5937 / 0.8534 / 0.9152 / 0.9304 at 4, 8, 9, 10 deg (drag 0.0368 / 0.0661 / 0.0749 / 0.0879). Rows to 9 deg
+    settled after 151-162 iterations; 10 deg at the cap and steady (windows 0.9255 / 0.9282 / 0.9304, range in the
+    last 0.919-0.942). Against the line through 0.3234 and its 4 deg row: -1.2 / -1.8 / -6.9 %. 5 % point 9.6 deg.
+    Forecast 8.9-9.3 deg: missed, it is later. 8 deg within 1.5 %: met. 9 deg 3-5.5 % below: missed (1.8 %).
+    First strips at 0.76-0.83 of their limit: met for the two that carry the most (0.81 and 0.78 at z/depth 0.76
+    and 0.85, 5 % short at 9.3 and 9.2 deg, 6.2 and 5.5 faces on the nose radius); the next two out go with them
+    at 0.69 and 0.61.
+    Neither of the two readings I wrote. It did not stay within 0.7 deg of level 7 and it did not reach 9.8 deg:
+    it moved one degree, as its twin did (12.7 to 13.6 deg). So the lever is 4.1 / 4.1 / 4.0 deg on levels 6, 7, 8
+    (12.1 - 8.0, 12.7 - 8.6, 13.6 - 9.6), in lift at the 5 % point a ratio of 0.76 / 0.77 / 0.79 (criterion 0.86),
+    and both fins are a degree later than on level 7 with no end shown.
+    Not forecast, found in the strips (share_brackets.py, rows only, no interpolation): on level 8 the wide tip
+    holds every strip at 13.5 deg with its most loaded one (z/depth 0.65) at 0.869 of its limit and is short at
+    14 deg (0.887); the narrow tip holds at 9 deg with its most loaded one (z/depth 0.76) at 0.788 and is short at
+    10 deg (0.838). The two brackets do not meet, by 0.03 in share. On level 7 they were 0.849-0.887 against
+    0.736-0.788, 0.06 apart. The lattice read at ONE share of the most loaded strip gives a lever of 1.9 deg at
+    0.606, 2.6 deg at 0.80, 2.8 deg at 0.85: two thirds of the meshes' four degrees is where on the curve the
+    criterion marks, the last third is this difference in share.
