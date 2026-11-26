@@ -879,3 +879,30 @@ Added 2026-11-26 14:02Z. Item 55 as found (laptop, the narrow-tipped gen-3 fin o
     0.736-0.788, 0.06 apart. The lattice read at ONE share of the most loaded strip gives a lever of 1.9 deg at
     0.606, 2.6 deg at 0.80, 2.8 deg at 0.85: two thirds of the meshes' four degrees is where on the curve the
     criterion marks, the last third is this difference in share.
+
+Written 2026-11-26 14:09Z, BEFORE the runs are started.
+57. The gen-3 side fin with its outline sweep changed and nothing else (fin-gen3-sweep05.json, fin-gen3-sweep40.json;
+    the fin itself has 25.9 deg), level 8, laptop. Why: item 55 left a gap in share between the twins (the wide
+    tip holds with its most loaded strip at 0.869-0.887 of its limit, the narrow tip has let go by 0.838), and
+    the local leading-edge sweep at those two strips is 23 deg against 31 deg: cos 31 / cos 23 = 0.93, the gap
+    is 0.81 / 0.88 = 0.93. One pair, two free choices (which sweep, which power), so that is a reading, not a
+    result. These two fins separate it from resolution: their chords at the loaded strips are the gen-3 side's
+    or larger (8 to 10 faces on the nose radius on level 8, counted with the local thickness).
+    By the lattice (table v1, 8.5 m/s), most loaded strip and its share of the limit:
+      sweep 5  (local leading-edge sweep -4 to +5 deg from z/depth 0.38 to 0.85; 8 065 mm2): strip at z/depth 0.52,
+               0.832 / 0.873 / 0.911 / 0.945 / 0.973 at 12 / 13 / 14 / 15 / 16 deg
+      sweep 40 (local leading-edge sweep 40-46 deg from z/depth 0.52 to 0.85; 9 308 mm2): strip at z/depth 0.65,
+               0.663 / 0.744 / 0.782 / 0.819 / 0.855 / 0.888 at 10 / 12 / 13 / 14 / 15 / 16 deg
+    Reading A, no sweep term (both let go where the 26 deg fin does, 0.869-0.887): sweep 5 between 12.9 and 13.4 deg,
+      sweep 40 between 15.4 and 16.0 deg.
+    Reading B, the limit falls with the cosine of the local leading-edge sweep (0.955 cos, from the twins):
+      sweep 5 at 0.955, 15.3 deg; sweep 40 at 0.71, 11.2 deg.
+    First pass, rows 4, 9, 11, 13 deg on sweep 40 and 4, 12, 13, 14 deg on sweep 5; the second pass fills in.
+    I expect a sweep effect (two in three) and less than the full cosine: sweep 40 short of its strips' lift by
+    13 deg (A has it held there, with 2.4 deg to spare), sweep 5 still holding every strip at 14 deg (A has it
+    short there). One in three: no effect, A as written. Not excluded: the 40 deg fin bends instead of breaking
+    (a nose vortex at 42-46 deg of leading-edge sweep), and then its 5 % point says little.
+    If B: the criterion's rework needs a sweep factor on the section limit, from geometry, and the measured
+    blades have to be read again with theirs. If A: the gap between the twins is resolution or something this
+    record has no name for, and no sweep term is supported.
+    Memory: the level-8 step of the gen-3 pair peaked at 4.4-5.7 GiB on the laptop with 12 processes.
