@@ -935,6 +935,11 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   the family" was partly the narrow tips' small noses. The narrow-tipped
   fin on level 8 is queued as the test (item 55); it also says whether the
   tip lever stays at four degrees.
+  *The gen-3 side at 13.5° (item 51, 2026-11-26, 12:18Z):* level 8 attached
+  and steady (1.175, 3.9 % below its line), level 7 let go and unsettled
+  (0.99–1.13). Level 7 breaks between 13° and 13.5°, level 8 between 13.5°
+  and 14°: half a degree apart, so the level has not stopped on this fin
+  either (5 % point 12.1°, 12.7°, 13.6°).
   *Running or queued (2026-11-24, 14:45Z):* the tunnel fin at 14°, 15° and
   18° with the volume refined, then the gen-2 side and the gen-3 side with
   the same refinement; level 7 again, with the threshold fixed, on the

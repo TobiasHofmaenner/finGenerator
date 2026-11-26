@@ -826,3 +826,17 @@ Added 2026-11-26 12:01Z. Item 52, the last row: 15 deg 0.4897 / 0.1491 at the ca
     0.411-0.565; 2 566 623 cells, no flagged faces, snap residual 0.46 um, y+ 41); measured 0.7620 / 0.0958.
     Stalled, as 13 and 14 deg. The step's peak on the EPYC: 5.0 GiB with 8 processes (8.8 GiB charged on the
     laptop with 6, cache included).
+
+Added 2026-11-26 12:31Z. Item 51 as found (laptop; the level-8 row added to item 33's mesh, level 7 on a fresh mesh: 1 431 211 cells
+    as on the EPYC, no flagged faces, snap residual 0.90 um; its 4 deg row 0.5902 against the EPYC's 0.5901).
+    Level 8, 13.5 deg: 1.1753 / 0.1267, at the cap and still to four digits (windows 1.1755 / 1.1753 / 1.1753, range
+    1.1744-1.1761): 3.9 % below its line. Forecast "attached, 1.156-1.178": met. Every strip within 3 % of the
+    lattice, lowest pressures still deepening (-5.8 to -6.1 at z/depth 0.52-0.76; -5.4 to -5.6 at 13 deg).
+    Level 7, 13.5 deg: 1.0877 / 0.1354 as filed, which is one sample of a slow swing: means of 50 iterations run
+    1.13 (iterations 150-200), 0.99 (350-400), 1.11 (750-800); windows of 150: 1.0045 / 1.0300 / 1.0886, range in
+    the last 1.056-1.123. 8 to 19 % below its line. Neither of my two cases as written ("holding, 1.150-1.170" or
+    "dropped, below 1.08"): let go and not settled. Its 13 deg row is steady (1.1356-1.1382).
+    So the answer to the question: no. Level 7 breaks between 13 and 13.5 deg, level 8 between 13.5 and 14: half a
+    degree apart, and the third reading I wrote ("level 8 is later by half a degree to a degree, and the level has
+    not stopped") is the one that holds. With the new row the level-8 5 % point is 13.6 deg (it was 13.3 across the
+    gap from 13 to 14 deg); the first strips are 5 % short at 13.6 deg at 0.82-0.88 of their limit.
