@@ -676,3 +676,87 @@ Written 2026-11-25 14:40Z, BEFORE either row exists (item 50 is meshing; no row 
     Even odds between holding (1.150-1.170) and dropped (below 1.08).
     Both holding: the break is between 13.5 and 14 deg on both levels, and level 7 has this fin to half a degree.
     Level 7 dropped, level 8 holding: level 8 is later by half a degree to a degree, and the level has not stopped.
+
+Added 2026-11-26 08:27Z. Item 48 so far (laptop, the short blade of [Smi21], level 6 as meshed; 2.52-2.57 million cells per angle,
+    no flagged faces, snap residual 0.37-0.45 um, y+ 51 / 47 / 40 / 37; ceiling layer at the probe 28-41 mm by the 99 %
+    rule, which the blade's own field disturbs: the profile has its bend at 20-25 mm; measured 19.1 mm).
+    4 deg 0.2006 / 0.0143 (measured 0.1839 / 0.0138), 12 deg 0.5940 / 0.0647 (0.6038 / 0.0637), both settled.
+    16 deg 0.5096 / 0.1655 at the cap (windows 0.5708 / 0.5696 / 0.5113, range 0.433-0.590); measured 0.8095.
+    18 deg 0.5398 / 0.2051 at the cap (0.4982 / 0.5106 / 0.5365, range 0.435-0.703); measured 0.9055.
+    The simulated blade is stalled at 16 deg, five degrees and more before the tunnel's (21.4 deg). Neither reading:
+    a had 17-21 deg, b (which I expected) 22-24.5 deg. By the test set beforehand the recipe does not have this break.
+    Where the lift goes (surface pressure in ten strips, scratch blade_strips.py): at 16 deg EVERY strip from the ceiling
+    to the tip carries 0.50-0.54 with its lowest pressure at -1.3 to -1.6, against 0.57-0.63 and -2.4 to -2.8 at
+    12 deg. A stall of the nose along the whole span, not a separation in the ceiling's corner.
+    The force history: at 16 deg the lift stands at 0.84 after 10-40 iterations and at 0.76-0.81 to iteration 160
+    (measured 0.81), then falls to 0.5; at 18 deg 0.94-0.95, then 0.87-0.90 to iteration 100 (measured 0.91), then falls.
+    The solver passes through the attached state at the measured lift and does not keep it.
+    This is docs/CFD-BENCH.md's gate 3 (wall functions cannot hold a NACA 0012's suction peak: maximum lift 32 % soft
+    in 2-D) on a blade of a fin's size. I had filed that gate as a section matter that a low-aspect blade dilutes.
+    Rows 20-24 deg stopped unread (2026-11-26 08:27Z; the 20 deg row was solving): past this recipe's break they say nothing.
+
+Written 2026-11-26 08:27Z, BEFORE any of the rows below exists.
+52. the same blade, level 6 as meshed, rows 13, 14, 15 deg (EPYC, behind the resumed item 28): where between 12 and
+    16 deg does this recipe stall it? Its line: 0.0495 per deg (0.6435 / 0.693 / 0.7425 at 13 / 14 / 15 deg).
+    The 2-D gate's wall-function maximum (0.73) is reached by the most loaded strip at about 14 deg. Level 6 is finer
+    than that gate's mesh, and at 16 deg the attached state lasted 160 iterations (18 deg: 100).
+    I expect 13 deg attached and settled (0.636-0.648), 14 deg attached (0.680-0.695), 15 deg stalled or falling:
+    the stall between 14 and 15 deg (one in two), between 15 and 16 (one in three), before 14 (one in six).
+53. the same blade at 16 deg on level 7 (laptop, 6 processes): does a finer nose and a thinner wall cell keep it?
+    On the [Zar14] foil level 7 moved the 5 % point by 0.45 deg (item 49, as found below), on the fins 0.6-0.8.
+    The gap here is five degrees. I expect it stalled as on level 6 (three in four): lift below 0.65 at the cap.
+    If it holds (0.77-0.82, the tunnel has 0.81): the level carries this blade most of the way and the fins'
+    round-nosed breaks on level 6 are early by degrees, not by tenths.
+
+Written 2026-11-26 09:32Z, BEFORE the row exists.
+54. the [Zar14] foil on level 7 at 4 deg (EPYC, behind item 52), to put the level-7 polar on the line construction of
+    the level-6 table (through the origin, fitted to the 4 and 8 deg rows). Level 6: 0.3288 / 0.0145; the 8 deg row
+    rose 1.8 % with the level, the gen-3 side's rows before its break 1 % per level.
+    I expect 0.332-0.337, settled in under 300 iterations, drag 0.0135-0.0145.
+    Then the 5 % point on the fitted line is 9.15-9.3 deg against level 6's 9.0: a move of a quarter of a degree,
+    not the 0.45 deg I read on 2026-11-26 from a line through the level-7 8 deg row alone beside a fitted level-6 line
+    (on lines through each mesh's 8 deg row alone: 9.2 and 9.45 deg; the tunnel 10.6).
+
+Added 2026-11-26 09:44Z. As found, items 43 (rest), 49, 27, 28 (all in overnight; the laptop slept from 2026-11-25 14:54Z
+to 2026-11-26 08:16Z, the EPYC rebooted itself for a kernel update at 02:00Z and item 28 was resumed from its 8 deg row).
+43, the rest ([Zar14], level 6 with the volume shells; 4.38-4.42 million cells, no flagged faces): 0.7490 / 0.7354 /
+    0.7171 / 0.6945 at 11 / 12 / 13 / 14 deg, drag 0.114 / 0.133 / 0.158 / 0.168, all at the cap and swinging (12 deg:
+    0.596-0.849). Stalled from 10 deg on, as on the mesh as it was. The second alternative stands: the volume does
+    not place this stall. Rows past it not read.
+    The same mesh as it was, rows 9 and 9.5 deg (in the same night): 0.6671 / 0.0463 (windows 0.6701 / 0.6688 /
+    0.6668, range 0.651-0.678) and 0.6782 / 0.0617 (0.6888 / 0.6897 / 0.6774, range 0.628-0.700): 4.9 and 8.4 % below
+    the fitted line, 5 % point 9.0 deg (tunnel 10.5); drag 21 and 46 % above the measured.
+49 ([Zar14], level 7; 3.49-3.51 million cells, no flagged faces, snap residual 0.73-0.75 um, y+ 25-26; 6.7 GiB peak on
+    the EPYC): 0.6256 / 0.0321 at 8 deg (settled, 220 iterations), 0.6871 / 0.0410 at 9 (cap, steady 0.685-0.689),
+    0.7177 / 0.0642 at 10 (windows 0.7250 / 0.7240 / 0.7192, range 0.663-0.748), 0.7210 / 0.0990 at 11 (0.638-0.799).
+    Measured 0.632 / 0.702 / 0.774 / 0.776: level 7 is 1.0 / 2.1 / 7.3 % short at 8 / 9 / 10 deg, level 6 2.7 / 5.0 / 11.5 %.
+    As expected in kind: 9 deg attached (drag 7 % above the measured, level 6 21 %), 10 deg let go and swinging
+    (drag 42 % above). Neither written alternative: not "10 deg attached, lift above 0.75", and not "stalled as on
+    level 6 (0.66-0.71)". In size at or under the lower edge of "half a degree to a degree": on lines through each
+    mesh's 8 deg row, 5 % points 9.2 (level 6) and 9.45 deg (level 7), tunnel 10.6. My first reading (9.0 against 9.45,
+    "0.45 deg") mixed two line constructions; item 54 above gets the missing row.
+27 (symmetric t/c 0.066 on the gen-2 planform, level 7, EPYC; 1 306 247 cells, no flagged faces, snap residual
+    0.74 um, y+ 39; 1.4-2.1 faces on the nose radius of the strips at z/depth 0.65-0.92):
+    0.2526 / 0.4427 / 0.4934 / 0.5526 / 0.5967 / 0.6337 / 0.6670 at 4 / 7 / 8 / 9 / 10 / 11 / 12 deg; against the line
+    through the origin and 4 deg: +0.1 / -2.3 / -2.8 / -5.5 / -8.8 / -12.0 %. 4 and 7 deg settled, from 8 deg at the cap:
+    window means within 1 % (8 deg 0.4949 / 0.4963 / 0.4931; 9 deg 0.5487 / 0.5428 / 0.5531; 10 deg 0.5886 / 0.5936 /
+    0.5957; 11 deg 0.6359 / 0.6336 / 0.6355; 12 deg 0.6644 / 0.6694 / 0.6681), swinging by 1 to 9 % inside a window.
+    5 % point 9.8 deg (level 5: 8.55): later than 9.5 deg, the first alternative's angle. Lift at 10 and 11 deg
+    0.597 and 0.634: just under that alternative's 0.60 and 0.64, 5.5 % above level 5 and 4.6 % under the rebuilt
+    table (0.626, 0.664); the shipped table has 0.622 at 11 deg. Between the two, nearer the first.
+28 (symmetric t/c 0.050, level 7, EPYC; 1 367 727 cells, no flagged faces, snap residual 0.78 um; 0.9-1.3 faces on
+    the nose radius at z/depth 0.65-0.92):
+    0.2544 / 0.3837 / 0.4484 / 0.5044 / 0.5541 / 0.5899 / 0.6457 at 4 / 6 / 7 / 8 / 9 / 10 / 12 deg; against its line
+    +0.6 / +0.7 / -0.8 / -3.2 / -7.2 / -15.4 %. 4 deg settled, from 6 deg at the cap, window means within 1 %
+    (8 deg 0.5052 / 0.5034 / 0.5048, range 0.476-0.523; 9 deg 0.5542 / 0.5560 / 0.5552, 0.529-0.581; 10 deg 0.5955 /
+    0.5917 / 0.5903, 0.557-0.625; 12 deg 0.6507 / 0.6478 / 0.6440, 0.607-0.691).
+    5 % point 9.45 deg (levels 5 and 6: 8.0-8.1). Of that move 0.55 deg is the line: the 4 deg row is 2 % lower than
+    on level 5 (0.2597, 0.2566, 0.2544 on levels 5, 6, 7); on level 5's line the level-7 rows give 8.9 deg.
+    Lift 0.504 / 0.554 / 0.590 / 0.646 at 8 / 9 / 10 / 12 deg: 2.4 / 2.7 / 2.0 / 0.7 % above level 5; against the rebuilt
+    table +2.9 / +1.9 / -1.2 / -6.8 %; the shipped table has 0.625 at 12 deg (+3.3 %). Drag at 8 deg 0.050 against 0.065 and 0.060 on levels 5 and 6.
+    Neither alternative cleanly: the angle is later, the lift at 12 deg is where level 5 had it.
+    Strips (strip-loads.txt, both blades): the outer noses lose their suction peak one strip after the other from
+    6-7 deg (t/c 0.050: lowest pressure at z/depth 0.76 -3.4 at 6 deg and -2.4 at 7; at 0.65 -4.7 at 7 deg and -3.0 at 9)
+    while those strips go on carrying 1.0-1.2 of the lattice's lift. The blade's curve bends, it does not drop.
+    What the rows at 10-12 deg cannot do is referee the two tables: they are past the 5 % point, where this recipe
+    was 37 % low on the measured blade of item 48.

@@ -886,9 +886,37 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   percent at 4° moves by half a degree on this fin. The level also thins
   the wall cell (y⁺ 40, 34, 22), so the series runs toward the resolved
   wall, which is late against tunnels on a round nose: finer is not nearer
-  a fin in water here. Rows at 13.5° on levels 7 and 8 running (item 51).
+  a fin in water here *(withdrawn 2026-11-26, next note)*. Rows at 13.5° on
+  levels 7 and 8 running (item 51).
   For the rework this means the simulation cannot give the cambered fin's
   absolute hold; the flat-inside fins' it gives the same on every mesh.
+  *Two measured round-nosed blades on the recipe (2026-11-26, 09:46Z):* it
+  is EARLY on both. The NACA 0009 foil of [Zar14]: 5 % point 9.0° on level 6
+  against the tunnel's 10.5°; the refined volume changes nothing; level 7
+  is a quarter of a degree later and nearer the tunnel in every row
+  (`bench/zarruk/knee/`). The short NACA 0012 blade of [Smi21], a fin's
+  size: within 2 % of the measured lift at 12°, stalled at 16° (0.51 against
+  0.81) where the tunnel holds it to 21°; every strip has lost its nose
+  suction, and the solver passes through the attached state at the measured
+  lift before leaving it (`bench/smith2021/knee/`). That is the bench
+  record's wall-function gate on a fin-sized blade. On the flat-inside
+  tunnel fin the recipe is on or late. So: flat-inside break angles stand
+  (gen-2 side 8.8° on every mesh); round-nosed ones (gen-3 side 12.1–13.3°,
+  narrow tip 8.0–8.6°, swap 8.7–9.5°, symmetric blades 9.4–9.8° on level 7)
+  are lower readings, by an amount no measured blade of their kind gives.
+  The gen-3 side's hold over gen-2 is therefore not the simulation's
+  generosity; its upper bound comes from measured sections ([JS37]).
+  "Finer is not nearer a fin in water" is withdrawn: on the one measured
+  blade run at two levels, finer is nearer. For the rework: the criterion's
+  anchor for round noses is measured blades and measured sections, not
+  this simulation. The thin symmetric blades on level 7 (t/c 0.050 and
+  0.066: 9.45° and 9.8°, level 5 8.0° and 8.55°) bend rather than drop, and
+  their rows past the 5 % point cannot referee the rebuilt table against
+  the shipped one (shipped 2–3 % under them, rebuilt 5–7 % over): the
+  rebuilt table stays unshipped. Running: the [Smi21] blade at 13–15°
+  (item 52) and at 16° on level 7 (item 53), the [Zar14] foil at 4° on
+  level 7 (item 54), the swap fin on level 8 (item 50), the gen-3 side at
+  13.5° (item 51).
   *Running or queued (2026-11-24, 14:45Z):* the tunnel fin at 14°, 15° and
   18° with the volume refined, then the gen-2 side and the gen-3 side with
   the same refinement; level 7 again, with the threshold fixed, on the

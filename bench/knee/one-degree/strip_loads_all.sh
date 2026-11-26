@@ -18,6 +18,8 @@ x $SYM-tc066.json $V/tc066-5ms-L5/sym-tc066-gen2-planform-5ms-L5 sym-tc066-gen2-
 x $SYM-tc080.json $V/tc080-L5/sym-tc080-gen2-planform-L5 sym-tc080-gen2-planform-L5
 x $SYM-tc080.json $V/tc080-L6/sym-tc080-gen2-planform-L6 sym-tc080-gen2-planform-L6
 x $SYM-tc080.json $V/tc080-L7/sym-tc080-gen2-planform-L7 sym-tc080-gen2-planform-L7
+x $SYM-tc050.json $W/epyc/tc050-L7y/sym-tc050-gen2-planform-L7y sym-tc050-gen2-planform-L7y
+x $SYM-tc066.json $W/epyc/tc066-L7y/sym-tc066-gen2-planform-L7y sym-tc066-gen2-planform-L7y
 x $SYM-tc080.json $W/tc080-L6x/sym-tc080-gen2-planform-L6x sym-tc080-gen2-planform-exact-L6
 x $SYM-tc080.json $W/tc080-L7x/sym-tc080-gen2-planform-L7x sym-tc080-gen2-planform-exact-L7
 x $G3 $W/epyc/sliders-L6x/gen3-side-sliders-L6x gen3-side-sliders-L6x
@@ -40,6 +42,8 @@ t $SYM-tc066.json 5.0 sym-tc066-gen2-planform-5ms-L5
 t $SYM-tc080.json 8.5 sym-tc080-gen2-planform-L5
 t $SYM-tc080.json 8.5 sym-tc080-gen2-planform-L6
 t $SYM-tc080.json 8.5 sym-tc080-gen2-planform-L7
+t $SYM-tc050.json 8.5 sym-tc050-gen2-planform-L7y
+t $SYM-tc066.json 8.5 sym-tc066-gen2-planform-L7y
 t $SYM-tc080.json 8.5 sym-tc080-gen2-planform-exact-L6
 t $SYM-tc080.json 8.5 sym-tc080-gen2-planform-exact-L7
 t $G3 8.5 gen3-side-sliders-L6x

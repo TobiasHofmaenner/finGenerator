@@ -46,4 +46,4 @@ One thing in the source: in figures 13 and 15 the curves labelled 8 % and 13 % o
 
 - The measured stalls are a bubble's, on polished blades in a quiet tunnel; the section table and every 3-D simulation of the record are turbulent from the nose. That the lattice lands on them is an agreement of two different mechanisms at one angle, at Reynolds numbers of 0.6–1.0·10⁶.
 - A fin under a board stands in the board's boundary layer and in broken water, sanded and coated. The paper's own series says such a layer delays the stall and softens it. Which reference binds a fin in the sea is open.
-- Not yet simulated in 3-D. The short blade with the ceiling's layer is the cheap one (a fin's size).
+- Simulated in 3-D on the knee record's recipe, 2026-11-25/26 (`knee/`): the short blade is within 2 % of the measured lift at 12° and stalled at 16°, five degrees before the tunnel. The recipe's wall functions do not carry this nose's suction peak; the first bullet's expectation (a simulation turbulent from the nose at least as late as the tunnel) did not hold.
