@@ -961,6 +961,18 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   sweep term (the break starting in the outer quarter wherever the most
   loaded strip is); all three fins have 26–28° of sweep. Goes on the list
   for the criterion's rework; nothing is changed.
+  *The gen-2 side on level 8 (item 56, 2026-11-26, 14:15Z):* 9.3°, not 8.8°
+  (forecast "no move" missed). On one line the three levels read 8.8°,
+  9.0°, 9.3°: level 7's "no move" was its own 4° row sitting 0.65 % high.
+  So no fin of the record has a break angle the level leaves alone; the
+  flat-inside one moves a quarter of a degree a level with 16–24 faces on
+  its outer nose radii, so faces on the nose are not all of it (each level
+  also thins the wall cell: y⁺ 49, 39, 30). The differences hold better:
+  gen-3 side over gen-2 side 3.3°, 3.9°, 4.3° (this note said 4.8° above),
+  in lift ×1.43, ×1.49, ×1.50; wide tip over narrow 4.1°, 4.1°, 4.0°; the
+  cambered section on the gen-2 planform +0.95° and ×1.16 on level 8 (not
+  +1.45° and ×1.20). Running: the gen-3 side at 5° and 40° of sweep
+  (item 57), which tests a sweep term for the twins' gap in share.
   *Running or queued (2026-11-24, 14:45Z):* the tunnel fin at 14°, 15° and
   18° with the volume refined, then the gen-2 side and the gen-3 side with
   the same refinement; level 7 again, with the threshold fixed, on the

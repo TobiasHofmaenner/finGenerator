@@ -26,6 +26,7 @@ x $G3 $W/epyc/sliders-L6x/gen3-side-sliders-L6x gen3-side-sliders-L6x
 x $G3 $W/epyc/sliders-L7y/gen3-side-sliders-L7y gen3-side-sliders-L7y
 x $G3 $S/sliders-L8y/gen3-side-sliders-L8y gen3-side-sliders-L8y
 x $G2 $W/epyc/flat-L6x/flat-inside-L6x flat-inside-L6x
+x $G2 $W/epyc/flat-L8y/flat-inside-L8y flat-inside-L8y
 x $R/fin-bw04-replica.json ${L:-/home/kali/bench-results/nose7}/bw04-L6x/bw04-L6x bw04-L6x-laptop
 x $R/fin-gen2-planform-gen3-section.json $S/g2p-g3s/gen2-planform-gen3-section-L6x gen2-planform-gen3-section-L6x
 x $R/fin-gen2-planform-gen3-section.json $S/g2p-g3s-L7y/gen2-planform-gen3-section-L7y gen2-planform-gen3-section-L7y
@@ -52,6 +53,7 @@ t $G3 8.5 gen3-side-sliders-L6x
 t $G3 8.5 gen3-side-sliders-L7y
 t $G3 8.5 gen3-side-sliders-L8y
 t $G2 8.5 flat-inside-L6x
+t $G2 8.5 flat-inside-L8y
 t $R/fin-bw04-replica.json 7.0 bw04-L6x-laptop
 t $R/fin-gen2-planform-gen3-section.json 8.5 gen2-planform-gen3-section-L6x
 t $R/fin-gen2-planform-gen3-section.json 8.5 gen2-planform-gen3-section-L7y

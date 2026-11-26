@@ -1,0 +1,71 @@
+{
+ "plan": {
+  "speed": 8.5,
+  "mesh_level": 8,
+  "end_time": 800,
+  "fin": "side-shipped-gen2.json",
+  "variants": [
+   {
+    "name": "flat-inside-L8y",
+    "angles": [
+     4,
+     8,
+     9,
+     10
+    ]
+   }
+  ]
+ },
+ "variants": {
+  "flat-inside-L8y": {
+   "patch": {},
+   "rows": [
+    {
+     "alpha": 4.0,
+     "cl": 0.47655251851851854,
+     "cd": 0.031338587777777774,
+     "cm": -0.26185976666666666,
+     "iterations": 132.0,
+     "wall_s": 1250.2
+    },
+    {
+     "alpha": 8.0,
+     "cl": 0.7221605333333334,
+     "cd": 0.05741608037037037,
+     "cm": -0.3616331259259259,
+     "iterations": 131.0,
+     "wall_s": 232.2
+    },
+    {
+     "alpha": 9.0,
+     "cl": 0.768618161875,
+     "cd": 0.068419713625,
+     "cm": -0.38059289625,
+     "iterations": 800.0,
+     "wall_s": 1337.8
+    },
+    {
+     "alpha": 10.0,
+     "cl": 0.79919570625,
+     "cd": 0.08319937699999999,
+     "cm": -0.394092375,
+     "iterations": 800.0,
+     "wall_s": 1289.1
+    }
+   ],
+   "area_mm2": 9733.62607226676,
+   "foil": {
+    "family": "flat_inside",
+    "thickness_ratio": 0.09211512693674807,
+    "camber_ratio": 0.0,
+    "camber_position": 0.4
+   },
+   "mesh": {
+    "cells": 1687688,
+    "illegal_faces": 0,
+    "snap_wanted_mean_m": 4.14822e-07,
+    "snap_wanted_max_m": 3.10372e-05
+   }
+  }
+ }
+}

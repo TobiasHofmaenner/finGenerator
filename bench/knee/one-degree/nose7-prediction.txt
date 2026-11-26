@@ -906,3 +906,20 @@ Written 2026-11-26 14:09Z, BEFORE the runs are started.
     blades have to be read again with theirs. If A: the gap between the twins is resolution or something this
     record has no name for, and no sweep term is supported.
     Memory: the level-8 step of the gen-3 pair peaked at 4.4-5.7 GiB on the laptop with 12 processes.
+
+Added 2026-11-26 14:15Z. Item 56 as found (EPYC, the gen-2 side on level 8: 1 687 688 cells, no flagged faces, snap residual 0.41 um,
+    y+ 30 (0.5 to 105); the step's peak 3.8 GiB with 8 processes, 5.7 GiB expected):
+    0.4766 / 0.7222 / 0.7686 / 0.7992 at 4, 8, 9, 10 deg (drag 0.0313 / 0.0574 / 0.0684 / 0.0832). 4 and 8 deg settled
+    after 131-132 iterations; 9 and 10 deg at the cap (windows 0.7694 / 0.7644 / 0.7691, range in the last
+    0.753-0.782; 0.7982 / 0.7980 / 0.7980, range 0.764-0.823). Against the line through 0.2177 and its 4 deg row:
+    -1.8 / -4.0 / -7.6 %. 5 % point 9.3 deg.
+    Forecast "no move (four in five), 5 % point 8.6-9.0 deg": missed. "Rows at 4, 8, 9 deg within 1 % of level 7":
+    met at 4 and 8 deg (-0.6, -0.3 %), at its edge at 9 deg (+1.0 %); 10 deg is +1.4 %.
+    The alternative I wrote holds: the flat-inside nose moves with the level too. And level 7 had moved already:
+    its own 4 deg row is 0.65 % above the other two levels', which steepens its line; on level 6's line the three
+    levels read 8.8 / 9.0 / 9.3 deg. My "8.8 on levels 6 and 7" was read on each level's own line.
+    Strips: all within 3 % of the lattice at 9 deg; z/depth 0.65-0.85 first 5 % short at 9.2-9.3 deg at 0.68 / 0.75 /
+    0.71 of their limit (strip lift 0.99-1.06; level 6: 0.95-0.99 at 8.2-8.8 deg).
+    What it changes: gen-3 side over gen-2 side on level 8 is 4.3 deg, not the 4.8 I wrote with the gen-2 side's
+    level-6 angle; the cambered section on the gen-2 planform is worth +0.95 deg and x1.16 on level 8, not +1.45
+    and x1.20. No fin of the record has a break angle the level leaves alone.
