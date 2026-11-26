@@ -47,7 +47,18 @@ The force history from a uniform start: at 16° the lift stands at 0.84 after 10
 - **What it is not evidence of:** that a fin's round nose lets go where this simulation has it. The knee record's round-nosed break angles are lower readings by this (`../../knee/one-degree/README.md`, "The recipe against the two measured round-nosed blades").
 - The measured stall is a laminar bubble's burst on a polished blade in a quiet tunnel (`../README.md`); a sanded, coated fin in broken water need not hold as long. That caveat is unchanged, and it is about the tunnel, not about this simulation: at 16° the most loaded strip would have to carry 0.83, and the section alone carries 1.07 in a wind tunnel at Re 7·10⁵ ([SK81], natural transition).
 
+## Level 7 at 16°: stalled as on level 6 (`results-short-L7x.json`, in 2026-11-26 11:29Z)
+
+Surface cells of 0.094 mm, 2 792 781 cells, no flagged faces, snap residual 0.77 µm, mean wall y⁺ 35 (level 6: 40). Forecast item 53: stalled, three in four.
+
+| 16° | lift | drag |
+|---|---|---|
+| measured | 0.810 | 0.108 |
+| level 6 | 0.510 (windows 0.571, 0.570, 0.511) | 0.166 |
+| level 7 | 0.499 (windows 0.491, 0.460, 0.500; range in the last 0.40–0.62) | 0.166 |
+
+The history repeats level 6's: 0.83–0.85 at iterations 20–40, 0.73–0.77 up to iteration 160, 0.41–0.52 from 280 on. The strips (`strips-short-L7x.txt`, last iteration) carry 0.41–0.49 from the ceiling to the tip with lowest pressures of −1.1 to −1.5. One level, which moved the fins' round-nosed breaks by 0.6–0.8° and the [Zar14] foil's by a quarter of a degree, does nothing for a miss of five degrees.
+
 ## Running (2026-11-26)
 
 - Rows at 13°, 14°, 15° on level 6 (EPYC): where this recipe stalls the blade. Forecast item 52.
-- The 16° row on level 7 (laptop): whether a finer nose and a thinner wall cell keep it. Forecast item 53; I expect it stalled.

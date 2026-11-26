@@ -795,3 +795,10 @@ Written 2026-11-26 10:54Z, BEFORE the run is started.
     8.0. If it lands as expected the lever stays at four degrees or a little more on a third level, and the
     criterion's 1.8 deg is not the meshes'. If it reaches 9.8 deg or more, the narrow tip's early break was still
     resolution and the lever is shrinking toward the criterion.
+
+Added 2026-11-26 11:30Z. Item 53 as found (laptop, the short blade of [Smi21] at 16 deg on level 7: 2 792 781 cells, no flagged
+    faces, snap residual 0.77 um mean / 100 um max, y+ 35 (level 6: 40); the step's peak 5.1 GiB with 6 processes).
+    0.4985 / 0.1656 at the cap (windows 0.4908 / 0.4598 / 0.5003, range in the last 0.402-0.617); level 6 0.5096 / 0.1655;
+    measured 0.8095 / 0.1077. Stalled as on level 6, as expected (three in four; "lift below 0.65 at the cap").
+    The history as on level 6: 0.83-0.85 at iterations 20-40, 0.73-0.77 to iteration 160, 0.41-0.52 from 280 on.
+    So one level does not carry this blade at 16 deg. Where the recipe stalls it on level 6 is item 52's (running).
