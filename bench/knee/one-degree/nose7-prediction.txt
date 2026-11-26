@@ -760,3 +760,38 @@ to 2026-11-26 08:16Z, the EPYC rebooted itself for a kernel update at 02:00Z and
     while those strips go on carrying 1.0-1.2 of the lattice's lift. The blade's curve bends, it does not drop.
     What the rows at 10-12 deg cannot do is referee the two tables: they are past the 5 % point, where this recipe
     was 37 % low on the measured blade of item 48.
+
+Added 2026-11-26 10:54Z. Item 50 as found (laptop, gen-2 planform with the gen-3 section, level 8: 1 820 779 cells, no flagged
+    faces, snap residual 0.79 um mean / 67 um max; the job's peak 5.7 GiB with 12 processes).
+    0.5539 / 0.7992 / 0.8577 / 0.8888 / 0.9205 at 4 / 8 / 9 / 10 / 11 deg. 4, 8 and 9 deg settled (142, 149, 155
+    iterations); 10 and 11 deg at the cap, windows 0.9060 / 0.9086 / 0.8886 (range in the last 0.880-0.899) and
+    0.9279 / 0.9255 / 0.9190 (0.898-0.939).
+    Against the line through 0.3039 (0 deg, level 6) and its own 4 deg: -0.6 / -1.0 / -4.3 / -7.2 %.
+    5 % point 10.25 deg at a lift of 0.90 (level 7: 9.5 at 0.86; level 6: 8.7 at 0.81). On level 6's line the three
+    levels read 8.7 / 9.6 / 10.1 deg: the 4 deg rows agree within 0.35 % (0.5550 / 0.5558 / 0.5539), so the measure
+    is sound on this fin.
+    Forecast: 9 deg within 2.5 % of the line (met, -1.0 %); 5 % point 9.8-10.3 deg (met, at the upper edge); lift there
+    0.88-0.92 (met). Not "within 0.2 deg of 9.5": level 7 did not have this fin either.
+    Strips (strip-loads.txt, run gen2-planform-gen3-section-L8y): the ones at z/depth 0.76 and 0.85 are first again,
+    5 % short at 9.6 deg of blade angle (level 7: 8.4, level 6: 8.1), at 0.83 and 0.80 of their sections' limit
+    (0.76 / 0.74; 0.75 / 0.72), with 3.6 and 3.1 faces on the nose radius (1.9 / 1.6; 1.1 / 0.9). Lowest pressure at
+    9 deg -5.27 and -5.19 against -4.04 and -3.77 on level 7.
+    Three levels, 0.8 and 0.6-0.75 deg a level, no sign of an end on this fin. On level 8 the cambered section is
+    worth +1.45 deg and x1.20 in lift on the gen-2 planform (flat inside: 8.8 deg at 0.75, the same on every mesh).
+    Seen across the runs of this section (strip at z/depth 0.76; faces on its nose radius, share of its section's
+    limit where it is first 5 % short): 1.1 0.75, 1.6 0.69, 1.9 0.76, 2.3 0.75, 3.2 0.79, 3.6 0.83, 4.5 0.80, 8.8 0.81
+    (swap L6, narrow tip L6, swap L7, gen-3 side L6, narrow tip L7, swap L8, gen-3 side L7, gen-3 side L8).
+    Under about three faces 0.69-0.76, from three up 0.79-0.83 on all three planforms.
+
+Written 2026-11-26 10:54Z, BEFORE the run is started.
+55. gen-3 side with the narrow tip (tip 0.35), level 8, rows 4, 8, 9, 10 deg (laptop, behind item 51). Level 7:
+    0.5967 / 0.8522 / 0.8737 / 0.9078, -2.1 / -6.9 / -9.8 % against the line through 0.3234 and its 4 deg row, 5 % point
+    8.6 deg; its first strips (z/depth 0.85, 0.92) 5 % short at 8.2 deg with 2.8 and 2.5 faces on the nose radius,
+    the strip at 0.76 at 9.1 deg and 0.79 of its limit with 3.2. Level 8 doubles the faces.
+    The swap fin moved 0.6-0.75 deg going from 1.6-1.9 to 3.1-3.6 faces, the gen-3 side 0.25-0.6 deg going from
+    4.2-4.7 to 8.2-9.2. This fin lies between: I expect the 5 % point at 8.9-9.3 deg, 8 deg within 1.5 % of its line
+    (0.857 or more), 9 deg 3-5.5 % below (0.887-0.910), and the first strips 5 % short at 0.76-0.83 of their limit.
+    What it is for: the tip lever. Twin 13.3 deg on level 8 (12.7 on level 7, 12.1 on level 6); this fin 8.6 and
+    8.0. If it lands as expected the lever stays at four degrees or a little more on a third level, and the
+    criterion's 1.8 deg is not the meshes'. If it reaches 9.8 deg or more, the narrow tip's early break was still
+    resolution and the lever is shrinking toward the criterion.

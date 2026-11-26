@@ -915,8 +915,18 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   the shipped one (shipped 2–3 % under them, rebuilt 5–7 % over): the
   rebuilt table stays unshipped. Running: the [Smi21] blade at 13–15°
   (item 52) and at 16° on level 7 (item 53), the [Zar14] foil at 4° on
-  level 7 (item 54), the swap fin on level 8 (item 50), the gen-3 side at
-  13.5° (item 51).
+  level 7 (item 54), the gen-3 side at 13.5° (item 51).
+  *The swap fin on level 8 (2026-11-26, 10:46Z):* 10.25° at a lift of 0.90
+  (levels 6, 7: 8.7°, 9.5°), 0.75° later again and no end in sight; the
+  cambered section is then worth +1.45° and ×1.20 on the gen-2 planform.
+  Over all runs of the cambered section the share of the limit at which a
+  strip lets go follows the faces on its nose radius (under three: 0.69–0.76;
+  from three up: 0.79–0.83 on all three planforms), not the planform: the
+  criterion's form, one share of the section's own limit, holds across
+  planforms once the nose is resolved, and "the share is not a constant of
+  the family" was partly the narrow tips' small noses. The narrow-tipped
+  fin on level 8 is queued as the test (item 55); it also says whether the
+  tip lever stays at four degrees.
   *Running or queued (2026-11-24, 14:45Z):* the tunnel fin at 14°, 15° and
   18° with the volume refined, then the gen-2 side and the gen-3 side with
   the same refinement; level 7 again, with the threshold fixed, on the

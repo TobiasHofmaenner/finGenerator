@@ -1,0 +1,80 @@
+{
+ "plan": {
+  "speed": 8.5,
+  "mesh_level": 8,
+  "end_time": 800,
+  "fin": "gen2-planform-gen3-section.json",
+  "variants": [
+   {
+    "name": "gen2-planform-gen3-section-L8y",
+    "angles": [
+     4,
+     8,
+     9,
+     10,
+     11
+    ]
+   }
+  ]
+ },
+ "variants": {
+  "gen2-planform-gen3-section-L8y": {
+   "patch": {},
+   "rows": [
+    {
+     "alpha": 4.0,
+     "cl": 0.553945327586207,
+     "cd": 0.036728325862068964,
+     "cm": -0.34479579655172415,
+     "iterations": 142.0,
+     "wall_s": 65900.1
+    },
+    {
+     "alpha": 8.0,
+     "cl": 0.7991676600000001,
+     "cd": 0.06678624933333334,
+     "cm": -0.4447457033333333,
+     "iterations": 149.0,
+     "wall_s": 496.6
+    },
+    {
+     "alpha": 9.0,
+     "cl": 0.8576700032258064,
+     "cd": 0.07596600129032258,
+     "cm": -0.46807511612903224,
+     "iterations": 155.0,
+     "wall_s": 437.2
+    },
+    {
+     "alpha": 10.0,
+     "cl": 0.8888020206249999,
+     "cd": 0.0880830109375,
+     "cm": -0.476793096875,
+     "iterations": 800.0,
+     "wall_s": 2745.4
+    },
+    {
+     "alpha": 11.0,
+     "cl": 0.920529986875,
+     "cd": 0.100897165875,
+     "cm": -0.488178131875,
+     "iterations": 800.0,
+     "wall_s": 3898.7
+    }
+   ],
+   "area_mm2": 9733.62607226676,
+   "foil": {
+    "family": "cambered",
+    "thickness_ratio": 0.08346834034093867,
+    "camber_ratio": 0.044826588806811576,
+    "camber_position": 0.4
+   },
+   "mesh": {
+    "cells": 1820779,
+    "illegal_faces": 0,
+    "snap_wanted_mean_m": 7.85561e-07,
+    "snap_wanted_max_m": 6.68724e-05
+   }
+  }
+ }
+}
