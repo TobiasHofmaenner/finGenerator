@@ -802,3 +802,22 @@ Added 2026-11-26 11:30Z. Item 53 as found (laptop, the short blade of [Smi21] at
     measured 0.8095 / 0.1077. Stalled as on level 6, as expected (three in four; "lift below 0.65 at the cap").
     The history as on level 6: 0.83-0.85 at iterations 20-40, 0.73-0.77 to iteration 160, 0.41-0.52 from 280 on.
     So one level does not carry this blade at 16 deg. Where the recipe stalls it on level 6 is item 52's (running).
+
+Added 2026-11-26 11:43Z. Item 52 so far (EPYC, the short blade of [Smi21], level 6; 2.56 million cells per angle, no flagged faces,
+    snap residual 0.45-0.46 um, y+ 45-46; the step's peak 5.0 GiB with 8 processes):
+    13 deg 0.5933 / 0.1057 at the cap (windows 0.6166 / 0.5845 / 0.5949, range 0.536-0.632); measured 0.6619 / 0.0745.
+    14 deg 0.5795 / 0.1254 at the cap (0.5718 / 0.6137 / 0.5789, range 0.489-0.681); measured 0.7154 / 0.0853.
+    15 deg solving, at 0.66 and falling after 355 iterations.
+    The recipe stalls this blade between 12 and 13 deg. I had 13 deg attached and settled (0.636-0.648) and 14 deg
+    attached, and gave "before 14 deg" one in six. Early by eight to nine degrees, not "five and more".
+    Strips at 13 deg (surface pressure, last iteration): the suction peak is gone most at z/span 0.35-0.45 (-1.3 to
+    -1.4; -2.8 at 12 deg), the most loaded strips at 12 deg; ceiling strips -1.8, tip -2.3 to -2.6. Mid-span first,
+    so not the ceiling's corner. The strips let go at a lift between 0.63 and 0.68.
+    The same count on the [Zar14] foil (surface files pulled from the EPYC): level 6 outer strips stop deepening
+    at 9 deg at 0.62-0.67, the most loaded lets go at 0.71; level 7 all attached at 9 deg, mid-span gone at 10 deg
+    at 0.75-0.77. Measured section maxima ([JS37]): 0.86-0.88 (NACA 0009), 0.91-1.18 (NACA 0012).
+    A correction that follows from putting the fins on the same count: the cambered gen-3 section's strips let go
+    at 1.0-1.37 (lattice strip lift where first 5 % short), which is 0.8-1.1 of the NACA 4409's measured maximum
+    (1.23-1.29), the gen-3 side on levels 7 and 8 at 1.0-1.09. What I wrote this morning in the knee record and
+    told Tobias ("the round-nosed fins' breaks are lower readings", "if anything the simulation reads gen 3's hold
+    low") holds for the symmetric blades only. For the cambered fins the direction of the recipe's error is not known.

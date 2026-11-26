@@ -901,11 +901,19 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   lift before leaving it (`bench/smith2021/knee/`). That is the bench
   record's wall-function gate on a fin-sized blade. On the flat-inside
   tunnel fin the recipe is on or late. So: flat-inside break angles stand
-  (gen-2 side 8.8° on every mesh); round-nosed ones (gen-3 side 12.1–13.3°,
-  narrow tip 8.0–8.6°, swap 8.7–9.5°, symmetric blades 9.4–9.8° on level 7)
-  are lower readings, by an amount no measured blade of their kind gives.
-  The gen-3 side's hold over gen-2 is therefore not the simulation's
-  generosity; its upper bound comes from measured sections ([JS37]).
+  (gen-2 side 8.8° on every mesh); the symmetric blades' (9.4–9.8° on
+  level 7) are lower readings. *Corrected the same day, 11:50Z:* not so for
+  the cambered section. The [Smi21] blade lets go between 12° and 13° in
+  the recipe (item 52; 8–9° early), from mid-span. By strips, the recipe's
+  symmetric strips let go at 0.63–0.77 whatever the thickness (measured
+  section maxima: 0.86–0.88 at 9 %, 0.91–1.18 at 12 %), but the cambered
+  gen-3 section's at 0.8–1.1 of the NACA 4409's measured maximum, the gen-3
+  side on levels 7 and 8 at 1.0–1.09, where the measured blades stall in
+  their tunnel by the same count. So the gen-3 side's 12.7–13.3° is not
+  shown to be early and may be at the upper edge; the direction of the
+  recipe's error on the cambered fin is unknown, and its hold over the
+  gen-2 side has two readings within two degrees of each other, neither
+  with a sweep discount.
   "Finer is not nearer a fin in water" is withdrawn: on the one measured
   blade run at two levels, finer is nearer. For the rework: the criterion's
   anchor for round noses is measured blades and measured sections, not
