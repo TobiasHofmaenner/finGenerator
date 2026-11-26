@@ -821,3 +821,8 @@ Added 2026-11-26 11:43Z. Item 52 so far (EPYC, the short blade of [Smi21], level
     (1.23-1.29), the gen-3 side on levels 7 and 8 at 1.0-1.09. What I wrote this morning in the knee record and
     told Tobias ("the round-nosed fins' breaks are lower readings", "if anything the simulation reads gen 3's hold
     low") holds for the symmetric blades only. For the cambered fins the direction of the recipe's error is not known.
+
+Added 2026-11-26 12:01Z. Item 52, the last row: 15 deg 0.4897 / 0.1491 at the cap (windows 0.5645 / 0.5127 / 0.4867, range
+    0.411-0.565; 2 566 623 cells, no flagged faces, snap residual 0.46 um, y+ 41); measured 0.7620 / 0.0958.
+    Stalled, as 13 and 14 deg. The step's peak on the EPYC: 5.0 GiB with 8 processes (8.8 GiB charged on the
+    laptop with 6, cache included).

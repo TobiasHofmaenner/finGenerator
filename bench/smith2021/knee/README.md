@@ -4,17 +4,17 @@ The short blade of `../` (NACA 0012, unswept trapezoid, root chord 120 mm, tip 8
 
 Run: `finGenerator-cfd/scripts/zarruk_knee.py --blade smi21-short`: the tunnel's test section with a no-slip ceiling, one mesh per angle, and everything else the knee record's level 6 (background cell = root chord / 10, surface cells 0.19 mm, exact surface, wall functions, no layers, inflow turbulence 5 %, steady, 800 iterations, a row = the mean of its last 160). Forecast written before any row: `../../knee/one-degree/nose7-prediction.txt`, item 48.
 
-## Rows (`results-short-L6x.json`; 4°, 12°, 16°, 18° on the laptop, 13° and 14° on the EPYC, in 2026-11-26 11:38Z)
+## Rows (`results-short-L6x.json`; 4°, 12°, 16°, 18° on the laptop, 13° to 15° on the EPYC, in 2026-11-26 12:00Z)
 
-2.52–2.57 million cells per angle, no flagged faces, snap residual 0.37–0.46 µm, mean wall y⁺ 51 / 47 / 45 / 46 / 40 / 37.
+2.52–2.57 million cells per angle, no flagged faces, snap residual 0.37–0.46 µm, mean wall y⁺ 51 / 47 / 45 / 46 / 41 / 40 / 37.
 
-| | 4° | 12° | 13° | 14° | 16° | 18° |
-|---|---|---|---|---|---|---|
-| lift, measured | 0.184 | 0.604 | 0.662 | 0.715 | 0.810 | 0.906 |
-| lift, simulation | 0.201 (settled, 377 iterations) | 0.594 (settled, 474) | 0.593 (at the cap; windows 0.617, 0.585, 0.595; range 0.536–0.632) | 0.580 (at the cap; 0.572, 0.614, 0.579; 0.489–0.681) | 0.510 (at the cap; windows of 150 iterations 0.571, 0.570, 0.511; range in the last 0.433–0.590) | 0.540 (at the cap; 0.498, 0.511, 0.537; 0.435–0.703) |
-| simulation against the measurement | +9 % | −1.6 % | −10 % | −19 % | −37 % | −40 % |
-| drag, measured | 0.0138 | 0.0637 | 0.0745 | 0.0853 | 0.108 | 0.134 |
-| drag, simulation | 0.0143 | 0.0647 | 0.106 | 0.125 | 0.166 | 0.205 |
+| | 4° | 12° | 13° | 14° | 15° | 16° | 18° |
+|---|---|---|---|---|---|---|---|
+| lift, measured | 0.184 | 0.604 | 0.662 | 0.715 | 0.762 | 0.810 | 0.906 |
+| lift, simulation | 0.201 (settled, 377 iterations) | 0.594 (settled, 474) | 0.593 (at the cap; windows 0.617, 0.585, 0.595; range 0.536–0.632) | 0.580 (at the cap; 0.572, 0.614, 0.579; 0.489–0.681) | 0.490 (at the cap; 0.565, 0.513, 0.487; 0.411–0.565) | 0.510 (at the cap; windows of 150 iterations 0.571, 0.570, 0.511; range in the last 0.433–0.590) | 0.540 (at the cap; 0.498, 0.511, 0.537; 0.435–0.703) |
+| simulation against the measurement | +9 % | −1.6 % | −10 % | −19 % | −36 % | −37 % | −40 % |
+| drag, measured | 0.0138 | 0.0637 | 0.0745 | 0.0853 | 0.0958 | 0.108 | 0.134 |
+| drag, simulation | 0.0143 | 0.0647 | 0.106 | 0.125 | 0.149 | 0.166 | 0.205 |
 
 - **Attached, the simulation has the blade**: at 12° the lift is 1.6 % and the drag 1.6 % from the measurement. At 4° it is 9 % high; the lattice (`../lattice.md`) is 7 % high there in a uniform stream. The measured lift per degree rises from 0.046 at 4° to 0.050 at 12°; the simulation's is 0.050 and 0.0495.
 - **The simulated blade lets go between 12° and 13°; the tunnel holds this blade to 21°** (5 % point 21.4°, sudden stall after 21.0° at a lift of 1.03). At 13° the lift is 10 % under the measurement and the drag 42 % over it, and the row no longer settles. The recipe is early by eight to nine degrees. Item 52 had 13° and 14° attached and the stall between 14° and 15° (one in two); "before 14°" was the one-in-six case, and it is before 13°.
@@ -62,6 +62,3 @@ Surface cells of 0.094 mm, 2 792 781 cells, no flagged faces, snap residual 0.77
 
 The history repeats level 6's: 0.83–0.85 at iterations 20–40, 0.73–0.77 up to iteration 160, 0.41–0.52 from 280 on. The strips (`strips-short-L7x.txt`, last iteration) carry 0.41–0.49 from the ceiling to the tip with lowest pressures of −1.1 to −1.5. One level, which moved the fins' round-nosed breaks by 0.6–0.8° and the [Zar14] foil's by a quarter of a degree, does nothing for a miss of five degrees.
 
-## Running (2026-11-26)
-
-- The row at 15° on level 6 (EPYC; stalled after 355 iterations as the two before it).
