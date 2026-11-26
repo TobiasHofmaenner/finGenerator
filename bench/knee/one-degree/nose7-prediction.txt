@@ -848,3 +848,13 @@ Added 2026-11-26 12:59Z. Item 54 as found (EPYC, the [Zar14] foil on level 7 at 
     Fitted line through the origin and the 4 and 8 deg rows: 0.0790 per deg (level 6: 0.0779); level 7 is 3.3 % and
     9.1 % below it at 9 and 10 deg; 5 % point 9.3 deg against level 6's 9.0 and the tunnel's 10.5. Forecast
     9.15-9.3 deg, "a quarter of a degree": met.
+
+Written 2026-11-26 12:59Z, BEFORE the run is started.
+56. gen-2 side (flat inside) on level 8, rows 4, 8, 9, 10 deg (EPYC, idle since item 54). The control that is missing
+    under "the gen-2 end stands": levels 6 and 7 and the refined volume have 8.8 / 8.8 / 8.7 deg, and the gen-3 side
+    is now read on level 8 (13.6 deg). Level 7: 0.4796 / 0.7244 / 0.7609 / 0.7882, against the line through 0.2177
+    (0 deg, level 6) and its 4 deg row -2.3 / -5.7 / -9.7 %.
+    I expect no move (four in five): rows at 4, 8, 9 deg within 1 % of level 7, 5 % point 8.6-9.0 deg.
+    If it lands at 9.2 deg or later: the flat-inside nose moves with the level too, later than the round ones
+    started to, and the gen-2 end of the hold comparison is as open as the gen-3 end.
+    Memory: the level-8 step of the fin on this planform (item 50) peaked at 5.7 GiB on the laptop with 12 processes.
