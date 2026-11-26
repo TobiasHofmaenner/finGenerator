@@ -840,3 +840,11 @@ Added 2026-11-26 12:31Z. Item 51 as found (laptop; the level-8 row added to item
     degree apart, and the third reading I wrote ("level 8 is later by half a degree to a degree, and the level has
     not stopped") is the one that holds. With the new row the level-8 5 % point is 13.6 deg (it was 13.3 across the
     gap from 13 to 14 deg); the first strips are 5 % short at 13.6 deg at 0.82-0.88 of their limit.
+
+Added 2026-11-26 12:59Z. Item 54 as found (EPYC, the [Zar14] foil on level 7 at 4 deg: 3 448 618 cells, no flagged faces, snap residual
+    0.71 um, y+ 28; the step's peak 6.2 GiB): 0.3285 / 0.0144, settled after 219 iterations (range 0.3276-0.3286).
+    Forecast 0.332-0.337: missed. The row did not rise with the level (level 6: 0.3288), where the 8 deg row rose 1.8 %.
+    Settled under 300 iterations and drag 0.0135-0.0145: met.
+    Fitted line through the origin and the 4 and 8 deg rows: 0.0790 per deg (level 6: 0.0779); level 7 is 3.3 % and
+    9.1 % below it at 9 and 10 deg; 5 % point 9.3 deg against level 6's 9.0 and the tunnel's 10.5. Forecast
+    9.15-9.3 deg, "a quarter of a degree": met.

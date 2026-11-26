@@ -41,7 +41,7 @@ The knee record's shells around the foil (cells of 0.625 mm to 10 mm off the wal
 
 ## Level 7 (`results-L7x.json`, EPYC, in 2026-11-26)
 
-Surface cells of 0.094 mm: eight faces on the nose radius at the most loaded strip instead of four. 3.49–3.51 million cells per angle, no flagged faces, snap residual 0.73–0.75 µm, mean wall y⁺ 25–26 (level 6: 30–34). The step peaked at 6.7 GiB on the EPYC (8 processes; 6.4 GiB measured on the laptop beforehand). Forecast: `nose7-prediction.txt`, item 49.
+Surface cells of 0.094 mm: eight faces on the nose radius at the most loaded strip instead of four. 3.45–3.51 million cells per angle, no flagged faces, snap residual 0.71–0.75 µm, mean wall y⁺ 25–28 (level 6: 30–34). The step peaked at 6.7 GiB on the EPYC (8 processes; 6.4 GiB measured on the laptop beforehand). Forecast: `nose7-prediction.txt`, item 49.
 
 | | 8° | 9° | 10° | 11° |
 |---|---|---|---|---|
@@ -52,7 +52,7 @@ Surface cells of 0.094 mm: eight faces on the nose radius at the most loaded str
 | level 7 against the measurement | −1.0 % | −2.1 % | −7.3 % | |
 | drag: measured / level 6 / level 7 | 0.032 / 0.033 / 0.032 | 0.038 / 0.046 / 0.041 | 0.045 / 0.079 / 0.064 | 0.105 / 0.107 / 0.099 |
 
-- **Level 7 holds the foil about a quarter of a degree longer, and it is still stalled at 10°.** At 9° it is attached where level 6 had begun to let go (drag 7 % above the measured instead of 21 %); at 10° it has let go (drag 42 % above, lift 7 % short and swinging). On lines through each mesh's own 8° row the 5 % points are 9.2° (level 6) and 9.45° (level 7) against the tunnel's 10.6°. There is no 4° row on level 7 yet, so the fitted-line construction of the first table cannot be made; if that row rises with the level as the 8° row did (1.8 %), it gives 9.2° against level 6's 9.0° and the tunnel's 10.5°. The row is queued (item 54).
+- **Level 7 holds the foil about a quarter of a degree longer, and it is still stalled at 10°.** At 9° it is attached where level 6 had begun to let go (drag 7 % above the measured instead of 21 %); at 10° it has let go (drag 42 % above, lift 7 % short and swinging). On lines through each mesh's own 8° row the 5 % points are 9.2° (level 6) and 9.45° (level 7) against the tunnel's 10.6°. The 4° row on level 7 (in 2026-11-26 12:58Z, item 54): 0.3285, drag 0.0144, settled after 219 iterations; level 6 has 0.3288. With it the fitted-line construction of the first table gives 9.3° against level 6's 9.0° and the tunnel's 10.5° (−3.3 % and −9.1 % at 9° and 10°). I had expected that row to rise 1–2.5 % with the level as the 8° row did; it did not move, and the 5 % point lands where forecast (9.15–9.3°) all the same.
 - **Against the forecast (item 49):** "9° attached, 10° stalled or swinging, a move of half a degree to a degree". The rows are as forecast; the move is at or under the lower edge.
 - **So on this foil the recipe is early by 1.2–1.5° on both levels**, and one level closes about a fifth of the gap. Before the stall every level-7 row is nearer the measurement (8°: 1.0 % short instead of 2.7 %).
 - This is the one measured blade run at two surface levels. It moves toward its tunnel with the level, as every round-nosed fin of the knee record moves later with the level (0.6–0.8° there, with one to three faces on the nose radius at level 6 against four here).
