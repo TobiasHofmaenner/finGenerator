@@ -923,3 +923,29 @@ Added 2026-11-26 14:15Z. Item 56 as found (EPYC, the gen-2 side on level 8: 1 68
     What it changes: gen-3 side over gen-2 side on level 8 is 4.3 deg, not the 4.8 I wrote with the gen-2 side's
     level-6 angle; the cambered section on the gen-2 planform is worth +0.95 deg and x1.16 on level 8, not +1.45
     and x1.20. No fin of the record has a break angle the level leaves alone.
+
+Written 2026-11-26 14:17Z, BEFORE the runs are started.
+58. Is it the nose's faces or the wall cell that moves the break with the level? Every level halves both. The mesh
+    fixes the faces; the speed moves y+ on a fixed mesh. The narrow-tipped gen-3 fin (the fin that moves most,
+    a degree a level) on the EPYC:
+      (a) level 7 at 5.4 m/s, rows 0, 4, 8, 9, 10 deg: level 7's faces at about level 8's y+ (33 -> about 22)
+      (b) level 8 at 13.3 m/s, rows 0, 4, 9, 10, 11 deg: level 8's faces at about level 7's y+ (22 -> about 33)
+    At 8.5 m/s: level 7 0.5967 / 0.8522 / 0.8737 / 0.9078 at 4 / 8 / 9 / 10 deg, 5 % point 8.6 deg; level 8
+    0.5937 / 0.8534 / 0.9152 / 0.9304, 9.6 deg (8.9 and 9.8 on level 6's line).
+    The speed is also the Reynolds number, and that works the other way: by the section table the strips' limits
+    are 5 % lower at 5.4 m/s and 5 % higher at 13.3 m/s, so the same share of the limit is reached half a
+    degree earlier at 5.4 m/s and 0.45 deg later at 13.3 m/s.
+    Each run's 5 % point on the line through its own 0 and 4 deg rows:
+      faces alone (the mesh keeps its break, the Reynolds number shifts it): (a) 8.1-8.4 deg, (b) 10.1-10.3 deg
+      wall alone (the mesh takes the other level's break, then the shift):   (a) 9.1-9.3 deg, (b) 9.05-9.35 deg
+    So the 9 deg row of (a) and the 10 deg row of (b) decide: faces has (a) more than 6 % below its line at
+    9 deg and (b) within 4 % at 10 deg; wall has it the other way round.
+    I do not know which. The flat-inside fin moving a quarter of a degree a level with 16-24 faces on its nose
+    radii says some of it is the wall; the suction peaks deepening with every level say some of it is the nose.
+    My lean: both (two in five), (a) at 8.4-8.7 deg and (b) at 9.7-10.0 deg, a wall share of about a quarter of
+    a degree a level on every fin; faces alone, three in ten; wall alone, three in ten.
+    If wall: the level series is a y+ series, refinement is not converging on anything, and the recipe needs a
+    wall it holds fixed (layers at a set y+, or resolved). If faces: the cambered fins need more than 9 faces
+    on the nose radius, by region. If both: both.
+    Memory: the level-8 step of this fin peaked at 4.4 GiB on the laptop (12 processes, whole step) and the
+    gen-2 side's at 3.8 GiB on the EPYC (8 processes); level 7 is smaller. Cap 24 GB, no swap.
