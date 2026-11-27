@@ -1050,3 +1050,44 @@ Written 2026-11-27 09:59Z, BEFORE the runs are started.
     share, and the table's step between the two sections is about twice what the recipe's strips show.
     Memory: no new mesh. The whole steps with their meshing peaked at 4.8 and 3.8 GiB; a row alone is below
     that. Cap 24 GB, no swap.
+
+Written 2026-11-27 10:21Z, BEFORE any row is read (a level-2 check that the case runs, 150 iterations at 4 deg, is going
+and has not been read).
+61. The NACA 4409 wing of [JS37] on the recipe: the measured cambered blade nearest the gen-3 side's section
+    (record: bench/js37-wing).
+    The wing: rectangular, aspect ratio 6, square tips, 5 x 30 in in the variable-density tunnel (turbulence
+    factor 2.64). Here at chord 80 mm, semi-span 240 mm on the symmetry plane, 8.48 m/s: the test Reynolds
+    number 646 000 of the report's Fig. 9. Surface from the section formula (400 points, nose tangent pinned,
+    1 um), given to polar_angles.py by its new "surface" key; domain and cells sized as for a fin of base
+    80 mm. Levels 5, 6, 7 put 2.9, 5.7, 11.4 faces on the nose radius (0.71 mm), about what the gen-3 side's
+    most loaded strips have on levels 6, 7, 8.
+    Measured (read off the figure; free-air angle, the wing's lift): 0.605 at 4.2, 0.894 at 8.3, 1.134 at
+    12.4, 1.210 at 16.5, 1.170 at 18.4 deg. On the line through its 0 and 4 deg points it is 1.8 % below at
+    8.3 deg and 6.6 % below at 12.4 deg: it bends from 8 deg on and rounds over a maximum four degrees later.
+    Rows: 4.2, 0.1, 8.3, 10.4, 12.4, 14.4, 16.5, 18.4 deg. Lift below is on the blade's own area (19 200 mm2;
+    the case files its rows on the sizing outline's 16 568).
+    Two readings of what the record has, and they ask for different rows here:
+    A, the gen-3 side's strips carry over (they let go at a lattice strip lift of 1.18-1.28 / 1.26-1.34 /
+       1.29-1.39 on levels 6 / 7 / 8; a rectangular wing's centre strip carries 1.05-1.09 of the wing's
+       lift): the wing holds its line to 1.10-1.20 / 1.17-1.26 / 1.20-1.30 on levels 5 / 6 / 7. On level 6:
+       attached at 12.4 deg and within 3 % of its line (1.17-1.21, above the measured 1.134), the break
+       between 13 and 15 deg, highest steady lift 1.17-1.26: about the wing's measured maximum, two to
+       three degrees before the angle the tunnel has it at.
+    B, the unswept symmetric blade plus camber (the recipe's NACA 0009 strips on the [Zar14] foil let go at
+       0.62-0.71 / 0.73-0.77 on levels 6 / 7; camber is worth 0.40-0.45): strips let go at 1.02-1.16 /
+       1.13-1.22, the wing at 0.95-1.08 on level 5 and 1.05-1.14 on levels 6 and 7. On level 6: gone by
+       12.4 deg (unsteady or more than 5 % below its line, at or under the measured 1.134), the break
+       between 10.4 and 12.4 deg: early, as on both symmetric blades.
+    I cannot choose: A 9 in 20, B 8 in 20, neither 3 in 20 (for instance held past 16.5 deg above 1.3).
+    Under both: 4.2 and 8.3 deg within 5 % of the measured (0.575-0.635, 0.85-0.94); each level later than
+    the one before by 0.3-1 deg (4 in 5), as on the cambered fins; past its break the recipe falls, where the
+    tunnel's wing goes on to 1.21 and loses a tenth of it over the next eight degrees.
+    What it decides: under A the recipe breaks a section of the gen-3 kind at about its measured maximum's
+    lift, so the gen-3 side's 12-13.6 deg is not a lower reading (if anything late, against a wing that has
+    begun to bend 6 % before). Under B it is a lower reading, as the symmetric blades' are, and the gen-3
+    fins hold longer in water than in the record.
+    The comparison is in lift at the measured angles. In angle the case's far boundary (3.5 chords to the
+    side, the stream held there) may be worth up to 0.4 deg at a lift of 1.2 against free air; the slope
+    between 0.1 and 4.2 deg against the measured 0.0743 per degree will say how much.
+    Memory: measured on the laptop on the level-7 mesh, the largest, before anything goes to the EPYC; the
+    figure is added below when it is in.

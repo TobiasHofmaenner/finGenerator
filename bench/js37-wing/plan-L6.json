@@ -1,0 +1,2 @@
+{"speed": 8.48, "mesh_level": 6, "end_time": 800, "fin": "wing-sizer.json", "surface": "naca4409-c80-s240.stl", "reference_area_mm2": 19200,
+ "variants": [{"name": "js37-4409-L6", "angles": [4.2, 0.1, 8.3, 10.4, 12.4, 14.4, 16.5, 18.4]}]}

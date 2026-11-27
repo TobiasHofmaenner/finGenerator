@@ -1,0 +1,31 @@
+# NACA 4409, rectangular wing 5 x 30 in (aspect ratio 6, square tips), NACA variable-density tunnel, test V.D.T. 1162 (8-34).
+# Read by eye off Fig. 9 of NACA Report 586 [JS37] (a 500 dpi render of the report's page 8; lift coefficient against the
+# angle of attack for infinite aspect ratio, one curve per test Reynolds number). The figure's lift is the WING's (the report
+# raises it by 7 % only for the section maxima of its Table I). Reading error: 0.01 in lift and 0.1 deg where a symbol stands
+# free, 0.02 and 0.15 deg in the cluster at 12 deg; to 8 deg the symbols of both Reynolds numbers lie on one another.
+# alpha0_fig: the figure's abscissa. alpha_geom: the whole test angle it belongs to (alpha0 + 3.18 CL lands within 0.15 deg of it).
+# alpha_free: the wing's angle in free air, alpha_geom + 0.38 CL (closed round tunnel, 0.125 S/C CL; S 150 in2, C 2827 in2);
+# the report's reduction to infinite aspect ratio then takes 3.56 CL off, which is where 3.18 comes from.
+re_test,alpha_geom,alpha0_fig,cl,alpha_free
+646000,-4,-3.97,0.000,-4.00
+646000,-2,-2.51,0.150,-1.94
+646000,0,-1.07,0.299,0.11
+646000,2,0.50,0.452,2.17
+646000,4,2.18,0.605,4.23
+646000,8,5.29,0.894,8.34
+646000,12,8.53,1.134,12.43
+646000,16,12.12,1.210,16.46
+646000,18,14.16,1.170,18.44
+646000,20,16.29,1.144,20.43
+646000,24,20.64,1.036,24.39
+329000,-4,-3.97,0.000,-4.00
+329000,-2,-2.51,0.150,-1.94
+329000,0,-1.07,0.299,0.11
+329000,2,0.50,0.452,2.17
+329000,4,2.18,0.605,4.23
+329000,8,5.29,0.894,8.34
+329000,12,8.53,1.076,12.41
+329000,16,12.24,1.172,16.45
+329000,18,14.30,1.144,18.43
+329000,20,16.45,1.108,20.42
+329000,24,20.80,1.014,24.39

@@ -1,0 +1,46 @@
+{
+ "fin": {
+  "outline": {
+   "depth": 240.0,
+   "base": 80.0,
+   "sweep": 0.0,
+   "tip_width_ratio": 0.6,
+   "le_fullness": 1.0,
+   "te_shape": 1.0,
+   "le_dx": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "te_dx": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "foil": {
+   "family": "cambered",
+   "thickness_ratio": 0.09,
+   "camber_ratio": 0.04,
+   "camber_position": 0.4,
+   "te_thickness": 0.7
+  },
+  "thickness_tip_factor": 1.0,
+  "grooves": {
+   "count": 0,
+   "length": 60.0,
+   "pitch": 6.0,
+   "width": 3.0,
+   "depth_ratio": 0.35,
+   "span_start": 0.45,
+   "surface": "outer"
+  }
+ },
+ "note": "sizes the domain, the cells (base/10) and the reference area for the rectangular NACA 4409 wing of [JS37] at chord 80 mm, semi-span 240 mm; the surface itself is naca4409-c80-s240.stl (finGenerator-cfd scripts/rect_wing_surface.py). Blade area 19200 mm2; this outline's area is what the rows are filed on."
+}
