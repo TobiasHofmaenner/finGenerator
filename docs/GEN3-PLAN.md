@@ -980,8 +980,19 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   alone, and on a fixed mesh the recipe's break carries no Reynolds trend
   over ×1.57 either way, where the section table has 5 % in the limit.
   Left open, and not separable by speed: the mesh's spacing alone, or a
-  y⁺ effect cancelling the Reynolds trend. Running: the tunnel fin on
-  level 8 (item 59), the one fin with a measured break beside it.
+  y⁺ effect cancelling the Reynolds trend.
+  *The tunnel fin on level 8 (item 59, 2026-11-27, 09:49Z):* 0.9499 at 13°
+  (levels 6 and 7: 0.9496, 0.9508), steady at 14° and 1.8 % below its
+  line (level 6 swung there, level 7 fell), gone at 15°. Its 5 % point is
+  between 14° and 15° (14.3–14.5°); the tunnel has about 13.6°, and
+  13.0–14.7° over the reading error of the paper's figure. So the level
+  moves this fin by a few tenths of a degree too, and on no mesh is the
+  recipe early on it (about on it as meshed, 2.5° late with the volume
+  refined on level 6; the two refinements have not been run together).
+  By rows its most loaded strip holds at 0.698 of the table's limit (strip
+  lift 1.07) and is gone by 0.733 (1.12); the gen-2 side's at 0.738 (1.05)
+  and 0.792 (1.12). Running: a half-degree row on each (item 60), to see
+  whether the two flat-inside fins let go at one strip lift or one share.
   *Running or queued (2026-11-24, 14:45Z):* the tunnel fin at 14°, 15° and
   18° with the volume refined, then the gen-2 side and the gen-3 side with
   the same refinement; level 7 again, with the threshold fixed, on the
