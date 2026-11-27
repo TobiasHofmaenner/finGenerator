@@ -996,3 +996,15 @@ Added 2026-11-27 08:00Z. Item 58 as found (EPYC, finished 2026-11-26 16:00Z, rea
     Under (i) layers at a set y+ would not hold the break still; under (ii) they would take half of the level's
     degree away. Under both, y+ alone is not what the level changes, and on a fixed mesh the recipe's break does
     not follow the section table's Reynolds trend (5 % in the limit each way here).
+
+Added 2026-11-27 08:04Z. Item 57, first pass on the 40 deg sweep fin as found (laptop, which slept from 14:58Z to 07:50Z in its
+    11 deg row; 2 194 120 cells, no flagged faces, snap residual 0.55 um, y+ 23; peak 4.7 GiB):
+    0.5699 / 0.8773 / 0.9918 / 1.1069 at 4, 9, 11, 13 deg, every row settled (157-221 iterations). Over the
+    lattice's lift, scaled at 4 deg: 0.987 / 0.980 / 0.977. Every strip inboard of z/depth 0.95 within 5 % of the
+    lattice at 13 deg (0.98-1.00 from z/depth 0.52 to 0.85), lowest pressure still deepening (-5.1 to -5.4
+    there, -3.6 to -3.9 at 11 deg). The two tip strips fall between 11 and 13 deg (1.16 and 1.02 to 0.90 and
+    0.51 of the lattice's lift).
+    Reading B (the cosine of the local leading-edge sweep: let go at 11.2 deg): out. At 13 deg the most loaded
+    strip stands at 0.782 of its limit behind a leading edge swept 42 deg, where B had 0.71. My "short by
+    13 deg, two in three": wrong. Reading A has it holding to 15.4 deg; rows 14, 15, 16 deg queued behind the
+    5 deg fin to see whether it holds that long.
