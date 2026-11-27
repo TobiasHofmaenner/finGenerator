@@ -1110,3 +1110,23 @@ Added 2026-11-27 11:01Z. Item 60 as found (EPYC, the two meshes of items 56 and 
     1.09, at the same span station (z/depth 0.76), and the 8 % the table puts between their limits (1.53 and
     1.42: thicker section, larger chord) is not in the recipe's rows. Item 58 found the same of the table's
     Reynolds trend on one fin at three speeds.
+
+Added 2026-11-27 11:08Z. Item 57, the 5 deg sweep fin as found (laptop, finished 11:02Z; 2 096 542 cells, no flagged faces, snap
+    residual 0.65 um, y+ 21; peak 4.8 GiB):
+    0.5620 / 1.0554 / 1.1088 / 1.0690 at 4, 12, 13, 14 deg. 4 deg settled after 236 iterations; 12 and 13 deg at
+    the cap and steady to four digits; 14 deg at the cap and swinging (windows 1.0660 / 1.0495 / 1.0741, range
+    in the last 0.963-1.113). Over the lattice's lift, scaled at 4 deg: 0.995 / 0.991 / 0.910 (the 26 deg fin on
+    the same count: 0.990 / 0.984 / 0.984 / 0.937 at 12, 13, 13.5, 14 deg).
+    Strips: every one within 5 % of the lattice at 13 deg (inboard of z/depth 0.6 within 2 %); at 14 deg the
+    four inboard strips are 8-11 % short. By rows the most loaded strip (z/depth 0.52, limit 1.57) holds at
+    0.873 of its limit and is short by 0.911; in strip lift 1.37 and 1.43. The 26 deg fin's (z/depth 0.65):
+    0.869 and 0.887, 1.37 and 1.40.
+    Reading A (no sweep term: this fin lets go between 12.9 and 13.4 deg, held at 12, at its edge at 13, short
+    at 14 deg): as found, row for row. My expectation written with the forecast (a sweep effect, this fin still
+    holding every strip at 14 deg): wrong here as it was on the 40 deg fin's first pass.
+    So between 5 and 26 deg of outline sweep the recipe's most loaded strip lets go at one share of its limit
+    (brackets 0.873-0.911 and 0.869-0.887) and the fin at one blade angle within half a degree (between 13 and
+    14 deg; between 13.5 and 14 deg). The 40 deg fin's rows at 14, 15, 16 deg are running: A has it letting go
+    between 15.4 and 16.0 deg.
+    Beside it: at 4 deg the lattice has 4.4 % more lift than the simulation on the 5 deg fin and 1.3 % less on
+    the 26 deg fin. The lattice's slope carries a sweep trend of that size against this recipe.
