@@ -1001,6 +1001,16 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   lift and not at one share: the 8 % the table puts between their limits
   (thicker section, larger chord) is not in the recipe's rows, as its
   Reynolds trend was not (item 58).
+  *Sweep varied alone (item 57, closed 2026-11-27 12:35Z):* the gen-3 side
+  at 5° and 40° of outline sweep on level 8. The fins let go between 13°
+  and 14°, and between 15° and 16° (the 26° fin: 13.5–14°), each where the
+  lattice has its most loaded strip at 0.87–0.89 of its limit: brackets
+  0.873–0.911, 0.869–0.887, 0.855–0.888 at local leading-edge sweeps of
+  0.5°, 23°, 42°. No sweep term; the cosine reading is out, and the twins'
+  gap in share is not sweep. On the 40° fin the outer tenth of the span
+  sheds load from 13° while the fin stays on its line. The lattice's lift
+  at 4° is 4.4 % high at 5° of sweep and 4.9 % low at 40° against the
+  simulation (1.3 % low at 26°).
   *A measured cambered blade (item 61, started 2026-11-27):* the NACA 4409
   wing of [JS37] (aspect ratio 6, turbulent tunnel, Re 646 000), the
   nearest measurement to the gen-3 side's section, on levels 5 to 7 of the

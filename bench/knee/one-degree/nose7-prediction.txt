@@ -1139,3 +1139,23 @@ Added 2026-11-27 12:03Z. Item 61, memory and the first row (laptop, 8 processes 
     The row: 4.2 deg, level 7, settled after 183 iterations: 0.7168 on the sizing outline, 0.6185 on the blade's
     area. Measured 0.603 at that angle: 2.6 % above, inside the 5 % I gave. (The level-2 check of the case read
     0.549 at 4.0 deg after 150 iterations, 7 % under the measured; not a row of the record.)
+
+Added 2026-11-27 12:46Z. Item 57, the 40 deg sweep fin's second pass as found (laptop, the first pass's mesh; finished 12:35Z; peak
+    4.9 GiB): 1.1592 / 1.2082 / 1.1812 at 14, 15, 16 deg. 14 and 15 deg settled (232 and 282 iterations); 16 deg
+    at the cap and sinking (windows 1.1938 / 1.1899 / 1.1815, range in the last 1.156-1.201). Over the lattice's
+    lift, scaled at 4 deg: 0.987 / 0.979 / 0.976 / 0.972 / 0.966 / 0.904 at 9, 11, 13, 14, 15, 16 deg.
+    Reading A (no sweep term: lets go between 15.4 and 16.0 deg): as found, held at 15 and gone at 16 deg.
+    The most loaded strip (z/depth 0.65, limit 1.60, leading edge swept 42 deg there) holds at 0.855 of its
+    limit (15 deg; within 1 % of the lattice) and is short by 0.888 (16 deg; 8 % short): 1.37 and 1.42 in strip
+    lift. The three fins, sweep 5 / 26 / 40 deg (local leading-edge sweep at the most loaded strip 0.5 / 23 /
+    42 deg): 0.873-0.911, 0.869-0.887, 0.855-0.888. One share, 0.873 to 0.887, lies in all three; the cosine of
+    the local sweep would have put them at 1.00 : 0.92 : 0.75.
+    What I did not forecast: on the 40 deg fin the outer tenth of the span sheds load while the fin is on its
+    line. The strip at z/depth 0.92 carries 1.05 / 0.94 / 0.84 of the lattice's share at 13 / 14 / 15 deg (all
+    settled rows) and the two beyond it less; the strips at 0.76 and 0.85 carry 2-4 % more. share_brackets.py
+    therefore calls this fin short at 14 deg by that strip, at 0.68 of its limit; the fin's lift and its most
+    loaded strip do not follow until 16 deg.
+    And the lattice's lift against the simulation's at 4 deg: 4.4 % high at 5 deg of sweep, 1.3 % low at 26 deg,
+    4.9 % low at 40 deg.
+    Item 57 closed: no sweep term. The twins' gap in share (wide tip 0.869-0.887, narrow 0.788-0.838) is not
+    sweep.
