@@ -973,6 +973,15 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   cambered section on the gen-2 planform +0.95° and ×1.16 on level 8 (not
   +1.45° and ×1.20). Running: the gen-3 side at 5° and 40° of sweep
   (item 57), which tests a sweep term for the twins' gap in share.
+  *Faces or wall cell (item 58, 2026-11-27, 08:00Z):* the narrow tip on
+  level 7 at 5.4 m/s (level 8's y⁺) and on level 8 at 13.3 m/s (level 7's
+  y⁺). Each mesh keeps its own break at either speed (8.6° and 8.6°; 9.6°
+  and 9.7°; settled rows equal to 0.1 %). So the level's degree is not y⁺
+  alone, and on a fixed mesh the recipe's break carries no Reynolds trend
+  over ×1.57 either way, where the section table has 5 % in the limit.
+  Left open, and not separable by speed: the mesh's spacing alone, or a
+  y⁺ effect cancelling the Reynolds trend. Running: the tunnel fin on
+  level 8 (item 59), the one fin with a measured break beside it.
   *Running or queued (2026-11-24, 14:45Z):* the tunnel fin at 14°, 15° and
   18° with the volume refined, then the gen-2 side and the gen-3 side with
   the same refinement; level 7 again, with the threshold fixed, on the

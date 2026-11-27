@@ -35,6 +35,8 @@ x $R/fin-gen3-planform-gen2-section.json $S/g3p-g2s/gen3-planform-gen2-section-L
 x $R/fin-gen3-tip035.json $S/tip035/gen3-side-tip035-L6x gen3-side-tip035-L6x
 x $R/fin-gen3-tip035.json $W/epyc/tip035-L7y/gen3-side-tip035-L7y gen3-side-tip035-L7y
 x $R/fin-gen3-tip035.json $S/tip035-L8y/gen3-side-tip035-L8y gen3-side-tip035-L8y
+x $R/fin-gen3-tip035.json $W/epyc/tip035-L7y-5ms/gen3-side-tip035-L7y-5ms gen3-side-tip035-L7y-5ms
+x $R/fin-gen3-tip035.json $W/epyc/tip035-L8y-13ms/gen3-side-tip035-L8y-13ms gen3-side-tip035-L8y-13ms
 x $R/fin-bw04-replica.json $W/epyc/bw04-L7y/bw04-L7y bw04-L7y
 t() { uv run python $R/strip_loads.py table $1 $2 $3 $R/strip-loads.json 2>/dev/null; echo; }
 {
@@ -62,6 +64,8 @@ t $R/fin-gen3-planform-gen2-section.json 8.5 gen3-planform-gen2-section-L6x
 t $R/fin-gen3-tip035.json 8.5 gen3-side-tip035-L6x
 t $R/fin-gen3-tip035.json 8.5 gen3-side-tip035-L7y
 t $R/fin-gen3-tip035.json 8.5 gen3-side-tip035-L8y
+t $R/fin-gen3-tip035.json 5.4 gen3-side-tip035-L7y-5ms
+t $R/fin-gen3-tip035.json 13.3 gen3-side-tip035-L8y-13ms
 t $R/fin-bw04-replica.json 7.0 bw04-L7y
 } > $R/strip-loads.txt
 grep -c "" $R/strip-loads.txt

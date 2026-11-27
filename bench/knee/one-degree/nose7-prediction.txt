@@ -967,3 +967,32 @@ Written 2026-11-27 07:56Z, BEFORE the run is started.
     fin alone and the tunnel fin's break is the volume's and not the surface's.
     Memory: the level-8 steps so far peaked at 3.8-4.4 GiB here (1.7-2.1 million cells); this fin has larger
     chords (1.52 million cells on level 7 against 1.39), so about 5-6 GiB. Cap 24 GB, no swap.
+
+Added 2026-11-27 08:00Z. Item 58 as found (EPYC, finished 2026-11-26 16:00Z, read the next morning: the laptop slept; peak 4.4 GiB).
+    (a) level 7 at 5.4 m/s (the mesh of the 8.5 m/s run: 1 385 034 cells, no flagged faces, snap residual 0.93 um;
+        y+ 22 where 8.5 m/s has 33): 0.3271 / 0.5916 / 0.8459 / 0.8551 / 0.9015 at 0, 4, 8, 9, 10 deg. 0, 4, 8 deg
+        settled after 138-170 iterations; 9 deg at the cap and still sinking (windows 0.8674 / 0.8596 / 0.8551);
+        10 deg at the cap, steady (0.9019). Against the line through its 0 and 4 deg rows: -1.2 / -7.3 / -8.8 %.
+        5 % point 8.6 deg. At 8.5 m/s: 8.6 deg (8.8 with a 0 deg row of this mesh in place of level 6's).
+    (b) level 8 at 13.3 m/s (2 086 092 cells, the laptop's mesh to the cell; y+ 32 where 8.5 m/s has 22):
+        0.3287 / 0.5967 / 0.9198 / 0.9326 / 0.9705 at 0, 4, 9, 10, 11 deg. 0, 4, 9 deg settled after 115-160
+        iterations; 10 and 11 deg at the cap, steady (0.9311 / 0.9310 / 0.9328; 0.9713 / 0.9734 / 0.9706).
+        -1.3 / -6.6 / -8.9 %. 5 % point 9.7 deg. At 8.5 m/s: 9.6 deg (9.7 like for like).
+    Wall alone ((a) 9.1-9.3, (b) 9.05-9.35 deg): missed by half a degree each way, and by the rows: a mesh brought
+    to the other mesh's y+ keeps its own break. Faces with the table's Reynolds shift ((a) 8.1-8.4, (b) 10.1-10.3
+    deg): missed too. The decision rows split as neither reading has it: (a) 7.3 % below at 9 deg, (b) 6.6 %
+    below at 10 deg. My lean ("both": 8.4-8.7 and 9.7-10.0 deg): met in the numbers, (b) at its edge.
+    What the rows say past the forecast: scaled by its own 4 deg row, each mesh's curve is the same at both
+    speeds. Level 7: 1.4299 against 1.4282 at 8 deg (the last settled row), 1.5238 against 1.5214 at 10 deg.
+    Level 8: 1.5415 against 1.5415 at 9 deg (the last settled row), 1.5629 against 1.5671 at 10 deg. A shift of
+    half a degree would have moved those settled rows by 2 %. Lowest pressures at the last held row agree
+    within 2 % (-2.98 / -3.03 on level 7 at 8 deg, -3.94 / -3.87 on level 8 at 9 deg).
+    So on a fixed mesh the break does not move with the speed over a factor 1.57 either way, and between the
+    two meshes it moves a degree at equal speed, at equal y+ (22: 8.6 against 9.6-9.7; 32-33: 8.6-8.8 against
+    9.7) and at any pairing. Two readings fit and the speed cannot tell them apart, because on a fixed mesh
+    y+ and the Reynolds number are one knob: (i) the mesh's own spacing sets the break and this recipe has
+    neither a y+ effect nor a Reynolds trend there; (ii) a y+ effect of half a degree and the table's Reynolds
+    trend cancel in both directions, which is my lean with twice the wall share I gave it. (i) asks for less.
+    Under (i) layers at a set y+ would not hold the break still; under (ii) they would take half of the level's
+    degree away. Under both, y+ alone is not what the level changes, and on a fixed mesh the recipe's break does
+    not follow the section table's Reynolds trend (5 % in the limit each way here).

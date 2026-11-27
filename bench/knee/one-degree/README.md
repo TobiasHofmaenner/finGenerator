@@ -322,6 +322,24 @@ EPYC, `results-exact-L8y-gen2-side.json`: 1 687 688 cells, no flagged faces, sna
 - **So no fin of this record has a break angle that the level leaves alone.** The flat-inside fin has 16 to 24 faces on the radius of its outer noses on level 8 and still moves, so faces on the nose are not all of it. What every level also does is thin the wall cell (mean y⁺ 49, 39, 30 on this fin; 40, 34, 22 on the gen-3 side). Which of the two moves the break is not separated by anything run so far.
 - **The differences hold better than the angles.** Gen-3 side over gen-2 side: 3.3°, 3.9°, 4.3° on levels 6, 7, 8 (3.3°, 4.0°, 4.4° on one line), in lift at the 5 % point ×1.43, ×1.49, ×1.50. Wide tip over narrow: 4.1°, 4.1°, 4.0° (4.1°, 4.2°, 3.9° on one line). Cambered over flat inside on the gen-2 planform: 0° (level 6), +0.7°, +0.95°.
 
+#### Faces or wall cell: the narrow tip at two other speeds (2026-11-26 16:00Z, read 2026-11-27)
+
+Every level halves the faces on the nose and the wall cell together. The speed moves the wall cell's y⁺ on a fixed mesh. The narrow-tipped gen-3 fin on the EPYC (`results-exact-L7y-gen3-tip035-5ms.json`, `results-exact-L8y-gen3-tip035-13ms.json`; the meshes of the 8.5 m/s runs to the cell; forecast `nose7-prediction.txt`, item 58):
+
+| lift over the same mesh's 4° row | y⁺ | 8° | 9° | 10° | 11° | 5 % point |
+|---|---|---|---|---|---|---|
+| level 7, 8.5 m/s | 33 | 1.428 | 1.464 | 1.521 | | 8.6° (8.8° with this mesh's 0° row) |
+| level 7, **5.4 m/s** | 22 | 1.430 | 1.445 (sinking) | 1.524 | | 8.6° |
+| level 8, 8.5 m/s | 22 | 1.437 | 1.542 | 1.567 | | 9.6° (9.7°) |
+| level 8, **13.3 m/s** | 32 | | 1.542 | 1.563 | 1.626 | 9.7° |
+
+(5.4 m/s: 0.3271, 0.5916, 0.8459, 0.8551, 0.9015 at 0°, 4°, 8°, 9°, 10°; rows to 8° settled, 9° at the cap with window means 0.8674, 0.8596, 0.8551, 10° at the cap and steady. 13.3 m/s: 0.3287, 0.5967, 0.9198, 0.9326, 0.9705 at 0°, 4°, 9°, 10°, 11°; rows to 9° settled, the others at the cap and steady. 5 % points on the line through each run's 0° and 4° rows; the 8.5 m/s runs have no 0° row of their own, and the bracket gives them with the other speed's.)
+
+- **A mesh keeps its break whatever the speed.** Level 7 brought to level 8's y⁺ breaks where level 7 does; level 8 brought to level 7's y⁺ breaks where level 8 does. The last settled row of each mesh is the same at both speeds to 0.1 % (1.430 against 1.428; 1.542 against 1.542), and the lowest pressures there to 2 %. Strips (`strip-loads.txt`, runs `gen3-side-tip035-L7y-5ms`, `-L8y-13ms`): every strip within 5 % of the lattice at 8° on level 7 and at 9° on level 8, short one degree on, at both speeds.
+- **"The wall cell alone" is out** (it had 9.1–9.3° and 9.05–9.35°). **So is "the faces, shifted by the section table's Reynolds trend"** (8.1–8.4° and 10.1–10.3°): the table has the strips' limits 5 % lower at 5.4 m/s and 5 % higher at 13.3 m/s, half a degree each way, and the settled rows show none of it.
+- **Two readings are left, and no speed can part them**, because on a fixed mesh y⁺ and the Reynolds number are one knob. (i) The mesh's own spacing sets the break, and this recipe has neither a y⁺ effect nor a Reynolds trend there. (ii) A y⁺ effect of half a degree and the table's Reynolds trend cancel, both ways. (i) asks for less; under (ii) layers at a set y⁺ would take half of the level's degree away, under (i) nothing.
+- **What it settles.** The level's degree is not y⁺ alone. And on a fixed mesh this recipe's break carries no Reynolds trend over a factor of 1.57 either way, where the resolved-wall sections of the table have 5 %. Shares of the table's limit, compared between strips of different chord, therefore carry a Reynolds term the simulation does not show: between the twins it is 4 % (limits 1.52 and 1.58 at their most loaded strips), which makes their gap in strip lift larger than their gap in share (held at 1.37 on the wide tip, let go by 1.27 on the narrow one).
+
 #### The recipe against the two measured round-nosed blades: early on both (2026-11-26)
 
 Both measured blades with a round symmetric nose are now on the recipe (level 6 as the fins; records `../../zarruk/knee/` and `../../smith2021/knee/`, forecasts items 42, 43, 48, 49), beside the tunnel fin:
