@@ -1008,3 +1008,45 @@ Added 2026-11-27 08:04Z. Item 57, first pass on the 40 deg sweep fin as found (l
     strip stands at 0.782 of its limit behind a leading edge swept 42 deg, where B had 0.71. My "short by
     13 deg, two in three": wrong. Reading A has it holding to 15.4 deg; rows 14, 15, 16 deg queued behind the
     5 deg fin to see whether it holds that long.
+
+Added 2026-11-27 09:59Z. Item 59 as found (EPYC, finished 09:45Z; 2 050 432 cells, no flagged faces, snap residual 0.35 um,
+    y+ 23; peak 4.8 GiB against the 5-6 GiB I gave):
+    0.4450 / 0.9499 / 1.0052 / 0.9572 at 4, 13, 14, 15 deg. 13 deg settled after 168 iterations; 14 deg at the cap
+    and steady (windows 1.0054 / 1.0051 / 1.0054, range in the last 1.0023-1.0069); 15 deg at the cap and sinking
+    (0.9980 / 0.9667 / 0.9539, range in the last 0.858-1.019). Against the line through 0.2135 and its own 4 deg
+    row (0.9660 / 1.0239 / 1.0817): -1.7 / -1.8 / -7.7 to -11.8 % by the windows.
+    First alternative (11 in 20): met on its three counts. 13 deg within 0.1 % of level 7 (0.9508) and of level 6
+    (0.9496). 14 deg held and not falling, at 1.0052 (range given: 0.978-1.008; it is 1.8 % below its line, a
+    shade above the "2-5 %" I wrote beside that range). 5 % point between the 14 and 15 deg rows; through the
+    15 deg row's windows 14.3-14.5 deg (range given: 14.2-15.0).
+    Beside the tunnel (on its line at 12 deg, 6.3 +- 3.5 % below at 14 deg; 5 % point 13.6 deg, and 13.0-14.7 deg
+    over that reading error): level 8 holds 4.5 % more against its line at 14 deg than the tunnel's point, 1.3
+    times the reading error. So "passes the tunnel's break and goes on past it" is what the central reading
+    says and not more than the figure's error allows.
+    Strips: every strip inboard of z/depth 0.95 within 5 % of the lattice at 14 deg (inboard of 0.8 within 2 %),
+    and at 15 deg the blade outboard of 0.6 at 0.66-0.80. By rows the most loaded strip (z/depth 0.76, limit
+    1.53) holds at 0.698 of its limit, a strip lift of 1.07, and is gone by 0.733 (1.12). The gen-2 side on
+    level 8: held at 0.738 of 1.42 (1.05), gone by 0.792 (1.12). In share the two flat-inside fins' brackets
+    just miss each other; in strip lift they overlap from 1.07 to 1.12.
+
+Written 2026-11-27 09:59Z, BEFORE the runs are started.
+60. Two half-degree rows on level 8, each on the mesh already on the EPYC: the tunnel fin at 14.5 deg and the gen-2
+    side at 9.5 deg. The question: do the two flat-inside fins' most loaded strips let go at one strip lift
+    (brackets now 1.07-1.12 and 1.05-1.12) or at one share of the table's limit (0.698-0.733 and 0.738-0.792),
+    or at neither. The table gives the tunnel fin's strip a limit 8 % above the gen-2 side's (1.53 against
+    1.42: thicker section, larger chord).
+    (a) Tunnel fin, 14.5 deg; its line has 1.0528 there. Rows before the break sit 1.7-1.8 % below the line and
+        the fin goes in one step between 14 and 15 deg. Lean (3 in 5): held, steady or swinging by less than
+        2 %, 1.5-3.5 % below its line (1.016-1.037), every strip inboard of z/depth 0.95 within 5 % of the
+        lattice. Then the strip's bracket is 0.715-0.733 (1.09-1.12) and the 5 % point 14.6-14.8 deg. Else
+        (2 in 5): falling, or swinging about a mean 5 % or more below (1.000 or less); bracket 0.698-0.715
+        (1.07-1.09), 5 % point 14.0-14.5 deg.
+    (b) Gen-2 side, 9.5 deg; its line has 0.8326. Rows 4.0 % and 7.6 % below at 9 and 10 deg. I expect
+        0.780-0.792 (4.9-6.3 % below), at the cap, swinging by 2-4 %. Lean (3 in 4): one or more of the strips
+        at z/depth 0.65-0.85 more than 5 % short of the lattice; bracket then 0.738-0.765 (1.05-1.09). Else
+        (1 in 4): every strip within 5 %; bracket 0.765-0.792 (1.09-1.12).
+    Both leans together (9 in 20): the tunnel fin's strip holds more lift than the gen-2 side's lets go at
+    (1.09-1.12 against 1.05-1.09) and less share (0.715-0.733 against 0.738-0.765): neither one lift nor one
+    share, and the table's step between the two sections is about twice what the recipe's strips show.
+    Memory: no new mesh. The whole steps with their meshing peaked at 4.8 and 3.8 GiB; a row alone is below
+    that. Cap 24 GB, no swap.

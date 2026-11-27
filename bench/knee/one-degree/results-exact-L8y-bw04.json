@@ -1,0 +1,71 @@
+{
+ "plan": {
+  "speed": 7.0,
+  "mesh_level": 8,
+  "end_time": 800,
+  "fin": "bw04-replica.json",
+  "variants": [
+   {
+    "name": "bw04-L8y",
+    "angles": [
+     4,
+     13,
+     14,
+     15
+    ]
+   }
+  ]
+ },
+ "variants": {
+  "bw04-L8y": {
+   "patch": {},
+   "rows": [
+    {
+     "alpha": 4.0,
+     "cl": 0.44502869624999997,
+     "cd": 0.0344331355625,
+     "cm": -0.115147551875,
+     "iterations": 800.0,
+     "wall_s": 2941.5
+    },
+    {
+     "alpha": 13.0,
+     "cl": 0.9498677852941178,
+     "cd": 0.11890493529411765,
+     "cm": -0.17722547647058823,
+     "iterations": 168.0,
+     "wall_s": 356.9
+    },
+    {
+     "alpha": 14.0,
+     "cl": 1.0052490625000001,
+     "cd": 0.13510800437499998,
+     "cm": -0.18591247375,
+     "iterations": 800.0,
+     "wall_s": 1628.4
+    },
+    {
+     "alpha": 15.0,
+     "cl": 0.9572274343749999,
+     "cd": 0.17470661625,
+     "cm": -0.20200032937499998,
+     "iterations": 800.0,
+     "wall_s": 1636.6
+    }
+   ],
+   "area_mm2": 9565.511624908922,
+   "foil": {
+    "family": "flat_inside",
+    "thickness_ratio": 0.09,
+    "camber_ratio": 0.0,
+    "camber_position": 0.4
+   },
+   "mesh": {
+    "cells": 2050432,
+    "illegal_faces": 0,
+    "snap_wanted_mean_m": 3.52432e-07,
+    "snap_wanted_max_m": 6.32615e-05
+   }
+  }
+ }
+}
