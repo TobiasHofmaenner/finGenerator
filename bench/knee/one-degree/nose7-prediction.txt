@@ -949,3 +949,21 @@ Written 2026-11-26 14:17Z, BEFORE the runs are started.
     on the nose radius, by region. If both: both.
     Memory: the level-8 step of this fin peaked at 4.4 GiB on the laptop (12 processes, whole step) and the
     gen-2 side's at 3.8 GiB on the EPYC (8 processes); level 7 is smaller. Cap 24 GB, no swap.
+
+Written 2026-11-27 07:56Z, BEFORE the run is started.
+59. The tunnel fin ([BW04] replica, flat inside, 7 m/s) on level 8, rows 4, 13, 14, 15 deg (EPYC, idle since item 58).
+    The one fin with a tunnel beside it: on its line at 12 deg, 6.3 % below at 14 deg, 5 % point about 13.6 deg.
+    Level 6: -1.6 % at 13 deg, swinging about 5 % below at 14 deg (window means 0.94-1.01). Level 7: 0.4465 /
+    0.9508 at 4 / 13 deg (-2.1 %), and at 14 deg falling inside its run from 0.98 to 0.86. Level 6 with the
+    volume refined: 16.1 deg. The other flat-inside fin (gen-2 side) moved a quarter of a degree a level, its
+    rows past the bend rising 1-2.5 % a level (item 56).
+    Line through 0.2135 (0 deg, level 6) and its own 4 deg row; with 0.4465 it has 0.9708 / 1.0290 / 1.0873 at
+    13 / 14 / 15 deg.
+    I expect it to move as the gen-2 side did (11 in 20): 13 deg within 1 % of level 7 (0.941-0.960), 14 deg held
+    and not falling, 2-5 % below its line (0.978-1.008), 5 % point 14.2-15.0 deg: later than the tunnel by
+    0.6-1.4 deg. Then the recipe passes the tunnel's break between levels 6 and 7 for this kind of fin and goes
+    on past it, as it did with the volume refined.
+    Else (9 in 20): 14 deg falls or swings 5 % or more below again, 5 % point 13.5-14.0 deg; the level leaves this
+    fin alone and the tunnel fin's break is the volume's and not the surface's.
+    Memory: the level-8 steps so far peaked at 3.8-4.4 GiB here (1.7-2.1 million cells); this fin has larger
+    chords (1.52 million cells on level 7 against 1.39), so about 5-6 GiB. Cap 24 GB, no swap.
