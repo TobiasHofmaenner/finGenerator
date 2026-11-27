@@ -1091,3 +1091,22 @@ and has not been read).
     between 0.1 and 4.2 deg against the measured 0.0743 per degree will say how much.
     Memory: measured on the laptop on the level-7 mesh, the largest, before anything goes to the EPYC; the
     figure is added below when it is in.
+
+Added 2026-11-27 11:01Z. Item 60 as found (EPYC, the two meshes of items 56 and 59; finished 10:49Z; peak 4.0 GiB).
+    (a) Tunnel fin, 14.5 deg: at the cap and swinging, window means 0.9834 / 1.0183 / 0.9103 (range in the last
+        0.821-1.022), filed 0.9173. Against its line (1.0528): -6.6 / -3.3 / -13.5 %, -7.8 % over the three.
+        My lean (held, 3 in 5): wrong; the other branch as written (swinging about a mean 5 % or more below).
+        Strips at the last iteration: every one short, 0.72-0.93 of the lattice. Bracket of the most loaded
+        strip: held at 0.698 of its limit (14 deg), short by 0.716 (14.5 deg); in strip lift 1.07 and 1.09.
+        The fin's 5 % point is between 14 and 14.5 deg.
+    (b) Gen-2 side, 9.5 deg: at the cap, window means 0.7862 / 0.7847 / 0.7824 (range in the last 0.763-0.800),
+        filed 0.7819: 6.1 % below its line (0.8326). In the range given (0.780-0.792), swinging by 2.4 %.
+        Strips: z/depth 0.76 at 0.81 of the lattice and 0.85 at 0.90, the others within 5 %. Lean (3 in 4):
+        met. Bracket: held at 0.738 (9 deg), short by 0.765 (9.5 deg); in strip lift 1.05 and 1.09. 5 % point
+        9.2-9.3 deg (-4.0 % at 9 deg, -6.1 % at 9.5 deg).
+    "Both leans together: neither one lift nor one share" (9 in 20): not what came. In strip lift the two
+    brackets overlap (1.07-1.09 and 1.05-1.09); in share of the table's limit they are apart (0.698-0.716 and
+    0.738-0.765). On level 8 the two flat-inside fins let their most loaded strip go at one strip lift, 1.07 to
+    1.09, at the same span station (z/depth 0.76), and the 8 % the table puts between their limits (1.53 and
+    1.42: thicker section, larger chord) is not in the recipe's rows. Item 58 found the same of the table's
+    Reynolds trend on one fin at three speeds.

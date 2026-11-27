@@ -991,8 +991,21 @@ audit) was done on thruster side fins; the thruster's own centre is Phase 2.
   refined on level 6; the two refinements have not been run together).
   By rows its most loaded strip holds at 0.698 of the table's limit (strip
   lift 1.07) and is gone by 0.733 (1.12); the gen-2 side's at 0.738 (1.05)
-  and 0.792 (1.12). Running: a half-degree row on each (item 60), to see
-  whether the two flat-inside fins let go at one strip lift or one share.
+  and 0.792 (1.12).
+  *Half-degree rows on both flat-inside fins (item 60, 10:49Z):* the tunnel
+  fin at 14.5° swings about 8 % below its line (its 5 % point is between
+  14° and 14.5°), the gen-2 side at 9.5° is 6.1 % below (9.2–9.3°). Most
+  loaded strip, z/depth 0.76 on both: tunnel fin held at 0.698 of the
+  table's limit and short by 0.716, gen-2 side 0.738 and 0.765; in strip
+  lift 1.07–1.09 and 1.05–1.09. So on level 8 the two let go at one strip
+  lift and not at one share: the 8 % the table puts between their limits
+  (thicker section, larger chord) is not in the recipe's rows, as its
+  Reynolds trend was not (item 58).
+  *A measured cambered blade (item 61, started 2026-11-27):* the NACA 4409
+  wing of [JS37] (aspect ratio 6, turbulent tunnel, Re 646 000), the
+  nearest measurement to the gen-3 side's section, on levels 5 to 7 of the
+  recipe (`bench/js37-wing/`). It is to say which way the recipe errs on
+  that kind of section, which the record could not.
   *Running or queued (2026-11-24, 14:45Z):* the tunnel fin at 14°, 15° and
   18° with the volume refined, then the gen-2 side and the gen-3 side with
   the same refinement; level 7 again, with the threshold fixed, on the
