@@ -1159,3 +1159,49 @@ Added 2026-11-27 12:46Z. Item 57, the 40 deg sweep fin's second pass as found (l
     4.9 % low at 40 deg.
     Item 57 closed: no sweep term. The twins' gap in share (wide tip 0.869-0.887, narrow 0.788-0.838) is not
     sweep.
+
+Added 2026-11-28 17:44Z. Item 61, the wing's first pass as found (EPYC, by its memory log: level 6 finished 11-27 19:05Z, level 7
+    11-28 01:51Z, level 5 04:29Z; read late, the laptop slept and was restarted). Meshes: level 5 1 710 269 cells (snap residual
+    0.44 um), level 6 3 973 966 (0.18 um), level 7 4 648 069 (0.16 um, the laptop's memory run), no flagged faces
+    on any. Peak memory on the EPYC 8.9 GiB (level 7). The laptop's own level-5 run (same cell count) had five
+    rows when the machine went down; they agree with the EPYC's within 0.0005.
+    Lift on the blade's 19 200 mm2 (rows x 0.8629), levels 5 / 6 / 7, beside the measured wing at 646 000:
+       0.1 deg   0.324 / 0.313 / 0.307     0.299
+       4.2       0.613 / 0.624 / 0.619     0.605
+       8.3       0.897 / 0.930 / 0.925     0.894
+      10.4       1.011 / 1.054 / 1.050     (no test angle)
+      12.4       0.862 / 0.912 / 0.928     1.134   swinging on all three (range in the last window 6-18 %)
+      14.4       0.835 / 0.849 / 0.835
+      16.5       0.826 / 0.892 / 0.847     1.210   swinging
+      18.4       0.837 / 0.835 / 0.830     1.170
+    Against each level's own line (through its 0.1 and 4.2 deg rows; slopes 0.0704 / 0.0761 / 0.0760 per degree,
+    measured 0.0743): -0.5 / -0.7 / -0.5 % at 8.3 deg, -3.7 / -3.9 / -3.7 % at 10.4 deg, -28 / -27 / -25 % at
+    12.4 deg. Rows that stopped on their residuals before the cap: 4.2 deg (levels 6, 7), 10.4 deg (levels 6, 7),
+    0.1 deg (level 7), 8.3 deg (level 5); the 10.4 deg rows were still moving by 0.1-0.3 % in their last window.
+    Forecast 61 against this:
+      "4.2 and 8.3 deg within 5 % of measured" (both readings): yes on all levels (+1.3 to +4.0 %).
+      Reading B's row test for level 6 ("gone by 12.4 deg, unsteady or more than 5 % below its line, at or
+        under the measured 1.134; the break between 10.4 and 12.4 deg"): as found, and on levels 5 and 7 too.
+      Reading A ("attached at 12.4 deg within 3 % of its line, 1.17-1.21"; I had it at 9 in 20, B at 8): not
+        what came.
+      "Each level later by 0.3-1 deg" (4 in 5): cannot be read, the three levels fall in the same 2 deg gap.
+    What B's word "early" does and does not mean here. The measured wing is itself 6.6 % below its line at
+    12.4 deg (-1.8 % at 8.3 deg), so its 5 % point lies between 8.3 and 12.4 deg, the same bracket the
+    recipe's lies in (10.4 to 12.4 deg). By the 5 % point the recipe is NOT shown early on this wing. What
+    differs is the lift: the measured wing carries 1.134 at 12.4 deg and 1.21 at 16.5 deg; the recipe's
+    highest steady row so far is 1.05 at 10.4 deg and no row above it holds.
+
+Added 2026-11-28 17:44Z. Item 61, second pass: rows at 10.9, 11.4, 11.9 deg on the three levels, forecast written before any
+    of them. (EPYC: levels 6 then 7, the first pass's meshes, 8 CPUs, cap 24 GB with no swap; measured peak
+    8.9 GiB there. Laptop: level 5 on its own first-pass mesh.)
+    The deficit against the line grows as the square of the angle past about 7 deg on all three levels (0.5 %
+    at 8.3, 3.8 % at 10.4 deg); carried on it reaches 5 % at 10.9 deg. The same form through the measured
+    wing's two points (-1.8 %, -6.6 %) gives 5 % at 11.3 deg.
+      10.9 deg: steady and attached on all three levels, 4.5-6 % below the line; on the blade's area
+        1.07-1.10 on levels 6 and 7, 1.02-1.06 on level 5. (3 in 4)
+      The 5 % point on level 6 between 10.4 and 11.4 deg. (4 in 5)
+      Where the lift stops rising: between 10.9 and 11.4 deg 7 in 20, between 11.4 and 11.9 deg 8 in 20,
+        between 11.9 and 12.4 deg 5 in 20.
+      The three levels in one half-degree bracket (2 in 3); if they differ, the finer the later.
+      The recipe's highest steady lift on levels 6 and 7: 1.06-1.12, that is 7-12 % under the measured 1.21
+        and at or under the measured 1.134 at 12.4 deg. (3 in 4)
